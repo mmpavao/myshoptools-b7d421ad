@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthProvider';
-import { db, storage, handleFetchError } from '../../firebase/config';
+import { db, storage, handleFirestoreOperation } from '../../firebase/config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useForm } from 'react-hook-form';
@@ -49,7 +49,7 @@ const ProfileForm = () => {
       if (user) {
         try {
           const docRef = doc(db, "users", user.uid);
-          const docSnap = await handleFetchError(getDoc(docRef));
+          const docSnap = await handleFirestoreOperation(() => getDoc(docRef));
           if (docSnap.exists()) {
             const data = docSnap.data();
             form.reset(data);
@@ -73,7 +73,7 @@ const ProfileForm = () => {
     setLoading(true);
     try {
       const userRef = doc(db, "users", user.uid);
-      await handleFetchError(setDoc(userRef, {
+      await handleFirestoreOperation(() => setDoc(userRef, {
         ...data,
         avatarUrl,
       }, { merge: true }));
