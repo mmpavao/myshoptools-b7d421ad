@@ -4,7 +4,6 @@ import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
 
-// Suas credenciais Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDXg0YiXBWBwhlj93AzScEmNDRv9z5OxUw",
   authDomain: "myshoptools-84ff5.firebaseapp.com",
@@ -15,10 +14,8 @@ const firebaseConfig = {
   measurementId: "G-81J0Q7J2Y1"
 };
 
-// Inicializando Firebase
 const app = initializeApp(firebaseConfig);
 
-// Exportando Firestore, Auth, Storage e Analytics
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
