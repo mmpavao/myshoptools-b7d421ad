@@ -22,9 +22,14 @@ const storage = getStorage(app);
 
 // Use emulators in development environment
 if (process.env.NODE_ENV === 'development') {
-  connectAuthEmulator(auth, 'http://localhost:9099');
-  connectFirestoreEmulator(db, 'localhost', 8080);
-  connectStorageEmulator(storage, 'localhost', 9199);
+  try {
+    connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+    connectFirestoreEmulator(db, 'localhost', 8080);
+    connectStorageEmulator(storage, 'localhost', 9199);
+    console.log("Connected to Firebase emulators");
+  } catch (error) {
+    console.error("Failed to connect to Firebase emulators:", error);
+  }
 }
 
 export { app, analytics, auth, db, storage };
