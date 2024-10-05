@@ -43,7 +43,17 @@ export const handleStream = async (streamGetter) => {
   try {
     const stream = await streamGetter();
     if (stream && typeof stream.getReader === 'function') {
-      const reader = stream.getReader();
+      let reader;
+      try {
+        reader = stream.getReader();
+      } catch (readerError) {
+        if (readerError.message.includes('locked to a reader')) {
+          console.warn("Stream is already locked. Proceeding without reading.");
+          return;
+        }
+        throw readerError;
+      }
+      
       try {
         while (true) {
           const { done, value } = await reader.read();
@@ -91,7 +101,19 @@ export const safeClone = (obj) => {
 // Safe postMessage function
 export const safePostMessage = (targetWindow, message, targetOrigin, transfer) => {
   try {
-    const clonedMessage = safeClone(message);
+    let clonedMessage;
+    if (message instanceof Request) {
+      // Handle Request objects specially
+      clonedMessage = {
+        type: 'Request',
+        url: message.url,
+        method: message.method,
+        headers: Object.fromEntries(message.headers.entries()),
+        // Note: We can't clone the body if it's already been used
+      };
+    } else {
+      clonedMessage = safeClone(message);
+    }
     targetWindow.postMessage(clonedMessage, targetOrigin, transfer);
   } catch (error) {
     safeLogError(error);
