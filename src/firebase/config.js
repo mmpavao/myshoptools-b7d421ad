@@ -20,20 +20,3 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
-
-export const handleFetchError = async (promise) => {
-  try {
-    const result = await promise;
-    return result;
-  } catch (error) {
-    console.error("Fetch error:", error);
-    const simpleError = {
-      message: error.message,
-      code: error.code,
-    };
-    if (typeof window !== 'undefined' && window.reportError) {
-      window.reportError(simpleError);
-    }
-    return null;
-  }
-};
