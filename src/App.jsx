@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from "./components/Auth/AuthProvider";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Dashboard from "./components/Dashboard/Dashboard";
+import ProfileForm from "./components/Profile/ProfileForm";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfileForm />
                 </ProtectedRoute>
               }
             />
