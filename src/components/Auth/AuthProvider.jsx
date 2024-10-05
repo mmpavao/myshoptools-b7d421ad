@@ -1,53 +1,23 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from '../../firebase/config';
-import { onAuthStateChanged } from 'firebase/auth';
-
-const AuthContext = createContext();
-
-export const useAuth = () => useContext(AuthContext);
-
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    }, (error) => {
-      setError(error);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const value = {
-    user,
-    loading,
-    error
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from './AuthProvider';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading, error } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>; // Aqui você pode substituir por um spinner ou outro indicador de carregamento
   }
 
   if (error) {
-    return <div>Error: {error.message}</div>;
+    return <div>Error: {error.message}</div>; // Exibe o erro capturado, se houver
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace />; // Redireciona para login se o usuário não estiver autenticado
   }
 
-  return children;
+  return children; // Retorna os filhos se o usuário estiver autenticado
 };
 
 export default ProtectedRoute;
