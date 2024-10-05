@@ -4,8 +4,14 @@ import { Button } from '../ui/button';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
+  const auth = useAuth();
   const navigate = useNavigate();
+
+  if (!auth) {
+    return <div>Carregando...</div>;
+  }
+
+  const { user, logout } = auth;
 
   const handleLogout = async () => {
     await logout();

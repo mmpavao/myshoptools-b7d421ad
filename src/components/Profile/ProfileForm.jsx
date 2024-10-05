@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthProvider';
-import { db, storage, handleFetchError, safeReadStream } from '../../firebase/config';
+import { db, storage, handleFetchError } from '../../firebase/config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useForm } from 'react-hook-form';
