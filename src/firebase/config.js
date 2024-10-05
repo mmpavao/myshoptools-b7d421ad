@@ -37,28 +37,3 @@ export const handleFetchError = async (promise) => {
     return null;
   }
 };
-
-export const handleFirestoreStream = (stream) => {
-  if (stream && typeof stream.getReader === 'function') {
-    const reader = stream.getReader();
-    return new ReadableStream({
-      start(controller) {
-        function push() {
-          reader.read().then(({ done, value }) => {
-            if (done) {
-              controller.close();
-              return;
-            }
-            controller.enqueue(value);
-            push();
-          }).catch(error => {
-            console.error("Stream reading error:", error);
-            controller.error(error);
-          });
-        }
-        push();
-      }
-    });
-  }
-  return stream;
-};
