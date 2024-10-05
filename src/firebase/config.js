@@ -21,4 +21,36 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 
-// Remove any stream-related code or functions that might be causing issues
+// Função de log de erros segura
+export const safeLogError = (error) => {
+  console.error("Error occurred:", error);
+  try {
+    // Tenta serializar o erro para garantir que seja serializável
+    const serializedError = JSON.stringify(error, Object.getOwnPropertyNames(error));
+    // Aqui você pode implementar uma lógica para enviar o erro serializado
+    // para um serviço de log ou analytics, se necessário
+  } catch (serializationError) {
+    console.error("Error during error serialization:", serializationError);
+  }
+};
+
+// Função para lidar com streams de forma segura
+export const handleStream = async (stream) => {
+  if (stream && !stream.locked) {
+    const reader = stream.getReader();
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        // Processe o valor aqui
+        console.log(value);
+      }
+    } catch (error) {
+      safeLogError(error);
+    } finally {
+      reader.releaseLock();
+    }
+  } else {
+    console.error("Stream is not available or is already locked.");
+  }
+};

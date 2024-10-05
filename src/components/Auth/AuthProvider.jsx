@@ -3,6 +3,7 @@ import { auth } from '../../firebase/config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { Navigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
+import { safeLogError } from '../../firebase/config';
 
 const AuthContext = createContext();
 
@@ -24,7 +25,7 @@ export const AuthProvider = ({ children }) => {
       setUser(user);
       setLoading(false);
     }, (error) => {
-      console.error("Auth state change error:", error);
+      safeLogError(error);
       setError(error);
       setLoading(false);
       toast({
@@ -45,7 +46,7 @@ export const AuthProvider = ({ children }) => {
         description: "You have been successfully logged out.",
       });
     } catch (error) {
-      console.error("Logout error:", error);
+      safeLogError(error);
       toast({
         title: "Logout Error",
         description: "There was a problem logging out. Please try again.",
