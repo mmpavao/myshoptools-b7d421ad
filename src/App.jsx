@@ -10,17 +10,23 @@ import ProfileForm from "./components/Profile/ProfileForm";
 
 const queryClient = new QueryClient();
 
+const Layout = ({ children }) => (
+  <div className="min-h-screen bg-background">
+    <main className="container mx-auto py-6">{children}</main>
+  </div>
+);
+
 const AppRoutes = () => {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Layout><Login /></Layout>} />
+        <Route path="/register" element={<Layout><Register /></Layout>} />
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Layout><Dashboard /></Layout>
             </ProtectedRoute>
           }
         />
@@ -28,7 +34,7 @@ const AppRoutes = () => {
           path="/profile"
           element={
             <ProtectedRoute>
-              <ProfileForm />
+              <Layout><ProfileForm /></Layout>
             </ProtectedRoute>
           }
         />
