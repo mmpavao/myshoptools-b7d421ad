@@ -43,7 +43,7 @@ export const safeLogError = (error) => {
 export const handleStream = async (streamGetter) => {
   try {
     const stream = await streamGetter();
-    if (stream && !stream.locked) {
+    if (stream && typeof stream.getReader === 'function') {
       const reader = stream.getReader();
       try {
         while (true) {
@@ -56,9 +56,29 @@ export const handleStream = async (streamGetter) => {
         reader.releaseLock();
       }
     } else {
-      console.error("Stream is not available or is already locked.");
+      console.error("Stream is not available or does not have a getReader method.");
     }
   } catch (error) {
     safeLogError(error);
   }
+};
+
+// Safe object cloning function
+export const safeClone = (obj) => {
+  if (obj instanceof Request) {
+    // Create a new request with the same properties
+    return new Request(obj.url, {
+      method: obj.method,
+      headers: new Headers(obj.headers),
+      body: obj.body,
+      mode: obj.mode,
+      credentials: obj.credentials,
+      cache: obj.cache,
+      redirect: obj.redirect,
+      referrer: obj.referrer,
+      integrity: obj.integrity,
+    });
+  }
+  // For other objects, use structured clone if available, otherwise fall back to JSON
+  return typeof structuredClone === 'function' ? structuredClone(obj) : JSON.parse(JSON.stringify(obj));
 };
