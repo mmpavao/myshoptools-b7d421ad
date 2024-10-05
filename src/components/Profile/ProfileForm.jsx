@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthProvider';
 import { db, storage } from '../../firebase/config';
-import { doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -45,17 +45,17 @@ const ProfileForm = () => {
   });
 
   useEffect(() => {
-    if (user) {
-      const unsubscribe = onSnapshot(
-        doc(db, "users", user.uid),
-        (docSnapshot) => {
-          if (docSnapshot.exists()) {
-            const data = docSnapshot.data();
+    const fetchProfile = async () => {
+      if (user) {
+        try {
+          const docRef = doc(db, "users", user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
             form.reset(data);
             setAvatarUrl(data.avatarUrl || '');
           }
-        },
-        (error) => {
+        } catch (error) {
           console.error("Error fetching profile:", error);
           toast({
             title: "Error",
@@ -63,10 +63,10 @@ const ProfileForm = () => {
             variant: "destructive",
           });
         }
-      );
+      }
+    };
 
-      return () => unsubscribe();
-    }
+    fetchProfile();
   }, [user, form]);
 
   const onSubmit = async (data) => {
