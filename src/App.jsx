@@ -2,27 +2,13 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider, useAuth } from "./components/Auth/AuthProvider";
+import { AuthProvider, ProtectedRoute } from "./components/Auth/AuthProvider";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Dashboard from "./components/Dashboard/Dashboard";
 import ProfileForm from "./components/Profile/ProfileForm";
 
 const queryClient = new QueryClient();
-
-const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-
-  return children;
-};
 
 const AppRoutes = () => {
   return (
