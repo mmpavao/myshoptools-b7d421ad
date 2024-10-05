@@ -66,10 +66,9 @@ export const handleStream = async (streamGetter) => {
 export const safeClone = (obj) => {
   if (obj instanceof Request) {
     // Create a new request with the same properties
-    return new Request(obj.url, {
+    const newRequest = new Request(obj.url, {
       method: obj.method,
       headers: new Headers(obj.headers),
-      body: obj.bodyUsed ? null : obj.body, // Set body to null if it's already used
       mode: obj.mode,
       credentials: obj.credentials,
       cache: obj.cache,
@@ -77,16 +76,23 @@ export const safeClone = (obj) => {
       referrer: obj.referrer,
       integrity: obj.integrity,
     });
+    
+    // Only clone the body if it hasn't been used
+    if (!obj.bodyUsed) {
+      return obj.clone();
+    }
+    
+    return newRequest;
   }
   // For other objects, use structured clone if available, otherwise fall back to JSON
   return typeof structuredClone === 'function' ? structuredClone(obj) : JSON.parse(JSON.stringify(obj));
 };
 
 // Safe postMessage function
-export const safePostMessage = (window, message, targetOrigin, transfer) => {
+export const safePostMessage = (targetWindow, message, targetOrigin, transfer) => {
   try {
     const clonedMessage = safeClone(message);
-    window.postMessage(clonedMessage, targetOrigin, transfer);
+    targetWindow.postMessage(clonedMessage, targetOrigin, transfer);
   } catch (error) {
     safeLogError(error);
     console.error("Failed to post message:", error);
