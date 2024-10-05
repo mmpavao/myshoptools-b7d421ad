@@ -62,7 +62,9 @@ export const handleStream = async (streamGetter) => {
           console.log(value);
         }
       } finally {
-        reader.releaseLock();
+        if (reader && typeof reader.releaseLock === 'function') {
+          reader.releaseLock();
+        }
       }
     } else {
       console.error("Stream is not available or does not have a getReader method.");
@@ -73,10 +75,10 @@ export const handleStream = async (streamGetter) => {
 };
 
 // Safe object cloning function
-export const safeClone = (obj) => {
+const safeClone = (obj) => {
   if (obj instanceof Request) {
     // Create a new request with the same properties
-    const newRequest = new Request(obj.url, {
+    return new Request(obj.url, {
       method: obj.method,
       headers: new Headers(obj.headers),
       mode: obj.mode,
@@ -85,14 +87,8 @@ export const safeClone = (obj) => {
       redirect: obj.redirect,
       referrer: obj.referrer,
       integrity: obj.integrity,
+      body: obj.bodyUsed ? undefined : obj.body
     });
-    
-    // Only clone the body if it hasn't been used
-    if (!obj.bodyUsed) {
-      return obj.clone();
-    }
-    
-    return newRequest;
   }
   // For other objects, use structured clone if available, otherwise fall back to JSON
   return typeof structuredClone === 'function' ? structuredClone(obj) : JSON.parse(JSON.stringify(obj));
@@ -110,6 +106,7 @@ export const safePostMessage = (targetWindow, message, targetOrigin, transfer) =
         method: message.method,
         headers: Object.fromEntries(message.headers.entries()),
         // Note: We can't clone the body if it's already been used
+        bodyUsed: message.bodyUsed
       };
     } else {
       clonedMessage = safeClone(message);
