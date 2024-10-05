@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { auth } from '../../firebase/config';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 
-const Login = () => {
+const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, email, password);
       navigate('/dashboard');
     } catch (error) {
       setError(error.message);
@@ -24,9 +24,9 @@ const Login = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="p-6 bg-white rounded shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-4">Login to MyShopTools</h2>
+        <h2 className="text-2xl font-bold mb-4">Register for MyShopTools</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleRegister}>
           <div className="mb-4">
             <Input
               type="email"
@@ -45,12 +45,12 @@ const Login = () => {
               required
             />
           </div>
-          <Button type="submit" className="w-full">Login</Button>
+          <Button type="submit" className="w-full">Register</Button>
         </form>
         <p className="mt-4 text-center">
-          Don't have an account?{' '}
-          <a href="/register" className="text-blue-500 hover:underline">
-            Register here
+          Already have an account?{' '}
+          <a href="/login" className="text-blue-500 hover:underline">
+            Login here
           </a>
         </p>
       </div>
@@ -58,4 +58,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
