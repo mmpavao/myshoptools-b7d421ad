@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthProvider';
-import { db, auth, storage } from '../../firebase/config';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { db, storage } from '../../firebase/config';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,6 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from '@/components/ui/use-toast';
 
 const schema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters long" }),
@@ -44,18 +45,28 @@ const ProfileForm = () => {
   });
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (user) {
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          form.reset(data);
-          setAvatarUrl(data.avatarUrl || '');
+    if (user) {
+      const unsubscribe = onSnapshot(
+        doc(db, "users", user.uid),
+        (docSnapshot) => {
+          if (docSnapshot.exists()) {
+            const data = docSnapshot.data();
+            form.reset(data);
+            setAvatarUrl(data.avatarUrl || '');
+          }
+        },
+        (error) => {
+          console.error("Error fetching profile:", error);
+          toast({
+            title: "Error",
+            description: "Failed to fetch profile data. Please try again.",
+            variant: "destructive",
+          });
         }
-      }
-    };
-    fetchProfile();
+      );
+
+      return () => unsubscribe();
+    }
   }, [user, form]);
 
   const onSubmit = async (data) => {
@@ -66,9 +77,18 @@ const ProfileForm = () => {
         ...data,
         avatarUrl,
       }, { merge: true });
+      toast({
+        title: "Success",
+        description: "Profile updated successfully.",
+      });
       navigate('/dashboard');
     } catch (error) {
       console.error("Error updating profile:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -77,10 +97,23 @@ const ProfileForm = () => {
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const storageRef = ref(storage, `avatars/${user.uid}`);
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
-      setAvatarUrl(downloadURL);
+      try {
+        const storageRef = ref(storage, `avatars/${user.uid}`);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+        setAvatarUrl(downloadURL);
+        toast({
+          title: "Success",
+          description: "Avatar uploaded successfully.",
+        });
+      } catch (error) {
+        console.error("Error uploading avatar:", error);
+        toast({
+          title: "Error",
+          description: "Failed to upload avatar. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
