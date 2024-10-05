@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthProvider';
-import { db, storage } from '../../firebase/config';
+import { db, storage, handleFetchError } from '../../firebase/config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useForm } from 'react-hook-form';
@@ -49,7 +49,7 @@ const ProfileForm = () => {
       if (user) {
         try {
           const docRef = doc(db, "users", user.uid);
-          const docSnap = await getDoc(docRef);
+          const docSnap = await handleFetchError(getDoc(docRef));
           if (docSnap.exists()) {
             const data = docSnap.data();
             form.reset(data);
@@ -73,10 +73,10 @@ const ProfileForm = () => {
     setLoading(true);
     try {
       const userRef = doc(db, "users", user.uid);
-      await setDoc(userRef, {
+      await handleFetchError(setDoc(userRef, {
         ...data,
         avatarUrl,
-      }, { merge: true });
+      }, { merge: true }));
       toast({
         title: "Success",
         description: "Profile updated successfully.",
@@ -99,8 +99,8 @@ const ProfileForm = () => {
     if (file) {
       try {
         const storageRef = ref(storage, `avatars/${user.uid}`);
-        await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
+        await handleFetchError(uploadBytes(storageRef, file));
+        const downloadURL = await handleFetchError(getDownloadURL(storageRef));
         setAvatarUrl(downloadURL);
         toast({
           title: "Success",
@@ -187,7 +187,6 @@ const ProfileForm = () => {
         </form>
       </Form>
     </div>
-  );
 };
 
 export default ProfileForm;
