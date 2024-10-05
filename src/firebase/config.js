@@ -21,36 +21,44 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 
-// Função de log de erros segura
+// Safe error logging function
 export const safeLogError = (error) => {
   console.error("Error occurred:", error);
   try {
-    // Tenta serializar o erro para garantir que seja serializável
-    const serializedError = JSON.stringify(error, Object.getOwnPropertyNames(error));
-    // Aqui você pode implementar uma lógica para enviar o erro serializado
-    // para um serviço de log ou analytics, se necessário
+    // Serialize only safe properties of the error
+    const safeError = {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+    };
+    const serializedError = JSON.stringify(safeError);
+    // Here you can implement logic to send the serialized error
+    // to a logging service or analytics, if needed
   } catch (serializationError) {
     console.error("Error during error serialization:", serializationError);
   }
 };
 
-// Função para lidar com streams de forma segura
-export const handleStream = async (stream) => {
-  if (stream && !stream.locked) {
-    const reader = stream.getReader();
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        // Processe o valor aqui
-        console.log(value);
+// Safe stream handling function
+export const handleStream = async (streamGetter) => {
+  try {
+    const stream = await streamGetter();
+    if (stream && !stream.locked) {
+      const reader = stream.getReader();
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          // Process the value here
+          console.log(value);
+        }
+      } finally {
+        reader.releaseLock();
       }
-    } catch (error) {
-      safeLogError(error);
-    } finally {
-      reader.releaseLock();
+    } else {
+      console.error("Stream is not available or is already locked.");
     }
-  } else {
-    console.error("Stream is not available or is already locked.");
+  } catch (error) {
+    safeLogError(error);
   }
 };
