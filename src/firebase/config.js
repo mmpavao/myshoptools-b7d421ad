@@ -25,7 +25,6 @@ export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : nul
 export const safeLogError = (error) => {
   console.error("Error occurred:", error);
   try {
-    // Serialize only safe properties of the error
     const safeError = {
       message: error.message,
       name: error.name,
@@ -70,7 +69,7 @@ export const safeClone = (obj) => {
     return new Request(obj.url, {
       method: obj.method,
       headers: new Headers(obj.headers),
-      body: obj.body,
+      body: obj.bodyUsed ? null : obj.body, // Set body to null if it's already used
       mode: obj.mode,
       credentials: obj.credentials,
       cache: obj.cache,
@@ -81,4 +80,15 @@ export const safeClone = (obj) => {
   }
   // For other objects, use structured clone if available, otherwise fall back to JSON
   return typeof structuredClone === 'function' ? structuredClone(obj) : JSON.parse(JSON.stringify(obj));
+};
+
+// Safe postMessage function
+export const safePostMessage = (window, message, targetOrigin, transfer) => {
+  try {
+    const clonedMessage = safeClone(message);
+    window.postMessage(clonedMessage, targetOrigin, transfer);
+  } catch (error) {
+    safeLogError(error);
+    console.error("Failed to post message:", error);
+  }
 };
