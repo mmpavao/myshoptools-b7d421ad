@@ -37,8 +37,41 @@ export const handleFetchError = async (promise) => {
     return result;
   } catch (error) {
     console.error("Fetch error:", error);
+    // Removendo a tentativa de clonar o objeto de erro
+    const simpleError = {
+      message: error.message,
+      code: error.code,
+    };
+    // Reportando o erro simplificado
+    if (typeof window !== 'undefined' && window.reportError) {
+      window.reportError(simpleError);
+    }
     return null;
   }
 };
 
-// Remove the safeReadStream function as it's causing issues
+// Adicionando uma função para lidar com streams do Firestore
+export const handleFirestoreStream = (stream) => {
+  if (stream && typeof stream.getReader === 'function') {
+    const reader = stream.getReader();
+    return new ReadableStream({
+      start(controller) {
+        function push() {
+          reader.read().then(({ done, value }) => {
+            if (done) {
+              controller.close();
+              return;
+            }
+            controller.enqueue(value);
+            push();
+          }).catch(error => {
+            console.error("Stream reading error:", error);
+            controller.error(error);
+          });
+        }
+        push();
+      }
+    });
+  }
+  return stream;
+};
