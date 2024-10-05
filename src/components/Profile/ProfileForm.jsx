@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthProvider';
-import { db, storage, handleFetchError } from '../../firebase/config';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getUserProfile, updateUserProfile } from '../../firebase/firestore';
+import { uploadImage } from '../../firebase/storage';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -48,12 +47,10 @@ const ProfileForm = () => {
     const fetchProfile = async () => {
       if (user) {
         try {
-          const docRef = doc(db, "users", user.uid);
-          const docSnap = await handleFetchError(getDoc(docRef));
-          if (docSnap && docSnap.exists()) {
-            const data = docSnap.data();
-            form.reset(data);
-            setAvatarUrl(data.avatarUrl || '');
+          const profileData = await getUserProfile(user.uid);
+          if (profileData) {
+            form.reset(profileData);
+            setAvatarUrl(profileData.avatarUrl || '');
           }
         } catch (error) {
           console.error("Error fetching profile:", error);
@@ -72,11 +69,10 @@ const ProfileForm = () => {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const userRef = doc(db, "users", user.uid);
-      await handleFetchError(setDoc(userRef, {
+      await updateUserProfile(user.uid, {
         ...data,
         avatarUrl,
-      }, { merge: true }));
+      });
       toast({
         title: "Success",
         description: "Profile updated successfully.",
@@ -98,18 +94,12 @@ const ProfileForm = () => {
     const file = e.target.files[0];
     if (file) {
       try {
-        const storageRef = ref(storage, `avatars/${user.uid}`);
-        await handleFetchError(uploadBytes(storageRef, file));
-        const downloadURL = await handleFetchError(getDownloadURL(storageRef));
-        if (downloadURL) {
-          setAvatarUrl(downloadURL);
-          toast({
-            title: "Success",
-            description: "Avatar uploaded successfully.",
-          });
-        } else {
-          throw new Error("Failed to get download URL");
-        }
+        const downloadURL = await uploadImage(file, user.uid, 'avatars');
+        setAvatarUrl(downloadURL);
+        toast({
+          title: "Success",
+          description: "Avatar uploaded successfully.",
+        });
       } catch (error) {
         console.error("Error uploading avatar:", error);
         toast({
@@ -192,6 +182,7 @@ const ProfileForm = () => {
       </Form>
     </div>
   );
+};
 };
 
 export default ProfileForm;
