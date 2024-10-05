@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, handleFetchError } from '../../firebase/config';
+import { auth } from '../../firebase/config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { Navigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
@@ -17,6 +17,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -24,12 +25,13 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }, (error) => {
       console.error("Auth state change error:", error);
+      setError(error);
+      setLoading(false);
       toast({
         title: "Authentication Error",
         description: "There was a problem with the authentication service. Please try again later.",
         variant: "destructive",
       });
-      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -37,7 +39,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await handleFetchError(signOut(auth));
+      await signOut(auth);
       toast({
         title: "Logged out",
         description: "You have been successfully logged out.",
@@ -55,6 +57,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     loading,
+    error,
     logout
   };
 
@@ -62,10 +65,14 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, error } = useAuth();
 
   if (loading) {
     return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
   }
 
   if (!user) {

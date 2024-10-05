@@ -1,8 +1,8 @@
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth, connectAuthEmulator } from "firebase/auth";
-import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
-import { getStorage, connectStorageEmulator } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,21 +15,12 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 
-if (import.meta.env.DEV) {
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-    connectFirestoreEmulator(db, 'localhost', 8080);
-    connectStorageEmulator(storage, 'localhost', 9199);
-    console.log("Connected to Firebase emulators");
-  }
-}
-
-export { app, analytics, auth, db, storage };
+export { app, auth, db, storage, analytics };
 
 export const handleFetchError = async (promise) => {
   try {
@@ -37,12 +28,10 @@ export const handleFetchError = async (promise) => {
     return result;
   } catch (error) {
     console.error("Fetch error:", error);
-    // Removendo a tentativa de clonar o objeto de erro
     const simpleError = {
       message: error.message,
       code: error.code,
     };
-    // Reportando o erro simplificado
     if (typeof window !== 'undefined' && window.reportError) {
       window.reportError(simpleError);
     }
@@ -50,7 +39,6 @@ export const handleFetchError = async (promise) => {
   }
 };
 
-// Adicionando uma função para lidar com streams do Firestore
 export const handleFirestoreStream = (stream) => {
   if (stream && typeof stream.getReader === 'function') {
     const reader = stream.getReader();
