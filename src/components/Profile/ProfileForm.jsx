@@ -187,6 +187,7 @@ const ProfileForm = () => {
         </form>
       </Form>
     </div>
+  );
 };
 
 export default ProfileForm;
