@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Auth/AuthProvider';
-import { db, storage, handleFetchError } from '../../firebase/config';
+import { db, storage, handleFetchError, safeReadStream } from '../../firebase/config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useForm } from 'react-hook-form';
@@ -50,7 +50,7 @@ const ProfileForm = () => {
         try {
           const docRef = doc(db, "users", user.uid);
           const docSnap = await handleFetchError(getDoc(docRef));
-          if (docSnap.exists()) {
+          if (docSnap && docSnap.exists()) {
             const data = docSnap.data();
             form.reset(data);
             setAvatarUrl(data.avatarUrl || '');
@@ -101,11 +101,15 @@ const ProfileForm = () => {
         const storageRef = ref(storage, `avatars/${user.uid}`);
         await handleFetchError(uploadBytes(storageRef, file));
         const downloadURL = await handleFetchError(getDownloadURL(storageRef));
-        setAvatarUrl(downloadURL);
-        toast({
-          title: "Success",
-          description: "Avatar uploaded successfully.",
-        });
+        if (downloadURL) {
+          setAvatarUrl(downloadURL);
+          toast({
+            title: "Success",
+            description: "Avatar uploaded successfully.",
+          });
+        } else {
+          throw new Error("Failed to get download URL");
+        }
       } catch (error) {
         console.error("Error uploading avatar:", error);
         toast({

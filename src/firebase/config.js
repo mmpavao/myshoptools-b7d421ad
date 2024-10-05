@@ -37,6 +37,22 @@ export const handleFetchError = async (promise) => {
     return result;
   } catch (error) {
     console.error("Fetch error:", error);
-    throw error;
+    // Instead of throwing the error, return null or a default value
+    return null;
+  }
+};
+
+// Add a new utility function to handle stream reading
+export const safeReadStream = async (stream) => {
+  if (stream.locked) {
+    console.warn("Stream is already locked. Returning null.");
+    return null;
+  }
+  const reader = stream.getReader();
+  try {
+    const { value } = await reader.read();
+    return value;
+  } finally {
+    reader.releaseLock();
   }
 };

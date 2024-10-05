@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from '../../firebase/config';
+import { auth, handleFetchError } from '../../firebase/config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { Navigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await signOut(auth);
+      await handleFetchError(signOut(auth));
       toast({
         title: "Logged out",
         description: "You have been successfully logged out.",
