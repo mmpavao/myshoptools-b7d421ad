@@ -11,13 +11,13 @@ import ProfileForm from "./components/Profile/ProfileForm";
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
+  const auth = useAuth();
 
-  if (loading) {
+  if (auth.loading) {
     return <div>Loading...</div>;
   }
 
-  if (!user) {
+  if (!auth.user) {
     return <Navigate to="/login" />;
   }
 
@@ -26,29 +26,27 @@ const ProtectedRoute = ({ children }) => {
 
 const AppRoutes = () => {
   return (
-    <AuthProvider>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfileForm />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/" element={<Navigate to="/dashboard" />} />
-      </Routes>
-    </AuthProvider>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfileForm />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/" element={<Navigate to="/dashboard" />} />
+    </Routes>
   );
 };
 
@@ -56,8 +54,10 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Router>
-        <Toaster />
-        <AppRoutes />
+        <AuthProvider>
+          <Toaster />
+          <AppRoutes />
+        </AuthProvider>
       </Router>
     </TooltipProvider>
   </QueryClientProvider>
