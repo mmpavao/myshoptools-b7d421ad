@@ -53,9 +53,9 @@ const AppRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
       <AuthProvider>
         <Router>
+          <Toaster />
           <AppRoutes />
         </Router>
       </AuthProvider>
