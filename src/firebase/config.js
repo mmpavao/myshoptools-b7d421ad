@@ -21,7 +21,6 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 
-// Safe error logging function
 export const safeLogError = (error) => {
   console.error("Error occurred:", error);
   try {
@@ -38,7 +37,6 @@ export const safeLogError = (error) => {
   }
 };
 
-// Safe stream handling function
 export const handleStream = async (streamGetter) => {
   try {
     const stream = await streamGetter();
@@ -58,7 +56,6 @@ export const handleStream = async (streamGetter) => {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          // Process the value here
           console.log(value);
         }
       } finally {
@@ -74,42 +71,26 @@ export const handleStream = async (streamGetter) => {
   }
 };
 
-// Safe object cloning function
-const safeClone = (obj) => {
-  if (obj instanceof Request) {
-    // Create a new request with the same properties
-    return new Request(obj.url, {
-      method: obj.method,
-      headers: new Headers(obj.headers),
-      mode: obj.mode,
-      credentials: obj.credentials,
-      cache: obj.cache,
-      redirect: obj.redirect,
-      referrer: obj.referrer,
-      integrity: obj.integrity,
-      body: obj.bodyUsed ? undefined : obj.body
-    });
-  }
-  // For other objects, use structured clone if available, otherwise fall back to JSON
-  return typeof structuredClone === 'function' ? structuredClone(obj) : JSON.parse(JSON.stringify(obj));
+const createRequestClone = (request) => {
+  return {
+    type: 'Request',
+    url: request.url,
+    method: request.method,
+    headers: Object.fromEntries(request.headers.entries()),
+    bodyUsed: request.bodyUsed,
+    // Add more properties as needed
+  };
 };
 
-// Safe postMessage function
 export const safePostMessage = (targetWindow, message, targetOrigin, transfer) => {
   try {
     let clonedMessage;
     if (message instanceof Request) {
-      // Handle Request objects specially
-      clonedMessage = {
-        type: 'Request',
-        url: message.url,
-        method: message.method,
-        headers: Object.fromEntries(message.headers.entries()),
-        // Note: We can't clone the body if it's already been used
-        bodyUsed: message.bodyUsed
-      };
+      clonedMessage = createRequestClone(message);
+    } else if (typeof structuredClone === 'function') {
+      clonedMessage = structuredClone(message);
     } else {
-      clonedMessage = safeClone(message);
+      clonedMessage = JSON.parse(JSON.stringify(message));
     }
     targetWindow.postMessage(clonedMessage, targetOrigin, transfer);
   } catch (error) {
