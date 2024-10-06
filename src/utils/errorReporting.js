@@ -1,14 +1,18 @@
 import { safePostMessage } from '../firebase/config';
 
+const createSafeRequestObject = (request) => {
+  return {
+    url: request.url,
+    method: request.method,
+    headers: Object.fromEntries(request.headers.entries()),
+  };
+};
+
 export const reportHTTPError = (error, request) => {
   const errorData = {
     message: error.message,
     stack: error.stack,
-    request: {
-      url: request.url,
-      method: request.method,
-      headers: Object.fromEntries(request.headers.entries()),
-    },
+    request: request instanceof Request ? createSafeRequestObject(request) : request,
   };
 
   safePostMessage(window.parent, {

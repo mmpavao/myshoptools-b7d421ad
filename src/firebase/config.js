@@ -33,17 +33,13 @@ export const handleStream = async (streamGetter) => {
       let reader;
       try {
         reader = stream.getReader();
-      } catch (readerError) {
-        console.warn("Stream is already locked. Proceeding without reading.");
-        return;
-      }
-      
-      try {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
           console.log(value);
         }
+      } catch (readerError) {
+        console.warn("Error reading stream:", readerError);
       } finally {
         if (reader && typeof reader.releaseLock === 'function') {
           reader.releaseLock();
@@ -84,11 +80,7 @@ const createSafeObject = (obj) => {
   if (typeof obj === 'object' && obj !== null) {
     const safeObj = {};
     for (const [key, value] of Object.entries(obj)) {
-      try {
-        safeObj[key] = createSafeObject(value);
-      } catch (error) {
-        safeObj[key] = '[Unserializable]';
-      }
+      safeObj[key] = createSafeObject(value);
     }
     return safeObj;
   }
