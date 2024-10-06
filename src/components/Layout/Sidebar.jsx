@@ -128,19 +128,13 @@ const Sidebar = ({ isOpen }) => {
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 z-40 h-screen transition-all duration-300 pt-16",
-      isOpen ? "w-64" : "w-16"
+      "fixed left-0 top-0 z-40 h-screen transition-all duration-300",
+      isOpen ? "w-64" : "w-16",
+      "bg-destructive text-destructive-foreground"
     )}>
-      <div className="h-full overflow-y-auto bg-white border-r border-gray-200 py-4 px-3">
-        <h1 className={cn(
-          "text-xl font-bold text-gray-800 transition-opacity duration-300 mb-6",
-          isOpen ? "opacity-100" : "opacity-0"
-        )}>
-          MyShopTools
-        </h1>
-        <ul className="space-y-2">
-          <NavItem item={navItems[0]} isOpen={isOpen} userRole={userRole} />
-          {navItems.slice(1).map((item, index) => (
+      <div className="h-full overflow-y-auto py-4 px-3">
+        <ul className="space-y-2 mt-16">
+          {navItems.map((item, index) => (
             <NavItem key={index} item={item} isOpen={isOpen} userRole={userRole} />
           ))}
         </ul>
@@ -148,7 +142,7 @@ const Sidebar = ({ isOpen }) => {
           <NavLink
             to="/suporte"
             className={cn(
-              "flex items-center p-2 text-base font-normal rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+              "flex items-center p-2 text-base font-normal rounded-lg text-destructive-foreground hover:bg-destructive/90",
               !isOpen && "justify-center"
             )}
           >
