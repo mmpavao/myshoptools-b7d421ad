@@ -157,7 +157,8 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
     const assistantData = {
       name: botData.name,
       instructions: botData.instructions,
-      model: "gpt-3.5-turbo",
+      model: botData.model || "gpt-3.5-turbo",
+      tools: [{ type: "code_interpreter" }],
     };
 
     let assistant;
@@ -171,8 +172,8 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
       ...botData,
       assistantId: assistant.id,
       avatar: botData.avatar || null,
+      voice: botData.voice || 'alloy',
       updatedAt: new Date().toISOString(),
-      model: "gpt-3.5-turbo",
     };
 
     if (!isUpdate) {
@@ -218,6 +219,7 @@ export const getBots = async (apiKey) => {
         model: assistant.model,
         assistantId: assistant.id,
         avatar: firestoreBot?.avatar || null,
+        voice: firestoreBot?.voice || 'alloy',
         createdAt: firestoreBot?.createdAt || assistant.created_at,
         updatedAt: firestoreBot?.updatedAt || new Date().toISOString(),
       };
