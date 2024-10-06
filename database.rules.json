@@ -1,6 +1,22 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null"
+    ".read": false,
+    ".write": false,
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "products": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "orders": {
+      "$orderId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid)"
+      }
+    }
   }
 }
