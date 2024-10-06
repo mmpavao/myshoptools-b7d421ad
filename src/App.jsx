@@ -85,6 +85,15 @@ const AppRoutes = () => (
   </Routes>
 );
 
+const AppContent = () => {
+  return (
+    <>
+      <AppRoutes />
+      <ChatWidget />
+    </>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -92,8 +101,7 @@ const App = () => (
         <Router>
           <AuthProvider>
             <Toaster position="top-right" />
-            <AppRoutes />
-            <ChatWidget />
+            <AppContent />
           </AuthProvider>
         </Router>
       </GoogleOAuthProvider>
