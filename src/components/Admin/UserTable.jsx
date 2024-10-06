@@ -21,7 +21,7 @@ const getStatusColor = (status) => {
 
 const UserActions = ({ user, isMasterAdmin, onEdit, onToggleStatus, onDelete }) => (
   <TableCell className="text-right space-x-2">
-    {user.role !== 'Master' && (
+    {(isMasterAdmin || user.role !== 'Master') && (
       <>
         <Dialog>
           <DialogTrigger asChild>
@@ -194,7 +194,7 @@ export const UserTable = ({ users, onUserUpdate }) => {
                 <Select
                   value={user.role}
                   onValueChange={(newRole) => handleRoleChange(user.id, newRole)}
-                  disabled={!isMasterAdmin || user.role === 'Master'}
+                  disabled={!isMasterAdmin}
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select a role" />
@@ -203,6 +203,7 @@ export const UserTable = ({ users, onUserUpdate }) => {
                     <SelectItem value="Vendedor">Vendedor</SelectItem>
                     <SelectItem value="Fornecedor">Fornecedor</SelectItem>
                     <SelectItem value="Admin">Admin</SelectItem>
+                    {isMasterAdmin && <SelectItem value="Master">Master</SelectItem>}
                   </SelectContent>
                 </Select>
               )}

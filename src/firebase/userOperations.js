@@ -65,6 +65,13 @@ export const getAllUsers = async () => {
 
 export const updateUserRole = async (userId, newRole) => {
   try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    const userData = userDoc.data();
+
+    if (userData.email === MASTER_USER_EMAIL && newRole !== 'Master') {
+      throw new Error('Cannot change Master user role');
+    }
+
     await updateDoc(doc(db, 'users', userId), { role: newRole });
     toast({
       title: "Role Updated",
