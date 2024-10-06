@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import AdminUserTable from '../Admin/AdminUserTable';
+import Alert from '../ui/Alert';
 
 const LogsPage = () => {
   const [logs, setLogs] = useState([]);
@@ -67,6 +68,9 @@ const LogsPage = () => {
     <div className="space-y-6">
       <h1 className="text-3xl font-semibold text-gray-800">Admin Dashboard</h1>
       
+      <Alert type="success" message="Welcome to the Admin Dashboard!" />
+      <Alert type="info" message="Here you can manage users and view logs." />
+      
       {/* User Management Section */}
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">User Management</h2>
@@ -104,6 +108,7 @@ const LogsPage = () => {
       </div>
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Limpar Banco de Dados</h2>
+        <Alert type="warning" message="Cuidado! Esta ação irá apagar todos os dados." />
         <Button onClick={() => setIsDialogOpen(true)} variant="destructive">
           Limpar Todos os Dados
         </Button>
