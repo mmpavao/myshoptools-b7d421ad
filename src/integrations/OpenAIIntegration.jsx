@@ -80,8 +80,9 @@ const OpenAIIntegration = () => {
       toast.error('Failed to fetch bots: ' + error.message);
       if (error.message.includes('Authentication failed')) {
         setConnectionStatus('Authentication failed');
-      } else if (error.message.includes('Access forbidden')) {
+      } else if (error.message.includes('Access forbidden') || error.message.includes('insufficient permissions')) {
         setConnectionStatus('Access forbidden');
+        toast.error('Your OpenAI account may not have the necessary permissions. Please check your account settings and ensure you have access to the Assistants API.');
       } else {
         setConnectionStatus('Error fetching bots');
       }
@@ -172,6 +173,12 @@ const OpenAIIntegration = () => {
           } font-semibold`}>
             Connection status: {connectionStatus}
           </p>
+          {connectionStatus === 'Access forbidden' && (
+            <p className="mt-2 text-sm text-red-500">
+              Your OpenAI account may not have access to the Assistants API. 
+              Please check your account settings and ensure you have the necessary permissions.
+            </p>
+          )}
         </CardContent>
       </Card>
 
