@@ -40,7 +40,7 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
             setFormData({
               name: userProfile.displayName || '',
               email: userProfile.email || '',
-              phone: phoneNumber.slice(country.ddi.length),
+              phone: phoneNumber.slice(country.ddi.length).replace(/\D/g, ''),
               address: userProfile.address || '',
               profileImage: userProfile.photoURL || "/placeholder.svg",
               country: country,
@@ -62,12 +62,17 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'phone') {
+      const numericValue = value.replace(/\D/g, '');
+      setFormData(prev => ({ ...prev, [name]: numericValue }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleCountryChange = (value) => {
     const selectedCountry = countries.find(c => c.code === value);
-    setFormData(prev => ({ ...prev, country: selectedCountry }));
+    setFormData(prev => ({ ...prev, country: selectedCountry, phone: '' }));
   };
 
   const handleImageChange = async (e) => {
@@ -91,14 +96,14 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
   };
 
   const formatPhoneNumber = (phoneNumber, country) => {
+    const cleaned = phoneNumber.replace(/\D/g, '');
     if (country.code === 'US') {
-      const cleaned = ('' + phoneNumber).replace(/\D/g, '');
       const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
       if (match) {
         return `${country.ddi} (${match[1]}) ${match[2]}-${match[3]}`;
       }
     }
-    return `${country.ddi}${phoneNumber}`;
+    return `${country.ddi} ${cleaned}`;
   };
 
   const handleSubmit = async (e) => {
@@ -130,7 +135,37 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
     }
   };
 
+  const getPhoneInputValue = () => {
+    if (formData.country.code === 'US') {
+      const cleaned = formData.phone.replace(/\D/g, '');
+      const match = cleaned.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/);
+      if (match) {
+        const parts = [match[1], match[2], match[3]].filter(Boolean);
+        if (parts.length === 0) return '';
+        return `(${parts[0]})${parts[1] ? ' ' + parts[1] : ''}${parts[2] ? '-' + parts[2] : ''}`;
+      }
+    }
+    return formData.phone;
+  };
+
+    <form onSubmit={handleSubmit}>
+      <div className="space-y-4">
+        <div className="flex items-center space-x-4 mb-4">
+          <Avatar className="w-24 h-24">
+            <AvatarImage src={formData.profileImage} alt="Profile" />
+            <AvatarFallback>{formData.name[0] || 'U'}</AvatarFallback>
+          </Avatar>
+          <div>
+            <Label htmlFor="picture" className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-500">
+              Alterar foto
+            </Label>
+            <Input id="picture" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+          </div>
+        </div>
+
   return (
+    <form onSubmit={handleSubmit}>
+      <div className="space-y-4">
     <form onSubmit={handleSubmit}>
       <div className="space-y-4">
         <div className="flex items-center space-x-4 mb-4">
@@ -169,15 +204,20 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
                   ))}
                 </SelectContent>
               </Select>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                className="flex-grow ml-2"
-                placeholder={`${formData.country.ddi} Número de telefone`}
-              />
+              <div className="flex-grow ml-2 relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                  {formData.country.ddi}
+                </span>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  value={getPhoneInputValue()}
+                  onChange={handleChange}
+                  className="pl-10"
+                  placeholder="Número de telefone"
+                />
+              </div>
             </div>
           </div>
           <div className="space-y-2 col-span-2">
