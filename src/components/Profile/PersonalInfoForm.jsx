@@ -19,12 +19,14 @@ const countries = [
 ];
 
 export const PersonalInfoForm = ({ user, updateUserContext }) => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
-  const [country, setCountry] = useState(countries[0]);
-  const [profileImage, setProfileImage] = useState("/placeholder.svg");
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    country: countries[0],
+    profileImage: "/placeholder.svg"
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -33,12 +35,14 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
         try {
           const userProfile = await getUserProfile(user.uid);
           if (userProfile) {
-            setName(userProfile.displayName || '');
-            setEmail(userProfile.email || '');
-            setPhone(userProfile.phoneNumber?.slice(3) || '');
-            setAddress(userProfile.address || '');
-            setProfileImage(userProfile.photoURL || "/placeholder.svg");
-            setCountry(countries.find(c => c.ddi === userProfile.phoneNumber?.slice(0, 3)) || countries[0]);
+            setFormData({
+              name: userProfile.displayName || '',
+              email: userProfile.email || '',
+              phone: userProfile.phoneNumber?.slice(3) || '',
+              address: userProfile.address || '',
+              profileImage: userProfile.photoURL || "/placeholder.svg",
+              country: countries.find(c => c.ddi === userProfile.phoneNumber?.slice(0, 3)) || countries[0],
+            });
           }
         } catch (error) {
           console.error('Erro ao carregar perfil do usuário:', error);
@@ -54,12 +58,22 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
     loadUserProfile();
   }, [user]);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCountryChange = (value) => {
+    const selectedCountry = countries.find(c => c.code === value);
+    setFormData(prev => ({ ...prev, country: selectedCountry }));
+  };
+
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       try {
         const downloadURL = await uploadProfileImage(file, user.uid);
-        setProfileImage(downloadURL);
+        setFormData(prev => ({ ...prev, profileImage: downloadURL }));
         toast({
           title: "Imagem de Perfil Atualizada",
           description: "Sua foto de perfil foi atualizada com sucesso.",
@@ -79,12 +93,12 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
     setIsSubmitting(true);
     try {
       const updatedUserData = {
-        displayName: name,
-        email,
-        phoneNumber: `${country.ddi}${phone}`,
-        address,
-        country: country.code,
-        photoURL: profileImage,
+        displayName: formData.name,
+        email: formData.email,
+        phoneNumber: `${formData.country.ddi}${formData.phone}`,
+        address: formData.address,
+        country: formData.country.code,
+        photoURL: formData.profileImage,
       };
       await updateUserProfile(user.uid, updatedUserData);
       updateUserContext(updatedUserData);
@@ -108,8 +122,8 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
       <div className="space-y-4">
         <div className="flex items-center space-x-4 mb-4">
           <Avatar className="w-24 h-24">
-            <AvatarImage src={profileImage} alt="Profile" />
-            <AvatarFallback>{name[0] || 'U'}</AvatarFallback>
+            <AvatarImage src={formData.profileImage} alt="Profile" />
+            <AvatarFallback>{formData.name[0] || 'U'}</AvatarFallback>
           </Avatar>
           <div>
             <Label htmlFor="picture" className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-500">
@@ -121,16 +135,16 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="name">Nome</Label>
-            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
+            <Input id="name" name="name" value={formData.name} onChange={handleChange} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">E-mail</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Telefone</Label>
             <div className="flex">
-              <Select value={country.code} onValueChange={(value) => setCountry(countries.find(c => c.code === value))}>
+              <Select value={formData.country.code} onValueChange={handleCountryChange}>
                 <SelectTrigger className="w-[100px]">
                   <SelectValue placeholder="País" />
                 </SelectTrigger>
@@ -144,16 +158,17 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
               </Select>
               <Input
                 id="phone"
+                name="phone"
                 type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                value={formData.phone}
+                onChange={handleChange}
                 className="flex-grow ml-2"
               />
             </div>
           </div>
           <div className="space-y-2 col-span-2">
             <Label htmlFor="address">Endereço</Label>
-            <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} />
+            <Input id="address" name="address" value={formData.address} onChange={handleChange} />
           </div>
         </div>
       </div>
