@@ -3,6 +3,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { StarIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from '../../components/Auth/AuthProvider';
@@ -10,6 +12,7 @@ import { useAuth } from '../../components/Auth/AuthProvider';
 const MeusProdutos = () => {
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [avaliacaoAtual, setAvaliacaoAtual] = useState({ produtoId: null, nota: 0, comentario: '' });
   const { user } = useAuth();
 
   useEffect(() => {
@@ -34,6 +37,29 @@ const MeusProdutos = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAvaliar = (produtoId) => {
+    setAvaliacaoAtual({ produtoId, nota: 0, comentario: '' });
+  };
+
+  const handleSubmitAvaliacao = async () => {
+    try {
+      await firebaseOperations.adicionarAvaliacao(avaliacaoAtual.produtoId, user.uid, avaliacaoAtual.nota, avaliacaoAtual.comentario);
+      toast({
+        title: "Sucesso",
+        description: "Avaliação enviada com sucesso!",
+      });
+      setAvaliacaoAtual({ produtoId: null, nota: 0, comentario: '' });
+      fetchMeusProdutos(); // Recarrega os produtos para atualizar as avaliações
+    } catch (error) {
+      console.error("Erro ao enviar avaliação:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível enviar a avaliação.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -87,9 +113,38 @@ const MeusProdutos = () => {
               </div>
               <p>Estoque: {produto.estoque}</p>
               <p>Venda sugerida: R$ {formatPrice(produto.vendaSugerida)}</p>
-              <div className="flex items-center mt-2">
-                {renderStars(produto.avaliacao || 0)}
-                <span className="ml-2 text-sm text-gray-600">({produto.numeroAvaliacoes || 0})</span>
+              <div className="flex items-center justify-between mt-2">
+                <div className="flex items-center">
+                  {renderStars(produto.avaliacao || 0)}
+                  <span className="ml-2 text-sm text-gray-600">({produto.numeroAvaliacoes || 0})</span>
+                </div>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" onClick={() => handleAvaliar(produto.id)}>Avaliar</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Avaliar Produto</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="flex justify-center">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <StarIcon
+                            key={star}
+                            className={`w-8 h-8 cursor-pointer ${star <= avaliacaoAtual.nota ? 'text-yellow-400' : 'text-gray-300'}`}
+                            onClick={() => setAvaliacaoAtual(prev => ({ ...prev, nota: star }))}
+                          />
+                        ))}
+                      </div>
+                      <Textarea
+                        placeholder="Deixe seu comentário"
+                        value={avaliacaoAtual.comentario}
+                        onChange={(e) => setAvaliacaoAtual(prev => ({ ...prev, comentario: e.target.value }))}
+                      />
+                      <Button onClick={handleSubmitAvaliacao}>Enviar Avaliação</Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </CardContent>
             <CardFooter className="flex justify-between mt-auto">

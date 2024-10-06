@@ -99,6 +99,42 @@ const productOperations = {
     } else {
       throw new Error('Produto não encontrado');
     }
+  },
+  adicionarAvaliacao: async (produtoId, userId, nota, comentario) => {
+    try {
+      const produtoRef = doc(db, 'products', produtoId);
+      const produtoDoc = await getDoc(produtoRef);
+
+      if (!produtoDoc.exists()) {
+        throw new Error('Produto não encontrado');
+      }
+
+      const produtoData = produtoDoc.data();
+      const avaliacoes = produtoData.avaliacoes || [];
+      const novaAvaliacao = {
+        userId,
+        nota,
+        comentario,
+        data: new Date().toISOString()
+      };
+
+      avaliacoes.push(novaAvaliacao);
+
+      const numeroAvaliacoes = avaliacoes.length;
+      const somaNotas = avaliacoes.reduce((sum, av) => sum + av.nota, 0);
+      const mediaAvaliacoes = somaNotas / numeroAvaliacoes;
+
+      await updateDoc(produtoRef, {
+        avaliacoes,
+        avaliacao: mediaAvaliacoes,
+        numeroAvaliacoes
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao adicionar avaliação:', error);
+      throw error;
+    }
   }
 };
 
