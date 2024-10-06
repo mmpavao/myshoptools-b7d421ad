@@ -3,6 +3,7 @@ import IntegrationCard from './IntegrationCard';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { integrations } from '../../data/integrations';
+import GoogleSheetsIntegration from '../../integrations/GoogleSheetsIntegration';
 
 const Integrations = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,6 +25,8 @@ const Integrations = () => {
 
   return (
     <div className="space-y-6">
+      <GoogleSheetsIntegration />
+      
       <div className="flex justify-between items-center mb-4">
         <p className="text-sm text-gray-500">Total integrations: {totalItems}</p>
         <Select
