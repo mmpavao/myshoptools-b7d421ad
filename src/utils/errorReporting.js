@@ -1,30 +1,23 @@
 import { safePostMessage } from '../firebase/config';
 
-const createSafeRequestObject = (request) => {
-  if (request instanceof Request) {
-    return {
-      url: request.url,
-      method: request.method,
-      headers: Object.fromEntries(request.headers.entries()),
-      // Add other necessary properties, avoiding non-clonable ones
-    };
-  }
-  return String(request); // Convert to string if not a Request object
-};
+const createSafeErrorObject = (error) => ({
+  message: error.message,
+  name: error.name,
+  stack: error.stack,
+});
 
-const createSafeErrorObject = (error) => {
+const createSafeRequestInfo = (request) => {
+  if (typeof request === 'string') return request;
   return {
-    message: error.message,
-    name: error.name,
-    stack: error.stack,
-    // Add other relevant and safe-to-clone error properties
+    url: request.url,
+    method: request.method,
   };
 };
 
 export const reportHTTPError = (error, request) => {
   const errorData = {
     error: createSafeErrorObject(error),
-    request: createSafeRequestObject(request),
+    requestInfo: createSafeRequestInfo(request),
   };
 
   safePostMessage(window.parent, {
@@ -49,7 +42,6 @@ export const wrapFetch = () => {
   };
 };
 
-// New function to handle Firestore operations safely
 export const safeFirestoreOperation = async (operation) => {
   try {
     return await operation();

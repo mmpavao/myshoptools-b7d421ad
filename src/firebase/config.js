@@ -14,7 +14,6 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Verificação das variáveis de ambiente
 Object.entries(firebaseConfig).forEach(([key, value]) => {
   if (!value) {
     console.warn(`Firebase configuration is missing for: ${key}`);
@@ -30,14 +29,12 @@ export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : nul
 
 export const safeLogError = (error) => {
   console.error("Error occurred:", error);
-  // Implemente a lógica para enviar o erro para um serviço de logging, se necessário
 };
 
 export const safePostMessage = (target, message, origin) => {
   if (target && typeof target.postMessage === 'function') {
     try {
-      const safeMessage = JSON.parse(JSON.stringify(message));
-      target.postMessage(safeMessage, origin);
+      target.postMessage(message, origin);
     } catch (error) {
       console.warn('Failed to post message:', error);
     }
