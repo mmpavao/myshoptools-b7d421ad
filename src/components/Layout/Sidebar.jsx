@@ -24,6 +24,7 @@ const navItems = [
       { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
       { icon: Store, label: 'Vitrine', to: '/vitrine' },
       { icon: ClipboardList, label: 'Meus Pedidos', to: '/meus-pedidos' },
+      { icon: List, label: 'Lista de Produtos', to: '/lista-produtos' }, // Moved here
     ],
   },
   {
@@ -32,7 +33,6 @@ const navItems = [
     children: [
       { icon: Package, label: 'Estoque', to: '/estoque' },
       { icon: ShoppingCart, label: 'Pedidos', to: '/pedidos-fornecedor' },
-      { icon: List, label: 'Lista de Produtos', to: '/lista-produtos' }, // New item
     ],
   },
   {
