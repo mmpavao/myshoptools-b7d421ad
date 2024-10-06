@@ -24,13 +24,6 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
-      if (user) {
-        toast({
-          title: "Login bem-sucedido",
-          description: `Bem-vindo, ${user.displayName || user.email}!`,
-          variant: "success",
-        });
-      }
     }, (error) => {
       safeLogError(error);
       setLoading(false);
@@ -50,7 +43,6 @@ export const AuthProvider = ({ children }) => {
       toast({
         title: "Desconectado",
         description: "Você foi desconectado com sucesso.",
-        variant: "success",
       });
     } catch (error) {
       safeLogError(error);

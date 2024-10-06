@@ -6,7 +6,7 @@ import { StarIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import firebaseOperations from '../../firebase/firebaseOperations';
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../components/Auth/AuthProvider';
 
@@ -17,7 +17,6 @@ const Vitrine = () => {
   const [filtro, setFiltro] = useState('');
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { custom: toast } = useToast();
 
   useEffect(() => {
     if (user) {
@@ -36,9 +35,9 @@ const Vitrine = () => {
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
       toast({
-        variant: "error",
         title: "Erro",
         description: "Não foi possível carregar os produtos.",
+        variant: "destructive",
       });
     }
   };
@@ -46,9 +45,9 @@ const Vitrine = () => {
   const handleImportar = async (produto) => {
     if (!user) {
       toast({
-        variant: "error",
         title: "Erro",
         description: "Você precisa estar logado para importar produtos.",
+        variant: "destructive",
       });
       return;
     }
@@ -59,10 +58,10 @@ const Vitrine = () => {
       console.log(`Produto importado com sucesso: ${produto.id}`);
       setProdutosImportados(prev => ({ ...prev, [produto.id]: true }));
       toast({
-        variant: "success",
         title: "Sucesso",
         description: "Produto importado com sucesso!",
       });
+      // Add log to admin logs
       await firebaseOperations.addAdminLog({
         action: 'import_product',
         userId: user.uid,
@@ -73,10 +72,11 @@ const Vitrine = () => {
     } catch (error) {
       console.error("Erro ao importar produto:", error);
       toast({
-        variant: "error",
         title: "Erro",
         description: "Não foi possível importar o produto.",
+        variant: "destructive",
       });
+      // Add error log to admin logs
       await firebaseOperations.addAdminLog({
         action: 'import_product',
         userId: user.uid,
@@ -100,7 +100,6 @@ const Vitrine = () => {
     try {
       await firebaseOperations.adicionarAvaliacao(avaliacaoAtual.produtoId, user.uid, avaliacaoAtual.nota, avaliacaoAtual.comentario);
       toast({
-        variant: "success",
         title: "Sucesso",
         description: "Avaliação enviada com sucesso!",
       });
@@ -109,9 +108,9 @@ const Vitrine = () => {
     } catch (error) {
       console.error("Erro ao enviar avaliação:", error);
       toast({
-        variant: "error",
         title: "Erro",
         description: "Não foi possível enviar a avaliação.",
+        variant: "destructive",
       });
     }
   };
