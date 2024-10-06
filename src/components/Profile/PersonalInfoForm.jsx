@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
-import { updateUserProfile, uploadProfileImage, getUserProfile } from '../../firebase/firebaseOperations';
+import firebaseOperations from '../../firebase/firebaseOperations';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const countries = [
@@ -33,7 +33,7 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
     const loadUserProfile = async () => {
       if (user && user.uid) {
         try {
-          const userProfile = await getUserProfile(user.uid);
+          const userProfile = await firebaseOperations.getUserProfile(user.uid);
           if (userProfile) {
             const phoneNumber = userProfile.phoneNumber || '';
             const country = countries.find(c => phoneNumber.startsWith(c.ddi)) || countries[0];
@@ -79,7 +79,7 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
     const file = e.target.files[0];
     if (file) {
       try {
-        const downloadURL = await uploadProfileImage(file, user.uid);
+        const downloadURL = await firebaseOperations.uploadProfileImage(file, user.uid);
         setFormData(prev => ({ ...prev, profileImage: downloadURL }));
         toast({
           title: "Imagem de Perfil Atualizada",
@@ -118,7 +118,7 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
         country: formData.country.code,
         photoURL: formData.profileImage,
       };
-      await updateUserProfile(user.uid, updatedUserData);
+      await firebaseOperations.updateUserProfile(user.uid, updatedUserData);
       updateUserContext(updatedUserData);
       toast({
         title: "Perfil Atualizado",
