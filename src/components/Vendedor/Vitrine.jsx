@@ -29,10 +29,7 @@ const Vitrine = () => {
       const produtosData = await firebaseOperations.getProducts();
       setProdutos(produtosData);
       if (user) {
-        const importadosStatus = {};
-        for (const produto of produtosData) {
-          importadosStatus[produto.id] = await firebaseOperations.verificarProdutoImportado(user.uid, produto.id);
-        }
+        const importadosStatus = await firebaseOperations.getProdutosImportadosStatus(user.uid);
         setProdutosImportados(importadosStatus);
       }
     } catch (error) {
@@ -62,7 +59,6 @@ const Vitrine = () => {
         title: "Sucesso",
         description: "Produto importado com sucesso!",
       });
-      navigate('/meus-produtos');
     } catch (error) {
       console.error("Erro ao importar produto:", error);
       toast({
@@ -184,6 +180,7 @@ const Vitrine = () => {
               <Button 
                 onClick={() => handleImportar(produto)}
                 disabled={produtosImportados[produto.id]}
+                className={produtosImportados[produto.id] ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : ''}
               >
                 {produtosImportados[produto.id] ? 'Importado' : 'Importar'}
               </Button>

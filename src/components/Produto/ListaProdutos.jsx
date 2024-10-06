@@ -3,28 +3,33 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { StarIcon } from "lucide-react";
+import { StarIcon, Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { toast } from "@/components/ui/use-toast";
+import { useAuth } from '../../components/Auth/AuthProvider';
 
 const ListaProdutos = () => {
   const [produtos, setProdutos] = useState([]);
   const [filtro, setFiltro] = useState('');
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetchProdutos();
-  }, []);
+    if (user) {
+      fetchProdutosImportados();
+    }
+  }, [user]);
 
-  const fetchProdutos = async () => {
+  const fetchProdutosImportados = async () => {
     try {
-      const produtosData = await firebaseOperations.getProducts();
-      setProdutos(produtosData);
+      const produtosImportados = await firebaseOperations.getProdutosImportados(user.uid);
+      setProdutos(produtosImportados);
     } catch (error) {
-      console.error("Erro ao buscar produtos:", error);
+      console.error("Erro ao buscar produtos importados:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível carregar os produtos.",
+        description: "Não foi possível carregar os produtos importados.",
         variant: "destructive",
       });
     }
@@ -39,6 +44,24 @@ const ListaProdutos = () => {
     navigate(`/produto/${produtoId}`);
   };
 
+  const handleExcluir = async (produtoId) => {
+    try {
+      await firebaseOperations.removerProdutoImportado(user.uid, produtoId);
+      toast({
+        title: "Sucesso",
+        description: "Produto removido da sua lista com sucesso.",
+      });
+      fetchProdutosImportados(); // Atualiza a lista após a exclusão
+    } catch (error) {
+      console.error("Erro ao excluir produto:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível excluir o produto.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const renderStars = (rating) => {
     return [...Array(5)].map((_, index) => (
       <StarIcon key={index} className={`w-5 h-5 ${index < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'}`} />
@@ -51,7 +74,7 @@ const ListaProdutos = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Lista de Produtos</h1>
+      <h1 className="text-2xl font-bold">Lista de Produtos Importados</h1>
       <Input
         placeholder="Filtrar por título ou SKU"
         value={filtro}
@@ -74,8 +97,27 @@ const ListaProdutos = () => {
               </div>
               <p className="text-sm">Estoque: {produto.estoque}</p>
             </CardContent>
-            <CardFooter className="p-4 mt-auto">
-              <Button className="w-full" onClick={() => handleDetalhes(produto.id)}>Ver Detalhes</Button>
+            <CardFooter className="p-4 mt-auto flex justify-between">
+              <Button onClick={() => handleDetalhes(produto.id)}>Ver Detalhes</Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="destructive">
+                    <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Confirmar exclusão</DialogTitle>
+                    <DialogDescription>
+                      Tem certeza que deseja remover este produto da sua lista? Esta ação não pode ser desfeita.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => {}}>Cancelar</Button>
+                    <Button variant="destructive" onClick={() => handleExcluir(produto.id)}>Confirmar Exclusão</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </CardFooter>
           </Card>
         ))}
