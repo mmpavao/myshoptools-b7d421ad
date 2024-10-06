@@ -13,6 +13,7 @@ const MeusProdutos = () => {
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [avaliacaoAtual, setAvaliacaoAtual] = useState({ produtoId: null, nota: 0, comentario: '' });
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -42,6 +43,7 @@ const MeusProdutos = () => {
 
   const handleAvaliar = (produtoId) => {
     setAvaliacaoAtual({ produtoId, nota: 0, comentario: '' });
+    setDialogOpen(true);
   };
 
   const handleSubmitAvaliacao = async () => {
@@ -52,7 +54,8 @@ const MeusProdutos = () => {
         description: "Avaliação enviada com sucesso!",
       });
       setAvaliacaoAtual({ produtoId: null, nota: 0, comentario: '' });
-      fetchMeusProdutos(); // Recarrega os produtos para atualizar as avaliações
+      setDialogOpen(false);
+      fetchMeusProdutos();
     } catch (error) {
       console.error("Erro ao enviar avaliação:", error);
       toast({
@@ -118,7 +121,7 @@ const MeusProdutos = () => {
                   {renderStars(produto.avaliacao || 0)}
                   <span className="ml-2 text-sm text-gray-600">({produto.numeroAvaliacoes || 0})</span>
                 </div>
-                <Dialog>
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
                     <Button variant="outline" size="sm" onClick={() => handleAvaliar(produto.id)}>Avaliar</Button>
                   </DialogTrigger>
