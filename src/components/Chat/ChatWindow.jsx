@@ -226,6 +226,5 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }
     </Card>
   );
 };
-};
 
 export default ChatWindow;
