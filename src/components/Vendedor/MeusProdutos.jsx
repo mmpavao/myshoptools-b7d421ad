@@ -14,6 +14,7 @@ const MeusProdutos = () => {
   const [loading, setLoading] = useState(true);
   const [avaliacaoAtual, setAvaliacaoAtual] = useState({ produtoId: null, nota: 0, comentario: '' });
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [notification, setNotification] = useState(null);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -29,12 +30,15 @@ const MeusProdutos = () => {
       setLoading(true);
       const produtosData = await firebaseOperations.getMeusProdutos(user.uid);
       setProdutos(produtosData);
+      setNotification({
+        type: 'info',
+        message: 'Produtos carregados com sucesso.'
+      });
     } catch (error) {
       console.error("Erro ao buscar meus produtos:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar seus produtos.",
-        variant: "destructive",
+      setNotification({
+        type: 'error',
+        message: 'Não foi possível carregar seus produtos.'
       });
     } finally {
       setLoading(false);
@@ -50,18 +54,17 @@ const MeusProdutos = () => {
     try {
       await firebaseOperations.adicionarAvaliacao(avaliacaoAtual.produtoId, user.uid, avaliacaoAtual.nota, avaliacaoAtual.comentario);
       setDialogOpen(false);
-      toast({
-        title: "Sucesso",
-        description: "Avaliação enviada com sucesso!",
+      setNotification({
+        type: 'success',
+        message: 'Avaliação enviada com sucesso!'
       });
       setAvaliacaoAtual({ produtoId: null, nota: 0, comentario: '' });
       fetchMeusProdutos();
     } catch (error) {
       console.error("Erro ao enviar avaliação:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível enviar a avaliação.",
-        variant: "destructive",
+      setNotification({
+        type: 'error',
+        message: 'Não foi possível enviar a avaliação.'
       });
     }
   };
@@ -74,6 +77,52 @@ const MeusProdutos = () => {
 
   const formatPrice = (price) => {
     return typeof price === 'number' ? price.toFixed(2) : '0.00';
+  };
+
+  const renderNotification = () => {
+    if (!notification) return null;
+
+    let bgColor, textColor, icon;
+    switch (notification.type) {
+      case 'info':
+        bgColor = 'bg-blue-100';
+        textColor = 'text-blue-700';
+        icon = (
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="flex-none fill-current text-blue-500 h-4 w-4">
+            <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-.001 5.75c.69 0 1.251.56 1.251 1.25s-.561 1.25-1.251 1.25-1.249-.56-1.249-1.25.559-1.25 1.249-1.25zm2.001 12.25h-4v-1c.484-.179 1-.201 1-.735v-4.467c0-.534-.516-.618-1-.797v-1h3v6.265c0 .535.517.558 1 .735v.999z" />
+          </svg>
+        );
+        break;
+      case 'success':
+        bgColor = 'bg-green-100';
+        textColor = 'text-green-700';
+        icon = (
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="flex-none fill-current text-green-500 h-4 w-4">
+            <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-1.25 16.518l-4.5-4.319 1.396-1.435 3.078 2.937 6.105-6.218 1.421 1.409-7.5 7.626z" />
+          </svg>
+        );
+        break;
+      case 'error':
+        bgColor = 'bg-red-100';
+        textColor = 'text-red-700';
+        icon = (
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="flex-none fill-current text-red-500 h-4 w-4">
+            <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.597 17.954l-4.591-4.55-4.555 4.596-1.405-1.405 4.547-4.592-4.593-4.552 1.405-1.405 4.588 4.543 4.545-4.589 1.416 1.403-4.546 4.587 4.592 4.548-1.403 1.416z" />
+          </svg>
+        );
+        break;
+      default:
+        return null;
+    }
+
+    return (
+      <div className={`p-5 w-full sm:w-1/2 ${bgColor} ${notification.type === 'info' ? 'border-l-4 border-blue-500' : 'rounded'}`}>
+        <div className="flex space-x-3">
+          {icon}
+          <div className={`flex-1 leading-tight text-sm ${textColor}`}>{notification.message}</div>
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
@@ -95,6 +144,9 @@ const MeusProdutos = () => {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Meus Produtos</h1>
+      <div className="p-10 flex flex-col space-y-3">
+        {renderNotification()}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {produtos.map((produto) => (
           <Card key={produto.id} className="flex flex-col">
