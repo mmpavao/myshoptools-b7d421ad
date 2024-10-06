@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from '@/components/ui/use-toast';
+import { safeLogError } from '../../firebase/config';
 
 const schema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters long" }),
@@ -53,7 +54,7 @@ const ProfileForm = () => {
             setAvatarUrl(profileData.avatarUrl || '');
           }
         } catch (error) {
-          console.error("Error fetching profile:", error);
+          safeLogError(error);
           toast({
             title: "Error",
             description: "Failed to fetch profile data. Please try again.",
@@ -79,7 +80,7 @@ const ProfileForm = () => {
       });
       navigate('/dashboard');
     } catch (error) {
-      console.error("Error updating profile:", error);
+      safeLogError(error);
       toast({
         title: "Error",
         description: "Failed to update profile. Please try again.",
@@ -101,7 +102,7 @@ const ProfileForm = () => {
           description: "Avatar uploaded successfully.",
         });
       } catch (error) {
-        console.error("Error uploading avatar:", error);
+        safeLogError(error);
         toast({
           title: "Error",
           description: "Failed to upload avatar. Please try again.",
