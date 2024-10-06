@@ -65,17 +65,27 @@ export const getAllUsers = async () => {
 
 export const updateUserRole = async (userId, newRole) => {
   try {
-    await setDoc(doc(db, 'users', userId), { role: newRole }, { merge: true });
+    await updateDoc(doc(db, 'users', userId), { role: newRole });
+    toast({
+      title: "Role Updated",
+      description: `User role has been updated to ${newRole}.`,
+      variant: "success",
+    });
     return true;
   } catch (error) {
     console.error('Error updating user role:', error);
+    toast({
+      title: "Error",
+      description: "Failed to update user role. Please try again.",
+      variant: "destructive",
+    });
     throw error;
   }
 };
 
 export const getUserRole = async (userId) => {
   try {
-    const userDoc = await safeFirestoreOperation(() => getDoc(doc(db, 'users', userId)));
+    const userDoc = await getDoc(doc(db, 'users', userId));
     if (userDoc.exists()) {
       const userData = userDoc.data();
       if (userData.email === MASTER_USER_EMAIL) return 'Master';

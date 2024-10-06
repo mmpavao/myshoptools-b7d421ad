@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ export const UserTable = ({ users, onUserUpdate }) => {
   const { user: currentUser } = useAuth();
   const [currentUserRole, setCurrentUserRole] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (currentUser) {
       firebaseOperations.getUserRole(currentUser.uid).then(setCurrentUserRole);
     }
@@ -24,18 +24,23 @@ export const UserTable = ({ users, onUserUpdate }) => {
 
   const isMasterAdmin = currentUserRole === 'Master';
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Active': return 'bg-green-500';
-      case 'Inactive': return 'bg-yellow-500';
-      case 'Blocked': return 'bg-red-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
   const handleRoleChange = async (userId, newRole) => {
-    await firebaseOperations.updateUserRole(userId, newRole);
-    onUserUpdate();
+    try {
+      await firebaseOperations.updateUserRole(userId, newRole);
+      onUserUpdate(); // Refresh the user list
+      toast({
+        title: "Role Updated",
+        description: `User role has been updated to ${newRole}.`,
+        variant: "success",
+      });
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update user role. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleToggleUserStatus = async (userId, currentStatus) => {
