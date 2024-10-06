@@ -14,6 +14,11 @@ export const UserTable = ({ users, onUserUpdate }) => {
   const [selectedUser, setSelectedUser] = useState(null);
   const { user: currentUser } = useAuth();
 
+  const isMasterAdmin = currentUser?.role === 'Master';
+
+  // Filter out Master users if the current user is not a Master admin
+  const filteredUsers = users.filter(user => isMasterAdmin || user.role !== 'Master');
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'Active': return 'bg-green-500';
@@ -39,11 +44,8 @@ export const UserTable = ({ users, onUserUpdate }) => {
     onUserUpdate();
   };
 
-  const isMasterAdmin = currentUser?.role === 'Master';
-
   return (
     <Table>
-      <TableHeader>
       <TableHeader>
         <TableRow>
           <TableHead>Name</TableHead>
@@ -55,9 +57,8 @@ export const UserTable = ({ users, onUserUpdate }) => {
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
-      </TableHeader>
       <TableBody>
-        {users.map((user) => (
+        {filteredUsers.map((user) => (
           <TableRow key={user.id}>
             <TableCell className="font-medium">
               <div className="flex items-center">
@@ -84,6 +85,7 @@ export const UserTable = ({ users, onUserUpdate }) => {
               <Select
                 value={user.role}
                 onValueChange={(newRole) => handleRoleChange(user.id, newRole)}
+                disabled={!isMasterAdmin && (user.role === 'Admin' || user.role === 'Master')}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select a role" />
@@ -92,7 +94,7 @@ export const UserTable = ({ users, onUserUpdate }) => {
                   <SelectItem value="Vendedor">Vendedor</SelectItem>
                   <SelectItem value="Fornecedor">Fornecedor</SelectItem>
                   <SelectItem value="Admin">Admin</SelectItem>
-                  <SelectItem value="Master">Master</SelectItem>
+                  {isMasterAdmin && <SelectItem value="Master">Master</SelectItem>}
                 </SelectContent>
               </Select>
             </TableCell>
@@ -106,7 +108,12 @@ export const UserTable = ({ users, onUserUpdate }) => {
             <TableCell className="text-right space-x-2">
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => setSelectedUser(user)}>
+                  <Button 
+                    variant="ghost" 
+                    className="h-8 w-8 p-0" 
+                    onClick={() => setSelectedUser(user)}
+                    disabled={!isMasterAdmin && (user.role === 'Admin' || user.role === 'Master')}
+                  >
                     <span className="sr-only">Edit</span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
