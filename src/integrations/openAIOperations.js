@@ -136,6 +136,8 @@ export const createBot = async (apiKey, botData) => {
     const docRef = await addDoc(collection(db, 'bots'), {
       ...botData,
       assistantId: assistant.id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
     return { id: docRef.id, ...botData, assistantId: assistant.id };
   } catch (error) {
@@ -151,7 +153,10 @@ export const updateBot = async (apiKey, botId, botData) => {
       instructions: botData.instructions,
       model: botData.model,
     });
-    await updateDoc(doc(db, 'bots', botId), botData);
+    await updateDoc(doc(db, 'bots', botId), {
+      ...botData,
+      updatedAt: new Date().toISOString(),
+    });
     return { id: botId, ...botData };
   } catch (error) {
     handleOpenAIError(error, 'update bot');
@@ -168,10 +173,40 @@ export const deleteBot = async (apiKey, botId, assistantId) => {
   }
 };
 
-export const getBots = async () => {
+export const getBots = async (apiKey) => {
   try {
+    const openai = createOpenAIClient(apiKey);
+    const assistants = await openai.beta.assistants.list();
     const querySnapshot = await getDocs(collection(db, 'bots'));
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const firestoreBots = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Merge OpenAI assistants with Firestore data
+    const mergedBots = assistants.data.map(assistant => {
+      const firestoreBot = firestoreBots.find(bot => bot.assistantId === assistant.id);
+      return {
+        id: firestoreBot?.id || assistant.id,
+        name: assistant.name,
+        instructions: assistant.instructions,
+        model: assistant.model,
+        assistantId: assistant.id,
+        createdAt: firestoreBot?.createdAt || assistant.created_at,
+        updatedAt: firestoreBot?.updatedAt || new Date().toISOString(),
+        // Add any other properties you want to include
+      };
+    });
+
+    // Update Firestore with any missing bots
+    for (const bot of mergedBots) {
+      if (!firestoreBots.some(fBot => fBot.assistantId === bot.assistantId)) {
+        await addDoc(collection(db, 'bots'), {
+          ...bot,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      }
+    }
+
+    return mergedBots;
   } catch (error) {
     handleOpenAIError(error, 'get bots');
   }
