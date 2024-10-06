@@ -1,6 +1,6 @@
 import { db, auth, storage } from './config';
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
-import { updateProfile } from 'firebase/auth';
+import { updateProfile, deleteUser as deleteAuthUser } from 'firebase/auth';
 import { ref, deleteObject } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
 import { safeFirestoreOperation } from '../utils/errorReporting';
@@ -101,24 +101,34 @@ export const updateUserStatus = async (userId, newStatus) => {
 
 export const deleteUser = async (userId) => {
   try {
+    // Delete user from Authentication
+    const user = await auth.getUser(userId);
+    if (user) {
+      await deleteAuthUser(user);
+    }
+
+    // Delete user document from Firestore
     await deleteDoc(doc(db, 'users', userId));
+
+    // Delete imported products
     const importedProductsRef = collection(db, 'users', userId, 'produtosImportados');
     const importedProductsSnapshot = await getDocs(importedProductsRef);
-    importedProductsSnapshot.forEach(async (doc) => {
-      await deleteDoc(doc.ref);
-    });
+    await Promise.all(importedProductsSnapshot.docs.map(doc => deleteDoc(doc.ref)));
+
+    // Delete user orders
     const ordersRef = collection(db, 'orders');
     const userOrdersQuery = query(ordersRef, where('userId', '==', userId));
     const userOrdersSnapshot = await getDocs(userOrdersQuery);
-    userOrdersSnapshot.forEach(async (doc) => {
-      await deleteDoc(doc.ref);
-    });
+    await Promise.all(userOrdersSnapshot.docs.map(doc => deleteDoc(doc.ref)));
+
+    // Delete user's profile image from Storage
     const storageRef = ref(storage, `avatars/${userId}`);
     try {
       await deleteObject(storageRef);
     } catch (error) {
       console.log('No profile image to delete or error deleting image:', error);
     }
+
     console.log('User and associated data deleted successfully');
     return true;
   } catch (error) {

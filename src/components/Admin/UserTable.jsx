@@ -9,6 +9,7 @@ import { PersonalInfoForm } from '../Profile/PersonalInfoForm';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../Auth/AuthProvider';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { toast } from "@/components/ui/use-toast";
 
 export const UserTable = ({ users, onUserUpdate }) => {
   const [selectedUser, setSelectedUser] = useState(null);
@@ -44,8 +45,22 @@ export const UserTable = ({ users, onUserUpdate }) => {
   };
 
   const handleDeleteUser = async (userId) => {
-    await firebaseOperations.deleteUser(userId);
-    onUserUpdate();
+    try {
+      await firebaseOperations.deleteUser(userId);
+      toast({
+        title: "User Deleted",
+        description: "The user has been completely removed from the system.",
+        variant: "success",
+      });
+      onUserUpdate();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete user. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -168,7 +183,8 @@ export const UserTable = ({ users, onUserUpdate }) => {
                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                             <AlertDialogDescription>
                               This action cannot be undone. This will permanently delete the user
-                              account and remove all associated data from our servers.
+                              account and remove all associated data from our servers, including
+                              authentication records.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
