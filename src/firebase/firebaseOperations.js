@@ -216,7 +216,8 @@ const firebaseOperations = {
   ...userOperations,
   ...productOperations,
   ...fileOperations,
-  ...testOperations
+  ...testOperations,
+  deleteFile: fileOperations.deleteFile // Explicitly export deleteFile
 };
 
 export default firebaseOperations;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { toast } from '@/components/ui/use-toast';
-import { deleteFile } from '../../firebase/firebaseOperations';
+import firebaseOperations from '../../firebase/firebaseOperations';
 
 const StoredImages = ({ images, onRefresh }) => {
   const [availableImages, setAvailableImages] = useState([]);
@@ -17,7 +17,7 @@ const StoredImages = ({ images, onRefresh }) => {
     
     try {
       // Tenta deletar o arquivo que não existe mais
-      await deleteFile(`${image.folder}/${image.name}`);
+      await firebaseOperations.deleteFile(`${image.folder}/${image.name}`);
       console.log(`Arquivo removido do Storage: ${image.name}`);
     } catch (deleteError) {
       console.error(`Erro ao tentar remover arquivo do Storage: ${deleteError}`);
