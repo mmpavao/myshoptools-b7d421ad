@@ -17,17 +17,9 @@ const Vitrine = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (user) {
-      fetchProdutos();
-    }
-  }, [user]);
-
   const renderProductImage = (foto) => {
-    if (typeof foto === 'string') {
+    if (typeof foto === 'string' && foto.startsWith('http')) {
       return <img src={foto} alt="Produto" className="w-full h-48 object-cover mb-2" />;
-    } else if (foto instanceof File) {
-      return <img src={URL.createObjectURL(foto)} alt="Produto" className="w-full h-48 object-cover mb-2" />;
     } else {
       return <img src="/placeholder.svg" alt="Placeholder" className="w-full h-48 object-cover mb-2" />;
     }
@@ -112,6 +104,7 @@ const Vitrine = () => {
     produto.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
     produto.sku.toLowerCase().includes(filtro.toLowerCase())
   );
+
 
 
   return (
