@@ -22,12 +22,12 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 fixed top-0 right-0 left-0 z-50">
+    <header className="bg-white border-b border-gray-200 fixed top-0 right-0 left-0 z-40">
       <div className="flex items-center justify-between px-4 py-2">
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
-            className={`p-2 mr-4 rounded-full hover:bg-gray-200 focus:outline-none ${isSidebarOpen ? 'ml-64' : 'ml-16'} transition-all duration-300`}
+            className="p-2 mr-4 rounded-full hover:bg-gray-200 focus:outline-none"
           >
             <Menu size={24} />
           </button>
