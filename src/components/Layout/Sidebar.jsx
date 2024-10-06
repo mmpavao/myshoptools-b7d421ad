@@ -30,7 +30,7 @@ const navItems = [
     children: [
       { icon: Store, label: 'Vitrine', to: '/vitrine' },
       { icon: ClipboardList, label: 'Meus Pedidos', to: '/meus-pedidos' },
-      { icon: List, label: 'Lista de Produtos', to: '/lista-produtos' },
+      { icon: List, label: 'Meus Produtos', to: '/meus-produtos' },
     ],
   },
   {
@@ -163,5 +163,7 @@ const Sidebar = ({ isOpen }) => {
     </aside>
   );
 };
+
+export default Sidebar;
 
 export default Sidebar;

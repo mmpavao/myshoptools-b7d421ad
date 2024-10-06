@@ -17,8 +17,8 @@ const MeusProdutos = () => {
   useEffect(() => {
     const fetchMeusProdutos = async () => {
       if (user) {
-        const meusProdutos = await firebaseOperations.getMeusProdutos(user.uid);
-        setProdutos(meusProdutos);
+        const produtosImportados = await firebaseOperations.getProdutosImportados(user.uid);
+        setProdutos(produtosImportados);
       }
     };
     fetchMeusProdutos();
@@ -29,7 +29,7 @@ const MeusProdutos = () => {
   };
 
   const handleExcluir = async (produtoId) => {
-    await firebaseOperations.removerMeuProduto(user.uid, produtoId);
+    await firebaseOperations.removerProdutoImportado(user.uid, produtoId);
     setProdutos(produtos.filter(p => p.id !== produtoId));
     console.log("Produto removido da sua lista com sucesso.");
   };
@@ -51,7 +51,7 @@ const MeusProdutos = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Lista de Produtos Importados</h1>
+      <h1 className="text-2xl font-bold">Meus Produtos</h1>
       <Input
         placeholder="Filtrar por título ou SKU"
         value={filtro}
