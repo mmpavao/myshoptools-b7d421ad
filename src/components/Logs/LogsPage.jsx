@@ -14,7 +14,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { toast } from '@/components/ui/use-toast';
 import AdminUserTable from '../Admin/AdminUserTable';
 
 const LogsPage = () => {
@@ -54,23 +53,12 @@ const LogsPage = () => {
     if (pin === '1520') {
       try {
         await firebaseOperations.clearAllData();
-        toast({
-          title: "Sucesso",
-          description: "Todos os dados foram apagados com sucesso.",
-        });
+        console.log("Todos os dados foram apagados com sucesso.");
       } catch (error) {
-        toast({
-          title: "Erro",
-          description: "Ocorreu um erro ao apagar os dados: " + error.message,
-          variant: "destructive",
-        });
+        console.error("Ocorreu um erro ao apagar os dados:", error);
       }
     } else {
-      toast({
-        title: "PIN Incorreto",
-        description: "O PIN inserido está incorreto.",
-        variant: "destructive",
-      });
+      console.error("PIN Incorreto");
     }
     setIsDialogOpen(false);
     setPin('');
@@ -144,6 +132,7 @@ const LogsPage = () => {
       </div>
     </div>
   );
+};
 };
 
 export default LogsPage;

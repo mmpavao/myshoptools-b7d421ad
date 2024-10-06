@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth } from '../../firebase/config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { Navigate } from 'react-router-dom';
-import { toast } from '@/components/ui/use-toast';
 import { safeLogError } from '../../firebase/config';
 import { Spinner } from '../ui/spinner';
 
@@ -27,11 +26,7 @@ export const AuthProvider = ({ children }) => {
     }, (error) => {
       safeLogError(error);
       setLoading(false);
-      toast({
-        title: "Erro de Autenticação",
-        description: "Houve um problema com o serviço de autenticação. Por favor, tente novamente mais tarde.",
-        variant: "destructive",
-      });
+      console.error("Erro de Autenticação:", error);
     });
 
     return () => unsubscribe();
@@ -40,17 +35,10 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await signOut(auth);
-      toast({
-        title: "Desconectado",
-        description: "Você foi desconectado com sucesso.",
-      });
+      console.log("Desconectado com sucesso");
     } catch (error) {
       safeLogError(error);
-      toast({
-        title: "Erro ao Sair",
-        description: "Houve um problema ao sair. Por favor, tente novamente.",
-        variant: "destructive",
-      });
+      console.error("Erro ao Sair:", error);
     }
   };
 

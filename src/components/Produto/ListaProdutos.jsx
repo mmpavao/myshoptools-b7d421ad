@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { StarIcon, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import firebaseOperations from '../../firebase/firebaseOperations';
-import { toast } from "@/components/ui/use-toast";
 import { useAuth } from '../../components/Auth/AuthProvider';
 
 const ListaProdutos = () => {
@@ -27,11 +26,6 @@ const ListaProdutos = () => {
       setProdutos(produtosImportados);
     } catch (error) {
       console.error("Erro ao buscar produtos importados:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar os produtos importados.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -42,18 +36,10 @@ const ListaProdutos = () => {
   const handleExcluir = async (produtoId) => {
     try {
       await firebaseOperations.removerProdutoImportado(user.uid, produtoId);
-      toast({
-        title: "Sucesso",
-        description: "Produto removido da sua lista com sucesso.",
-      });
+      console.log("Produto removido da sua lista com sucesso.");
       fetchProdutosImportados();
     } catch (error) {
       console.error("Erro ao excluir produto:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível excluir o produto.",
-        variant: "destructive",
-      });
     }
   };
 

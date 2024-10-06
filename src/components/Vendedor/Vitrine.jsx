@@ -6,7 +6,6 @@ import { StarIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import firebaseOperations from '../../firebase/firebaseOperations';
-import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../components/Auth/AuthProvider';
 
@@ -34,21 +33,12 @@ const Vitrine = () => {
       }
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar os produtos.",
-        variant: "destructive",
-      });
     }
   };
 
   const handleImportar = async (produto) => {
     if (!user) {
-      toast({
-        title: "Erro",
-        description: "Você precisa estar logado para importar produtos.",
-        variant: "destructive",
-      });
+      console.error("Você precisa estar logado para importar produtos.");
       return;
     }
 
@@ -57,10 +47,6 @@ const Vitrine = () => {
       await firebaseOperations.importarProduto(user.uid, produto);
       console.log(`Produto importado com sucesso: ${produto.id}`);
       setProdutosImportados(prev => ({ ...prev, [produto.id]: true }));
-      toast({
-        title: "Sucesso",
-        description: "Produto importado com sucesso!",
-      });
       // Add log to admin logs
       await firebaseOperations.addAdminLog({
         action: 'import_product',
@@ -71,11 +57,6 @@ const Vitrine = () => {
       });
     } catch (error) {
       console.error("Erro ao importar produto:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível importar o produto.",
-        variant: "destructive",
-      });
       // Add error log to admin logs
       await firebaseOperations.addAdminLog({
         action: 'import_product',
@@ -99,19 +80,11 @@ const Vitrine = () => {
   const handleSubmitAvaliacao = async () => {
     try {
       await firebaseOperations.adicionarAvaliacao(avaliacaoAtual.produtoId, user.uid, avaliacaoAtual.nota, avaliacaoAtual.comentario);
-      toast({
-        title: "Sucesso",
-        description: "Avaliação enviada com sucesso!",
-      });
+      console.log("Avaliação enviada com sucesso!");
       setAvaliacaoAtual({ produtoId: null, nota: 0, comentario: '' });
       fetchProdutos(); // Recarrega os produtos para atualizar as avaliações
     } catch (error) {
       console.error("Erro ao enviar avaliação:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível enviar a avaliação.",
-        variant: "destructive",
-      });
     }
   };
 

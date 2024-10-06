@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import firebaseOperations from '../../firebase/firebaseOperations';
-import { toast } from "@/components/ui/use-toast";
 import EstoqueForm from './EstoqueForm';
 import EstoqueTable from './EstoqueTable';
 import { useNavigate } from 'react-router-dom';
@@ -28,11 +27,6 @@ const Estoque = () => {
       setProdutos(produtosData);
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar os produtos.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -49,11 +43,6 @@ const Estoque = () => {
       setNovoProduto(prev => ({ ...prev, fotos: [...prev.fotos, ...uploadedUrls] }));
     } catch (error) {
       console.error("Erro ao fazer upload das imagens:", error);
-      toast({
-        title: "Erro",
-        description: "Falha ao enviar as imagens.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -69,16 +58,10 @@ const Estoque = () => {
       };
       if (editingProductId) {
         await firebaseOperations.updateProduct(editingProductId, produtoParaSalvar);
-        toast({
-          title: "Sucesso",
-          description: "Produto atualizado com sucesso!",
-        });
+        console.log("Produto atualizado com sucesso!");
       } else {
         await firebaseOperations.createProduct(produtoParaSalvar);
-        toast({
-          title: "Sucesso",
-          description: "Produto adicionado com sucesso!",
-        });
+        console.log("Produto adicionado com sucesso!");
       }
       fetchProdutos();
       setIsDialogOpen(false);
@@ -88,48 +71,17 @@ const Estoque = () => {
       setEditingProductId(null);
     } catch (error) {
       console.error("Erro ao salvar produto:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível salvar o produto.",
-        variant: "destructive",
-      });
     }
-  };
-
-  const calcularMarkup = () => {
-    const precoComDesconto = novoProduto.tipoDesconto === '%' 
-      ? novoProduto.preco * (1 - novoProduto.desconto / 100)
-      : novoProduto.preco - novoProduto.desconto;
-    const markup = novoProduto.vendaSugerida / precoComDesconto;
-    return markup.toFixed(2) + 'x';
   };
 
   const handleDeleteProduct = async (productId) => {
     try {
       await firebaseOperations.deleteProduct(productId);
-      toast({
-        title: "Sucesso",
-        description: "Produto removido com sucesso!",
-      });
+      console.log("Produto removido com sucesso!");
       fetchProdutos();
     } catch (error) {
       console.error("Erro ao remover produto:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível remover o produto.",
-        variant: "destructive",
-      });
     }
-  };
-
-  const handleDetalhes = (productId) => {
-    navigate(`/produto/${productId}`);
-  };
-
-  const handleEditProduct = (product) => {
-    setNovoProduto(product);
-    setEditingProductId(product.id);
-    setIsDialogOpen(true);
   };
 
   const produtosFiltrados = produtos.filter(produto =>
@@ -167,7 +119,6 @@ const Estoque = () => {
               handleInputChange={handleInputChange}
               handleFileChange={handleFileChange}
               handleSubmit={handleSubmit}
-              calcularMarkup={calcularMarkup}
             />
           </DialogContent>
         </Dialog>
@@ -176,7 +127,7 @@ const Estoque = () => {
       <EstoqueTable 
         produtos={produtosFiltrados} 
         onDelete={handleDeleteProduct} 
-        onDetalhes={handleDetalhes}
+        onDetalhes={(productId) => navigate(`/produto/${productId}`)}
         onEdit={handleEditProduct}
       />
     </div>

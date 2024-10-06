@@ -3,7 +3,6 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Progress } from '../ui/progress';
 import firebaseOperations from '../../firebase/firebaseOperations';
-import { toast } from '@/components/ui/use-toast';
 import StoredImages from './StoredImages';
 
 const ImageUpload = () => {
@@ -23,31 +22,12 @@ const ImageUpload = () => {
       setStoredImages(images);
     } catch (error) {
       console.error("Error fetching stored images:", error);
-      toast({
-        title: "Erro",
-        description: "Falha ao carregar as imagens armazenadas. Verifique as configurações de CORS.",
-        variant: "destructive",
-      });
     }
-  };
-
-  const handleFileChange = (e) => {
-    if (e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const addLog = (message, status = 'info') => {
-    setUploadLogs(prev => [...prev, { message, status, timestamp: new Date().toISOString() }]);
   };
 
   const handleUpload = async () => {
     if (!file) {
-      toast({
-        title: "Erro",
-        description: "Por favor, selecione um arquivo para fazer upload.",
-        variant: "destructive",
-      });
+      console.error("Por favor, selecione um arquivo para fazer upload.");
       return;
     }
 
@@ -65,10 +45,7 @@ const ImageUpload = () => {
       });
 
       addLog("Upload concluído com sucesso!", "success");
-      toast({
-        title: "Sucesso",
-        description: "Imagem enviada com sucesso!",
-      });
+      console.log("Imagem enviada com sucesso!");
       fetchStoredImages();
     } catch (error) {
       console.error("Erro ao fazer upload da imagem:", error);
@@ -78,11 +55,6 @@ const ImageUpload = () => {
       } else if (error.name === 'AbortError' || error.message.includes('Failed to fetch')) {
         addLog("Erro de CORS detectado. Verifique as configurações do Firebase e do seu navegador.", "error");
       }
-      toast({
-        title: "Erro",
-        description: `Falha ao enviar a imagem: ${error.message}. Verifique as configurações de CORS.`,
-        variant: "destructive",
-      });
     } finally {
       setUploading(false);
       setFile(null);

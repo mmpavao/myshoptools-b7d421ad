@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../../components/Auth/AuthProvider';
-import { toast } from "@/components/ui/use-toast";
 import ProductImages from './ProductImages';
 import ProductDetails from './ProductDetails';
 import ProductTabs from './ProductTabs';
@@ -28,11 +27,6 @@ const DetalheProduto = () => {
         }
       } catch (error) {
         console.error("Erro ao buscar detalhes do produto:", error);
-        toast({
-          title: "Erro",
-          description: "Não foi possível carregar os detalhes do produto.",
-          variant: "destructive",
-        });
       }
     };
 
@@ -41,49 +35,29 @@ const DetalheProduto = () => {
 
   const handleImportar = async () => {
     if (!user) {
-      toast({
-        title: "Erro",
-        description: "Você precisa estar logado para importar produtos.",
-        variant: "destructive",
-      });
+      console.error("Você precisa estar logado para importar produtos.");
       return;
     }
 
     try {
       await firebaseOperations.importarProduto(user.uid, produto);
       setIsImportado(true);
-      toast({
-        title: "Sucesso",
-        description: "Produto importado com sucesso!",
-      });
+      console.log("Produto importado com sucesso!");
       navigate('/meus-produtos');
     } catch (error) {
       console.error("Erro ao importar produto:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível importar o produto.",
-        variant: "destructive",
-      });
     }
   };
 
   const handleSubmitAvaliacao = async () => {
     try {
       await firebaseOperations.adicionarAvaliacao(id, user.uid, avaliacaoAtual.nota, avaliacaoAtual.comentario);
-      toast({
-        title: "Sucesso",
-        description: "Avaliação enviada com sucesso!",
-      });
+      console.log("Avaliação enviada com sucesso!");
       setAvaliacaoAtual({ nota: 0, comentario: '' });
       const produtoAtualizado = await firebaseOperations.getProduct(id);
       setProduto(produtoAtualizado);
     } catch (error) {
       console.error("Erro ao enviar avaliação:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível enviar a avaliação.",
-        variant: "destructive",
-      });
     }
   };
 
