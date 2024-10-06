@@ -16,7 +16,6 @@ export const updateDocument = (collectionName, docId, data) =>
 export const deleteDocument = (collectionName, docId) => 
   safeFirestoreOperation(() => deleteDoc(doc(db, collectionName, docId)));
 
-
 export const uploadFile = async (file, path, onProgress) => {
   try {
     const storageRef = ref(storage, path);
@@ -97,65 +96,30 @@ export const listStorageFiles = async () => {
   return allFiles;
 };
 
-export const testFirebaseOperations = async (logCallback) => {
+export const clearAllData = async () => {
   try {
-    logCallback({ step: "Iniciando testes", message: "Iniciando testes de operações do Firebase", status: "success" });
-
-    // Teste de criação de documento
-    const testDocRef = await createDocument('test_collection', { name: 'Test User', email: 'test@example.com' });
-    logCallback({ step: "Criação de documento", message: `Documento de teste criado com ID: ${testDocRef.id}`, status: "success" });
-
-    // Teste de leitura de documento
-    const testDocSnapshot = await readDocument('test_collection', testDocRef.id);
-    logCallback({ step: "Leitura de documento", message: "Dados do documento de teste lidos com sucesso", status: "success" });
-
-    // Teste de atualização de documento
-    await updateDocument('test_collection', testDocRef.id, { name: 'Updated Test User' });
-    logCallback({ step: "Atualização de documento", message: "Dados do documento de teste atualizados com sucesso", status: "success" });
-
-    // Teste de leitura do documento atualizado
-    const updatedTestDocSnapshot = await readDocument('test_collection', testDocRef.id);
-    logCallback({ step: "Leitura de documento atualizado", message: "Dados atualizados do documento de teste lidos com sucesso", status: "success" });
-
-    // Teste de consulta de documentos
-    const testCollection = collection(db, 'test_collection');
-    const q = query(testCollection, where("email", "==", "test@example.com"));
-    const querySnapshot = await getDocs(q);
-    logCallback({ step: "Consulta de documentos", message: `${querySnapshot.docs.length} documento(s) encontrado(s)`, status: "success" });
-
-    // Teste de upload de arquivo
-    try {
-      const testFile = new Blob(['Conteúdo do arquivo de teste'], { type: 'text/plain' });
-      const filePath = `test/testfile_${Date.now()}.txt`;
-      const fileUrl = await uploadFile(testFile, filePath);
-      logCallback({ step: "Upload de arquivo", message: "Arquivo enviado com sucesso", status: "success" });
-
-      // Teste de exclusão de arquivo
-      await deleteFile(filePath);
-      logCallback({ step: "Exclusão de arquivo", message: "Arquivo excluído com sucesso", status: "success" });
-    } catch (storageError) {
-      logCallback({ step: "Operações de Storage", message: `Erro nas operações de Storage: ${storageError.message}. Verifique as regras de segurança do Storage.`, status: "error" });
+    // Limpar Firestore
+    const collections = ['test_collection', 'products', 'orders'];
+    for (const collectionName of collections) {
+      const querySnapshot = await getDocs(collection(db, collectionName));
+      querySnapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+      });
     }
 
-    const deletedTestDoc = await readDocument('test_collection', testDocRef.id);
-    if (!deletedTestDoc.exists()) {
-      logCallback({ step: "Verificação final", message: "Documento de teste não existe mais, confirmando exclusão bem-sucedida", status: "success" });
+    // Limpar Storage
+    const folders = ['uploads', 'avatars', 'products'];
+    for (const folder of folders) {
+      const listRef = ref(storage, folder);
+      const res = await listAll(listRef);
+      res.items.forEach(async (itemRef) => {
+        await deleteObject(itemRef);
+      });
     }
 
-    logCallback({ step: "Conclusão", message: "Todos os testes foram concluídos. Verifique os logs para detalhes.", status: "success" });
-
-    toast({
-      title: "Testes de Operações do Firebase",
-      description: "Testes concluídos. Verifique os logs para detalhes.",
-    });
+    console.log('Todos os dados foram apagados com sucesso.');
   } catch (error) {
-    console.error("Erro durante os testes de operações do Firebase:", error);
-    logCallback({ step: "Erro", message: `Erro durante os testes: ${error.message}`, status: "error" });
-    toast({
-      title: "Erro nos Testes de Operações do Firebase",
-      description: error.message,
-      variant: "destructive",
-    });
+    console.error('Erro ao apagar dados:', error);
+    throw error;
   }
 };
-
