@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '../Auth/AuthProvider';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 
 const ChatWindow = ({ onClose, onlineAgents }) => {
   const [message, setMessage] = useState('');
   const { user } = useAuth();
+  const [activeBots, setActiveBots] = useState([]);
+
+  useEffect(() => {
+    const fetchActiveBots = async () => {
+      const botsQuery = query(collection(db, 'bots'), where('isActive', '==', true));
+      const botsSnapshot = await getDocs(botsQuery);
+      setActiveBots(botsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    };
+    fetchActiveBots();
+  }, []);
 
   const handleSendMessage = async () => {
     if (message.trim()) {
@@ -36,22 +46,24 @@ const ChatWindow = ({ onClose, onlineAgents }) => {
         </Button>
       </CardHeader>
       <CardContent className="flex-grow overflow-y-auto">
-        {onlineAgents.length > 0 ? (
-          <div>
-            <p className="font-semibold mb-2">Agentes online:</p>
-            <ul className="space-y-1">
-              {onlineAgents.map(agent => (
-                <li key={agent.id} className="flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  {agent.displayName || agent.email}
-                </li>
-              ))}
-            </ul>
-            {/* Here you can add the logic to display messages */}
-          </div>
-        ) : (
-          <p>Todos os agentes estão ocupados no momento. Deixe uma mensagem e responderemos assim que possível.</p>
-        )}
+        <div>
+          <p className="font-semibold mb-2">Atendentes online:</p>
+          <ul className="space-y-1">
+            {onlineAgents.map(agent => (
+              <li key={agent.id} className="flex items-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                {agent.displayName || agent.email}
+              </li>
+            ))}
+            {activeBots.map(bot => (
+              <li key={bot.id} className="flex items-center">
+                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                {bot.name} (Bot)
+              </li>
+            ))}
+          </ul>
+          {/* Here you can add the logic to display messages */}
+        </div>
       </CardContent>
       <CardFooter>
         <div className="flex w-full space-x-2">

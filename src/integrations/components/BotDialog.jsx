@@ -6,17 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDelete }) => {
-  const [botData, setBotData] = useState(currentBot);
+  const [botData, setBotData] = useState({ ...currentBot, isActive: currentBot.isActive || false });
   const [avatarPreview, setAvatarPreview] = useState(currentBot.avatar || '');
-
-  React.useEffect(() => {
-    setBotData(currentBot);
-    setAvatarPreview(currentBot.avatar || '');
-  }, [currentBot]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -39,8 +35,6 @@ const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDele
     e.preventDefault();
     onSave(botData);
   };
-
-  const voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'];
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -130,6 +124,14 @@ const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDele
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="isActive"
+              checked={botData.isActive}
+              onCheckedChange={(checked) => setBotData((prev) => ({ ...prev, isActive: checked }))}
+            />
+            <Label htmlFor="isActive">Ativar bot no sistema de chat</Label>
           </div>
           <DialogFooter className="flex justify-between items-center">
             {isEditing && (

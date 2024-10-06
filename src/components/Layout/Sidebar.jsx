@@ -46,8 +46,8 @@ const navItems = [
     roles: ['Admin', 'Master'],
     children: [
       { icon: Users, label: 'Usuários', to: '/admin/users' },
-      { icon: Settings, label: 'Configurações', to: '/admin/settings' },
       { icon: MessageSquare, label: 'Chat Admin', to: '/admin/chat' },
+      { icon: Settings, label: 'Configurações', to: '/admin/settings' },
     ],
   },
 ];
