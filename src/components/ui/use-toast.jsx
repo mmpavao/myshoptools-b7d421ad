@@ -22,4 +22,7 @@ export function useToast() {
   return customToast;
 }
 
+// Export the toast function directly
+export const toast = useToast();
+
 export { ToastProvider, ToastViewport } from "@/components/ui/toast"
