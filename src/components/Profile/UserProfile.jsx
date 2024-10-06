@@ -12,10 +12,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { updateUserProfile, uploadProfileImage } from '../../firebase/firebaseOperations';
 
 const countries = [
-  { code: 'BR', name: 'Brasil', flag: '🇧🇷', ddi: '+55' },
-  { code: 'US', name: 'Estados Unidos', flag: '🇺🇸', ddi: '+1' },
-  { code: 'PT', name: 'Portugal', flag: '🇵🇹', ddi: '+351' },
-  // Adicione mais países conforme necessário
+  { code: 'BR', flag: '🇧🇷', ddi: '+55' },
+  { code: 'US', flag: '🇺🇸', ddi: '+1' },
+  { code: 'CN', flag: '🇨🇳', ddi: '+86' },
+  { code: 'MX', flag: '🇲🇽', ddi: '+52' },
+  { code: 'CO', flag: '🇨🇴', ddi: '+57' },
+  { code: 'CA', flag: '🇨🇦', ddi: '+1' },
+  { code: 'AU', flag: '🇦🇺', ddi: '+61' },
+  { code: 'ID', flag: '🇮🇩', ddi: '+62' },
 ];
 
 const UserProfile = () => {
@@ -64,7 +68,7 @@ const UserProfile = () => {
       await updateUserProfile(user.uid, {
         displayName: name,
         email,
-        phone: `${country.ddi} ${phone}`,
+        phone: `${country.ddi}${phone}`,
         address,
         country: country.code,
       });
@@ -136,9 +140,9 @@ const UserProfile = () => {
                           <SelectValue placeholder="Selecione um país" />
                         </SelectTrigger>
                         <SelectContent>
-                          {countries.map((country) => (
-                            <SelectItem key={country.code} value={country.code}>
-                              {country.flag} {country.name} ({country.ddi})
+                          {countries.map((c) => (
+                            <SelectItem key={c.code} value={c.code}>
+                              {c.flag}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -148,7 +152,7 @@ const UserProfile = () => {
                       <Label htmlFor="phone">Telefone</Label>
                       <div className="flex">
                         <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md">
-                          {country.ddi}
+                          {country.flag} {country.ddi}
                         </span>
                         <Input
                           id="phone"
