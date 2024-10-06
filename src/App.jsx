@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, ProtectedRoute, useAuth } from "./components/Auth/AuthProvider";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Dashboard from "./components/Dashboard/Dashboard";
@@ -92,13 +93,15 @@ const AppRoutes = () => (
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Router>
-        <AuthProvider>
-          <Toaster position="top-right" />
-          <AppRoutes />
-          <ChatWidget />
-        </AuthProvider>
-      </Router>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
+        <Router>
+          <AuthProvider>
+            <Toaster position="top-right" />
+            <AppRoutes />
+            <ChatWidget />
+          </AuthProvider>
+        </Router>
+      </GoogleOAuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

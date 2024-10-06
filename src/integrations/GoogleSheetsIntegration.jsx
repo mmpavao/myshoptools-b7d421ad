@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
-import { google } from 'googleapis';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -24,9 +23,13 @@ const GoogleSheetsIntegration = () => {
 
   const fetchSpreadsheets = async () => {
     try {
-      const sheets = google.sheets({ version: 'v4', auth: accessToken });
-      const response = await sheets.spreadsheets.list();
-      setSpreadsheets(response.data.files);
+      const response = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      const data = await response.json();
+      setSpreadsheets(data.files || []);
     } catch (error) {
       console.error('Error fetching spreadsheets:', error);
     }
