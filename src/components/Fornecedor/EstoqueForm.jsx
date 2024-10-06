@@ -6,8 +6,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { formatCurrency, parseCurrency } from '../../utils/currencyUtils';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { Sparkles } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-const EstoqueForm = ({ novoProduto, handleInputChange, handleFileChange, handleSubmit, calcularMarkup, updateFotos }) => {
+const EstoqueForm = ({ 
+  novoProduto, 
+  handleInputChange, 
+  handleFileChange, 
+  handleSubmit, 
+  calcularMarkup, 
+  updateFotos,
+  generateAIContent
+}) => {
   const handleCurrencyChange = (e) => {
     const { name, value } = e.target;
     const numericValue = parseCurrency(value);
@@ -26,7 +36,26 @@ const EstoqueForm = ({ novoProduto, handleInputChange, handleFileChange, handleS
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="titulo">Título do Produto</Label>
+          <Label htmlFor="titulo" className="flex items-center">
+            Título do Produto
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="ml-2" 
+                    onClick={() => generateAIContent('titulo', novoProduto.sku)}
+                  >
+                    <Sparkles className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Gerar título com IA</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </Label>
           <Input id="titulo" name="titulo" value={novoProduto.titulo} onChange={handleInputChange} placeholder="Ex: Smartphone XYZ" />
         </div>
         <div className="space-y-2">
@@ -36,7 +65,26 @@ const EstoqueForm = ({ novoProduto, handleInputChange, handleFileChange, handleS
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="descricao">Descrição</Label>
+        <Label htmlFor="descricao" className="flex items-center">
+          Descrição
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="ml-2" 
+                  onClick={() => generateAIContent('descricao', `${novoProduto.titulo} ${novoProduto.sku}`)}
+                >
+                  <Sparkles className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Gerar descrição com IA</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </Label>
         <Textarea id="descricao" name="descricao" value={novoProduto.descricao} onChange={handleInputChange} placeholder="Descreva as características do produto" className="h-20" />
       </div>
 

@@ -23,7 +23,8 @@ const Estoque = () => {
     handleEditProduct,
     resetNovoProduto,
     calcularMarkup,
-    updateFotos
+    updateFotos,
+    generateAIContent
   } = useEstoque();
 
   const produtosFiltrados = produtos.filter(produto =>
@@ -57,6 +58,7 @@ const Estoque = () => {
               handleSubmit={handleSubmit}
               calcularMarkup={calcularMarkup}
               updateFotos={updateFotos}
+              generateAIContent={generateAIContent}
             />
           </DialogContent>
         </Dialog>

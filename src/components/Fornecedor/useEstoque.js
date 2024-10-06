@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { parseCurrency } from '../../utils/currencyUtils';
+import { chatWithBot } from '../../integrations/openAIOperations';
 
 export const useEstoque = () => {
   const [produtos, setProdutos] = useState([]);
@@ -107,6 +108,37 @@ export const useEstoque = () => {
     return '0%';
   };
 
+  const generateAIContent = async (field, prompt) => {
+    try {
+      const apiKey = localStorage.getItem('openaiApiKey');
+      if (!apiKey) {
+        console.error("API key not found");
+        return;
+      }
+
+      const assistantId = localStorage.getItem('defaultAssistantId');
+      if (!assistantId) {
+        console.error("Default assistant ID not found");
+        return;
+      }
+
+      let message;
+      if (field === 'titulo') {
+        message = `Gere um título atrativo e conciso para um produto com o SKU ${prompt}. O título deve ter no máximo 100 caracteres.`;
+      } else if (field === 'descricao') {
+        message = `Crie uma descrição detalhada e atrativa para o produto "${prompt}". A descrição deve ter entre 100 e 500 caracteres e destacar os principais benefícios e características do produto.`;
+      }
+
+      const response = await chatWithBot(apiKey, assistantId, message);
+      
+      if (response && response.response) {
+        setNovoProduto(prev => ({ ...prev, [field]: response.response.trim() }));
+      }
+    } catch (error) {
+      console.error("Erro ao gerar conteúdo com IA:", error);
+    }
+  };
+
   return {
     produtos,
     novoProduto,
@@ -121,6 +153,7 @@ export const useEstoque = () => {
     handleEditProduct,
     resetNovoProduto,
     calcularMarkup,
-    updateFotos
+    updateFotos,
+    generateAIContent,
   };
 };
