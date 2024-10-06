@@ -6,23 +6,23 @@ import { safeFirestoreOperation } from '../utils/errorReporting';
 import { toast } from '@/components/ui/use-toast';
 
 // Basic CRUD operations
-export const createDocument = (collectionName, data) => 
+const createDocument = (collectionName, data) => 
   safeFirestoreOperation(() => addDoc(collection(db, collectionName), data));
 
-export const readDocument = (collectionName, docId) => 
+const readDocument = (collectionName, docId) => 
   safeFirestoreOperation(() => getDoc(doc(db, collectionName, docId)));
 
-export const updateDocument = (collectionName, docId, data) => 
+const updateDocument = (collectionName, docId, data) => 
   safeFirestoreOperation(() => updateDoc(doc(db, collectionName, docId), data));
 
-export const deleteDocument = (collectionName, docId) => 
+const deleteDocument = (collectionName, docId) => 
   safeFirestoreOperation(() => deleteDoc(doc(db, collectionName, docId)));
 
 // User-related operations
-export const createUser = (userData) => 
+const createUser = (userData) => 
   safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), userData));
 
-export const updateUserProfile = async (userId, profileData) => {
+const updateUserProfile = async (userId, profileData) => {
   try {
     const userRef = doc(db, 'users', userId);
     await setDoc(userRef, profileData, { merge: true });
@@ -44,7 +44,7 @@ export const updateUserProfile = async (userId, profileData) => {
 };
 
 // File operations
-export const uploadFile = async (file, path, onProgress) => {
+const uploadFile = async (file, path, onProgress) => {
   try {
     const storageRef = ref(storage, path);
     const uploadTask = uploadBytesResumable(storageRef, file);
@@ -76,7 +76,7 @@ export const uploadFile = async (file, path, onProgress) => {
   }
 };
 
-export const uploadProfileImage = async (file, userId) => {
+const uploadProfileImage = async (file, userId) => {
   const path = `avatars/${userId}_${Date.now()}_${file.name}`;
   try {
     const downloadURL = await uploadFile(file, path);
@@ -88,7 +88,7 @@ export const uploadProfileImage = async (file, userId) => {
   }
 };
 
-export const deleteFile = async (path) => {
+const deleteFile = async (path) => {
   try {
     const fileRef = ref(storage, path);
     await deleteObject(fileRef);
@@ -99,7 +99,7 @@ export const deleteFile = async (path) => {
   }
 };
 
-export const listStorageFiles = async () => {
+const listStorageFiles = async () => {
   const folders = ['uploads', 'avatars'];
   let allFiles = [];
 
@@ -130,28 +130,8 @@ export const listStorageFiles = async () => {
   return allFiles;
 };
 
-export const updateUserProfile = async (userId, profileData) => {
-  try {
-    const userRef = doc(db, 'users', userId);
-    await setDoc(userRef, profileData, { merge: true });
-    
-    if (auth.currentUser) {
-      await updateProfile(auth.currentUser, {
-        displayName: profileData.displayName,
-        photoURL: profileData.photoURL,
-        phoneNumber: profileData.phoneNumber,
-      });
-    }
-    
-    console.log('Perfil do usuário atualizado com sucesso');
-    return true;
-  } catch (error) {
-    console.error('Erro ao atualizar perfil do usuário:', error);
-    throw error;
-  }
-};
-
-export const testFirebaseOperations = async (logCallback) => {
+// Test and initialization functions
+const testFirebaseOperations = async (logCallback) => {
   try {
     const testDoc = await createDocument('test_collection', { test: 'data' });
     logCallback({ step: 'Create Document', status: 'success', message: 'Document created successfully' });
@@ -186,7 +166,7 @@ export const testFirebaseOperations = async (logCallback) => {
   }
 };
 
-export const clearAllData = async () => {
+const clearAllData = async () => {
   try {
     const collections = ['test_collection', 'products', 'orders'];
     for (const collectionName of collections) {
@@ -212,18 +192,31 @@ export const clearAllData = async () => {
   }
 };
 
-// Função auxiliar para criar várias coleções de uma vez
-export const initializeCollections = async () => {
+const initializeCollections = async () => {
   try {
     await createUser({ uid: 'testUser', name: 'Test User', email: 'test@example.com' });
-    await createProduct({ name: 'Test Product', price: 9.99, description: 'This is a test product' });
     await createOrder({ userId: 'testUser', products: ['testProductId'], total: 9.99 });
     await createCategory({ name: 'Test Category' });
     await createReview({ userId: 'testUser', productId: 'testProductId', rating: 5, comment: 'Great product!' });
-    
     console.log('Coleções inicializadas com sucesso');
   } catch (error) {
     console.error('Erro ao inicializar coleções:', error);
     throw error;
   }
+};
+
+export {
+  createDocument,
+  readDocument,
+  updateDocument,
+  deleteDocument,
+  createUser,
+  updateUserProfile,
+  uploadFile,
+  uploadProfileImage,
+  deleteFile,
+  listStorageFiles,
+  testFirebaseOperations,
+  clearAllData,
+  initializeCollections
 };
