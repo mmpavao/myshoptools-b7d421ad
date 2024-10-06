@@ -8,7 +8,10 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "firebase deploy --only functions",  // Adicionado para Firebase deploy
+    "serve": "firebase emulators:start",           // Iniciar emulador do Firebase
+    "postinstall": "npm install --prefix functions" // Instalar dependências do Firebase Functions após o deploy
   },
   "dependencies": {
     "@hookform/resolvers": "^3.6.0",
