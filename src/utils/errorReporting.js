@@ -7,7 +7,9 @@ const createSafeErrorObject = (error) => ({
 const safePostMessage = (target, message, origin) => {
   if (target && typeof target.postMessage === 'function') {
     try {
-      target.postMessage(message, origin);
+      // Ensure the message is serializable
+      const safeMessage = JSON.parse(JSON.stringify(message));
+      target.postMessage(safeMessage, origin);
     } catch (postMessageError) {
       console.error('Error in postMessage:', postMessageError);
     }
@@ -21,7 +23,7 @@ export const reportHTTPError = (error) => {
 
   safePostMessage(window.parent, {
     type: 'error',
-    data: JSON.parse(JSON.stringify(errorData)),
+    data: errorData,
   }, '*');
 };
 
