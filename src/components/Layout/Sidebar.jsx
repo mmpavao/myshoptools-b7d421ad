@@ -13,6 +13,8 @@ import {
   Users,
   Settings,
   MessageSquare,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../Auth/AuthProvider';
 import { getUserRole } from '../../firebase/userOperations';
