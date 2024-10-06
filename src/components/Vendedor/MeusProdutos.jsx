@@ -5,11 +5,11 @@ import { Link } from 'react-router-dom';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { toast } from "@/components/ui/use-toast";
-import { useAuth } from '../../hooks/useAuth'; // Certifique-se de que este hook existe e fornece o usuário atual
+import { useAuth } from '../../components/Auth/AuthProvider';
 
 const MeusProdutos = () => {
   const [produtos, setProdutos] = useState([]);
-  const { user } = useAuth(); // Hook para obter o usuário atual
+  const { user } = useAuth();
 
   useEffect(() => {
     if (user) {

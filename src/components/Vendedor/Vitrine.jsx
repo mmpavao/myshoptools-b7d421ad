@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { getProducts, importarProduto, verificarProdutoImportado } from '../../firebase/firebaseOperations';
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth'; // Certifique-se de que este hook existe e fornece o usuário atual
+import { useAuth } from '../../components/Auth/AuthProvider';
 
 const Vitrine = () => {
   const [produtos, setProdutos] = useState([]);
   const [produtosImportados, setProdutosImportados] = useState({});
   const navigate = useNavigate();
-  const { user } = useAuth(); // Hook para obter o usuário atual
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchProdutos();
