@@ -23,6 +23,16 @@ const Vitrine = () => {
     }
   }, [user]);
 
+  const renderProductImage = (foto) => {
+    if (typeof foto === 'string') {
+      return <img src={foto} alt="Produto" className="w-full h-48 object-cover mb-2" />;
+    } else if (foto instanceof File) {
+      return <img src={URL.createObjectURL(foto)} alt="Produto" className="w-full h-48 object-cover mb-2" />;
+    } else {
+      return <img src="/placeholder.svg" alt="Placeholder" className="w-full h-48 object-cover mb-2" />;
+    }
+  };
+
   const fetchProdutos = async () => {
     try {
       const produtosData = await firebaseOperations.getProducts();
@@ -103,6 +113,7 @@ const Vitrine = () => {
     produto.sku.toLowerCase().includes(filtro.toLowerCase())
   );
 
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Vitrine</h1>
@@ -119,15 +130,10 @@ const Vitrine = () => {
               <CardTitle className="line-clamp-2 h-14 overflow-hidden">{produto.titulo}</CardTitle>
             </CardHeader>
             <CardContent className="flex-grow">
-              {produto.fotos && produto.fotos.length > 0 ? (
-                <img 
-                  src={typeof produto.fotos[0] === 'string' ? produto.fotos[0] : URL.createObjectURL(produto.fotos[0])} 
-                  alt={produto.titulo} 
-                  className="w-full h-48 object-cover mb-2" 
-                />
-              ) : (
-                <img src="/placeholder.svg" alt="Placeholder" className="w-full h-48 object-cover mb-2" />
-              )}
+              {produto.fotos && produto.fotos.length > 0
+                ? renderProductImage(produto.fotos[0])
+                : <img src="/placeholder.svg" alt="Placeholder" className="w-full h-48 object-cover mb-2" />
+              }
               <p className="text-2xl font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
               {produto.desconto > 0 && (
                 <div>

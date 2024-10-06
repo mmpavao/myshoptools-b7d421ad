@@ -67,14 +67,10 @@ export const analyzeDocument = async (apiKey, file) => {
   }
 };
 
-
 export const analyzeImage = async (apiKey, imageFile) => {
   try {
     const openai = createOpenAIClient(apiKey);
-    const formData = new FormData();
-    formData.append('file', imageFile);
-    formData.append('model', 'gpt-4-vision-preview');
-    formData.append('prompt', 'Analyze this image and provide a brief description.');
+    const base64Image = await imageFileToBase64(imageFile);
 
     const response = await openai.chat.completions.create({
       model: "gpt-4-vision-preview",
@@ -86,12 +82,13 @@ export const analyzeImage = async (apiKey, imageFile) => {
             {
               type: "image_url",
               image_url: {
-                url: `data:image/jpeg;base64,${await imageFileToBase64(imageFile)}`,
+                url: `data:image/jpeg;base64,${base64Image}`,
               },
             },
           ],
         },
       ],
+      max_tokens: 300,
     });
 
     return response.choices[0].message.content;
@@ -108,7 +105,6 @@ const imageFileToBase64 = (file) => {
     reader.onerror = error => reject(error);
   });
 };
-
 
 export const generateImage = async (apiKey, prompt) => {
   try {
@@ -176,12 +172,9 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
       model: "gpt-3.5-turbo",
     };
 
-    let assistant;
-    if (isUpdate) {
-      assistant = await openai.beta.assistants.update(botData.assistantId, assistantData);
-    } else {
-      assistant = await openai.beta.assistants.create(assistantData);
-    }
+    let assistant = isUpdate
+      ? await openai.beta.assistants.update(botData.assistantId, assistantData)
+      : await openai.beta.assistants.create(assistantData);
 
     const botDocData = {
       ...botData,
@@ -189,15 +182,11 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
       avatar: botData.avatar || null,
       updatedAt: new Date().toISOString(),
       model: "gpt-3.5-turbo",
+      createdAt: isUpdate ? botData.createdAt : new Date().toISOString(),
     };
 
-    if (!isUpdate) {
-      botDocData.createdAt = new Date().toISOString();
-    }
-
     const docRef = isUpdate ? doc(db, 'bots', botData.id) : collection(db, 'bots');
-    const operation = isUpdate ? updateDoc : addDoc;
-    await operation(docRef, botDocData);
+    await (isUpdate ? updateDoc : addDoc)(docRef, botDocData);
 
     return { id: isUpdate ? botData.id : docRef.id, ...botDocData };
   } catch (error) {
