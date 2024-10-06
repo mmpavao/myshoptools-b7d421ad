@@ -230,6 +230,40 @@ const meusProdutosOperations = {
   },
 };
 
+const testFirebaseOperations = async (logCallback) => {
+  try {
+    logCallback({ step: 'Starting Firebase test', status: 'info' });
+    
+    // Test product creation
+    const testProduct = { title: 'Test Product', price: 9.99 };
+    const productId = await productOperations.createProduct(testProduct);
+    logCallback({ step: 'Product created', status: 'success' });
+    
+    // Test product retrieval
+    const retrievedProduct = await productOperations.getProduct(productId);
+    logCallback({ step: 'Product retrieved', status: 'success' });
+    
+    // Test product update
+    await productOperations.updateProduct(productId, { price: 19.99 });
+    logCallback({ step: 'Product updated', status: 'success' });
+    
+    // Test product deletion
+    await productOperations.deleteProduct(productId);
+    logCallback({ step: 'Product deleted', status: 'success' });
+    
+    logCallback({ step: 'All Firebase operations completed successfully', status: 'success' });
+  } catch (error) {
+    logCallback({ step: 'Error during Firebase test', status: 'error', message: error.message });
+    throw error;
+  }
+};
+
+const clearAllData = async () => {
+  // Implementation for clearing all data
+  // This is a placeholder and should be implemented with caution
+  console.warn('clearAllData function is not implemented');
+};
+
 const firebaseOperations = {
   ...crudOperations,
   ...userOperations,
