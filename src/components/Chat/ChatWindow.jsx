@@ -71,44 +71,42 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }
 
       if (selectedAgent === 'zilda') {
         if (!apiKey) {
-          toast.error('OpenAI API key is not set. Please configure it in your settings.');
-          return;
+          throw new Error('OpenAI API key is not set. Please configure it in your settings.');
         }
         const zildaBot = activeBots.find(bot => bot.name.toLowerCase() === 'zilda');
-        if (zildaBot) {
-          let botResponse;
-          if (type === 'file') {
-            botResponse = await analyzeDocument(apiKey, content);
-          } else if (type === 'audio') {
-            const transcription = await transcribeAudio(apiKey, content);
-            botResponse = await chatWithBot(apiKey, zildaBot.assistantId, transcription);
-            const audioUrl = await textToSpeech(apiKey, botResponse.response, zildaBot.voice || 'alloy');
-            botResponse = { ...botResponse, audioUrl };
-          } else {
-            botResponse = await chatWithBot(apiKey, zildaBot.assistantId, content);
-          }
+        if (!zildaBot) {
+          throw new Error('Zilda bot is not available. Please try again later.');
+        }
 
-          await addDoc(collection(db, 'messages'), {
-            text: botResponse.response,
-            createdAt: serverTimestamp(),
-            userId: 'zilda',
-            userName: 'Zilda (Bot)',
-            agentId: 'zilda',
-            type: type === 'audio' ? 'audio' : 'text',
-            audioUrl: botResponse.audioUrl
-          });
-
-          if (botResponse.efficiency) {
-            toast.success(`Bot efficiency: ${botResponse.efficiency}%`);
-          }
+        let botResponse;
+        if (type === 'file') {
+          botResponse = await analyzeDocument(apiKey, content);
+        } else if (type === 'audio') {
+          const transcription = await transcribeAudio(apiKey, content);
+          botResponse = await chatWithBot(apiKey, zildaBot.assistantId, transcription);
+          const audioUrl = await textToSpeech(apiKey, botResponse.response, zildaBot.voice || 'alloy');
+          botResponse = { ...botResponse, audioUrl };
         } else {
-          console.error('Zilda bot not found');
-          toast.error('Zilda bot is not available. Please try again later.');
+          botResponse = await chatWithBot(apiKey, zildaBot.assistantId, content);
+        }
+
+        await addDoc(collection(db, 'messages'), {
+          text: botResponse.response,
+          createdAt: serverTimestamp(),
+          userId: 'zilda',
+          userName: 'Zilda (Bot)',
+          agentId: 'zilda',
+          type: type === 'audio' ? 'audio' : 'text',
+          audioUrl: botResponse.audioUrl
+        });
+
+        if (botResponse.efficiency) {
+          toast.success(`Bot efficiency: ${botResponse.efficiency}%`);
         }
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error('Failed to send message. Please try again.');
+      toast.error(`Failed to send message: ${error.message}`);
     } finally {
       setMessage('');
       setIsBotResponding(false);
@@ -227,6 +225,7 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }
       </CardFooter>
     </Card>
   );
+};
 };
 
 export default ChatWindow;
