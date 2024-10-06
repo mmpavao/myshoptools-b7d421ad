@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import firebaseOperations from '../../firebase/firebaseOperations';
+import { parseCurrency } from '../../utils/currencyUtils';
 
 export const useEstoque = () => {
   const [produtos, setProdutos] = useState([]);
@@ -24,7 +25,15 @@ export const useEstoque = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNovoProduto(prev => ({ ...prev, [name]: value }));
+    let parsedValue = value;
+
+    if (['preco', 'vendaSugerida'].includes(name)) {
+      parsedValue = parseCurrency(value);
+    } else if (['estoque', 'desconto'].includes(name)) {
+      parsedValue = parseInt(value, 10) || 0;
+    }
+
+    setNovoProduto(prev => ({ ...prev, [name]: parsedValue }));
   };
 
   const handleFileChange = async (e) => {
@@ -88,7 +97,8 @@ export const useEstoque = () => {
     const precoVenda = Number(novoProduto.vendaSugerida);
     const precoCusto = Number(novoProduto.preco);
     if (precoCusto > 0) {
-      return ((precoVenda - precoCusto) / precoCusto * 100).toFixed(2) + '%';
+      const markup = ((precoVenda - precoCusto) / precoCusto * 100).toFixed(2);
+      return `${markup}%`;
     }
     return '0%';
   };
