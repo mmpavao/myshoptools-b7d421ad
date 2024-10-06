@@ -4,14 +4,14 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { Navigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
 import { safeLogError } from '../../firebase/config';
-import { Spinner } from '../ui/spinner'; // Vamos criar este componente
+import { Spinner } from '../ui/spinner';
 
 const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   }
   return context;
 };
@@ -28,8 +28,8 @@ export const AuthProvider = ({ children }) => {
       safeLogError(error);
       setLoading(false);
       toast({
-        title: "Authentication Error",
-        description: "There was a problem with the authentication service. Please try again later.",
+        title: "Erro de Autenticação",
+        description: "Houve um problema com o serviço de autenticação. Por favor, tente novamente mais tarde.",
         variant: "destructive",
       });
     });
@@ -41,14 +41,14 @@ export const AuthProvider = ({ children }) => {
     try {
       await signOut(auth);
       toast({
-        title: "Logged out",
-        description: "You have been successfully logged out.",
+        title: "Desconectado",
+        description: "Você foi desconectado com sucesso.",
       });
     } catch (error) {
       safeLogError(error);
       toast({
-        title: "Logout Error",
-        description: "There was a problem logging out. Please try again.",
+        title: "Erro ao Sair",
+        description: "Houve um problema ao sair. Por favor, tente novamente.",
         variant: "destructive",
       });
     }

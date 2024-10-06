@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/form";
 
 const schema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters long" }),
+  email: z.string().email({ message: "Endereço de e-mail inválido" }),
+  password: z.string().min(6, { message: "A senha deve ter pelo menos 6 caracteres" }),
 });
 
 const AuthForm = ({ isLogin }) => {
@@ -51,7 +51,7 @@ const AuthForm = ({ isLogin }) => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="p-6 bg-white rounded shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-4">{isLogin ? 'Login to' : 'Register for'} MyShopTools</h2>
+        <h2 className="text-2xl font-bold mb-4">{isLogin ? 'Entrar no' : 'Registrar-se no'} MyShopTools</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -60,7 +60,7 @@ const AuthForm = ({ isLogin }) => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>E-mail</FormLabel>
                   <FormControl>
                     <Input type="email" {...field} />
                   </FormControl>
@@ -73,7 +73,7 @@ const AuthForm = ({ isLogin }) => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>Senha</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -98,17 +98,17 @@ const AuthForm = ({ isLogin }) => {
               )}
             />
             <Button type="submit" className="w-full">
-              {isLogin ? 'Login' : 'Register'}
+              {isLogin ? 'Entrar' : 'Registrar'}
             </Button>
           </form>
         </Form>
         <p className="mt-4 text-center">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
+          {isLogin ? "Não tem uma conta?" : "Já tem uma conta?"}{' '}
           <a
             href={isLogin ? "/register" : "/login"}
             className="text-blue-500 hover:underline"
           >
-            {isLogin ? 'Register here' : 'Login here'}
+            {isLogin ? 'Registre-se aqui' : 'Entre aqui'}
           </a>
         </p>
       </div>
