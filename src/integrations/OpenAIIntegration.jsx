@@ -11,17 +11,11 @@ import APIKeyManager from './components/APIKeyManager';
 const OpenAIIntegration = () => {
   const [bots, setBots] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [currentBot, setCurrentBot] = useState({
-    name: '',
-    instructions: '',
-    model: 'gpt-3.5-turbo',
-    temperature: 1,
-  });
+  const [currentBot, setCurrentBot] = useState({ name: '', instructions: '', model: 'gpt-3.5-turbo', temperature: 1 });
   const [isEditing, setIsEditing] = useState(false);
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openaiApiKey') || '');
   const [connectionStatus, setConnectionStatus] = useState('Not connected');
   const [logs, setLogs] = useState([]);
-  const [errorDetails, setErrorDetails] = useState('');
 
   useEffect(() => {
     if (apiKey) {
@@ -45,22 +39,14 @@ const OpenAIIntegration = () => {
       const isConnected = await testOpenAIConnection(apiKey);
       if (isConnected) {
         setConnectionStatus('Connected');
-        setErrorDetails('');
         addLog('Successfully connected to OpenAI', 'success');
         toast.success('Successfully connected to OpenAI');
         await fetchBots();
-      } else {
-        setConnectionStatus('Connection failed');
-        setErrorDetails('Unknown error occurred');
-        addLog('Failed to connect to OpenAI', 'error');
-        toast.error('Failed to connect to OpenAI');
       }
     } catch (error) {
-      console.error('Error testing connection:', error);
       setConnectionStatus('Connection error');
-      setErrorDetails(error.message);
       addLog(`Error testing connection: ${error.message}`, 'error');
-      toast.error('Error testing connection to OpenAI');
+      toast.error(`Error connecting to OpenAI: ${error.message}`);
     }
   };
 
@@ -76,34 +62,13 @@ const OpenAIIntegration = () => {
       setBots(fetchedBots);
       toast.success(`Successfully fetched ${fetchedBots.length} bots`);
     } catch (error) {
-      console.error('Error fetching bots:', error);
       addLog(`Failed to fetch bots: ${error.message}`, 'error');
-      toast.error('Failed to fetch bots: ' + error.message);
-      handleFetchError(error);
-    }
-  };
-
-  const handleFetchError = (error) => {
-    if (error.message.includes('Authentication failed')) {
-      setConnectionStatus('Authentication failed');
-      setErrorDetails('Please check your API key and try again.');
-    } else if (error.message.includes('Access forbidden') || error.message.includes('insufficient permissions')) {
-      setConnectionStatus('Access forbidden');
-      setErrorDetails('Your OpenAI account may not have access to the Assistants API. Please check your account settings and ensure you have the necessary permissions. If the issue persists, contact OpenAI support.');
-    } else {
-      setConnectionStatus('Error fetching bots');
-      setErrorDetails(error.message);
-      console.error('Detailed error:', error);
+      toast.error(`Failed to fetch bots: ${error.message}`);
     }
   };
 
   const handleOpenDialog = (bot = null) => {
-    setCurrentBot(bot || {
-      name: '',
-      instructions: '',
-      model: 'gpt-3.5-turbo',
-      temperature: 1,
-    });
+    setCurrentBot(bot || { name: '', instructions: '', model: 'gpt-3.5-turbo', temperature: 1 });
     setIsEditing(!!bot);
     setIsDialogOpen(true);
   };
@@ -126,9 +91,8 @@ const OpenAIIntegration = () => {
       setIsDialogOpen(false);
       await fetchBots();
     } catch (error) {
-      console.error('Error saving bot:', error);
       addLog(`Failed to save bot: ${error.message}`, 'error');
-      toast.error('Failed to save bot');
+      toast.error(`Failed to save bot: ${error.message}`);
     }
   };
 
@@ -145,9 +109,8 @@ const OpenAIIntegration = () => {
       toast.success('Bot deleted successfully');
       await fetchBots();
     } catch (error) {
-      console.error('Error deleting bot:', error);
       addLog(`Failed to delete bot: ${error.message}`, 'error');
-      toast.error('Failed to delete bot');
+      toast.error(`Failed to delete bot: ${error.message}`);
     }
   };
 
@@ -160,7 +123,6 @@ const OpenAIIntegration = () => {
         onApiKeyChange={handleApiKeyChange}
         onTestConnection={testConnection}
         connectionStatus={connectionStatus}
-        errorDetails={errorDetails}
       />
 
       <BotList
