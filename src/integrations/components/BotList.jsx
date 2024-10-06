@@ -2,7 +2,12 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Edit, MessageSquare, Thermometer } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return isValid(date) ? format(date, 'PPpp') : 'Invalid date';
+};
 
 const BotList = ({ bots, onEdit, onChat }) => (
   <Card className="mb-6">
@@ -29,8 +34,8 @@ const BotList = ({ bots, onEdit, onChat }) => (
                 </div>
               </div>
               <p className="text-sm text-gray-500 mb-2">Model: {bot.model}</p>
-              <p className="text-xs text-gray-400">Created: {format(new Date(bot.createdAt), 'PPpp')}</p>
-              <p className="text-xs text-gray-400">Updated: {format(new Date(bot.updatedAt), 'PPpp')}</p>
+              <p className="text-xs text-gray-400">Created: {formatDate(bot.createdAt)}</p>
+              <p className="text-xs text-gray-400">Updated: {formatDate(bot.updatedAt)}</p>
               <div className="flex items-center mt-2">
                 <Thermometer className="h-4 w-4 mr-2 text-blue-500" />
                 <div className="bg-gray-200 h-2 flex-grow rounded-full">
