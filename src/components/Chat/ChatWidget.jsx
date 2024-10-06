@@ -11,6 +11,7 @@ const ChatWidget = () => {
   const { user } = useAuth();
   const [onlineAgents, setOnlineAgents] = useState([]);
   const [apiKey, setApiKey] = useState('');
+  const [activeBots, setActiveBots] = useState([]);
 
   useEffect(() => {
     if (user) {
@@ -34,12 +35,20 @@ const ChatWidget = () => {
       };
       fetchApiKey();
 
+      // Fetch active bots
+      const fetchActiveBots = async () => {
+        const botsQuery = query(collection(db, 'bots'), where('isActive', '==', true));
+        const botsSnapshot = await getDocs(botsQuery);
+        setActiveBots(botsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      };
+      fetchActiveBots();
+
       return () => unsubscribe();
     }
   }, [user]);
 
   if (!user) {
-    return null; // Don't render anything if the user is not logged in
+    return null;
   }
 
   return (
@@ -49,6 +58,7 @@ const ChatWidget = () => {
           onClose={() => setShowChat(false)} 
           onlineAgents={onlineAgents} 
           apiKey={apiKey}
+          activeBots={activeBots}
         />
       ) : (
         <Button

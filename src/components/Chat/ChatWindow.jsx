@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Send } from 'lucide-react';
+import { X, Send, Paperclip, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,16 +8,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAuth } from '../Auth/AuthProvider';
 import { addDoc, collection, serverTimestamp, query, where, getDocs, onSnapshot, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase/config';
-import { chatWithBot } from '../../integrations/openAIOperations';
+import { chatWithBot, transcribeAudio, textToSpeech, analyzeDocument } from '../../integrations/openAIOperations';
 import { toast } from 'sonner';
 
-const ChatWindow = ({ onClose, onlineAgents, apiKey }) => {
+const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const { user } = useAuth();
-  const [activeBots, setActiveBots] = useState([]);
   const [selectedAgent, setSelectedAgent] = useState('zilda');
   const scrollAreaRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const audioRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isBotResponding, setIsBotResponding] = useState(false);
 
   useEffect(() => {
     const fetchActiveBots = async () => {
@@ -51,45 +55,104 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey }) => {
     }
   }, [messages]);
 
-  const handleSendMessage = async () => {
-    if (message.trim()) {
-      const newMessage = {
-        text: message,
-        createdAt: new Date(),
-        userId: user.uid,
-        userName: user.displayName || user.email,
-        agentId: selectedAgent
-      };
+  const handleSendMessage = async (content, type = 'text') => {
+    if ((type === 'text' && !content.trim()) || isBotResponding) return;
 
-      try {
-        if (selectedAgent === 'zilda') {
-          if (!apiKey) {
-            toast.error('OpenAI API key is not set. Please configure it in your settings.');
-            return;
-          }
-          const zildaBot = activeBots.find(bot => bot.name.toLowerCase() === 'zilda');
-          if (zildaBot) {
-            await addDoc(collection(db, 'messages'), newMessage);
-            const response = await chatWithBot(apiKey, zildaBot.assistantId, message);
-            await addDoc(collection(db, 'messages'), {
-              text: response.response,
-              createdAt: new Date(),
-              userId: 'zilda',
-              userName: 'Zilda (Bot)',
-              agentId: 'zilda'
-            });
+    const newMessage = {
+      text: content,
+      createdAt: new Date(),
+      userId: user.uid,
+      userName: user.displayName || user.email,
+      agentId: selectedAgent,
+      type: type
+    };
+
+    try {
+      setIsBotResponding(true);
+      await addDoc(collection(db, 'messages'), newMessage);
+
+      if (selectedAgent === 'zilda') {
+        if (!apiKey) {
+          toast.error('OpenAI API key is not set. Please configure it in your settings.');
+          return;
+        }
+        const zildaBot = activeBots.find(bot => bot.name.toLowerCase() === 'zilda');
+        if (zildaBot) {
+          let botResponse;
+          if (type === 'file') {
+            botResponse = await analyzeDocument(apiKey, content);
+          } else if (type === 'audio') {
+            const transcription = await transcribeAudio(apiKey, content);
+            botResponse = await chatWithBot(apiKey, zildaBot.assistantId, transcription);
+            const audioUrl = await textToSpeech(apiKey, botResponse.response, zildaBot.voice || 'alloy');
+            botResponse = { ...botResponse, audioUrl };
           } else {
-            console.error('Zilda bot not found');
-            toast.error('Zilda bot is not available. Please try again later.');
+            botResponse = await chatWithBot(apiKey, zildaBot.assistantId, content);
+          }
+
+          await addDoc(collection(db, 'messages'), {
+            text: botResponse.response,
+            createdAt: new Date(),
+            userId: 'zilda',
+            userName: 'Zilda (Bot)',
+            agentId: 'zilda',
+            type: type === 'audio' ? 'audio' : 'text',
+            audioUrl: botResponse.audioUrl
+          });
+
+          if (botResponse.efficiency) {
+            toast.success(`Bot efficiency: ${botResponse.efficiency}%`);
           }
         } else {
-          await addDoc(collection(db, 'messages'), newMessage);
+          console.error('Zilda bot not found');
+          toast.error('Zilda bot is not available. Please try again later.');
         }
-        setMessage('');
-      } catch (error) {
-        console.error('Error sending message:', error);
-        toast.error('Failed to send message. Please try again.');
       }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message. Please try again.');
+    } finally {
+      setMessage('');
+      setIsBotResponding(false);
+    }
+  };
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      handleSendMessage(file, 'file');
+    }
+  };
+
+  const handleVoiceChat = () => {
+    if (!isRecording) {
+      startRecording();
+    } else {
+      stopRecording();
+    }
+  };
+
+  const startRecording = () => {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        mediaRecorderRef.current = new MediaRecorder(stream);
+        mediaRecorderRef.current.ondataavailable = (event) => {
+          const audioBlob = new Blob([event.data], { type: 'audio/wav' });
+          handleSendMessage(audioBlob, 'audio');
+        };
+        mediaRecorderRef.current.start();
+        setIsRecording(true);
+      })
+      .catch(error => {
+        console.error('Error accessing microphone:', error);
+        toast.error('Failed to access microphone. Please check your permissions.');
+      });
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
     }
   };
 
@@ -106,11 +169,22 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey }) => {
           {messages.map((msg, index) => (
             <div key={index} className={`mb-2 ${msg.userId === user.uid ? 'text-right' : 'text-left'}`}>
               <div className={`inline-block p-2 rounded-lg ${msg.userId === user.uid ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
-                <p className="text-sm">{msg.text}</p>
+                {msg.type === 'audio' ? (
+                  <audio src={msg.audioUrl} controls />
+                ) : (
+                  <p className="text-sm">{msg.text}</p>
+                )}
               </div>
               <p className="text-xs text-gray-500 mt-1">{msg.userName}</p>
             </div>
           ))}
+          {isBotResponding && (
+            <div className="mb-2 text-left">
+              <div className="inline-block p-2 rounded-lg bg-gray-200">
+                <p className="text-sm">Typing...</p>
+              </div>
+            </div>
+          )}
         </ScrollArea>
       </CardContent>
       <CardFooter className="flex flex-col space-y-2">
@@ -132,9 +206,22 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey }) => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Digite sua mensagem..."
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(message)}
           />
-          <Button onClick={handleSendMessage}>
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+            onChange={handleFileUpload}
+            accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv"
+          />
+          <Button onClick={() => fileInputRef.current.click()} disabled={isBotResponding}>
+            <Paperclip className="h-4 w-4" />
+          </Button>
+          <Button onClick={handleVoiceChat} disabled={isBotResponding}>
+            <Mic className="h-4 w-4" color={isRecording ? 'red' : 'currentColor'} />
+          </Button>
+          <Button onClick={() => handleSendMessage(message)} disabled={isBotResponding}>
             <Send className="h-4 w-4" />
           </Button>
         </div>
