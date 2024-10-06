@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '../ui/button';
-import { testFirebaseOperations, clearAllData } from '../../firebase/firebaseOperations';
+import firebaseOperations from '../../firebase/firebaseOperations';
 import FirebaseTestLog from '../Dashboard/FirebaseTestLog';
 import ImageUpload from '../Dashboard/ImageUpload';
 import {
@@ -25,7 +25,7 @@ const LogsPage = () => {
   const handleTestFirebase = async () => {
     setIsTestingFirebase(true);
     setLogs([]);
-    await testFirebaseOperations((log) => {
+    await firebaseOperations.testFirebaseOperations((log) => {
       setLogs((prevLogs) => [...prevLogs, log]);
     });
     setIsTestingFirebase(false);
@@ -34,7 +34,7 @@ const LogsPage = () => {
   const handleClearData = async () => {
     if (pin === '1520') {
       try {
-        await clearAllData();
+        await firebaseOperations.clearAllData();
         toast({
           title: "Sucesso",
           description: "Todos os dados foram apagados com sucesso.",

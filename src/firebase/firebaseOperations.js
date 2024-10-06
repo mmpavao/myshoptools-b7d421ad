@@ -5,7 +5,6 @@ import { updateProfile } from 'firebase/auth';
 import { safeFirestoreOperation } from '../utils/errorReporting';
 import { toast } from '@/components/ui/use-toast';
 
-// CRUD operations
 const crudOperations = {
   createDocument: (collectionName, data) => 
     safeFirestoreOperation(() => addDoc(collection(db, collectionName), data)),
@@ -137,11 +136,10 @@ const fileOperations = {
 };
 
 // Test functions
-const testOperations = {
-  testFirebaseOperations: async (logCallback) => {
-    try {
-      const testDoc = await crudOperations.createDocument('test_collection', { test: 'data' });
-      logCallback({ step: 'Create Document', status: 'success', message: 'Document created successfully' });
+const testFirebaseOperations = async (logCallback) => {
+  try {
+    const testDoc = await crudOperations.createDocument('test_collection', { test: 'data' });
+    logCallback({ step: 'Create Document', status: 'success', message: 'Document created successfully' });
 
       await crudOperations.readDocument('test_collection', testDoc.id);
       logCallback({ step: 'Read Document', status: 'success', message: 'Document read successfully' });
@@ -166,33 +164,34 @@ const testOperations = {
       await fileOperations.deleteFile(uploadPath);
       logCallback({ step: 'Delete File', status: 'success', message: 'File deleted successfully' });
 
-      logCallback({ step: 'All Tests', status: 'success', message: 'All Firebase operations completed successfully' });
-    } catch (error) {
-      console.error('Error during Firebase operations test:', error);
-      logCallback({ step: 'Error', status: 'error', message: `Test failed: ${error.message}` });
+
+    logCallback({ step: 'All Tests', status: 'success', message: 'All Firebase operations completed successfully' });
+  } catch (error) {
+    console.error('Error during Firebase operations test:', error);
+    logCallback({ step: 'Error', status: 'error', message: `Test failed: ${error.message}` });
+  }
+};
+
+const clearAllData = async () => {
+  const collections = ['test_collection', 'products', 'orders'];
+  const folders = ['uploads', 'avatars', 'products'];
+
+  try {
+    for (const collectionName of collections) {
+      const querySnapshot = await getDocs(collection(db, collectionName));
+      await Promise.all(querySnapshot.docs.map(doc => deleteDoc(doc.ref)));
     }
-  },
-  clearAllData: async () => {
-    const collections = ['test_collection', 'products', 'orders'];
-    const folders = ['uploads', 'avatars', 'products'];
 
-    try {
-      for (const collectionName of collections) {
-        const querySnapshot = await getDocs(collection(db, collectionName));
-        await Promise.all(querySnapshot.docs.map(doc => deleteDoc(doc.ref)));
-      }
-
-      for (const folder of folders) {
-        const listRef = ref(storage, folder);
-        const res = await listAll(listRef);
-        await Promise.all(res.items.map(itemRef => deleteObject(itemRef)));
-      }
-
-      console.log('All data cleared successfully.');
-    } catch (error) {
-      console.error('Error clearing data:', error);
-      throw error;
+    for (const folder of folders) {
+      const listRef = ref(storage, folder);
+      const res = await listAll(listRef);
+      await Promise.all(res.items.map(itemRef => deleteObject(itemRef)));
     }
+
+    console.log('All data cleared successfully.');
+  } catch (error) {
+    console.error('Error clearing data:', error);
+    throw error;
   }
 };
 
@@ -202,7 +201,8 @@ const firebaseOperations = {
   ...userOperations,
   ...productOperations,
   ...fileOperations,
-  ...testOperations
+  testFirebaseOperations,
+  clearAllData
 };
 
 export default firebaseOperations;
