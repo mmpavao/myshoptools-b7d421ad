@@ -8,14 +8,14 @@ import { safeFirestoreOperation } from '../utils/errorReporting';
 const MASTER_USER_EMAIL = 'pavaosmart@gmail.com';
 const ADMIN_USER_EMAIL = 'marcio@talkmaker.io';
 
-export const createUser = (userData) => 
+const createUser = (userData) => 
   safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), {
     ...userData,
     role: userData.email === MASTER_USER_EMAIL ? 'Master' : (userData.email === ADMIN_USER_EMAIL ? 'Admin' : 'Vendedor'),
     status: 'Active',
   }));
 
-export const updateUserProfile = async (userId, profileData) => {
+const updateUserProfile = async (userId, profileData) => {
   try {
     await setDoc(doc(db, 'users', userId), profileData, { merge: true });
     if (auth.currentUser) {
@@ -31,7 +31,7 @@ export const updateUserProfile = async (userId, profileData) => {
   }
 };
 
-export const getAllUsers = async () => {
+const getAllUsers = async () => {
   try {
     const usersSnapshot = await getDocs(collection(db, 'users'));
     const currentUser = auth.currentUser;
@@ -63,12 +63,12 @@ export const getAllUsers = async () => {
   }
 };
 
-export const updateUserRole = async (userId, newRole) => {
+const updateUserRole = async (userId, newRole) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
     const userData = userDoc.data();
 
-    if (userData.email === MASTER_USER_EMAIL && newRole !== 'Master') {
+    if (userData.email === MASTER_USER_EMAIL) {
       throw new Error('Cannot change Master user role');
     }
 
@@ -90,7 +90,7 @@ export const updateUserRole = async (userId, newRole) => {
   }
 };
 
-export const getUserRole = async (userId) => {
+const getUserRole = async (userId) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
     if (userDoc.exists()) {
@@ -106,8 +106,15 @@ export const getUserRole = async (userId) => {
   }
 };
 
-export const updateUserStatus = async (userId, newStatus) => {
+const updateUserStatus = async (userId, newStatus) => {
   try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    const userData = userDoc.data();
+
+    if (userData.email === MASTER_USER_EMAIL) {
+      throw new Error('Cannot change Master user status');
+    }
+
     await updateDoc(doc(db, 'users', userId), { status: newStatus });
     return true;
   } catch (error) {
@@ -116,8 +123,15 @@ export const updateUserStatus = async (userId, newStatus) => {
   }
 };
 
-export const deleteUser = async (userId) => {
+const deleteUser = async (userId) => {
   try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    const userData = userDoc.data();
+
+    if (userData.email === MASTER_USER_EMAIL) {
+      throw new Error('Cannot delete Master user');
+    }
+
     // Delete user from Authentication
     const user = await auth.getUser(userId);
     if (user) {
@@ -152,4 +166,14 @@ export const deleteUser = async (userId) => {
     console.error('Error deleting user and associated data:', error);
     throw error;
   }
+};
+
+export {
+  createUser,
+  updateUserProfile,
+  getAllUsers,
+  updateUserRole,
+  getUserRole,
+  updateUserStatus,
+  deleteUser
 };

@@ -19,79 +19,81 @@ const getStatusColor = (status) => {
   }
 };
 
-const UserActions = ({ user, isMasterAdmin, onEdit, onToggleStatus, onDelete }) => (
-  <TableCell className="text-right space-x-2">
-    {(isMasterAdmin || user.role !== 'Master') && (
-      <>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button 
-              variant="ghost" 
-              className="h-8 w-8 p-0" 
-              onClick={() => onEdit(user)}
-              disabled={!isMasterAdmin && (user.role === 'Admin' || user.role === 'Master')}
-            >
-              <span className="sr-only">Edit</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-4 h-4"
+const UserActions = ({ user, isMasterAdmin, onEdit, onToggleStatus, onDelete }) => {
+  if (user.role === 'Master') return null;
+
+  return (
+    <TableCell className="text-right space-x-2">
+      {(isMasterAdmin || (user.role !== 'Admin' && user.role !== 'Master')) && (
+        <>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button 
+                variant="ghost" 
+                className="h-8 w-8 p-0" 
+                onClick={() => onEdit(user)}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-                />
-              </svg>
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Edit User Profile</DialogTitle>
-            </DialogHeader>
-            <PersonalInfoForm user={user} updateUserContext={onEdit} />
-          </DialogContent>
-        </Dialog>
-        
-        {isMasterAdmin && (
-          <>
-            <Button
-              variant="outline"
-              onClick={() => onToggleStatus(user.id, user.status)}
-            >
-              {user.status === 'Active' ? 'Deactivate' : 'Activate'}
-            </Button>
-            
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive">Delete</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete the user
-                    account and remove all associated data from our servers, including
-                    authentication records.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => onDelete(user.id)}>
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </>
-        )}
-      </>
-    )}
-  </TableCell>
-);
+                <span className="sr-only">Edit</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                  />
+                </svg>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Edit User Profile</DialogTitle>
+              </DialogHeader>
+              <PersonalInfoForm user={user} updateUserContext={onEdit} />
+            </DialogContent>
+          </Dialog>
+          
+          {isMasterAdmin && (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => onToggleStatus(user.id, user.status)}
+              >
+                {user.status === 'Active' ? 'Deactivate' : 'Activate'}
+              </Button>
+              
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive">Delete</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete the user
+                      account and remove all associated data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onDelete(user.id)}>
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
+          )}
+        </>
+      )}
+    </TableCell>
+  );
+};
 
 export const UserTable = ({ users, onUserUpdate }) => {
   const [selectedUser, setSelectedUser] = useState(null);
@@ -194,7 +196,7 @@ export const UserTable = ({ users, onUserUpdate }) => {
                 <Select
                   value={user.role}
                   onValueChange={(newRole) => handleRoleChange(user.id, newRole)}
-                  disabled={!isMasterAdmin}
+                  disabled={!isMasterAdmin || user.role === 'Master'}
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select a role" />
@@ -203,7 +205,6 @@ export const UserTable = ({ users, onUserUpdate }) => {
                     <SelectItem value="Vendedor">Vendedor</SelectItem>
                     <SelectItem value="Fornecedor">Fornecedor</SelectItem>
                     <SelectItem value="Admin">Admin</SelectItem>
-                    {isMasterAdmin && <SelectItem value="Master">Master</SelectItem>}
                   </SelectContent>
                 </Select>
               )}
