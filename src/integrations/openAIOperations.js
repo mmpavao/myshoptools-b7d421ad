@@ -44,7 +44,8 @@ export const chatWithBot = async (apiKey, assistantId, message) => {
       content: message
     });
     const run = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: assistantId
+      assistant_id: assistantId,
+      model: "gpt-3.5-turbo" // Changed from 'gpt-4' to 'gpt-3.5-turbo'
     });
     
     let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
@@ -133,7 +134,7 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
     const assistantData = {
       name: botData.name,
       instructions: botData.instructions,
-      model: botData.model,
+      model: "gpt-3.5-turbo", // Changed from 'gpt-4' to 'gpt-3.5-turbo'
     };
 
     let assistant;
@@ -146,8 +147,9 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
     const botDocData = {
       ...botData,
       assistantId: assistant.id,
-      avatar: botData.avatar || null, // Use null if avatar is undefined
+      avatar: botData.avatar || null,
       updatedAt: new Date().toISOString(),
+      model: "gpt-3.5-turbo", // Ensure the model is updated in Firestore as well
     };
 
     if (!isUpdate) {
