@@ -1,4 +1,4 @@
-import { useToast as useToastOriginal, toast as toastOriginal } from "@/components/ui/toast"
+import { useToast as useToastOriginal } from "@/components/ui/toast"
 import CustomToast from './CustomToast';
 
 export function useToast() {
