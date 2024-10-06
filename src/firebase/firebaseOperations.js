@@ -5,6 +5,7 @@ import { updateProfile } from 'firebase/auth';
 import { safeFirestoreOperation } from '../utils/errorReporting';
 import { toast } from '@/components/ui/use-toast';
 
+// Basic CRUD operations
 export const createDocument = (collectionName, data) => 
   safeFirestoreOperation(() => addDoc(collection(db, collectionName), data));
 
@@ -17,32 +18,32 @@ export const updateDocument = (collectionName, docId, data) =>
 export const deleteDocument = (collectionName, docId) => 
   safeFirestoreOperation(() => deleteDoc(doc(db, collectionName, docId)));
 
+// User-related operations
 export const createUser = (userData) => 
   safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), userData));
 
-export const createProduct = (productData) => 
-  safeFirestoreOperation(() => addDoc(collection(db, 'products'), productData));
-
-export const createOrder = (orderData) => 
-  safeFirestoreOperation(() => addDoc(collection(db, 'orders'), orderData));
-
-export const createCategory = (categoryData) => 
-  safeFirestoreOperation(() => addDoc(collection(db, 'categories'), categoryData));
-
-export const createReview = (reviewData) => 
-  safeFirestoreOperation(() => addDoc(collection(db, 'reviews'), reviewData));
-
-export const deleteFile = async (path) => {
+export const updateUserProfile = async (userId, profileData) => {
   try {
-    const fileRef = ref(storage, path);
-    await deleteObject(fileRef);
-    console.log(`File deleted successfully: ${path}`);
+    const userRef = doc(db, 'users', userId);
+    await setDoc(userRef, profileData, { merge: true });
+    
+    if (auth.currentUser) {
+      await updateProfile(auth.currentUser, {
+        displayName: profileData.displayName,
+        photoURL: profileData.photoURL,
+        phoneNumber: profileData.phoneNumber,
+      });
+    }
+    
+    console.log('Perfil do usuário atualizado com sucesso');
+    return true;
   } catch (error) {
-    console.error(`Error deleting file: ${path}`, error);
+    console.error('Erro ao atualizar perfil do usuário:', error);
     throw error;
   }
 };
 
+// File operations
 export const uploadFile = async (file, path, onProgress) => {
   try {
     const storageRef = ref(storage, path);
@@ -56,13 +57,7 @@ export const uploadFile = async (file, path, onProgress) => {
         },
         (error) => {
           console.error("Error uploading file: ", error);
-          if (error.code === 'storage/unauthorized') {
-            reject(new Error('Erro de autorização. Verifique as regras do Firebase Storage.'));
-          } else if (error.name === 'AbortError') {
-            reject(new Error('Upload cancelado devido a um erro de CORS. Verifique as configurações do Firebase.'));
-          } else {
-            reject(error);
-          }
+          reject(error);
         },
         async () => {
           try {
@@ -81,6 +76,29 @@ export const uploadFile = async (file, path, onProgress) => {
   }
 };
 
+export const uploadProfileImage = async (file, userId) => {
+  const path = `avatars/${userId}_${Date.now()}_${file.name}`;
+  try {
+    const downloadURL = await uploadFile(file, path);
+    await updateUserProfile(userId, { photoURL: downloadURL });
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading profile image: ", error);
+    throw error;
+  }
+};
+
+export const deleteFile = async (path) => {
+  try {
+    const fileRef = ref(storage, path);
+    await deleteObject(fileRef);
+    console.log(`File deleted successfully: ${path}`);
+  } catch (error) {
+    console.error(`Error deleting file: ${path}`, error);
+    throw error;
+  }
+};
+
 export const listStorageFiles = async () => {
   const folders = ['uploads', 'avatars'];
   let allFiles = [];
@@ -89,11 +107,9 @@ export const listStorageFiles = async () => {
     const listRef = ref(storage, folder);
     try {
       const res = await listAll(listRef);
-      console.log(`Listando arquivos em ${folder}:`, res.items);
       const folderFiles = await Promise.all(res.items.map(async (itemRef) => {
         try {
           const url = await getDownloadURL(itemRef);
-          console.log(`URL obtida para ${itemRef.name}:`, url);
           return { name: itemRef.name, url, folder };
         } catch (error) {
           console.error(`Erro ao obter URL para ${itemRef.name}:`, error);
@@ -111,7 +127,6 @@ export const listStorageFiles = async () => {
     }
   }
 
-  console.log("Todos os arquivos listados:", allFiles);
   return allFiles;
 };
 
