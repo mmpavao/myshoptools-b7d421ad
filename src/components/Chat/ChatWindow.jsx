@@ -11,7 +11,7 @@ import { db } from '../../firebase/config';
 import { chatWithBot, transcribeAudio, textToSpeech, analyzeDocument } from '../../integrations/openAIOperations';
 import { toast } from 'sonner';
 
-const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots }) => {
+const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const { user } = useAuth();
@@ -47,7 +47,7 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots }) => {
     });
 
     return () => unsubscribe();
-  }, [user.uid]);
+  }, [user.uid, setActiveBots]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {

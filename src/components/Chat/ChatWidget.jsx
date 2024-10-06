@@ -59,6 +59,7 @@ const ChatWidget = () => {
           onlineAgents={onlineAgents} 
           apiKey={apiKey}
           activeBots={activeBots}
+          setActiveBots={setActiveBots}
         />
       ) : (
         <Button
