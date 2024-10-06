@@ -62,7 +62,6 @@ export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSi
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>Title</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Email</TableHead>
@@ -84,10 +83,6 @@ export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSi
                     <div className="text-sm text-muted-foreground">{user.email}</div>
                   </div>
                 </div>
-              </TableCell>
-              <TableCell>
-                <div>{user.title || 'No title'}</div>
-                <div className="text-sm text-muted-foreground">{user.department || 'No department'}</div>
               </TableCell>
               <TableCell>
                 <Badge variant="outline" className={`${getStatusColor(user.status)} text-white`}>
