@@ -2,10 +2,6 @@ import { db } from '../firebase/config';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
 import { createOpenAIClient, handleOpenAIError } from '../utils/openAIUtils';
 
-import { db } from '../firebase/config';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
-import { createOpenAIClient, handleOpenAIError } from '../utils/openAIUtils';
-
 export const testOpenAIConnection = async (apiKey) => {
   try {
     const openai = createOpenAIClient(apiKey);
@@ -253,4 +249,3 @@ export const getBots = async (apiKey) => {
     handleOpenAIError(error, 'get bots');
   }
 };
-
