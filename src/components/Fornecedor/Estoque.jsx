@@ -46,7 +46,7 @@ const Estoque = () => {
           <DialogTrigger asChild>
             <Button onClick={() => { resetNovoProduto(); setIsDialogOpen(true); }}>Novo Produto</Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="max-w-4xl w-full">
             <DialogHeader>
               <DialogTitle>{novoProduto.id ? 'Editar Produto' : 'Adicionar Novo Produto'}</DialogTitle>
             </DialogHeader>
