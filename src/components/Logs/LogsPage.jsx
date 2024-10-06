@@ -25,14 +25,8 @@ const LogsPage = () => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    fetchAdminLogs();
     fetchUsers();
   }, []);
-
-  const fetchAdminLogs = async () => {
-    const logs = await firebaseOperations.getAdminLogs();
-    setAdminLogs(logs);
-  };
 
   const fetchUsers = async () => {
     const fetchedUsers = await firebaseOperations.getAllUsers();
@@ -80,19 +74,7 @@ const LogsPage = () => {
       {/* Admin Logs Section */}
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Logs de Administração</h2>
-        <div className="max-h-96 overflow-y-auto">
-          {adminLogs.map((log) => (
-            <div key={log.id} className="mb-2 p-2 border-b">
-              <p><strong>Ação:</strong> {log.action}</p>
-              <p><strong>Usuário:</strong> {log.userId}</p>
-              <p><strong>Produto:</strong> {log.productId}</p>
-              <p><strong>Data:</strong> {new Date(log.timestamp).toLocaleString()}</p>
-              <p><strong>Status:</strong> {log.status}</p>
-              {log.errorMessage && <p><strong>Erro:</strong> {log.errorMessage}</p>}
-            </div>
-          ))}
-        </div>
-        <Button onClick={fetchAdminLogs} className="mt-4">Atualizar Logs</Button>
+        <p>Admin logs functionality to be implemented.</p>
       </div>
 
       <div className="bg-white shadow rounded-lg p-6">
