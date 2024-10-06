@@ -25,3 +25,11 @@ export const safeLogError = (error) => {
   console.error("Error occurred:", error);
   // Implement logic to send the error to a logging service if needed
 };
+
+export const safePostMessage = (target, message, origin) => {
+  if (target && typeof target.postMessage === 'function') {
+    target.postMessage(message, origin);
+  } else {
+    console.warn('Target does not support postMessage');
+  }
+};
