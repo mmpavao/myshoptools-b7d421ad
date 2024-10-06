@@ -103,7 +103,6 @@ const Vitrine = () => {
     produto.sku.toLowerCase().includes(filtro.toLowerCase())
   );
 
-
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Vitrine</h1>
@@ -129,16 +128,15 @@ const Vitrine = () => {
               ) : (
                 <img src="/placeholder.svg" alt="Placeholder" className="w-full h-48 object-cover mb-2" />
               )}
-                <p className="text-2xl font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
-                {produto.desconto > 0 && (
-                  <div>
-                    <span className="text-gray-500 line-through mr-2">
-                      R$ {formatPrice(produto.preco / (1 - produto.desconto / 100))}
-                    </span>
-                    <span className="bg-red-500 text-white px-2 py-1 rounded-full text-sm">-{produto.desconto}%</span>
-                  </div>
-                )}
-              </div>
+              <p className="text-2xl font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
+              {produto.desconto > 0 && (
+                <div>
+                  <span className="text-gray-500 line-through mr-2">
+                    R$ {formatPrice(produto.preco / (1 - produto.desconto / 100))}
+                  </span>
+                  <span className="bg-red-500 text-white px-2 py-1 rounded-full text-sm">-{produto.desconto}%</span>
+                </div>
+              )}
               <p>Estoque: {produto.estoque}</p>
               <p>Venda Sugerida: R$ {formatPrice(produto.vendaSugerida)}</p>
               <div className="flex items-center justify-between mt-2">
