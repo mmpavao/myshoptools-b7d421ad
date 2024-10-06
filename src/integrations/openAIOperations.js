@@ -195,6 +195,7 @@ const getDefaultBotDetails = () => ({
   voice: 'alloy',
 });
 
+
 const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
   try {
     const openai = createOpenAIClient(apiKey);
@@ -219,17 +220,29 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
       createdAt: isUpdate ? botData.createdAt : new Date().toISOString(),
     };
 
-    const docRef = isUpdate ? doc(db, 'bots', botData.id) : collection(db, 'bots');
-    await (isUpdate ? updateDoc : addDoc)(docRef, botDocData);
+    if (isUpdate) {
+      const docRef = doc(db, 'bots', botData.id);
+      await updateDoc(docRef, botDocData);
+    } else {
+      const docRef = await addDoc(collection(db, 'bots'), botDocData);
+      botDocData.id = docRef.id;
+    }
 
-    return { id: isUpdate ? botData.id : docRef.id, ...botDocData };
+    return botDocData;
   } catch (error) {
+    console.error('Error in createOrUpdateBot:', error);
     handleOpenAIError(error, isUpdate ? 'update bot' : 'create bot');
   }
 };
 
 export const createBot = (apiKey, botData) => createOrUpdateBot(apiKey, botData);
-export const updateBot = (apiKey, botId, botData) => createOrUpdateBot(apiKey, { ...botData, id: botId }, true);
+export const updateBot = async (apiKey, botId, botData) => {
+  if (!botId) {
+    throw new Error('Bot ID is required for updating');
+  }
+  return createOrUpdateBot(apiKey, { ...botData, id: botId }, true);
+};
+
 
 export const deleteBot = async (apiKey, botId, assistantId) => {
   try {
@@ -292,3 +305,4 @@ const syncBotsWithFirestore = async (mergedBots) => {
     await deleteDoc(doc(db, 'bots', botToRemove.id));
   }
 };
+

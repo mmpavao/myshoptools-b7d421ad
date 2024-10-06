@@ -85,9 +85,18 @@ const OpenAIIntegration = () => {
     }
     try {
       addLog(`${isEditing ? 'Updating' : 'Creating'} bot: ${botData.name}`);
-      const savedBot = isEditing
-        ? await updateBot(apiKey, botData.id, botData)
-        : await createBot(apiKey, botData);
+      let savedBot;
+      if (isEditing) {
+        if (!botData.id) {
+          throw new Error('Bot ID is missing for update operation');
+        }
+        savedBot = await updateBot(apiKey, botData.id, botData);
+      } else {
+        savedBot = await createBot(apiKey, botData);
+      }
+      if (!savedBot) {
+        throw new Error('Failed to save bot: No response from server');
+      }
       addLog(`Bot ${isEditing ? 'updated' : 'created'} successfully`, 'success');
       toast.success(isEditing ? 'Bot updated successfully!' : 'Bot created successfully!');
       setIsDialogOpen(false);
