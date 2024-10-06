@@ -78,7 +78,7 @@ const createRequestClone = (request) => {
     method: request.method,
     headers: Object.fromEntries(request.headers.entries()),
     bodyUsed: request.bodyUsed,
-    // Add more properties as needed
+    // Add more properties as needed, but avoid non-cloneable properties
   };
 };
 
@@ -90,6 +90,7 @@ export const safePostMessage = (targetWindow, message, targetOrigin, transfer) =
     } else if (typeof structuredClone === 'function') {
       clonedMessage = structuredClone(message);
     } else {
+      // Fallback for environments without structuredClone
       clonedMessage = JSON.parse(JSON.stringify(message));
     }
     targetWindow.postMessage(clonedMessage, targetOrigin, transfer);
