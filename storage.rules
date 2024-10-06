@@ -3,7 +3,7 @@ service firebase.storage {
   match /b/{bucket}/o {
     // Permitir solicitações OPTIONS pré-voo para todos os caminhos
     match /{allPaths=**} {
-      allow options: if true;
+      allow read, options: if true;
     }
 
     // Regra para avatares de usuários

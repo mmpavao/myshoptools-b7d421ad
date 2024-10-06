@@ -1,11 +1,17 @@
 import React from 'react';
 import { Button } from '../ui/button';
+import { toast } from '@/components/ui/use-toast';
 
 const StoredImages = ({ images, onRefresh }) => {
-  const handleImageError = (e) => {
+  const handleImageError = (e, imageName) => {
     e.target.src = '/placeholder.svg';
     e.target.alt = 'Imagem não disponível';
-    console.error(`Erro ao carregar imagem: ${e.target.src}`);
+    console.error(`Erro ao carregar imagem: ${imageName}`);
+    toast({
+      title: "Erro de Carregamento",
+      description: `Não foi possível carregar a imagem: ${imageName}. Verifique as configurações de CORS.`,
+      variant: "destructive",
+    });
   };
 
   return (
@@ -24,7 +30,7 @@ const StoredImages = ({ images, onRefresh }) => {
                 src={image.url} 
                 alt={image.name} 
                 className="w-full h-32 object-cover mb-2"
-                onError={handleImageError}
+                onError={(e) => handleImageError(e, image.name)}
               />
               <p className="text-sm truncate">{image.name}</p>
             </div>

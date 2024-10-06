@@ -25,7 +25,7 @@ const ImageUpload = () => {
       console.error("Error fetching stored images:", error);
       toast({
         title: "Erro",
-        description: "Falha ao carregar as imagens armazenadas.",
+        description: "Falha ao carregar as imagens armazenadas. Verifique as configurações de CORS.",
         variant: "destructive",
       });
     }
@@ -75,12 +75,12 @@ const ImageUpload = () => {
       addLog(`Erro no upload: ${error.message}`, "error");
       if (error.code === 'storage/unauthorized') {
         addLog("Erro de autorização. Verifique as regras do Firebase Storage.", "error");
-      } else if (error.name === 'AbortError') {
-        addLog("Upload cancelado devido a um erro de CORS. Verifique as configurações do Firebase.", "error");
+      } else if (error.name === 'AbortError' || error.message.includes('Failed to fetch')) {
+        addLog("Erro de CORS detectado. Verifique as configurações do Firebase e do seu navegador.", "error");
       }
       toast({
         title: "Erro",
-        description: `Falha ao enviar a imagem: ${error.message}`,
+        description: `Falha ao enviar a imagem: ${error.message}. Verifique as configurações de CORS.`,
         variant: "destructive",
       });
     } finally {
