@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '../Auth/AuthProvider';
 import ChatWindow from './ChatWindow';
 import { db } from '../../firebase/config';
-import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, getDoc, getDocs } from 'firebase/firestore';
 
 const ChatWidget = () => {
   const [showChat, setShowChat] = useState(false);
