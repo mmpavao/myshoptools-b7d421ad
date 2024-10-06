@@ -11,6 +11,11 @@ import Layout from "./components/Layout/Layout";
 import UserProfile from "./components/Profile/UserProfile";
 import DocumentationPage from "./components/Documentation/DocumentationPage";
 import APIPage from "./components/APIs/APIPage";
+import Vitrine from "./components/Vendedor/Vitrine";
+import MeusProdutos from "./components/Vendedor/MeusProdutos";
+import MeusPedidos from "./components/Vendedor/MeusPedidos";
+import Estoque from "./components/Fornecedor/Estoque";
+import PedidosFornecedor from "./components/Fornecedor/PedidosFornecedor";
 
 const queryClient = new QueryClient();
 
@@ -29,15 +34,17 @@ const AppRoutes = () => (
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
     <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
-    <Route path="/vitrine" element={<ProtectedLayout><PlaceholderComponent title="Vitrine" /></ProtectedLayout>} />
-    <Route path="/produtos" element={<ProtectedLayout><PlaceholderComponent title="Meus Produtos" /></ProtectedLayout>} />
-    <Route path="/pedidos" element={<ProtectedLayout><PlaceholderComponent title="Pedidos" /></ProtectedLayout>} />
-    <Route path="/suporte" element={<ProtectedLayout><PlaceholderComponent title="Suporte" /></ProtectedLayout>} />
+    <Route path="/vitrine" element={<ProtectedLayout><Vitrine /></ProtectedLayout>} />
+    <Route path="/meus-produtos" element={<ProtectedLayout><MeusProdutos /></ProtectedLayout>} />
+    <Route path="/meus-pedidos" element={<ProtectedLayout><MeusPedidos /></ProtectedLayout>} />
+    <Route path="/estoque" element={<ProtectedLayout><Estoque /></ProtectedLayout>} />
+    <Route path="/pedidos-fornecedor" element={<ProtectedLayout><PedidosFornecedor /></ProtectedLayout>} />
     <Route path="/integracoes" element={<ProtectedLayout><PlaceholderComponent title="Integrações" /></ProtectedLayout>} />
     <Route path="/logs" element={<ProtectedLayout><LogsPage /></ProtectedLayout>} />
     <Route path="/profile" element={<ProtectedLayout><UserProfile /></ProtectedLayout>} />
     <Route path="/documentation" element={<ProtectedLayout><DocumentationPage /></ProtectedLayout>} />
     <Route path="/apis" element={<ProtectedLayout><APIPage /></ProtectedLayout>} />
+    <Route path="/suporte" element={<ProtectedLayout><PlaceholderComponent title="Suporte" /></ProtectedLayout>} />
     <Route path="/" element={<Navigate to="/dashboard" />} />
     <Route path="*" element={<Navigate to="/dashboard" />} />
   </Routes>
