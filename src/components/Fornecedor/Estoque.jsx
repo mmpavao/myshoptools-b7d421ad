@@ -71,16 +71,16 @@ const Estoque = () => {
       if (editingProductId) {
         await firebaseOperations.updateProduct(editingProductId, produtoParaSalvar);
         toast({
+          title: "Produto Atualizado",
+          description: "O produto foi atualizado com sucesso.",
           variant: "success",
-          title: "Sucesso",
-          description: "Produto atualizado com sucesso!",
         });
       } else {
         await firebaseOperations.createProduct(produtoParaSalvar);
         toast({
+          title: "Produto Adicionado",
+          description: "O novo produto foi adicionado com sucesso.",
           variant: "success",
-          title: "Sucesso",
-          description: "Produto adicionado com sucesso!",
         });
       }
       fetchProdutos();
@@ -92,9 +92,9 @@ const Estoque = () => {
     } catch (error) {
       console.error("Erro ao salvar produto:", error);
       toast({
-        variant: "error",
         title: "Erro",
-        description: "Não foi possível salvar o produto.",
+        description: "Não foi possível salvar o produto. Por favor, tente novamente.",
+        variant: "destructive",
       });
     }
   };
@@ -103,17 +103,17 @@ const Estoque = () => {
     try {
       await firebaseOperations.deleteProduct(productId);
       toast({
+        title: "Produto Removido",
+        description: "O produto foi removido com sucesso.",
         variant: "success",
-        title: "Sucesso",
-        description: "Produto removido com sucesso!",
       });
       fetchProdutos();
     } catch (error) {
       console.error("Erro ao remover produto:", error);
       toast({
-        variant: "error",
         title: "Erro",
-        description: "Não foi possível remover o produto.",
+        description: "Não foi possível remover o produto. Por favor, tente novamente.",
+        variant: "destructive",
       });
     }
   };

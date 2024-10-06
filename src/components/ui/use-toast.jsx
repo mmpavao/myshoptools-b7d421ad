@@ -22,10 +22,9 @@ export function useToast() {
   return customToast;
 }
 
-// Export the toast function
 export const toast = (props) => {
   const customToast = useToast();
-  return customToast(props);
+  return customToast.custom(props);
 };
 
 export { ToastProvider, ToastViewport } from "@/components/ui/toast"
