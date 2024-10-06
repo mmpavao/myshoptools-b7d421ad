@@ -1,5 +1,5 @@
 import { db, storage } from './config';
-import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { safeFirestoreOperation } from '../utils/errorReporting';
 import { toast } from '@/components/ui/use-toast';
@@ -32,44 +32,58 @@ export const deleteFile = (path) =>
 
 export const testFirebaseOperations = async () => {
   try {
-    // Create a document
+    console.log("Iniciando testes de operações do Firebase...");
+
+    // Teste de criação de documento
     const userDocRef = await createDocument('users', { name: 'Test User', email: 'test@example.com' });
-    console.log("Created user with ID:", userDocRef.id);
+    console.log("Documento de usuário criado com ID:", userDocRef.id);
 
-    // Read the document
+    // Teste de leitura de documento
     const userDocSnapshot = await readDocument('users', userDocRef.id);
-    console.log("Read user data:", userDocSnapshot.data());
+    console.log("Dados do usuário lidos:", userDocSnapshot.data());
 
-    // Update the document
+    // Teste de atualização de documento
     await updateDocument('users', userDocRef.id, { name: 'Updated Test User' });
-    console.log("Updated user data");
+    console.log("Dados do usuário atualizados");
 
-    // Read the updated document
+    // Teste de leitura do documento atualizado
     const updatedUserDocSnapshot = await readDocument('users', userDocRef.id);
-    console.log("Read updated user data:", updatedUserDocSnapshot.data());
+    console.log("Dados atualizados do usuário:", updatedUserDocSnapshot.data());
 
-    // Delete the document
-    await deleteDocument('users', userDocRef.id);
-    console.log("Deleted user");
+    // Teste de consulta de documentos
+    const usersCollection = collection(db, 'users');
+    const q = query(usersCollection, where("email", "==", "test@example.com"));
+    const querySnapshot = await getDocs(q);
+    console.log("Resultado da consulta:", querySnapshot.docs.map(doc => doc.data()));
 
-    // Upload a file
-    const testFile = new Blob(['Test file content'], { type: 'text/plain' });
+    // Teste de upload de arquivo
+    const testFile = new Blob(['Conteúdo do arquivo de teste'], { type: 'text/plain' });
     const filePath = `test/testfile_${Date.now()}.txt`;
     const fileUrl = await uploadFile(testFile, filePath);
-    console.log("Uploaded file URL:", fileUrl);
+    console.log("URL do arquivo enviado:", fileUrl);
 
-    // Delete the file
+    // Teste de exclusão de arquivo
     await deleteFile(filePath);
-    console.log("Deleted file");
+    console.log("Arquivo excluído");
+
+    // Teste de exclusão de documento
+    await deleteDocument('users', userDocRef.id);
+    console.log("Documento de usuário excluído");
+
+    // Verificação final
+    const deletedUserDoc = await readDocument('users', userDocRef.id);
+    if (!deletedUserDoc.exists()) {
+      console.log("Documento de usuário não existe mais, confirmando exclusão bem-sucedida");
+    }
 
     toast({
-      title: "Firebase Operations Test",
-      description: "All operations completed successfully",
+      title: "Testes de Operações do Firebase",
+      description: "Todos os testes foram concluídos com sucesso!",
     });
   } catch (error) {
-    console.error("Error during Firebase operations test:", error);
+    console.error("Erro durante os testes de operações do Firebase:", error);
     toast({
-      title: "Firebase Operations Test Error",
+      title: "Erro nos Testes de Operações do Firebase",
       description: error.message,
       variant: "destructive",
     });

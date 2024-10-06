@@ -21,9 +21,9 @@ const Dashboard = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Bem-vindo ao Painel do MyShopTools</h1>
       <p className="mb-4">Logado como: {user?.email}</p>
-      <div className="space-x-4">
+      <div className="space-y-4">
         <Button onClick={handleLogout}>Sair</Button>
-        <Button onClick={handleTestFirebase}>Testar Operações do Firebase</Button>
+        <Button onClick={handleTestFirebase}>Executar Testes do Firebase</Button>
       </div>
     </div>
   );
