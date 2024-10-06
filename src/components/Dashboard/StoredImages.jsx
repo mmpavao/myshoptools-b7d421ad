@@ -16,14 +16,12 @@ const StoredImages = ({ images, onRefresh }) => {
     console.error(`Erro ao carregar imagem: ${image.name}`);
     
     try {
-      // Tenta deletar o arquivo que não existe mais
       await firebaseOperations.deleteFile(`${image.folder}/${image.name}`);
       console.log(`Arquivo removido do Storage: ${image.name}`);
     } catch (deleteError) {
       console.error(`Erro ao tentar remover arquivo do Storage: ${deleteError}`);
     }
 
-    // Remove a imagem da lista de imagens disponíveis
     setAvailableImages(prevImages => prevImages.filter(img => img.name !== image.name));
 
     toast({

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Progress } from '../ui/progress';
-import { uploadFile, listStorageFiles } from '../../firebase/firebaseOperations';
+import firebaseOperations from '../../firebase/firebaseOperations';
 import { toast } from '@/components/ui/use-toast';
 import StoredImages from './StoredImages';
 
@@ -19,7 +19,7 @@ const ImageUpload = () => {
 
   const fetchStoredImages = async () => {
     try {
-      const images = await listStorageFiles();
+      const images = await firebaseOperations.listStorageFiles();
       setStoredImages(images);
     } catch (error) {
       console.error("Error fetching stored images:", error);
@@ -59,7 +59,7 @@ const ImageUpload = () => {
     try {
       const filePath = `uploads/${Date.now()}_${file.name}`;
       addLog(`Enviando arquivo: ${file.name}`);
-      await uploadFile(file, filePath, (progress) => {
+      await firebaseOperations.uploadFile(file, filePath, (progress) => {
         setUploadProgress(progress);
         addLog(`Progresso: ${progress.toFixed(0)}%`);
       });

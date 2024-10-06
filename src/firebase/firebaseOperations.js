@@ -5,16 +5,14 @@ import { updateProfile } from 'firebase/auth';
 import { safeFirestoreOperation } from '../utils/errorReporting';
 import { toast } from '@/components/ui/use-toast';
 
+// CRUD operations
 const crudOperations = {
   createDocument: (collectionName, data) => 
     safeFirestoreOperation(() => addDoc(collection(db, collectionName), data)),
-
   readDocument: (collectionName, docId) => 
     safeFirestoreOperation(() => getDoc(doc(db, collectionName, docId))),
-
   updateDocument: (collectionName, docId, data) => 
     safeFirestoreOperation(() => updateDoc(doc(db, collectionName, docId), data)),
-
   deleteDocument: (collectionName, docId) => 
     safeFirestoreOperation(() => deleteDoc(doc(db, collectionName, docId)))
 };
@@ -23,7 +21,6 @@ const crudOperations = {
 const userOperations = {
   createUser: (userData) => 
     safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), userData)),
-
   updateUserProfile: async (userId, profileData) => {
     try {
       await setDoc(doc(db, 'users', userId), profileData, { merge: true });
@@ -39,7 +36,6 @@ const userOperations = {
       throw error;
     }
   },
-
   getUserProfile: async (userId) => {
     const userDoc = await getDoc(doc(db, 'users', userId));
     return userDoc.exists() ? userDoc.data() : null;
@@ -52,29 +48,23 @@ const productOperations = {
     const docRef = await addDoc(collection(db, 'products'), productData);
     return docRef.id;
   },
-
   getProducts: async () => {
     const querySnapshot = await getDocs(collection(db, 'products'));
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
-
   updateProduct: (productId, productData) => 
     updateDoc(doc(db, 'products', productId), productData),
-
   deleteProduct: (productId) => 
     deleteDoc(doc(db, 'products', productId)),
-
   uploadProductImage: async (file, productId) => {
     const path = `products/${productId}/${Date.now()}_${file.name}`;
     return await fileOperations.uploadFile(file, path);
   },
-
   importarProduto: async (userId, produto) => {
     const produtoImportado = { ...produto, userId, importadoEm: new Date() };
     const docRef = await addDoc(collection(db, 'meusProdutos'), produtoImportado);
     return docRef.id;
   },
-
   verificarProdutoImportado: async (userId, produtoId) => {
     const q = query(
       collection(db, 'meusProdutos'),
@@ -110,9 +100,7 @@ const fileOperations = {
       );
     });
   },
-
   deleteFile: (path) => deleteObject(ref(storage, path)),
-
   listStorageFiles: async () => {
     const folders = ['uploads', 'avatars'];
     let allFiles = [];
@@ -142,7 +130,6 @@ const fileOperations = {
 
     return allFiles;
   },
-
   uploadProfileImage: async (file, userId) => {
     const path = `avatars/${userId}/${Date.now()}_${file.name}`;
     return await fileOperations.uploadFile(file, path);
@@ -185,7 +172,6 @@ const testOperations = {
       logCallback({ step: 'Error', status: 'error', message: `Test failed: ${error.message}` });
     }
   },
-
   clearAllData: async () => {
     const collections = ['test_collection', 'products', 'orders'];
     const folders = ['uploads', 'avatars', 'products'];
@@ -216,8 +202,7 @@ const firebaseOperations = {
   ...userOperations,
   ...productOperations,
   ...fileOperations,
-  ...testOperations,
-  deleteFile: fileOperations.deleteFile // Explicitly export deleteFile
+  ...testOperations
 };
 
 export default firebaseOperations;
