@@ -45,8 +45,9 @@ const ProductTabs = ({ produto, activeTab, setActiveTab }) => {
               produto.avaliacoes.map((avaliacao, index) => (
                 <div key={index} className="mb-4 pb-4 border-b last:border-b-0">
                   <div className="flex items-center mb-2">
+                    <span className="font-semibold mr-2">{avaliacao.userName}</span>
                     {renderStars(avaliacao.nota)}
-                    <span className="ml-2 text-sm text-gray-600">{avaliacao.data}</span>
+                    <span className="ml-2 text-sm text-gray-600">{new Date(avaliacao.data).toLocaleDateString()}</span>
                   </div>
                   <p>{avaliacao.comentario}</p>
                 </div>

@@ -41,7 +41,6 @@ const userOperations = {
   }
 };
 
-// Product operations
 const productOperations = {
   createProduct: async (productData) => {
     const docRef = await addDoc(collection(db, 'products'), productData);
@@ -100,10 +99,12 @@ const productOperations = {
       throw new Error('Produto não encontrado');
     }
   },
+
   adicionarAvaliacao: async (produtoId, userId, nota, comentario) => {
     try {
       const produtoRef = doc(db, 'products', produtoId);
       const produtoDoc = await getDoc(produtoRef);
+      const userDoc = await getDoc(doc(db, 'users', userId));
 
       if (!produtoDoc.exists()) {
         throw new Error('Produto não encontrado');
@@ -111,8 +112,12 @@ const productOperations = {
 
       const produtoData = produtoDoc.data();
       const avaliacoes = produtoData.avaliacoes || [];
+      const userName = userDoc.exists() ? userDoc.data().displayName || 'Usuário' : 'Usuário';
+      const abreviatedName = userName.split(' ')[0] + (userName.split(' ')[1] ? ` ${userName.split(' ')[1][0]}.` : '');
+
       const novaAvaliacao = {
         userId,
+        userName: abreviatedName,
         nota,
         comentario,
         data: new Date().toISOString()
