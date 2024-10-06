@@ -128,12 +128,12 @@ const Sidebar = ({ isOpen }) => {
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 z-40 h-screen transition-all duration-300",
+      "fixed left-0 top-0 z-50 h-screen transition-all duration-300",
       isOpen ? "w-64" : "w-16",
-      "bg-white text-gray-900 shadow-md" // Changed to white background and dark text
+      "bg-white text-gray-900 shadow-md"
     )}>
       <div className="h-full overflow-y-auto py-4 px-3">
-        <ul className="space-y-2 mt-16">
+        <ul className="space-y-2">
           {navItems.map((item, index) => (
             <NavItem key={index} item={item} isOpen={isOpen} userRole={userRole} />
           ))}
@@ -142,7 +142,7 @@ const Sidebar = ({ isOpen }) => {
           <NavLink
             to="/suporte"
             className={cn(
-              "flex items-center p-2 text-base font-normal rounded-lg text-gray-900 hover:bg-gray-100", // Updated hover color
+              "flex items-center p-2 text-base font-normal rounded-lg text-gray-900 hover:bg-gray-100",
               !isOpen && "justify-center"
             )}
           >

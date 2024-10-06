@@ -22,7 +22,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 fixed top-0 right-0 left-0 z-40">
+    <header className={`bg-white border-b border-gray-200 fixed top-0 right-0 z-40 transition-all duration-300 ${isSidebarOpen ? 'left-64' : 'left-16'}`}>
       <div className="flex items-center justify-between px-4 py-2">
         <div className="flex items-center">
           <button
