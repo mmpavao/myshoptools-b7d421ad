@@ -6,234 +6,77 @@ import { safeFirestoreOperation } from '../utils/errorReporting';
 import { toast } from '@/components/ui/use-toast';
 
 // Basic CRUD operations
-const createDocument = (collectionName, data) => 
-  safeFirestoreOperation(() => addDoc(collection(db, collectionName), data));
+const crudOperations = {
+  createDocument: (collectionName, data) => 
+    safeFirestoreOperation(() => addDoc(collection(db, collectionName), data)),
 
-const readDocument = (collectionName, docId) => 
-  safeFirestoreOperation(() => getDoc(doc(db, collectionName, docId)));
+  readDocument: (collectionName, docId) => 
+    safeFirestoreOperation(() => getDoc(doc(db, collectionName, docId))),
 
-const updateDocument = (collectionName, docId, data) => 
-  safeFirestoreOperation(() => updateDoc(doc(db, collectionName, docId), data));
+  updateDocument: (collectionName, docId, data) => 
+    safeFirestoreOperation(() => updateDoc(doc(db, collectionName, docId), data)),
 
-const deleteDocument = (collectionName, docId) => 
-  safeFirestoreOperation(() => deleteDoc(doc(db, collectionName, docId)));
-
-// User profile operations
-const createUser = (userData) => 
-  safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), userData));
-
-const updateUserProfile = async (userId, profileData) => {
-  try {
-    await setDoc(doc(db, 'users', userId), profileData, { merge: true });
-    if (auth.currentUser) {
-      await updateProfile(auth.currentUser, {
-        displayName: profileData.displayName,
-        photoURL: profileData.photoURL,
-      });
-    }
-    console.log('User profile updated successfully');
-    return true;
-  } catch (error) {
-    console.error('Error updating user profile:', error);
-    throw error;
-  }
+  deleteDocument: (collectionName, docId) => 
+    safeFirestoreOperation(() => deleteDoc(doc(db, collectionName, docId)))
 };
 
-const getUserProfile = async (userId) => {
-  try {
+// User profile operations
+const userOperations = {
+  createUser: (userData) => 
+    safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), userData)),
+
+  updateUserProfile: async (userId, profileData) => {
+    try {
+      await setDoc(doc(db, 'users', userId), profileData, { merge: true });
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, {
+          displayName: profileData.displayName,
+          photoURL: profileData.photoURL,
+        });
+      }
+      return true;
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
+  },
+
+  getUserProfile: async (userId) => {
     const userDoc = await getDoc(doc(db, 'users', userId));
     return userDoc.exists() ? userDoc.data() : null;
-  } catch (error) {
-    console.error('Error getting user profile:', error);
-    throw error;
   }
 };
 
 // Product operations
-const createProduct = async (productData) => {
-  try {
+const productOperations = {
+  createProduct: async (productData) => {
     const docRef = await addDoc(collection(db, 'products'), productData);
-    console.log('Product created with ID: ', docRef.id);
     return docRef.id;
-  } catch (error) {
-    console.error('Error creating product:', error);
-    throw error;
-  }
-};
+  },
 
-const getProducts = async () => {
-  try {
+  getProducts: async () => {
     const querySnapshot = await getDocs(collection(db, 'products'));
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  } catch (error) {
-    console.error('Error getting products:', error);
-    throw error;
-  }
-};
+  },
 
-const updateProduct = async (productId, productData) => {
-  try {
-    await updateDoc(doc(db, 'products', productId), productData);
-    console.log('Product updated successfully');
-  } catch (error) {
-    console.error('Error updating product:', error);
-    throw error;
-  }
-};
+  updateProduct: (productId, productData) => 
+    updateDoc(doc(db, 'products', productId), productData),
 
-const deleteProduct = async (productId) => {
-  try {
-    await deleteDoc(doc(db, 'products', productId));
-    console.log('Product deleted successfully');
-  } catch (error) {
-    console.error('Error deleting product:', error);
-    throw error;
-  }
-};
+  deleteProduct: (productId) => 
+    deleteDoc(doc(db, 'products', productId)),
 
-const uploadProductImage = async (file, productId) => {
-  const path = `products/${productId}/${Date.now()}_${file.name}`;
-  try {
-    const downloadURL = await uploadFile(file, path);
-    return downloadURL;
-  } catch (error) {
-    console.error("Error uploading product image: ", error);
-    throw error;
-  }
-};
+  uploadProductImage: async (file, productId) => {
+    const path = `products/${productId}/${Date.now()}_${file.name}`;
+    return await fileOperations.uploadFile(file, path);
+  },
 
-// File operations
-const uploadFile = async (file, path, onProgress) => {
-  const storageRef = ref(storage, path);
-  const uploadTask = uploadBytesResumable(storageRef, file);
-
-  return new Promise((resolve, reject) => {
-    uploadTask.on('state_changed',
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        if (onProgress) onProgress(progress);
-      },
-      reject,
-      async () => {
-        try {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          resolve(downloadURL);
-        } catch (error) {
-          reject(error);
-        }
-      }
-    );
-  });
-};
-
-const deleteFile = async (path) => {
-  try {
-    await deleteObject(ref(storage, path));
-    console.log(`File deleted successfully: ${path}`);
-  } catch (error) {
-    console.error(`Error deleting file: ${path}`, error);
-    throw error;
-  }
-};
-
-const listStorageFiles = async () => {
-  const folders = ['uploads', 'avatars'];
-  let allFiles = [];
-
-  for (const folder of folders) {
-    try {
-      const res = await listAll(ref(storage, folder));
-      const folderFiles = await Promise.all(res.items.map(async (itemRef) => {
-        try {
-          const url = await getDownloadURL(itemRef);
-          return { name: itemRef.name, url, folder };
-        } catch (error) {
-          console.error(`Error getting URL for ${itemRef.name}:`, error);
-          return null;
-        }
-      }));
-      allFiles = [...allFiles, ...folderFiles.filter(Boolean)];
-    } catch (error) {
-      console.error(`Error listing files in ${folder}:`, error);
-      toast({
-        title: "Listing Error",
-        description: `Couldn't list files in ${folder}. Error: ${error.message}`,
-        variant: "destructive",
-      });
-    }
-  }
-
-  return allFiles;
-};
-
-// Test functions
-const testFirebaseOperations = async (logCallback) => {
-  try {
-    const testDoc = await createDocument('test_collection', { test: 'data' });
-    logCallback({ step: 'Create Document', status: 'success', message: 'Document created successfully' });
-
-    await readDocument('test_collection', testDoc.id);
-    logCallback({ step: 'Read Document', status: 'success', message: 'Document read successfully' });
-
-    await updateDocument('test_collection', testDoc.id, { test: 'updated data' });
-    logCallback({ step: 'Update Document', status: 'success', message: 'Document updated successfully' });
-
-    await deleteDocument('test_collection', testDoc.id);
-    logCallback({ step: 'Delete Document', status: 'success', message: 'Document deleted successfully' });
-
-    const testFile = new File(['test content'], 'test.txt', { type: 'text/plain' });
-    const uploadPath = 'test/test.txt';
-    
-    await uploadFile(testFile, uploadPath, (progress) => {
-      logCallback({ step: 'Upload File', status: 'progress', message: `Upload progress: ${progress.toFixed(2)}%` });
-    });
-    logCallback({ step: 'Upload File', status: 'success', message: 'File uploaded successfully' });
-
-    const files = await listStorageFiles();
-    logCallback({ step: 'List Files', status: 'success', message: `${files.length} files listed successfully` });
-
-    await deleteFile(uploadPath);
-    logCallback({ step: 'Delete File', status: 'success', message: 'File deleted successfully' });
-
-    logCallback({ step: 'All Tests', status: 'success', message: 'All Firebase operations completed successfully' });
-  } catch (error) {
-    console.error('Error during Firebase operations test:', error);
-    logCallback({ step: 'Error', status: 'error', message: `Test failed: ${error.message}` });
-  }
-};
-
-const uploadProfileImage = async (file, userId) => {
-  const path = `avatars/${userId}/${Date.now()}_${file.name}`;
-  try {
-    const downloadURL = await uploadFile(file, path);
-    return downloadURL;
-  } catch (error) {
-    console.error("Error uploading profile image: ", error);
-    throw error;
-  }
-};
-
-
-// Função para importar um produto para a coleção 'meusProdutos'
-const importarProduto = async (userId, produto) => {
-  try {
-    const produtoImportado = {
-      ...produto,
-      userId,
-      importadoEm: new Date()
-    };
+  importarProduto: async (userId, produto) => {
+    const produtoImportado = { ...produto, userId, importadoEm: new Date() };
     const docRef = await addDoc(collection(db, 'meusProdutos'), produtoImportado);
-    console.log('Produto importado com ID: ', docRef.id);
     return docRef.id;
-  } catch (error) {
-    console.error('Erro ao importar produto:', error);
-    throw error;
-  }
-};
+  },
 
-// Função para verificar se um produto já foi importado
-const verificarProdutoImportado = async (userId, produtoId) => {
-  try {
+  verificarProdutoImportado: async (userId, produtoId) => {
     const q = query(
       collection(db, 'meusProdutos'),
       where('userId', '==', userId),
@@ -241,55 +84,137 @@ const verificarProdutoImportado = async (userId, produtoId) => {
     );
     const querySnapshot = await getDocs(q);
     return !querySnapshot.empty;
-  } catch (error) {
-    console.error('Erro ao verificar produto importado:', error);
-    throw error;
   }
 };
 
+// File operations
+const fileOperations = {
+  uploadFile: (file, path, onProgress) => {
+    const storageRef = ref(storage, path);
+    const uploadTask = uploadBytesResumable(storageRef, file);
 
-const clearAllData = async () => {
-  const collections = ['test_collection', 'products', 'orders'];
-  const folders = ['uploads', 'avatars', 'products'];
+    return new Promise((resolve, reject) => {
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          if (onProgress) onProgress(progress);
+        },
+        reject,
+        async () => {
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadURL);
+          } catch (error) {
+            reject(error);
+          }
+        }
+      );
+    });
+  },
 
-  try {
-    for (const collectionName of collections) {
-      const querySnapshot = await getDocs(collection(db, collectionName));
-      await Promise.all(querySnapshot.docs.map(doc => deleteDoc(doc.ref)));
-    }
+  deleteFile: (path) => deleteObject(ref(storage, path)),
+
+  listStorageFiles: async () => {
+    const folders = ['uploads', 'avatars'];
+    let allFiles = [];
 
     for (const folder of folders) {
-      const listRef = ref(storage, folder);
-      const res = await listAll(listRef);
-      await Promise.all(res.items.map(itemRef => deleteObject(itemRef)));
+      try {
+        const res = await listAll(ref(storage, folder));
+        const folderFiles = await Promise.all(res.items.map(async (itemRef) => {
+          try {
+            const url = await getDownloadURL(itemRef);
+            return { name: itemRef.name, url, folder };
+          } catch (error) {
+            console.error(`Error getting URL for ${itemRef.name}:`, error);
+            return null;
+          }
+        }));
+        allFiles = [...allFiles, ...folderFiles.filter(Boolean)];
+      } catch (error) {
+        console.error(`Error listing files in ${folder}:`, error);
+        toast({
+          title: "Listing Error",
+          description: `Couldn't list files in ${folder}. Error: ${error.message}`,
+          variant: "destructive",
+        });
+      }
     }
 
-    console.log('All data cleared successfully.');
-  } catch (error) {
-    console.error('Error clearing data:', error);
-    throw error;
+    return allFiles;
+  },
+
+  uploadProfileImage: async (file, userId) => {
+    const path = `avatars/${userId}/${Date.now()}_${file.name}`;
+    return await fileOperations.uploadFile(file, path);
+  }
+};
+
+// Test functions
+const testOperations = {
+  testFirebaseOperations: async (logCallback) => {
+    try {
+      const testDoc = await crudOperations.createDocument('test_collection', { test: 'data' });
+      logCallback({ step: 'Create Document', status: 'success', message: 'Document created successfully' });
+
+      await crudOperations.readDocument('test_collection', testDoc.id);
+      logCallback({ step: 'Read Document', status: 'success', message: 'Document read successfully' });
+
+      await crudOperations.updateDocument('test_collection', testDoc.id, { test: 'updated data' });
+      logCallback({ step: 'Update Document', status: 'success', message: 'Document updated successfully' });
+
+      await crudOperations.deleteDocument('test_collection', testDoc.id);
+      logCallback({ step: 'Delete Document', status: 'success', message: 'Document deleted successfully' });
+
+      const testFile = new File(['test content'], 'test.txt', { type: 'text/plain' });
+      const uploadPath = 'test/test.txt';
+      
+      await fileOperations.uploadFile(testFile, uploadPath, (progress) => {
+        logCallback({ step: 'Upload File', status: 'progress', message: `Upload progress: ${progress.toFixed(2)}%` });
+      });
+      logCallback({ step: 'Upload File', status: 'success', message: 'File uploaded successfully' });
+
+      const files = await fileOperations.listStorageFiles();
+      logCallback({ step: 'List Files', status: 'success', message: `${files.length} files listed successfully` });
+
+      await fileOperations.deleteFile(uploadPath);
+      logCallback({ step: 'Delete File', status: 'success', message: 'File deleted successfully' });
+
+      logCallback({ step: 'All Tests', status: 'success', message: 'All Firebase operations completed successfully' });
+    } catch (error) {
+      console.error('Error during Firebase operations test:', error);
+      logCallback({ step: 'Error', status: 'error', message: `Test failed: ${error.message}` });
+    }
+  },
+
+  clearAllData: async () => {
+    const collections = ['test_collection', 'products', 'orders'];
+    const folders = ['uploads', 'avatars', 'products'];
+
+    try {
+      for (const collectionName of collections) {
+        const querySnapshot = await getDocs(collection(db, collectionName));
+        await Promise.all(querySnapshot.docs.map(doc => deleteDoc(doc.ref)));
+      }
+
+      for (const folder of folders) {
+        const listRef = ref(storage, folder);
+        const res = await listAll(listRef);
+        await Promise.all(res.items.map(itemRef => deleteObject(itemRef)));
+      }
+
+      console.log('All data cleared successfully.');
+    } catch (error) {
+      console.error('Error clearing data:', error);
+      throw error;
+    }
   }
 };
 
 export {
-  createDocument,
-  readDocument,
-  updateDocument,
-  deleteDocument,
-  createUser,
-  updateUserProfile,
-  getUserProfile,
-  createProduct,
-  getProducts,
-  updateProduct,
-  deleteProduct,
-  uploadProductImage,
-  uploadFile,
-  deleteFile,
-  listStorageFiles,
-  testFirebaseOperations,
-  clearAllData,
-  uploadProfileImage // Add this line to export the new function
-  importarProduto,
-  verificarProdutoImportado,
+  ...crudOperations,
+  ...userOperations,
+  ...productOperations,
+  ...fileOperations,
+  ...testOperations
 };
