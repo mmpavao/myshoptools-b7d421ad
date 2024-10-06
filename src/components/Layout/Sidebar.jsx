@@ -15,6 +15,7 @@ import {
   ShoppingCart,
   List,
   Users,
+  Settings,
 } from 'lucide-react';
 import { useAuth } from '../Auth/AuthProvider';
 import { getUserRole } from '../../firebase/userOperations';
@@ -48,6 +49,7 @@ const navItems = [
       { icon: Plug, label: 'Integrações', to: '/integracoes' },
       { icon: FileText, label: 'Logs', to: '/logs' },
       { icon: Users, label: 'Usuários', to: '/admin/users' },
+      { icon: Settings, label: 'Configurações', to: '/admin/settings' },
     ],
   },
 ];

@@ -19,6 +19,7 @@ import PedidosFornecedor from "./components/Fornecedor/PedidosFornecedor";
 import DetalheProduto from "./components/Produto/DetalheProduto";
 import ListaProdutos from "./components/Produto/ListaProdutos";
 import AdminUserList from "./components/Admin/AdminUserList";
+import SettingsPage from "./components/Admin/SettingsPage";
 import { useAuth } from "./components/Auth/AuthProvider";
 import { getUserRole } from "./firebase/userOperations";
 
@@ -75,6 +76,7 @@ const AppRoutes = () => (
     <Route path="/suporte" element={<RoleBasedRoute element={() => <PlaceholderComponent title="Suporte" />} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
     <Route path="/produto/:id" element={<RoleBasedRoute element={DetalheProduto} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
     <Route path="/admin/users" element={<RoleBasedRoute element={AdminUserList} allowedRoles={['Admin', 'Master']} />} />
+    <Route path="/admin/settings" element={<RoleBasedRoute element={SettingsPage} allowedRoles={['Admin', 'Master']} />} />
     <Route path="/" element={<Navigate to="/dashboard" />} />
     <Route path="*" element={<Navigate to="/dashboard" />} />
   </Routes>
