@@ -25,8 +25,8 @@ const ChatWidget = () => {
 
       // Fetch API key from user's settings or environment
       const fetchApiKey = async () => {
-        // This is a placeholder. In a real app, you'd fetch this securely.
-        setApiKey(process.env.REACT_APP_OPENAI_API_KEY || '');
+        // Use Vite's environment variable syntax
+        setApiKey(import.meta.env.VITE_OPENAI_API_KEY || '');
       };
       fetchApiKey();
 
