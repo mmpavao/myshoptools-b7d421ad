@@ -35,11 +35,6 @@ const ListaProdutos = () => {
     }
   };
 
-  const produtosFiltrados = produtos.filter(produto =>
-    produto.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
-    produto.sku.toLowerCase().includes(filtro.toLowerCase())
-  );
-
   const handleDetalhes = (produtoId) => {
     navigate(`/produto/${produtoId}`);
   };
@@ -71,6 +66,11 @@ const ListaProdutos = () => {
   const formatPrice = (price) => {
     return typeof price === 'number' ? price.toFixed(2) : '0.00';
   };
+
+  const produtosFiltrados = produtos.filter(produto =>
+    produto.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
+    produto.sku.toLowerCase().includes(filtro.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">

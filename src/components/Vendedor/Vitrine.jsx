@@ -29,7 +29,10 @@ const Vitrine = () => {
       const produtosData = await firebaseOperations.getProducts();
       setProdutos(produtosData);
       if (user) {
-        const importadosStatus = await firebaseOperations.getProdutosImportadosStatus(user.uid);
+        const importadosStatus = {};
+        for (const produto of produtosData) {
+          importadosStatus[produto.id] = await firebaseOperations.verificarProdutoImportado(user.uid, produto.id);
+        }
         setProdutosImportados(importadosStatus);
       }
     } catch (error) {

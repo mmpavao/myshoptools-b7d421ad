@@ -120,12 +120,12 @@ const productOperations = {
     await setDoc(userProductRef, produto);
   },
   getProdutosImportados: async (userId) => {
-    const userProductsRef = collection(db, 'users', userId, 'produtosImportados');
+    const userProductsRef = collection(db, userId, 'produtosImportados');
     const snapshot = await getDocs(userProductsRef);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
   getProdutosImportadosStatus: async (userId) => {
-    const userProductsRef = collection(db, 'users', userId, 'produtosImportados');
+    const userProductsRef = collection(db, userId, 'produtosImportados');
     const snapshot = await getDocs(userProductsRef);
     const status = {};
     snapshot.docs.forEach(doc => {
@@ -136,6 +136,11 @@ const productOperations = {
   removerProdutoImportado: async (userId, produtoId) => {
     const userProductRef = doc(db, 'users', userId, 'produtosImportados', produtoId);
     await deleteDoc(userProductRef);
+  },
+  verificarProdutoImportado: async (userId, produtoId) => {
+    const userProductRef = doc(db, 'users', userId, 'produtosImportados', produtoId);
+    const docSnap = await getDoc(userProductRef);
+    return docSnap.exists();
   },
 };
 
