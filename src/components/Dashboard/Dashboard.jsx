@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../Auth/AuthProvider';
 import { Button } from '../ui/button';
 import { useNavigate } from 'react-router-dom';
 import { testFirebaseOperations } from '../../firebase/firebaseOperations';
+import FirebaseTestLog from './FirebaseTestLog';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [logs, setLogs] = useState([]);
+  const [isTestingFirebase, setIsTestingFirebase] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -14,7 +17,12 @@ const Dashboard = () => {
   };
 
   const handleTestFirebase = async () => {
-    await testFirebaseOperations();
+    setIsTestingFirebase(true);
+    setLogs([]);
+    await testFirebaseOperations((log) => {
+      setLogs((prevLogs) => [...prevLogs, log]);
+    });
+    setIsTestingFirebase(false);
   };
 
   return (
@@ -23,8 +31,11 @@ const Dashboard = () => {
       <p className="mb-4">Logado como: {user?.email}</p>
       <div className="space-y-4">
         <Button onClick={handleLogout}>Sair</Button>
-        <Button onClick={handleTestFirebase}>Executar Testes do Firebase</Button>
+        <Button onClick={handleTestFirebase} disabled={isTestingFirebase}>
+          {isTestingFirebase ? 'Executando Testes...' : 'Executar Testes do Firebase'}
+        </Button>
       </div>
+      {logs.length > 0 && <FirebaseTestLog logs={logs} />}
     </div>
   );
 };
