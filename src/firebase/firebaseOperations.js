@@ -60,7 +60,12 @@ const productOperations = {
     return await fileOperations.uploadFile(file, path);
   },
   importarProduto: async (userId, produto) => {
-    const produtoImportado = { ...produto, userId, importadoEm: new Date() };
+    const produtoImportado = {
+      ...produto,
+      userId,
+      importadoEm: new Date().toISOString()
+    };
+    delete produtoImportado.id; // Remove o ID original para gerar um novo
     const docRef = await addDoc(collection(db, 'meusProdutos'), produtoImportado);
     return docRef.id;
   },
@@ -68,10 +73,15 @@ const productOperations = {
     const q = query(
       collection(db, 'meusProdutos'),
       where('userId', '==', userId),
-      where('id', '==', produtoId)
+      where('originalId', '==', produtoId)
     );
     const querySnapshot = await getDocs(q);
     return !querySnapshot.empty;
+  },
+  getMeusProdutos: async (userId) => {
+    const q = query(collection(db, 'meusProdutos'), where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 };
 

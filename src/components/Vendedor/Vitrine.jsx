@@ -14,7 +14,7 @@ const Vitrine = () => {
 
   useEffect(() => {
     fetchProdutos();
-  }, []);
+  }, [user]);
 
   const fetchProdutos = async () => {
     try {
@@ -48,7 +48,7 @@ const Vitrine = () => {
     }
 
     try {
-      await firebaseOperations.importarProduto(user.uid, produto);
+      await firebaseOperations.importarProduto(user.uid, { ...produto, originalId: produto.id });
       setProdutosImportados(prev => ({ ...prev, [produto.id]: true }));
       toast({
         title: "Sucesso",

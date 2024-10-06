@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase/config';
+import firebaseOperations from '../../firebase/firebaseOperations';
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from '../../components/Auth/AuthProvider';
 
@@ -21,9 +20,7 @@ const MeusProdutos = () => {
     if (!user) return;
 
     try {
-      const q = query(collection(db, 'meusProdutos'), where('userId', '==', user.uid));
-      const querySnapshot = await getDocs(q);
-      const produtosData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const produtosData = await firebaseOperations.getMeusProdutos(user.uid);
       setProdutos(produtosData);
     } catch (error) {
       console.error("Erro ao buscar meus produtos:", error);

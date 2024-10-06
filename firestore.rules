@@ -19,6 +19,10 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
 
+    match /meusProdutos/{productId} {
+      allow read, write: if isAuthenticated();
+    }
+
     match /orders/{orderId} {
       allow read, write: if isAuthenticated();
     }
@@ -31,11 +35,6 @@ service cloud.firestore {
     match /reviews/{reviewId} {
       allow read: if true;
       allow write: if isAuthenticated();
-    }
-
-    // Regra temporária para testes
-    match /test_collection/{document=**} {
-      allow read, write: if isAuthenticated();
     }
 
     match /{document=**} {
