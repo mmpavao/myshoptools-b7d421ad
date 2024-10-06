@@ -47,6 +47,10 @@ export const useEstoque = () => {
     }
   };
 
+  const updateFotos = (newFotos) => {
+    setNovoProduto(prev => ({ ...prev, fotos: newFotos }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -116,6 +120,7 @@ export const useEstoque = () => {
     setFiltro,
     handleEditProduct,
     resetNovoProduto,
-    calcularMarkup
+    calcularMarkup,
+    updateFotos
   };
 };

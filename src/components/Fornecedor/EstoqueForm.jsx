@@ -5,12 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { formatCurrency, parseCurrency } from '../../utils/currencyUtils';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const EstoqueForm = ({ novoProduto, handleInputChange, handleFileChange, handleSubmit, calcularMarkup }) => {
+const EstoqueForm = ({ novoProduto, handleInputChange, handleFileChange, handleSubmit, calcularMarkup, updateFotos }) => {
   const handleCurrencyChange = (e) => {
     const { name, value } = e.target;
     const numericValue = parseCurrency(value);
     handleInputChange({ target: { name, value: numericValue } });
+  };
+
+  const onDragEnd = (result) => {
+    if (!result.destination) {
+      return;
+    }
+
+    const items = Array.from(novoProduto.fotos);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    updateFotos(items);
   };
 
   return (
@@ -99,11 +112,38 @@ const EstoqueForm = ({ novoProduto, handleInputChange, handleFileChange, handleS
       </div>
 
       {novoProduto.fotos.length > 0 && (
-        <div className="grid grid-cols-3 gap-2 mt-2">
-          {novoProduto.fotos.map((foto, index) => (
-            <img key={index} src={foto} alt={`Produto ${index + 1}`} className="w-full h-32 object-cover rounded" />
-          ))}
-        </div>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="fotos" direction="horizontal">
+            {(provided) => (
+              <div 
+                {...provided.droppableProps} 
+                ref={provided.innerRef} 
+                className="grid grid-cols-3 gap-2 mt-2"
+              >
+                {novoProduto.fotos.map((foto, index) => (
+                  <Draggable key={foto} draggableId={foto} index={index}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className="relative"
+                      >
+                        <img src={foto} alt={`Produto ${index + 1}`} className="w-full h-32 object-cover rounded" />
+                        {index === 0 && (
+                          <div className="absolute top-0 left-0 bg-primary text-white px-2 py-1 text-xs rounded-br">
+                            Capa
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
 
       <Button type="submit" className="w-full">

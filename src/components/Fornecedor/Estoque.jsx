@@ -22,7 +22,8 @@ const Estoque = () => {
     setFiltro,
     handleEditProduct,
     resetNovoProduto,
-    calcularMarkup
+    calcularMarkup,
+    updateFotos
   } = useEstoque();
 
   const produtosFiltrados = produtos.filter(produto =>
@@ -55,6 +56,7 @@ const Estoque = () => {
               handleFileChange={handleFileChange}
               handleSubmit={handleSubmit}
               calcularMarkup={calcularMarkup}
+              updateFotos={updateFotos}
             />
           </DialogContent>
         </Dialog>
