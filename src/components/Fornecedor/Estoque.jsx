@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 import EstoqueForm from './EstoqueForm';
 import EstoqueTable from './EstoqueTable';
 import { useNavigate } from 'react-router-dom';
@@ -50,66 +51,70 @@ const Estoque = () => {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Estoque</h1>
       
-      <div className="flex justify-between items-center">
-        <Input
-          placeholder="Filtrar por título ou SKU"
-          value={filtro}
-          onChange={(e) => setFiltro(e.target.value)}
-          className="max-w-sm"
-        />
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => { resetNovoProduto(); setIsDialogOpen(true); }}>Novo Produto</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl w-full">
-            <DialogHeader>
-              <DialogTitle>{novoProduto.id ? 'Editar Produto' : 'Adicionar Novo Produto'}</DialogTitle>
-            </DialogHeader>
-            <EstoqueForm
-              novoProduto={novoProduto}
-              handleInputChange={handleInputChange}
-              handleFileChange={handleFileChange}
-              handleSubmit={handleSubmit}
-              calcularMarkup={calcularMarkup}
-              updateFotos={updateFotos}
-              generateAIContent={generateAIContent}
-              onDragEnd={onDragEnd}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <Input
+              placeholder="Filtrar por título ou SKU"
+              value={filtro}
+              onChange={(e) => setFiltro(e.target.value)}
+              className="max-w-sm"
             />
-          </DialogContent>
-        </Dialog>
-      </div>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => { resetNovoProduto(); setIsDialogOpen(true); }}>Novo Produto</Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl w-full">
+                <DialogHeader>
+                  <DialogTitle>{novoProduto.id ? 'Editar Produto' : 'Adicionar Novo Produto'}</DialogTitle>
+                </DialogHeader>
+                <EstoqueForm
+                  novoProduto={novoProduto}
+                  handleInputChange={handleInputChange}
+                  handleFileChange={handleFileChange}
+                  handleSubmit={handleSubmit}
+                  calcularMarkup={calcularMarkup}
+                  updateFotos={updateFotos}
+                  generateAIContent={generateAIContent}
+                  onDragEnd={onDragEnd}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
 
-      <Tabs defaultValue="todos">
-        <TabsList>
-          <TabsTrigger value="todos">Todos os Produtos</TabsTrigger>
-          <TabsTrigger value="ativos">Produtos Ativos</TabsTrigger>
-          <TabsTrigger value="inativos">Produtos Inativos</TabsTrigger>
-        </TabsList>
-        <TabsContent value="todos">
-          <EstoqueTable 
-            produtos={produtosFiltrados} 
-            onDelete={handleDeleteProduct} 
-            onDetalhes={(productId) => navigate(`/produto/${productId}`)}
-            onEdit={handleEditProduct}
-          />
-        </TabsContent>
-        <TabsContent value="ativos">
-          <EstoqueTable 
-            produtos={produtosAtivos} 
-            onDelete={handleDeleteProduct} 
-            onDetalhes={(productId) => navigate(`/produto/${productId}`)}
-            onEdit={handleEditProduct}
-          />
-        </TabsContent>
-        <TabsContent value="inativos">
-          <EstoqueTable 
-            produtos={produtosInativos} 
-            onDelete={handleDeleteProduct} 
-            onDetalhes={(productId) => navigate(`/produto/${productId}`)}
-            onEdit={handleEditProduct}
-          />
-        </TabsContent>
-      </Tabs>
+          <Tabs defaultValue="todos">
+            <TabsList className="mb-4">
+              <TabsTrigger value="todos">Todos os Produtos</TabsTrigger>
+              <TabsTrigger value="ativos">Produtos Ativos</TabsTrigger>
+              <TabsTrigger value="inativos">Produtos Inativos</TabsTrigger>
+            </TabsList>
+            <TabsContent value="todos">
+              <EstoqueTable 
+                produtos={produtosFiltrados} 
+                onDelete={handleDeleteProduct} 
+                onDetalhes={(productId) => navigate(`/produto/${productId}`)}
+                onEdit={handleEditProduct}
+              />
+            </TabsContent>
+            <TabsContent value="ativos">
+              <EstoqueTable 
+                produtos={produtosAtivos} 
+                onDelete={handleDeleteProduct} 
+                onDetalhes={(productId) => navigate(`/produto/${productId}`)}
+                onEdit={handleEditProduct}
+              />
+            </TabsContent>
+            <TabsContent value="inativos">
+              <EstoqueTable 
+                produtos={produtosInativos} 
+                onDelete={handleDeleteProduct} 
+                onDetalhes={(productId) => navigate(`/produto/${productId}`)}
+                onEdit={handleEditProduct}
+              />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };
