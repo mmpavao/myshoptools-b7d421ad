@@ -1,4 +1,4 @@
-import { db, storage } from './config';
+import { db, storage, auth } from './config';
 import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
@@ -213,6 +213,11 @@ const meusProdutosOperations = {
 
 const testFirebaseOperations = async (logCallback) => {
   try {
+    // Check if the user is authenticated
+    if (!auth.currentUser) {
+      throw new Error('User is not authenticated. Please log in to run the tests.');
+    }
+
     const testDoc = await crudOperations.createDocument('test_collection', { test: 'data' });
     logCallback({ step: 'Create Document', status: 'success', message: 'Document created successfully' });
 

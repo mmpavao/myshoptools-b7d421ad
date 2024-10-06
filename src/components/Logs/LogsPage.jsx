@@ -3,6 +3,7 @@ import { Button } from '../ui/button';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import FirebaseTestLog from '../Dashboard/FirebaseTestLog';
 import ImageUpload from '../Dashboard/ImageUpload';
+import { useAuth } from '../../components/Auth/AuthProvider';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,10 +24,13 @@ const LogsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [pin, setPin] = useState('');
   const [users, setUsers] = useState([]);
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (user) {
+      fetchUsers();
+    }
+  }, [user]);
 
   const fetchUsers = async () => {
     const fetchedUsers = await firebaseOperations.getAllUsers();
@@ -34,6 +38,11 @@ const LogsPage = () => {
   };
 
   const handleTestFirebase = async () => {
+    if (!user) {
+      setLogs([{ step: 'Error', status: 'error', message: 'User is not authenticated. Please log in to run the tests.' }]);
+      return;
+    }
+
     setIsTestingFirebase(true);
     setLogs([]);
     await firebaseOperations.testFirebaseOperations((log) => {
@@ -79,11 +88,13 @@ const LogsPage = () => {
 
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Testes do Firebase</h2>
-        <Button onClick={handleTestFirebase} disabled={isTestingFirebase}>
+        <Button onClick={handleTestFirebase} disabled={isTestingFirebase || !user}>
           {isTestingFirebase ? 'Executando Testes...' : 'Executar Testes do Firebase'}
         </Button>
+        {!user && <Alert type="warning" message="Please log in to run Firebase tests." />}
         {logs.length > 0 && <FirebaseTestLog logs={logs} />}
       </div>
+
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Upload de Imagens</h2>
         <ImageUpload />
