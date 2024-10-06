@@ -67,6 +67,10 @@ const Vitrine = () => {
     }
   };
 
+  const handleDetalhes = (produtoId) => {
+    navigate(`/produto/${produtoId}`);
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Vitrine</h1>
@@ -83,7 +87,7 @@ const Vitrine = () => {
               <p>Venda sugerida: R$ {produto.vendaSugerida}</p>
             </CardContent>
             <CardFooter className="flex justify-between">
-              <Button variant="outline">Detalhes</Button>
+              <Button variant="outline" onClick={() => handleDetalhes(produto.id)}>Detalhes</Button>
               <Button 
                 onClick={() => handleImportar(produto)}
                 disabled={produtosImportados[produto.id]}

@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2, Eye } from 'lucide-react';
 
-const EstoqueTable = ({ produtos, onDelete }) => {
+const EstoqueTable = ({ produtos, onDelete, onDetalhes }) => {
   return (
     <Table>
       <TableHeader>
@@ -26,7 +26,7 @@ const EstoqueTable = ({ produtos, onDelete }) => {
             <TableCell>R$ {produto.preco}</TableCell>
             <TableCell>{produto.estoque}</TableCell>
             <TableCell className="space-x-2">
-              <Button variant="outline" size="icon"><Eye className="h-4 w-4" /></Button>
+              <Button variant="outline" size="icon" onClick={() => onDetalhes(produto.id)}><Eye className="h-4 w-4" /></Button>
               <Button variant="outline" size="icon"><Edit className="h-4 w-4" /></Button>
               <Button variant="outline" size="icon" onClick={() => onDelete(produto.id)}><Trash2 className="h-4 w-4" /></Button>
             </TableCell>

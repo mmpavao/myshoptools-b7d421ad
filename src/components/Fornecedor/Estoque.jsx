@@ -5,6 +5,7 @@ import firebaseOperations from '../../firebase/firebaseOperations';
 import { toast } from "@/components/ui/use-toast";
 import EstoqueForm from './EstoqueForm';
 import EstoqueTable from './EstoqueTable';
+import { useNavigate } from 'react-router-dom';
 
 const Estoque = () => {
   const [produtos, setProdutos] = useState([]);
@@ -12,6 +13,7 @@ const Estoque = () => {
     titulo: '', fotos: [], descricao: '', sku: '', estoque: 0, preco: 0, variacoes: [], vendaSugerida: 0
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProdutos();
@@ -98,6 +100,10 @@ const Estoque = () => {
     }
   };
 
+  const handleDetalhes = (productId) => {
+    navigate(`/produto/${productId}`);
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Estoque</h1>
@@ -120,7 +126,7 @@ const Estoque = () => {
         </DialogContent>
       </Dialog>
 
-      <EstoqueTable produtos={produtos} onDelete={handleDeleteProduct} />
+      <EstoqueTable produtos={produtos} onDelete={handleDeleteProduct} onDetalhes={handleDetalhes} />
     </div>
   );
 };
