@@ -1,4 +1,4 @@
-import { LucideIcon, Cpu, ShoppingCart, BarChart3, CloudCog, FileSpreadsheet, FileText, Users, MessageSquare } from "lucide-react";
+import { Cpu, ShoppingCart, BarChart3, CloudCog, FileSpreadsheet, FileText, Users, MessageSquare } from "lucide-react";
 
 export const integrations = [
   {
