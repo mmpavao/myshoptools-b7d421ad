@@ -64,7 +64,7 @@ const productOperations = {
       ...produto,
       userId,
       importadoEm: new Date().toISOString(),
-      originalId: produto.id // Garantir que o originalId seja mantido
+      originalId: produto.id
     };
     delete produtoImportado.id; // Remover o ID original para gerar um novo
     const docRef = await addDoc(collection(db, 'meusProdutos'), produtoImportado);

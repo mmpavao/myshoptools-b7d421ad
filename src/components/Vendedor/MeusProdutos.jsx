@@ -8,6 +8,7 @@ import { useAuth } from '../../components/Auth/AuthProvider';
 
 const MeusProdutos = () => {
   const [produtos, setProdutos] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -20,6 +21,7 @@ const MeusProdutos = () => {
     if (!user) return;
 
     try {
+      setLoading(true);
       const produtosData = await firebaseOperations.getMeusProdutos(user.uid);
       setProdutos(produtosData);
     } catch (error) {
@@ -29,8 +31,14 @@ const MeusProdutos = () => {
         description: "Não foi possível carregar seus produtos.",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) {
+    return <div>Carregando...</div>;
+  }
 
   if (produtos.length === 0) {
     return (
