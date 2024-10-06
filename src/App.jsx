@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
@@ -30,15 +30,17 @@ import GoogleSheetsIntegration from "./integrations/GoogleSheetsIntegration";
 const queryClient = new QueryClient();
 
 const RoleBasedRoute = ({ element: Element, allowedRoles }) => {
-  const { user, loading } = useAuth();
-  const [userRole, setUserRole] = React.useState(null);
+  const { user } = useAuth();
+  const [userRole, setUserRole] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchUserRole = async () => {
       if (user) {
         const role = await getUserRole(user.uid);
         setUserRole(role);
       }
+      setLoading(false);
     };
     fetchUserRole();
   }, [user]);
@@ -85,15 +87,6 @@ const AppRoutes = () => (
   </Routes>
 );
 
-const AppContent = () => {
-  return (
-    <>
-      <AppRoutes />
-      <ChatWidget />
-    </>
-  );
-};
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -101,7 +94,8 @@ const App = () => (
         <Router>
           <AuthProvider>
             <Toaster position="top-right" />
-            <AppContent />
+            <AppRoutes />
+            <ChatWidget />
           </AuthProvider>
         </Router>
       </GoogleOAuthProvider>

@@ -7,11 +7,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '../Auth/AuthProvider';
 import { addDoc, collection, serverTimestamp, query, where, getDocs, onSnapshot, orderBy } from 'firebase/firestore';
-import { db, getOpenAIApiKey } from '../../firebase/config';
+import { db } from '../../firebase/config';
 import { chatWithBot, transcribeAudio, textToSpeech, analyzeDocument } from '../../integrations/openAIOperations';
 import { toast } from 'sonner';
 
-const ChatWindow = ({ onClose, onlineAgents, activeBots, setActiveBots }) => {
+const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const { user } = useAuth();
@@ -20,7 +20,6 @@ const ChatWindow = ({ onClose, onlineAgents, activeBots, setActiveBots }) => {
   const fileInputRef = useRef(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isBotResponding, setIsBotResponding] = useState(false);
-  const mediaRecorderRef = useRef(null);
 
   useEffect(() => {
     const fetchActiveBots = async () => {
@@ -30,6 +29,7 @@ const ChatWindow = ({ onClose, onlineAgents, activeBots, setActiveBots }) => {
     };
     fetchActiveBots();
 
+    // Listen for new messages
     const messagesQuery = query(
       collection(db, 'messages'),
       where('userId', '==', user.uid),
@@ -58,7 +58,7 @@ const ChatWindow = ({ onClose, onlineAgents, activeBots, setActiveBots }) => {
 
     const newMessage = {
       text: content,
-      createdAt: serverTimestamp(),
+      createdAt: new Date(),
       userId: user.uid,
       userName: user.displayName || user.email,
       agentId: selectedAgent,
@@ -70,44 +70,45 @@ const ChatWindow = ({ onClose, onlineAgents, activeBots, setActiveBots }) => {
       await addDoc(collection(db, 'messages'), newMessage);
 
       if (selectedAgent === 'zilda') {
-        const apiKey = getOpenAIApiKey();
         if (!apiKey) {
-          throw new Error('OpenAI API key is not configured. Please contact the administrator.');
+          toast.error('OpenAI API key is not set. Please configure it in your settings.');
+          return;
         }
         const zildaBot = activeBots.find(bot => bot.name.toLowerCase() === 'zilda');
-        if (!zildaBot) {
-          throw new Error('Zilda bot is not available. Please try again later.');
-        }
+        if (zildaBot) {
+          let botResponse;
+          if (type === 'file') {
+            botResponse = await analyzeDocument(apiKey, content);
+          } else if (type === 'audio') {
+            const transcription = await transcribeAudio(apiKey, content);
+            botResponse = await chatWithBot(apiKey, zildaBot.assistantId, transcription);
+            const audioUrl = await textToSpeech(apiKey, botResponse.response, zildaBot.voice || 'alloy');
+            botResponse = { ...botResponse, audioUrl };
+          } else {
+            botResponse = await chatWithBot(apiKey, zildaBot.assistantId, content);
+          }
 
-        let botResponse;
-        if (type === 'file') {
-          botResponse = await analyzeDocument(apiKey, content);
-        } else if (type === 'audio') {
-          const transcription = await transcribeAudio(apiKey, content);
-          botResponse = await chatWithBot(apiKey, zildaBot.assistantId, transcription);
-          const audioUrl = await textToSpeech(apiKey, botResponse.response, zildaBot.voice || 'alloy');
-          botResponse = { ...botResponse, audioUrl };
+          await addDoc(collection(db, 'messages'), {
+            text: botResponse.response,
+            createdAt: new Date(),
+            userId: 'zilda',
+            userName: 'Zilda (Bot)',
+            agentId: 'zilda',
+            type: type === 'audio' ? 'audio' : 'text',
+            audioUrl: botResponse.audioUrl
+          });
+
+          if (botResponse.efficiency) {
+            toast.success(`Bot efficiency: ${botResponse.efficiency}%`);
+          }
         } else {
-          botResponse = await chatWithBot(apiKey, zildaBot.assistantId, content);
-        }
-
-        await addDoc(collection(db, 'messages'), {
-          text: botResponse.response,
-          createdAt: serverTimestamp(),
-          userId: 'zilda',
-          userName: 'Zilda (Bot)',
-          agentId: 'zilda',
-          type: type === 'audio' ? 'audio' : 'text',
-          audioUrl: botResponse.audioUrl
-        });
-
-        if (botResponse.efficiency) {
-          toast.success(`Bot efficiency: ${botResponse.efficiency}%`);
+          console.error('Zilda bot not found');
+          toast.error('Zilda bot is not available. Please try again later.');
         }
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error(`Failed to send message: ${error.message}`);
+      toast.error('Failed to send message. Please try again.');
     } finally {
       setMessage('');
       setIsBotResponding(false);

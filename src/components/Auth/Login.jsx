@@ -39,15 +39,9 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     try {
-      console.log('Tentando fazer login com:', data.email);
       const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
-      console.log('Login bem-sucedido:', userCredential.user.uid);
-      
       const isActive = await checkUserStatus(userCredential.user.uid);
-      console.log('Status do usuário:', isActive ? 'Ativo' : 'Inativo');
-      
       if (!isActive) {
-        console.log('Conta inativa, fazendo logout');
         await auth.signOut();
         toast({
           title: "Conta Inativa",
@@ -55,11 +49,10 @@ const Login = () => {
           variant: "destructive",
         });
       } else {
-        console.log('Redirecionando para o dashboard');
         navigate('/dashboard');
       }
     } catch (error) {
-      console.error('Erro de login:', error);
+      console.error('Login error:', error);
       if (error.code === 'auth/invalid-login-credentials') {
         setError("Credenciais inválidas. Por favor, verifique seu e-mail e senha.");
       } else if (error.code === 'auth/user-not-found') {
@@ -67,7 +60,7 @@ const Login = () => {
       } else if (error.code === 'auth/wrong-password') {
         setError("Senha incorreta. Por favor, tente novamente.");
       } else {
-        setError(`Erro ao fazer login: ${error.message}`);
+        setError("Erro ao fazer login. Por favor, tente novamente mais tarde.");
       }
     }
   };

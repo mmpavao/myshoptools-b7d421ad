@@ -1,18 +1,9 @@
-import { db, getOpenAIApiKey } from '../firebase/config';
+import { db } from '../firebase/config';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where } from 'firebase/firestore';
 import { createOpenAIClient, handleOpenAIError } from '../utils/openAIUtils';
 
-const getApiKey = () => {
-  const apiKey = getOpenAIApiKey();
-  if (!apiKey) {
-    throw new Error('OpenAI API key is not configured. Please contact the administrator.');
-  }
-  return apiKey;
-};
-
-export const testOpenAIConnection = async () => {
+export const testOpenAIConnection = async (apiKey) => {
   try {
-    const apiKey = getApiKey();
     const openai = createOpenAIClient(apiKey);
     await openai.models.list();
     return true;
@@ -22,13 +13,12 @@ export const testOpenAIConnection = async () => {
   }
 };
 
-export const chatWithBot = async (assistantId, message) => {
+export const chatWithBot = async (apiKey, assistantId, message) => {
   try {
     if (!assistantId) {
       throw new Error('Assistant ID is undefined. Please ensure a valid bot is selected.');
     }
 
-    const apiKey = getApiKey();
     const openai = createOpenAIClient(apiKey);
     const thread = await openai.beta.threads.create();
     const startTime = Date.now();
@@ -92,9 +82,8 @@ const updateBotEfficiency = async (assistantId, efficiency) => {
   }
 };
 
-export const analyzeDocument = async (file) => {
+export const analyzeDocument = async (apiKey, file) => {
   try {
-    const apiKey = getApiKey();
     const openai = createOpenAIClient(apiKey);
     const formData = new FormData();
     formData.append('file', file);
@@ -120,9 +109,8 @@ export const analyzeDocument = async (file) => {
   }
 };
 
-export const analyzeImage = async (imageFile) => {
+export const analyzeImage = async (apiKey, imageFile) => {
   try {
-    const apiKey = getApiKey();
     const openai = createOpenAIClient(apiKey);
     const base64Image = await imageFileToBase64(imageFile);
 
@@ -159,9 +147,8 @@ const imageFileToBase64 = (file) => {
   });
 };
 
-export const generateImage = async (prompt) => {
+export const generateImage = async (apiKey, prompt) => {
   try {
-    const apiKey = getApiKey();
     const openai = createOpenAIClient(apiKey);
     const response = await openai.images.generate({
       model: "dall-e-3",
@@ -175,9 +162,8 @@ export const generateImage = async (prompt) => {
   }
 };
 
-export const transcribeAudio = async (audioFile) => {
+export const transcribeAudio = async (apiKey, audioFile) => {
   try {
-    const apiKey = getApiKey();
     const openai = createOpenAIClient(apiKey);
     const formData = new FormData();
     formData.append('file', audioFile);
@@ -202,9 +188,8 @@ export const transcribeAudio = async (audioFile) => {
   }
 };
 
-export const textToSpeech = async (text, voice = 'alloy') => {
+export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
   try {
-    const apiKey = getApiKey();
     const openai = createOpenAIClient(apiKey);
     const mp3 = await openai.audio.speech.create({
       model: "tts-1",
@@ -227,13 +212,12 @@ const getDefaultBotDetails = () => ({
   voice: 'alloy',
 });
 
-export const getBotDetails = async (assistantId) => {
+export const getBotDetails = async (apiKey, assistantId) => {
   try {
     if (!assistantId) {
       console.warn('Assistant ID is undefined. Returning default bot details.');
       return getDefaultBotDetails();
     }
-    const apiKey = getApiKey();
     const openai = createOpenAIClient(apiKey);
     const assistant = await openai.beta.assistants.retrieve(assistantId);
     return {
@@ -249,9 +233,8 @@ export const getBotDetails = async (assistantId) => {
   }
 };
 
-const createOrUpdateBot = async (botData, isUpdate = false) => {
+const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
   try {
-    const apiKey = getApiKey();
     const openai = createOpenAIClient(apiKey);
     const assistantData = {
       name: botData.name,
@@ -293,18 +276,17 @@ const createOrUpdateBot = async (botData, isUpdate = false) => {
   }
 };
 
-export const createBot = (botData) => createOrUpdateBot(botData);
+export const createBot = (apiKey, botData) => createOrUpdateBot(apiKey, botData);
 
-export const updateBot = async (botId, botData) => {
+export const updateBot = async (apiKey, botId, botData) => {
   if (!botId) {
     throw new Error('Bot ID is required for updating');
   }
-  return createOrUpdateBot({ ...botData, id: botId }, true);
+  return createOrUpdateBot(apiKey, { ...botData, id: botId }, true);
 };
 
-export const deleteBot = async (botId, assistantId) => {
+export const deleteBot = async (apiKey, botId, assistantId) => {
   try {
-    const apiKey = getApiKey();
     const openai = createOpenAIClient(apiKey);
     if (assistantId) {
       await openai.beta.assistants.del(assistantId);
@@ -315,9 +297,8 @@ export const deleteBot = async (botId, assistantId) => {
   }
 };
 
-export const getBots = async () => {
+export const getBots = async (apiKey) => {
   try {
-    const apiKey = getApiKey();
     const openai = createOpenAIClient(apiKey);
     const assistants = await openai.beta.assistants.list();
     const querySnapshot = await getDocs(collection(db, 'bots'));
@@ -327,7 +308,7 @@ export const getBots = async () => {
       const firestoreBot = firestoreBots.find(bot => bot.assistantId === assistant.id);
       let botDetails;
       try {
-        botDetails = await getBotDetails(assistant.id);
+        botDetails = await getBotDetails(apiKey, assistant.id);
       } catch (error) {
         console.error(`Error fetching details for assistant ${assistant.id}:`, error);
         botDetails = getDefaultBotDetails();

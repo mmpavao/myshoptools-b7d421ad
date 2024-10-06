@@ -22,14 +22,10 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('AuthProvider: Iniciando listener de autenticação');
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      console.log('AuthProvider: Estado de autenticação mudou', user ? 'Usuário logado' : 'Usuário deslogado');
       if (user) {
-        console.log('AuthProvider: Verificando status do usuário', user.uid);
         const isActive = await checkUserStatus(user.uid);
         if (!isActive) {
-          console.log('AuthProvider: Usuário inativo, fazendo logout');
           await signOut(auth);
           toast({
             title: "Conta Inativa",
@@ -38,11 +34,9 @@ export const AuthProvider = ({ children }) => {
           });
           navigate('/login');
         } else {
-          console.log('AuthProvider: Usuário ativo, atualizando estado');
           setUser(user);
         }
       } else {
-        console.log('AuthProvider: Nenhum usuário, limpando estado');
         setUser(null);
       }
       setLoading(false);
@@ -52,10 +46,7 @@ export const AuthProvider = ({ children }) => {
       console.error("Erro de Autenticação:", error);
     });
 
-    return () => {
-      console.log('AuthProvider: Removendo listener de autenticação');
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, [navigate]);
 
   const logout = async () => {
