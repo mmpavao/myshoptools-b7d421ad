@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider, ProtectedRoute } from "./components/Auth/AuthProvider";
+import { AuthProvider, ProtectedRoute, useAuth } from "./components/Auth/AuthProvider";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Dashboard from "./components/Dashboard/Dashboard";
@@ -22,10 +22,47 @@ import AdminUserList from "./components/Admin/AdminUserList";
 import SettingsPage from "./components/Admin/SettingsPage";
 import ChatAdmin from "./components/Admin/ChatAdmin";
 import ChatWidget from "./components/Chat/ChatWidget";
-import { useAuth } from "./components/Auth/AuthProvider";
 import { getUserRole } from "./firebase/userOperations";
 
 const queryClient = new QueryClient();
+
+const RoleBasedRoute = ({ element: Element, allowedRoles }) => {
+  const { user } = useAuth();
+  const [userRole, setUserRole] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (user) {
+        const role = await getUserRole(user.uid);
+        setUserRole(role);
+      }
+      setLoading(false);
+    };
+    fetchUserRole();
+  }, [user]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user || !allowedRoles.includes(userRole)) {
+    return <Navigate to="/login" />;
+  }
+
+  return (
+    <Layout>
+      <Element />
+    </Layout>
+  );
+};
+
+const PlaceholderComponent = ({ title }) => (
+  <div className="p-4">
+    <h1 className="text-2xl font-bold mb-4">{title}</h1>
+    <p>This is a placeholder for the {title} page.</p>
+  </div>
+);
 
 const AppRoutes = () => (
   <Routes>
