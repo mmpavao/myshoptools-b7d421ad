@@ -22,9 +22,7 @@ const MeusProdutos = () => {
       if (user) {
         try {
           setLoading(true);
-          console.log("Fetching products for user:", user.uid);
           const meusProdutos = await firebaseOperations.getMeusProdutos(user.uid);
-          console.log("Fetched products:", meusProdutos);
           setProdutos(meusProdutos);
         } catch (error) {
           console.error("Erro ao buscar meus produtos:", error);
@@ -37,7 +35,6 @@ const MeusProdutos = () => {
           setLoading(false);
         }
       } else {
-        console.log("No user logged in");
         setLoading(false);
       }
     };

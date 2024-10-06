@@ -109,6 +109,31 @@ const productOperations = {
   },
 };
 
+const meusProdutosOperations = {
+  getMeusProdutos: async (userId) => {
+    try {
+      const produtosImportadosRef = collection(db, 'users', userId, 'produtosImportados');
+      const snapshot = await getDocs(produtosImportadosRef);
+      const produtosImportados = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      // Buscar detalhes completos dos produtos
+      const produtosCompletos = await Promise.all(produtosImportados.map(async (produto) => {
+        const produtoCompleto = await productOperations.getProduct(produto.id);
+        return {
+          ...produtoCompleto,
+          dataImportacao: produto.dataImportacao || new Date().toISOString(),
+          status: produto.status || 'ativo'
+        };
+      }));
+
+      return produtosCompletos;
+    } catch (error) {
+      console.error('Erro ao buscar meus produtos:', error);
+      throw error;
+    }
+  },
+};
+
 const fileOperations = {
   uploadFile: (file, path, onProgress) => {
     const storageRef = ref(storage, path);
@@ -166,68 +191,6 @@ const fileOperations = {
     const path = `avatars/${userId}/${Date.now()}_${file.name}`;
     return await fileOperations.uploadFile(file, path);
   }
-};
-
-const meusProdutosOperations = {
-  getMeusProdutos: async (userId) => {
-    try {
-      const meusProdutosRef = collection(db, 'users', userId, 'meusProdutos');
-      const snapshot = await getDocs(meusProdutosRef);
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    } catch (error) {
-      console.error('Erro ao buscar meus produtos:', error);
-      throw error;
-    }
-  },
-
-  adicionarMeuProduto: async (userId, produto) => {
-    try {
-      const meusProdutosRef = collection(db, 'users', userId, 'meusProdutos');
-      await addDoc(meusProdutosRef, produto);
-    } catch (error) {
-      console.error('Erro ao adicionar produto:', error);
-      throw error;
-    }
-  },
-
-  removerMeuProduto: async (userId, produtoId) => {
-    try {
-      const produtoRef = doc(db, 'users', userId, 'meusProdutos', produtoId);
-      await deleteDoc(produtoRef);
-    } catch (error) {
-      console.error('Erro ao remover produto:', error);
-      throw error;
-    }
-  },
-
-  atualizarMeuProduto: async (userId, produtoId, dadosAtualizados) => {
-    try {
-      const produtoRef = doc(db, 'users', userId, 'meusProdutos', produtoId);
-      await updateDoc(produtoRef, dadosAtualizados);
-    } catch (error) {
-      console.error('Erro ao atualizar produto:', error);
-      throw error;
-    }
-  },
-
-  importarProdutoParaMeusProdutos: async (userId, produto) => {
-    try {
-      const meusProdutosRef = collection(db, 'users', userId, 'meusProdutos');
-      const produtoImportado = {
-        ...produto,
-        dataImportacao: new Date().toISOString(),
-        status: 'pendente',
-      };
-      await addDoc(meusProdutosRef, produtoImportado);
-      
-      // Adicionar o produto à lista de produtos importados
-      const produtosImportadosRef = doc(db, 'users', userId, 'produtosImportados', produto.id);
-      await setDoc(produtosImportadosRef, { importado: true });
-    } catch (error) {
-      console.error('Erro ao importar produto para Meus Produtos:', error);
-      throw error;
-    }
-  },
 };
 
 const testFirebaseOperations = async (logCallback) => {
