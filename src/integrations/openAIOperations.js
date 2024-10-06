@@ -74,9 +74,11 @@ export const deleteBot = async (apiKey, botId, assistantId) => {
 export const getBots = async (apiKey) => {
   try {
     const openai = createOpenAIClient(apiKey);
+    console.log('Fetching assistants from OpenAI...');
     const assistants = await openai.beta.assistants.list();
     console.log('Assistants from OpenAI:', assistants);
 
+    console.log('Fetching bots from Firestore...');
     const querySnapshot = await getDocs(collection(db, 'bots'));
     const localBots = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     console.log('Local bots from Firestore:', localBots);
@@ -97,7 +99,13 @@ export const getBots = async (apiKey) => {
     return mergedBots;
   } catch (error) {
     console.error('Error fetching bots:', error);
-    throw new Error(`Failed to fetch bots: ${error.message}`);
+    if (error.status === 401) {
+      throw new Error('Authentication failed. Please check your API key.');
+    } else if (error.status === 403) {
+      throw new Error('Access forbidden. Your account may not have the necessary permissions.');
+    } else {
+      throw new Error(`Failed to fetch bots: ${error.message}`);
+    }
   }
 };
 

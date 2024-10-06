@@ -78,6 +78,13 @@ const OpenAIIntegration = () => {
       console.error('Error fetching bots:', error);
       addLog(`Failed to fetch bots: ${error.message}`, 'error');
       toast.error('Failed to fetch bots: ' + error.message);
+      if (error.message.includes('Authentication failed')) {
+        setConnectionStatus('Authentication failed');
+      } else if (error.message.includes('Access forbidden')) {
+        setConnectionStatus('Access forbidden');
+      } else {
+        setConnectionStatus('Error fetching bots');
+      }
     }
   };
 
@@ -158,7 +165,11 @@ const OpenAIIntegration = () => {
             />
             <Button onClick={testConnection}>Test Connection</Button>
           </div>
-          <p className={`mt-2 ${connectionStatus === 'Connected' ? 'text-green-500 font-semibold' : ''}`}>
+          <p className={`mt-2 ${
+            connectionStatus === 'Connected' ? 'text-green-500' : 
+            connectionStatus === 'Authentication failed' || connectionStatus === 'Access forbidden' ? 'text-red-500' :
+            'text-yellow-500'
+          } font-semibold`}>
             Connection status: {connectionStatus}
           </p>
         </CardContent>
