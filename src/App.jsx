@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
@@ -30,17 +30,15 @@ import GoogleSheetsIntegration from "./integrations/GoogleSheetsIntegration";
 const queryClient = new QueryClient();
 
 const RoleBasedRoute = ({ element: Element, allowedRoles }) => {
-  const { user } = useAuth();
-  const [userRole, setUserRole] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useAuth();
+  const [userRole, setUserRole] = React.useState(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchUserRole = async () => {
       if (user) {
         const role = await getUserRole(user.uid);
         setUserRole(role);
       }
-      setLoading(false);
     };
     fetchUserRole();
   }, [user]);
