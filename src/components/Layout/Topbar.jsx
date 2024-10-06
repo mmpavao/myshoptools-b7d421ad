@@ -29,17 +29,17 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   ];
 
   return (
-    <header className="bg-destructive text-destructive-foreground border-b border-destructive/20 fixed top-0 right-0 left-0 z-40">
+    <header className="bg-[#0f172a]/80 backdrop-blur-sm text-white border-b border-white/10 fixed top-0 right-0 left-0 z-40">
       <div className="flex items-center justify-between px-4 py-2">
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
-            className={`p-2 mr-4 rounded-full hover:bg-destructive/90 focus:outline-none ${isSidebarOpen ? 'ml-64' : 'ml-16'} transition-all duration-300`}
+            className={`p-2 mr-4 rounded-full hover:bg-white/10 focus:outline-none ${isSidebarOpen ? 'ml-64' : 'ml-16'} transition-all duration-300`}
           >
             <Menu size={24} />
           </button>
           <DropdownMenu>
-            <DropdownMenuTrigger className="text-sm font-medium text-destructive-foreground hover:text-white focus:outline-none">
+            <DropdownMenuTrigger className="text-sm font-medium text-white hover:text-white/80 focus:outline-none">
               {companyName || 'Selecione uma empresa'}
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -53,7 +53,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           </DropdownMenu>
         </div>
         <div className="flex items-center space-x-4">
-          <button className="text-destructive-foreground hover:text-white focus:outline-none">
+          <button className="text-white hover:text-white/80 focus:outline-none">
             <Bell size={24} />
           </button>
           <DropdownMenu>
