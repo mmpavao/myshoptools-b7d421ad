@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import IntegrationCard from './IntegrationCard';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Integrations = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
+
   const integrations = [
     {
       name: "OpenAI GPT-4",
@@ -131,11 +136,68 @@ const Integrations = () => {
     },
   ];
 
+  const totalItems = integrations.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const paginatedIntegrations = integrations.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {integrations.map((integration, index) => (
-        <IntegrationCard key={index} {...integration} />
-      ))}
+    <div className="space-y-6">
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-sm text-gray-500">Total integrations: {totalItems}</p>
+        <Select
+          value={itemsPerPage.toString()}
+          onValueChange={(value) => {
+            setItemsPerPage(Number(value));
+            setCurrentPage(1);
+          }}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Items per page" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="6">6 per page</SelectItem>
+            <SelectItem value="12">12 per page</SelectItem>
+            <SelectItem value="24">24 per page</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {paginatedIntegrations.map((integration, index) => (
+          <IntegrationCard key={index} {...integration} />
+        ))}
+      </div>
+
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious 
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            />
+          </PaginationItem>
+          {[...Array(totalPages)].map((_, index) => (
+            <PaginationItem key={index}>
+              <PaginationLink
+                onClick={() => setCurrentPage(index + 1)}
+                isActive={currentPage === index + 1}
+              >
+                {index + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 };
