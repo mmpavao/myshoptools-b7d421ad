@@ -1,14 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { getProducts } from '../../firebase/firebaseOperations';
+import { toast } from "@/components/ui/use-toast";
 
 const Vitrine = () => {
-  // Simulação de produtos
-  const produtos = [
-    { id: 1, titulo: 'Produto 1', preco: 100, estoque: 10, vendaSugerida: 150 },
-    { id: 2, titulo: 'Produto 2', preco: 200, estoque: 5, vendaSugerida: 300 },
-    // Adicione mais produtos conforme necessário
-  ];
+  const [produtos, setProdutos] = useState([]);
+
+  useEffect(() => {
+    fetchProdutos();
+  }, []);
+
+  const fetchProdutos = async () => {
+    try {
+      const produtosData = await getProducts();
+      setProdutos(produtosData);
+    } catch (error) {
+      console.error("Erro ao buscar produtos:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os produtos.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -20,7 +35,7 @@ const Vitrine = () => {
               <CardTitle>{produto.titulo}</CardTitle>
             </CardHeader>
             <CardContent>
-              <img src="/placeholder.svg" alt={produto.titulo} className="w-full h-48 object-cover mb-2" />
+              <img src={produto.fotos[0] || "/placeholder.svg"} alt={produto.titulo} className="w-full h-48 object-cover mb-2" />
               <p className="text-2xl font-bold text-primary">R$ {produto.preco}</p>
               <p>Estoque: {produto.estoque}</p>
               <p>Venda sugerida: R$ {produto.vendaSugerida}</p>
