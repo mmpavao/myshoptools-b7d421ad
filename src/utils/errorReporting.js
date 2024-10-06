@@ -3,21 +3,11 @@ import { safePostMessage } from '../firebase/config';
 const createSafeErrorObject = (error) => ({
   message: error.message,
   name: error.name,
-  stack: error.stack,
 });
 
-const createSafeRequestInfo = (request) => {
-  if (typeof request === 'string') return request;
-  return {
-    url: request.url,
-    method: request.method,
-  };
-};
-
-export const reportHTTPError = (error, request) => {
+export const reportHTTPError = (error) => {
   const errorData = {
     error: createSafeErrorObject(error),
-    requestInfo: createSafeRequestInfo(request),
   };
 
   safePostMessage(window.parent, {
@@ -32,11 +22,11 @@ export const wrapFetch = () => {
     try {
       const response = await originalFetch(...args);
       if (!response.ok) {
-        reportHTTPError(new Error(`HTTP error! status: ${response.status}`), args[0]);
+        reportHTTPError(new Error(`HTTP error! status: ${response.status}`));
       }
       return response;
     } catch (error) {
-      reportHTTPError(error, args[0]);
+      reportHTTPError(error);
       throw error;
     }
   };
@@ -47,7 +37,7 @@ export const safeFirestoreOperation = async (operation) => {
     return await operation();
   } catch (error) {
     console.error("Firestore operation error:", error);
-    reportHTTPError(error, "Firestore Operation");
+    reportHTTPError(error);
     throw error;
   }
 };
