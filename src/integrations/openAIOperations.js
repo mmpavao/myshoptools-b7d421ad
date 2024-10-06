@@ -166,7 +166,6 @@ export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
   }
 };
 
-
 export const getBotDetails = async (apiKey, assistantId) => {
   try {
     if (!assistantId) {
@@ -270,18 +269,33 @@ export const getBots = async (apiKey) => {
         model: assistant.model || 'gpt-3.5-turbo',
         assistantId: assistant.id,
         avatar: firestoreBot?.avatar || null,
-        createdAt: firestoreBot?.createdAt || assistant.created_at,
-        updatedAt: firestoreBot?.updatedAt || new Date().toISOString(),
+        createdAt: firestoreBot?.createdAt || new Date(assistant.created_at * 1000).toISOString(),
+        updatedAt: new Date().toISOString(),
+        isActive: firestoreBot?.isActive || false,
+        temperature: firestoreBot?.temperature || 1,
+        voice: firestoreBot?.voice || 'alloy',
       };
     });
 
-    await syncBotsWithFirestore(mergedBots);
+    // Remove bots from Firestore that no longer exist in OpenAI
+    const botsToRemove = firestoreBots.filter(
+      firestoreBot => !assistants.data.some(assistant => assistant.id === firestoreBot.assistantId)
+    );
+
+    for (const botToRemove of botsToRemove) {
+      await deleteDoc(doc(db, 'bots', botToRemove.id));
+    }
+
+    // Update or add bots in Firestore
+    for (const bot of mergedBots) {
+      const botRef = doc(db, 'bots', bot.id);
+      await setDoc(botRef, bot, { merge: true });
+    }
 
     return mergedBots;
   } catch (error) {
     console.error('Error getting bots:', error);
-    return []; // Return an empty array if there's an error
+    handleOpenAIError(error, 'get bots');
+    return [];
   }
 };
-
-// ... keep existing code for other functions
