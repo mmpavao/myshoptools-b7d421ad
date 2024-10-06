@@ -2,8 +2,8 @@ import { db, storage } from './config';
 import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { safeFirestoreOperation } from '../utils/errorReporting';
+import { toast } from '@/components/ui/use-toast';
 
-// Firestore Operations
 export const createDocument = (collectionName, data) => 
   safeFirestoreOperation(() => addDoc(collection(db, collectionName), data));
 
@@ -31,34 +31,41 @@ export const uploadFile = async (file, path) => {
 export const deleteFile = (path) => 
   deleteObject(ref(storage, path));
 
-// Test function to run all operations
 export const testFirebaseOperations = async () => {
   try {
-    const userId = await createDocument('users', { name: 'Test User', email: 'test@example.com' });
-    console.log("Created user with ID:", userId);
+    const userDocRef = await createDocument('users', { name: 'Test User', email: 'test@example.com' });
+    console.log("Created user with ID:", userDocRef.id);
 
-    const userData = await readDocument('users', userId);
-    console.log("Read user data:", userData.data());
+    const userDocSnapshot = await readDocument('users', userDocRef.id);
+    console.log("Read user data:", userDocSnapshot.data());
 
-    await updateDocument('users', userId, { name: 'Updated Test User' });
+    await updateDocument('users', userDocRef.id, { name: 'Updated Test User' });
     console.log("Updated user data");
 
-    const updatedUserData = await readDocument('users', userId);
-    console.log("Read updated user data:", updatedUserData.data());
+    const updatedUserDocSnapshot = await readDocument('users', userDocRef.id);
+    console.log("Read updated user data:", updatedUserDocSnapshot.data());
 
-    await deleteDocument('users', userId);
+    await deleteDocument('users', userDocRef.id);
     console.log("Deleted user");
 
     const testFile = new Blob(['Test file content'], { type: 'text/plain' });
-    const filePath = 'test/testfile.txt';
+    const filePath = `test/testfile_${Date.now()}.txt`;
     const fileUrl = await uploadFile(testFile, filePath);
     console.log("Uploaded file URL:", fileUrl);
 
     await deleteFile(filePath);
     console.log("Deleted file");
 
-    console.log("All Firebase operations completed successfully");
+    toast({
+      title: "Firebase Operations Test",
+      description: "All operations completed successfully",
+    });
   } catch (error) {
     console.error("Error during Firebase operations test:", error);
+    toast({
+      title: "Firebase Operations Test Error",
+      description: error.message,
+      variant: "destructive",
+    });
   }
 };

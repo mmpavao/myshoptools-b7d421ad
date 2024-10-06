@@ -3,6 +3,7 @@ import { safePostMessage } from '../firebase/config';
 const createSafeErrorObject = (error) => ({
   message: error.message,
   name: error.name,
+  stack: error.stack,
 });
 
 export const reportHTTPError = (error) => {
@@ -37,7 +38,7 @@ export const safeFirestoreOperation = async (operation) => {
     return await operation();
   } catch (error) {
     console.error("Firestore operation error:", error);
-    reportHTTPError(error);
+    // Não reportamos o erro aqui para evitar problemas de clonagem
     throw error;
   }
 };
