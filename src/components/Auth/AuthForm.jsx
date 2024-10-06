@@ -16,10 +16,19 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import userOperations from '../../firebase/userOperations';
 
 const schema = z.object({
   email: z.string().email({ message: "Endereço de e-mail inválido" }),
   password: z.string().min(6, { message: "A senha deve ter pelo menos 6 caracteres" }),
+  role: z.enum(['Vendedor', 'Fornecedor']).optional(),
 });
 
 const AuthForm = ({ isLogin }) => {
@@ -32,6 +41,7 @@ const AuthForm = ({ isLogin }) => {
     defaultValues: {
       email: '',
       password: '',
+      role: 'Vendedor',
     },
   });
 
@@ -40,7 +50,12 @@ const AuthForm = ({ isLogin }) => {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, data.email, data.password);
       } else {
-        await createUserWithEmailAndPassword(auth, data.email, data.password);
+        const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+        await userOperations.createUser({
+          uid: userCredential.user.uid,
+          email: data.email,
+          role: data.role,
+        });
       }
       navigate('/dashboard');
     } catch (error) {
@@ -97,6 +112,29 @@ const AuthForm = ({ isLogin }) => {
                 </FormItem>
               )}
             />
+            {!isLogin && (
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo de Conta</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o tipo de conta" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Vendedor">Vendedor</SelectItem>
+                        <SelectItem value="Fornecedor">Fornecedor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <Button type="submit" className="w-full">
               {isLogin ? 'Entrar' : 'Registrar'}
             </Button>

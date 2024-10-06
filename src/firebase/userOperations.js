@@ -8,7 +8,10 @@ const MASTER_USER_EMAIL = 'pavaosmart@gmail.com';
 
 const userOperations = {
   createUser: (userData) => 
-    safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), userData)),
+    safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), {
+      ...userData,
+      role: userData.role || 'Vendedor', // Default to 'Vendedor' if no role is provided
+    })),
 
   updateUserProfile: async (userId, profileData) => {
     try {
