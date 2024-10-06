@@ -2,6 +2,7 @@ import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const EstoqueForm = ({ novoProduto, handleInputChange, handleFileChange, handleSubmit, calcularMarkup }) => {
   return (
@@ -10,7 +11,19 @@ const EstoqueForm = ({ novoProduto, handleInputChange, handleFileChange, handleS
       <Input name="sku" value={novoProduto.sku} onChange={handleInputChange} placeholder="SKU" />
       <Textarea name="descricao" value={novoProduto.descricao} onChange={handleInputChange} placeholder="Descrição" />
       <Input type="number" name="estoque" value={novoProduto.estoque} onChange={handleInputChange} placeholder="Estoque" />
-      <Input type="number" name="preco" value={novoProduto.preco} onChange={handleInputChange} placeholder="Preço do Produto" />
+      <div className="flex space-x-2">
+        <Input type="number" name="preco" value={novoProduto.preco} onChange={handleInputChange} placeholder="Preço do Produto" />
+        <Input type="number" name="desconto" value={novoProduto.desconto} onChange={handleInputChange} placeholder="Desconto" />
+        <Select name="tipoDesconto" value={novoProduto.tipoDesconto} onValueChange={(value) => handleInputChange({ target: { name: 'tipoDesconto', value }})}>
+          <SelectTrigger>
+            <SelectValue placeholder="Tipo de Desconto" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="%">%</SelectItem>
+            <SelectItem value="R$">R$</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
       <Input type="number" name="vendaSugerida" value={novoProduto.vendaSugerida} onChange={handleInputChange} placeholder="Venda Sugerida" />
       <div>Markup: {calcularMarkup()}</div>
       <div>

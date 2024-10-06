@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 const Estoque = () => {
   const [produtos, setProdutos] = useState([]);
   const [novoProduto, setNovoProduto] = useState({
-    titulo: '', fotos: [], descricao: '', sku: '', estoque: 0, preco: 0, variacoes: [], vendaSugerida: 0
+    titulo: '', fotos: [], descricao: '', sku: '', estoque: 0, preco: 0, desconto: 0, tipoDesconto: '%', variacoes: [], vendaSugerida: 0
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const navigate = useNavigate();
@@ -57,7 +57,14 @@ const Estoque = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await firebaseOperations.createProduct(novoProduto);
+      const produtoParaSalvar = {
+        ...novoProduto,
+        preco: Number(novoProduto.preco),
+        desconto: Number(novoProduto.desconto),
+        estoque: Number(novoProduto.estoque),
+        vendaSugerida: Number(novoProduto.vendaSugerida)
+      };
+      await firebaseOperations.createProduct(produtoParaSalvar);
       toast({
         title: "Sucesso",
         description: "Produto adicionado com sucesso!",
@@ -65,7 +72,7 @@ const Estoque = () => {
       fetchProdutos();
       setIsDialogOpen(false);
       setNovoProduto({
-        titulo: '', fotos: [], descricao: '', sku: '', estoque: 0, preco: 0, variacoes: [], vendaSugerida: 0
+        titulo: '', fotos: [], descricao: '', sku: '', estoque: 0, preco: 0, desconto: 0, tipoDesconto: '%', variacoes: [], vendaSugerida: 0
       });
     } catch (error) {
       console.error("Erro ao adicionar produto:", error);
@@ -78,8 +85,11 @@ const Estoque = () => {
   };
 
   const calcularMarkup = () => {
-    const markup = novoProduto.vendaSugerida / novoProduto.preco;
-    return markup.toFixed(1) + 'x';
+    const precoComDesconto = novoProduto.tipoDesconto === '%' 
+      ? novoProduto.preco * (1 - novoProduto.desconto / 100)
+      : novoProduto.preco - novoProduto.desconto;
+    const markup = novoProduto.vendaSugerida / precoComDesconto;
+    return markup.toFixed(2) + 'x';
   };
 
   const handleDeleteProduct = async (productId) => {

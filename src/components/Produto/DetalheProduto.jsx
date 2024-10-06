@@ -3,7 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { StarIcon } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../../components/Auth/AuthProvider';
 import { toast } from "@/components/ui/use-toast";
@@ -13,6 +15,7 @@ const DetalheProduto = () => {
   const [produto, setProduto] = useState(null);
   const [isImportado, setIsImportado] = useState(false);
   const [fotoPrincipal, setFotoPrincipal] = useState('');
+  const [avaliacaoAtual, setAvaliacaoAtual] = useState({ nota: 0, comentario: '' });
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -20,7 +23,6 @@ const DetalheProduto = () => {
     const fetchProduto = async () => {
       try {
         const produtoData = await firebaseOperations.getProduct(id);
-        produtoData.preco = Number(produtoData.preco);
         setProduto(produtoData);
         setFotoPrincipal(produtoData.fotos[0] || "/placeholder.svg");
         if (user) {
@@ -78,6 +80,35 @@ const DetalheProduto = () => {
     setFotoPrincipal(foto);
   };
 
+  const handleSubmitAvaliacao = async () => {
+    try {
+      await firebaseOperations.adicionarAvaliacao(id, user.uid, avaliacaoAtual.nota, avaliacaoAtual.comentario);
+      toast({
+        title: "Sucesso",
+        description: "Avaliação enviada com sucesso!",
+      });
+      setAvaliacaoAtual({ nota: 0, comentario: '' });
+      // Recarregar o produto para atualizar as avaliações
+      const produtoAtualizado = await firebaseOperations.getProduct(id);
+      setProduto(produtoAtualizado);
+    } catch (error) {
+      console.error("Erro ao enviar avaliação:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível enviar a avaliação.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const renderStars = (rating) => {
+    return [...Array(5)].map((_, index) => (
+      <StarIcon key={index} className={`w-5 h-5 ${index < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'}`} />
+    ));
+  };
+
+  if (!produto) return <div>Carregando...</div>;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row gap-8">
@@ -125,18 +156,18 @@ const DetalheProduto = () => {
           <h2 className="text-xl text-gray-600 mb-4">{produto.sku}</h2>
           
           <div className="flex items-center mb-4">
-            {[...Array(5)].map((_, i) => (
-              <svg key={i} className={`w-5 h-5 ${i < Math.floor(4.5) ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            ))}
-            <span className="ml-2 text-gray-600">(35 avaliações)</span>
+            {renderStars(produto.avaliacao || 0)}
+            <span className="ml-2 text-gray-600">({produto.numeroAvaliacoes || 0} avaliações)</span>
           </div>
 
           <div className="mb-4">
-            <span className="text-3xl font-bold text-primary">R$ {formatPrice(produto.preco)}</span>
-            <span className="ml-2 text-gray-500 line-through">R$ {formatPrice(produto.preco * 1.2)}</span>
-            <span className="ml-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm">-20%</span>
+            <span className="text-3xl font-bold text-primary">R$ {produto.preco.toFixed(2)}</span>
+            {produto.desconto > 0 && (
+              <>
+                <span className="ml-2 text-gray-500 line-through">R$ {(produto.preco / (1 - produto.desconto / 100)).toFixed(2)}</span>
+                <span className="ml-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm">-{produto.desconto}%</span>
+              </>
+            )}
           </div>
 
           {/* Variações */}
@@ -182,7 +213,7 @@ const DetalheProduto = () => {
                   <ul className="list-disc pl-5">
                     <li>SKU: {produto.sku}</li>
                     <li>Estoque: {produto.estoque}</li>
-                    <li>Preço de Venda Sugerido: R$ {formatPrice(produto.vendaSugerida)}</li>
+                    <li>Preço de Venda Sugerido: R$ {produto.vendaSugerida.toFixed(2)}</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -190,11 +221,54 @@ const DetalheProduto = () => {
             <TabsContent value="avaliacoes">
               <Card>
                 <CardContent className="pt-6">
-                  <p>Avaliações dos clientes serão exibidas aqui.</p>
+                  {produto.avaliacoes && produto.avaliacoes.length > 0 ? (
+                    produto.avaliacoes.map((avaliacao, index) => (
+                      <div key={index} className="mb-4 pb-4 border-b last:border-b-0">
+                        <div className="flex items-center mb-2">
+                          {renderStars(avaliacao.nota)}
+                          <span className="ml-2 text-sm text-gray-600">{avaliacao.data}</span>
+                        </div>
+                        <p>{avaliacao.comentario}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p>Ainda não há avaliações para este produto.</p>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
+
+          {/* Botão para Avaliar */}
+          <div className="mt-6">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline">Avaliar Produto</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Avaliar Produto</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="flex justify-center">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <StarIcon
+                        key={star}
+                        className={`w-8 h-8 cursor-pointer ${star <= avaliacaoAtual.nota ? 'text-yellow-400' : 'text-gray-300'}`}
+                        onClick={() => setAvaliacaoAtual(prev => ({ ...prev, nota: star }))}
+                      />
+                    ))}
+                  </div>
+                  <Textarea
+                    placeholder="Deixe seu comentário"
+                    value={avaliacaoAtual.comentario}
+                    onChange={(e) => setAvaliacaoAtual(prev => ({ ...prev, comentario: e.target.value }))}
+                  />
+                  <Button onClick={handleSubmitAvaliacao}>Enviar Avaliação</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
       </div>
     </div>
