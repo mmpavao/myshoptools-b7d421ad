@@ -121,10 +121,11 @@ export const updateUserProfile = async (userId, profileData) => {
     const userRef = doc(db, 'users', userId);
     await setDoc(userRef, profileData, { merge: true });
     
-    if (profileData.displayName || profileData.photoURL) {
+    if (auth.currentUser) {
       await updateProfile(auth.currentUser, {
         displayName: profileData.displayName,
-        photoURL: profileData.photoURL
+        photoURL: profileData.photoURL,
+        email: profileData.email
       });
     }
     
@@ -140,7 +141,6 @@ export const uploadProfileImage = async (file, userId) => {
   const path = `avatars/${userId}`;
   try {
     const downloadURL = await uploadFile(file, path);
-    await updateUserProfile(userId, { photoURL: downloadURL });
     return downloadURL;
   } catch (error) {
     console.error('Erro ao fazer upload da imagem de perfil:', error);
