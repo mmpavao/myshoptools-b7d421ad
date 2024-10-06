@@ -21,6 +21,7 @@ const OpenAIIntegration = () => {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openaiApiKey') || '');
   const [connectionStatus, setConnectionStatus] = useState('Not connected');
   const [logs, setLogs] = useState([]);
+  const [errorDetails, setErrorDetails] = useState('');
 
   useEffect(() => {
     if (apiKey) {
@@ -44,17 +45,20 @@ const OpenAIIntegration = () => {
       const isConnected = await testOpenAIConnection(apiKey);
       if (isConnected) {
         setConnectionStatus('Connected');
+        setErrorDetails('');
         addLog('Successfully connected to OpenAI', 'success');
         toast.success('Successfully connected to OpenAI');
         await fetchBots();
       } else {
         setConnectionStatus('Connection failed');
+        setErrorDetails('Unknown error occurred');
         addLog('Failed to connect to OpenAI', 'error');
         toast.error('Failed to connect to OpenAI');
       }
     } catch (error) {
       console.error('Error testing connection:', error);
       setConnectionStatus('Connection error');
+      setErrorDetails(error.message);
       addLog(`Error testing connection: ${error.message}`, 'error');
       toast.error('Error testing connection to OpenAI');
     }
@@ -82,11 +86,13 @@ const OpenAIIntegration = () => {
   const handleFetchError = (error) => {
     if (error.message.includes('Authentication failed')) {
       setConnectionStatus('Authentication failed');
+      setErrorDetails('Please check your API key and try again.');
     } else if (error.message.includes('Access forbidden') || error.message.includes('insufficient permissions')) {
       setConnectionStatus('Access forbidden');
-      toast.error('Your OpenAI account may not have the necessary permissions. Please check your account settings and ensure you have access to the Assistants API.');
+      setErrorDetails('Your OpenAI account may not have access to the Assistants API. Please check your account settings and ensure you have the necessary permissions. If the issue persists, contact OpenAI support.');
     } else {
       setConnectionStatus('Error fetching bots');
+      setErrorDetails(error.message);
     }
   };
 
@@ -153,6 +159,7 @@ const OpenAIIntegration = () => {
         onApiKeyChange={handleApiKeyChange}
         onTestConnection={testConnection}
         connectionStatus={connectionStatus}
+        errorDetails={errorDetails}
       />
 
       <BotList

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const APIKeyManager = ({ apiKey, onApiKeyChange, onTestConnection, connectionStatus }) => {
+const APIKeyManager = ({ apiKey, onApiKeyChange, onTestConnection, connectionStatus, errorDetails }) => {
   return (
     <Card className="mb-6">
       <CardHeader>
@@ -26,10 +26,9 @@ const APIKeyManager = ({ apiKey, onApiKeyChange, onTestConnection, connectionSta
         } font-semibold`}>
           Connection status: {connectionStatus}
         </p>
-        {connectionStatus === 'Access forbidden' && (
+        {errorDetails && (
           <p className="mt-2 text-sm text-red-500">
-            Your OpenAI account may not have access to the Assistants API. 
-            Please check your account settings and ensure you have the necessary permissions.
+            {errorDetails}
           </p>
         )}
       </CardContent>
