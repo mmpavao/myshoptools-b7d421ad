@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from '@/components/ui/use-toast';
+import AdminUserTable from '../Admin/AdminUserTable';
 
 const LogsPage = () => {
   const [logs, setLogs] = useState([]);
@@ -22,14 +23,22 @@ const LogsPage = () => {
   const [isTestingFirebase, setIsTestingFirebase] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [pin, setPin] = useState('');
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     fetchAdminLogs();
+    fetchUsers();
   }, []);
 
   const fetchAdminLogs = async () => {
     const logs = await firebaseOperations.getAdminLogs();
     setAdminLogs(logs);
+  };
+
+  const fetchUsers = async () => {
+    // This is a placeholder. You'll need to implement this function in firebaseOperations
+    const fetchedUsers = await firebaseOperations.getAllUsers();
+    setUsers(fetchedUsers);
   };
 
   const handleTestFirebase = async () => {
@@ -69,8 +78,14 @@ const LogsPage = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-semibold text-gray-800">Logs e Testes</h1>
+      <h1 className="text-3xl font-semibold text-gray-800">Admin Dashboard</h1>
       
+      {/* User Management Section */}
+      <div className="bg-white shadow rounded-lg p-6">
+        <h2 className="text-xl font-semibold mb-4">User Management</h2>
+        <AdminUserTable users={users} />
+      </div>
+
       {/* Admin Logs Section */}
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Logs de Administração</h2>
