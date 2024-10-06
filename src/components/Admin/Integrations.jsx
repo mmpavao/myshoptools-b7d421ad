@@ -8,7 +8,6 @@ import GoogleSheetsIntegration from '../../integrations/GoogleSheetsIntegration'
 const Integrations = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
-  const [showGoogleSheetsIntegration, setShowGoogleSheetsIntegration] = useState(false);
 
   const totalItems = integrations.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -25,16 +24,11 @@ const Integrations = () => {
   };
 
   const handleIntegrate = (integration) => {
-    if (integration.name === "Google Sheets") {
-      setShowGoogleSheetsIntegration(true);
-    }
-    // Handle other integrations as needed
+    console.log(`Integrating ${integration.name}`);
   };
 
   return (
     <div className="space-y-6">
-      {showGoogleSheetsIntegration && <GoogleSheetsIntegration />}
-      
       <div className="flex justify-between items-center mb-4">
         <p className="text-sm text-gray-500">Total integrations: {totalItems}</p>
         <Select
@@ -58,6 +52,9 @@ const Integrations = () => {
             key={index} 
             {...integration} 
             onIntegrate={() => handleIntegrate(integration)}
+            configurationComponent={
+              integration.name === "Google Sheets" ? GoogleSheetsIntegration : null
+            }
           />
         ))}
       </div>

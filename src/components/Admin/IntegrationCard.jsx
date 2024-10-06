@@ -1,8 +1,9 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
-const IntegrationCard = ({ name, category, description, pricing, icon, onIntegrate }) => (
+const IntegrationCard = ({ name, category, description, pricing, icon, onIntegrate, configurationComponent: ConfigurationComponent }) => (
   <Card className="flex flex-col h-full">
     <CardHeader>
       <div className="flex items-center justify-between">
@@ -18,7 +19,14 @@ const IntegrationCard = ({ name, category, description, pricing, icon, onIntegra
       <p className="text-sm font-semibold">{pricing}</p>
     </CardContent>
     <div className="p-4 mt-auto">
-      <Button className="w-full" onClick={onIntegrate}>Integrate</Button>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button className="w-full" onClick={onIntegrate}>Integrate</Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <ConfigurationComponent />
+        </DialogContent>
+      </Dialog>
     </div>
   </Card>
 );
