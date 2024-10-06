@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Slider } from "@/components/ui/slider";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { createBot, updateBot, deleteBot, getBots, addKnowledgeBase, analyzeImage, generateImage, transcribeAudio, textToSpeech } from './openAIOperations';
+import { createBot, updateBot, deleteBot, getBots, testOpenAIConnection } from './openAIOperations';
 import BotList from './components/BotList';
 import BotDialog from './components/BotDialog';
 import ImageAnalysisGeneration from './components/ImageAnalysisGeneration';
@@ -24,14 +19,35 @@ const OpenAIIntegration = () => {
     temperature: 1,
   });
   const [isEditing, setIsEditing] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [connectionStatus, setConnectionStatus] = useState('Not connected');
 
-  useEffect(() => {
-    fetchBots();
-  }, []);
+  const handleApiKeyChange = (e) => {
+    setApiKey(e.target.value);
+  };
+
+  const testConnection = async () => {
+    try {
+      setConnectionStatus('Testing...');
+      const isConnected = await testOpenAIConnection(apiKey);
+      if (isConnected) {
+        setConnectionStatus('Connected');
+        toast.success('Successfully connected to OpenAI');
+        fetchBots();
+      } else {
+        setConnectionStatus('Connection failed');
+        toast.error('Failed to connect to OpenAI');
+      }
+    } catch (error) {
+      console.error('Error testing connection:', error);
+      setConnectionStatus('Connection error');
+      toast.error('Error testing connection to OpenAI');
+    }
+  };
 
   const fetchBots = async () => {
     try {
-      const fetchedBots = await getBots();
+      const fetchedBots = await getBots(apiKey);
       setBots(fetchedBots);
     } catch (error) {
       console.error('Error fetching bots:', error);
@@ -58,9 +74,9 @@ const OpenAIIntegration = () => {
   const handleSaveBot = async (botData) => {
     try {
       if (isEditing) {
-        await updateBot(botData.id, botData);
+        await updateBot(apiKey, botData.id, botData);
       } else {
-        await createBot(botData);
+        await createBot(apiKey, botData);
       }
       toast.success(isEditing ? 'Bot updated successfully!' : 'Bot created successfully!');
       setIsDialogOpen(false);
@@ -73,7 +89,7 @@ const OpenAIIntegration = () => {
 
   const handleDeleteBot = async (botId, assistantId) => {
     try {
-      await deleteBot(botId, assistantId);
+      await deleteBot(apiKey, botId, assistantId);
       toast.success('Bot deleted successfully');
       fetchBots();
     } catch (error) {
@@ -85,6 +101,24 @@ const OpenAIIntegration = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">OpenAI Integration</h1>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>OpenAI API Key</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center space-x-2">
+            <Input
+              type="password"
+              value={apiKey}
+              onChange={handleApiKeyChange}
+              placeholder="Enter your OpenAI API Key"
+            />
+            <Button onClick={testConnection}>Test Connection</Button>
+          </div>
+          <p className="mt-2">Connection status: {connectionStatus}</p>
+        </CardContent>
+      </Card>
 
       <BotList
         bots={bots}
@@ -100,9 +134,9 @@ const OpenAIIntegration = () => {
         onSave={handleSaveBot}
       />
 
-      <ImageAnalysisGeneration />
+      <ImageAnalysisGeneration apiKey={apiKey} />
 
-      <AudioTranscriptionSpeech />
+      <AudioTranscriptionSpeech apiKey={apiKey} />
     </div>
   );
 };

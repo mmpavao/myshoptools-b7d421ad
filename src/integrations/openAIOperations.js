@@ -1,21 +1,29 @@
 import OpenAI from 'openai';
-import { db, storage, openAIConfig } from '../firebase/config';
+import { db, storage } from '../firebase/config';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-// Initialize OpenAI client
-const openai = new OpenAI({ 
-  apiKey: openAIConfig.apiKey,
-  dangerouslyAllowBrowser: true
-});
+const createOpenAIClient = (apiKey) => {
+  return new OpenAI({ 
+    apiKey: apiKey,
+    dangerouslyAllowBrowser: true
+  });
+};
 
-// Check if the API key is available
-if (!openAIConfig.apiKey) {
-  console.error('OpenAI API key is missing. Please check your environment variables.');
-}
-
-export const createBot = async (botData) => {
+export const testOpenAIConnection = async (apiKey) => {
   try {
+    const openai = createOpenAIClient(apiKey);
+    await openai.models.list();
+    return true;
+  } catch (error) {
+    console.error('Error testing OpenAI connection:', error);
+    return false;
+  }
+};
+
+export const createBot = async (apiKey, botData) => {
+  try {
+    const openai = createOpenAIClient(apiKey);
     const assistant = await openai.beta.assistants.create({
       name: botData.name,
       instructions: botData.instructions,
@@ -34,8 +42,9 @@ export const createBot = async (botData) => {
   }
 };
 
-export const updateBot = async (botId, botData) => {
+export const updateBot = async (apiKey, botId, botData) => {
   try {
+    const openai = createOpenAIClient(apiKey);
     const botRef = doc(db, 'bots', botId);
     await updateDoc(botRef, botData);
 
@@ -52,8 +61,9 @@ export const updateBot = async (botId, botData) => {
   }
 };
 
-export const deleteBot = async (botId, assistantId) => {
+export const deleteBot = async (apiKey, botId, assistantId) => {
   try {
+    const openai = createOpenAIClient(apiKey);
     await deleteDoc(doc(db, 'bots', botId));
     await openai.beta.assistants.del(assistantId);
   } catch (error) {
@@ -62,10 +72,20 @@ export const deleteBot = async (botId, assistantId) => {
   }
 };
 
-export const getBots = async () => {
+export const getBots = async (apiKey) => {
   try {
+    const openai = createOpenAIClient(apiKey);
+    const assistants = await openai.beta.assistants.list();
     const querySnapshot = await getDocs(collection(db, 'bots'));
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const localBots = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Merge local bots with OpenAI assistants
+    const mergedBots = assistants.data.map(assistant => {
+      const localBot = localBots.find(bot => bot.assistantId === assistant.id);
+      return localBot ? { ...localBot, ...assistant } : assistant;
+    });
+
+    return mergedBots;
   } catch (error) {
     console.error('Error fetching bots:', error);
     throw error;
@@ -157,5 +177,4 @@ export const textToSpeech = async (text, voice = 'alloy') => {
     throw error;
   }
 };
-
-// Ensure all functions are using the 'openai' instance directly
+// Make sure to update these functions to use the createOpenAIClient(apiKey) instead of the global openai instance
