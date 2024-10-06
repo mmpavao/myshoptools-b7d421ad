@@ -18,6 +18,8 @@ const DetalheProduto = () => {
     const fetchProduto = async () => {
       try {
         const produtoData = await firebaseOperations.getProduct(id);
+        // Ensure preco is a number
+        produtoData.preco = Number(produtoData.preco);
         setProduto(produtoData);
         if (user) {
           const importado = await firebaseOperations.verificarProdutoImportado(user.uid, id);
@@ -66,6 +68,11 @@ const DetalheProduto = () => {
 
   if (!produto) return <div>Carregando...</div>;
 
+  // Helper function to safely format price
+  const formatPrice = (price) => {
+    return typeof price === 'number' ? price.toFixed(2) : '0.00';
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row gap-8">
@@ -94,8 +101,8 @@ const DetalheProduto = () => {
           </div>
 
           <div className="mb-4">
-            <span className="text-3xl font-bold text-primary">R$ {produto.preco.toFixed(2)}</span>
-            <span className="ml-2 text-gray-500 line-through">R$ {(produto.preco * 1.2).toFixed(2)}</span>
+            <span className="text-3xl font-bold text-primary">R$ {formatPrice(produto.preco)}</span>
+            <span className="ml-2 text-gray-500 line-through">R$ {formatPrice(produto.preco * 1.2)}</span>
             <span className="ml-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm">-20%</span>
           </div>
 
@@ -142,7 +149,7 @@ const DetalheProduto = () => {
                   <ul className="list-disc pl-5">
                     <li>SKU: {produto.sku}</li>
                     <li>Estoque: {produto.estoque}</li>
-                    <li>Preço de Venda Sugerido: R$ {produto.vendaSugerida.toFixed(2)}</li>
+                    <li>Preço de Venda Sugerido: R$ {formatPrice(produto.vendaSugerida)}</li>
                   </ul>
                 </CardContent>
               </Card>
