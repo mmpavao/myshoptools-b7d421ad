@@ -49,7 +49,7 @@ const MeusProdutos = () => {
   const handleSubmitAvaliacao = async () => {
     try {
       await firebaseOperations.adicionarAvaliacao(avaliacaoAtual.produtoId, user.uid, avaliacaoAtual.nota, avaliacaoAtual.comentario);
-      setDialogOpen(false); // Fechar o popup
+      setDialogOpen(false); // Ensure the dialog is closed
       toast({
         title: "Sucesso",
         description: "Avaliação enviada com sucesso!",
@@ -119,7 +119,33 @@ const MeusProdutos = () => {
             </CardContent>
             <CardFooter className="flex justify-between mt-auto">
               <Button variant="outline">Editar</Button>
-              <Button variant="destructive">Remover</Button>
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => handleAvaliar(produto.id)}>Avaliar</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Avaliar Produto</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="flex justify-center">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <StarIcon
+                          key={star}
+                          className={`w-8 h-8 cursor-pointer ${star <= avaliacaoAtual.nota ? 'text-yellow-400' : 'text-gray-300'}`}
+                          onClick={() => setAvaliacaoAtual(prev => ({ ...prev, nota: star }))}
+                        />
+                      ))}
+                    </div>
+                    <Textarea
+                      placeholder="Deixe seu comentário"
+                      value={avaliacaoAtual.comentario}
+                      onChange={(e) => setAvaliacaoAtual(prev => ({ ...prev, comentario: e.target.value }))}
+                    />
+                    <Button onClick={handleSubmitAvaliacao}>Enviar Avaliação</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardFooter>
           </Card>
         ))}
