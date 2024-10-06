@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
@@ -31,10 +31,10 @@ const queryClient = new QueryClient();
 
 const RoleBasedRoute = ({ element: Element, allowedRoles }) => {
   const { user } = useAuth();
-  const [userRole, setUserRole] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchUserRole = async () => {
       if (user) {
         const role = await getUserRole(user.uid);
@@ -87,6 +87,15 @@ const AppRoutes = () => (
   </Routes>
 );
 
+const AppContent = () => {
+  return (
+    <>
+      <AppRoutes />
+      <ChatWidget />
+    </>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -94,8 +103,7 @@ const App = () => (
         <Router>
           <AuthProvider>
             <Toaster position="top-right" />
-            <AppRoutes />
-            <ChatWidget />
+            <AppContent />
           </AuthProvider>
         </Router>
       </GoogleOAuthProvider>
