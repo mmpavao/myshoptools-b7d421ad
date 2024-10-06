@@ -117,6 +117,11 @@ const OpenAIIntegration = () => {
     }
   };
 
+  const handleChatWithBot = (bot) => {
+    setCurrentBot(bot);
+    setIsChatDialogOpen(true);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">OpenAI Integration</h1>
@@ -143,6 +148,7 @@ const OpenAIIntegration = () => {
             isEditing={isEditing}
             onSave={handleSaveBot}
             onDelete={handleDeleteBot}
+            apiKey={apiKey}
           />
 
           <BotChatDialog
