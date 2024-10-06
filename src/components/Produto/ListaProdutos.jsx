@@ -46,7 +46,7 @@ const ListaProdutos = () => {
         title: "Sucesso",
         description: "Produto removido da sua lista com sucesso.",
       });
-      fetchProdutosImportados(); // Atualiza a lista após a exclusão
+      fetchProdutosImportados();
     } catch (error) {
       console.error("Erro ao excluir produto:", error);
       toast({
@@ -84,7 +84,6 @@ const ListaProdutos = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {produtosFiltrados.map((produto) => (
           <Card key={produto.id} className="flex flex-col">
-            <CardContent className="p-4">
               <img src={produto.fotos[0] || "/placeholder.svg"} alt={produto.titulo} className="w-full h-48 object-cover mb-2 rounded" />
               <h2 className="text-lg font-semibold mb-2 line-clamp-2">{produto.titulo}</h2>
               <p className="text-sm text-gray-500 mb-2">SKU: {produto.sku}</p>

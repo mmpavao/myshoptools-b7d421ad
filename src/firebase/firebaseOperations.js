@@ -115,17 +115,18 @@ const productOperations = {
       throw error;
     }
   },
+
   importarProduto: async (userId, produto) => {
     const userProductRef = doc(db, 'users', userId, 'produtosImportados', produto.id);
     await setDoc(userProductRef, produto);
   },
   getProdutosImportados: async (userId) => {
-    const userProductsRef = collection(db, userId, 'produtosImportados');
+    const userProductsRef = collection(db, 'users', userId, 'produtosImportados');
     const snapshot = await getDocs(userProductsRef);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
   getProdutosImportadosStatus: async (userId) => {
-    const userProductsRef = collection(db, userId, 'produtosImportados');
+    const userProductsRef = collection(db, 'users', userId, 'produtosImportados');
     const snapshot = await getDocs(userProductsRef);
     const status = {};
     snapshot.docs.forEach(doc => {
@@ -144,7 +145,6 @@ const productOperations = {
   },
 };
 
-// File operations
 const fileOperations = {
   uploadFile: (file, path, onProgress) => {
     const storageRef = ref(storage, path);
@@ -264,7 +264,6 @@ const clearAllData = async () => {
   }
 };
 
-// Export all operations as a single object
 const firebaseOperations = {
   ...crudOperations,
   ...userOperations,
