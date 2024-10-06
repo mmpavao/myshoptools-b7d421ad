@@ -1,9 +1,12 @@
 import { db, storage, auth } from './config';
 import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
+import { updateProfile } from 'firebase/auth';
 import { toast } from '@/components/ui/use-toast';
 import crudOperations from './crudOperations';
-import userOperations from './userOperations';
+import { safeFirestoreOperation } from '../utils/errorReporting';
+
+const MASTER_USER_EMAIL = 'pavaosmart@gmail.com';
 
 const productOperations = {
   createProduct: async (productData) => {
@@ -167,69 +170,11 @@ const fileOperations = {
   }
 };
 
-const testFirebaseOperations = async (logCallback) => {
-  try {
-    const testDoc = await crudOperations.createDocument('test_collection', { test: 'data' });
-    logCallback({ step: 'Create Document', status: 'success', message: 'Document created successfully' });
-
-    await crudOperations.readDocument('test_collection', testDoc.id);
-    logCallback({ step: 'Read Document', status: 'success', message: 'Document read successfully' });
-
-    await crudOperations.updateDocument('test_collection', testDoc.id, { test: 'updated data' });
-    logCallback({ step: 'Update Document', status: 'success', message: 'Document updated successfully' });
-
-    await crudOperations.deleteDocument('test_collection', testDoc.id);
-    logCallback({ step: 'Delete Document', status: 'success', message: 'Document deleted successfully' });
-
-    const testFile = new File(['test content'], 'test.txt', { type: 'text/plain' });
-    const uploadPath = 'test/test.txt';
-    
-    await fileOperations.uploadFile(testFile, uploadPath, (progress) => {
-      logCallback({ step: 'Upload File', status: 'progress', message: `Upload progress: ${progress.toFixed(2)}%` });
-    });
-    logCallback({ step: 'Upload File', status: 'success', message: 'File uploaded successfully' });
-
-    const files = await fileOperations.listStorageFiles();
-    logCallback({ step: 'List Files', status: 'success', message: `${files.length} files listed successfully` });
-
-    await fileOperations.deleteFile(uploadPath);
-    logCallback({ step: 'Delete File', status: 'success', message: 'File deleted successfully' });
-
-    logCallback({ step: 'All Tests', status: 'success', message: 'All Firebase operations completed successfully' });
-  } catch (error) {
-    console.error('Error during Firebase operations test:', error);
-    logCallback({ step: 'Error', status: 'error', message: `Test failed: ${error.message}` });
-  }
-};
-
-const clearAllData = async () => {
-  const collections = ['test_collection', 'products', 'orders'];
-  const folders = ['uploads', 'avatars', 'products'];
-
-  try {
-    for (const collectionName of collections) {
-      const querySnapshot = await getDocs(collection(db, collectionName));
-      await Promise.all(querySnapshot.docs.map(doc => deleteDoc(doc.ref)));
-    }
-
-    for (const folder of folders) {
-      const listRef = ref(storage, folder);
-      const res = await listAll(listRef);
-      await Promise.all(res.items.map(itemRef => deleteObject(itemRef)));
-    }
-
-    console.log('All data cleared successfully.');
-  } catch (error) {
-    console.error('Error clearing data:', error);
-    throw error;
-  }
-};
-
 const userOperations = {
   createUser: (userData) => 
     safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), {
       ...userData,
-      role: userData.role || 'Vendedor', // Default to 'Vendedor' if no role is provided
+      role: userData.role || 'Vendedor',
     })),
 
   updateUserProfile: async (userId, profileData) => {
@@ -315,32 +260,24 @@ const userOperations = {
 
   deleteUser: async (userId) => {
     try {
-      // Delete user document
       await deleteDoc(doc(db, 'users', userId));
-
-      // Delete user's imported products
       const importedProductsRef = collection(db, 'users', userId, 'produtosImportados');
       const importedProductsSnapshot = await getDocs(importedProductsRef);
       importedProductsSnapshot.forEach(async (doc) => {
         await deleteDoc(doc.ref);
       });
-
-      // Delete user's orders
       const ordersRef = collection(db, 'orders');
       const userOrdersQuery = query(ordersRef, where('userId', '==', userId));
       const userOrdersSnapshot = await getDocs(userOrdersQuery);
       userOrdersSnapshot.forEach(async (doc) => {
         await deleteDoc(doc.ref);
       });
-
-      // Delete user's profile image from storage
       const storageRef = ref(storage, `avatars/${userId}`);
       try {
         await deleteObject(storageRef);
       } catch (error) {
         console.log('No profile image to delete or error deleting image:', error);
       }
-
       console.log('User and associated data deleted successfully');
       return true;
     } catch (error) {
@@ -350,12 +287,69 @@ const userOperations = {
   },
 };
 
+const testFirebaseOperations = async (logCallback) => {
+  try {
+    const testDoc = await crudOperations.createDocument('test_collection', { test: 'data' });
+    logCallback({ step: 'Create Document', status: 'success', message: 'Document created successfully' });
+
+    await crudOperations.readDocument('test_collection', testDoc.id);
+    logCallback({ step: 'Read Document', status: 'success', message: 'Document read successfully' });
+
+    await crudOperations.updateDocument('test_collection', testDoc.id, { test: 'updated data' });
+    logCallback({ step: 'Update Document', status: 'success', message: 'Document updated successfully' });
+
+    await crudOperations.deleteDocument('test_collection', testDoc.id);
+    logCallback({ step: 'Delete Document', status: 'success', message: 'Document deleted successfully' });
+
+    const testFile = new File(['test content'], 'test.txt', { type: 'text/plain' });
+    const uploadPath = 'test/test.txt';
+    
+    await fileOperations.uploadFile(testFile, uploadPath, (progress) => {
+      logCallback({ step: 'Upload File', status: 'progress', message: `Upload progress: ${progress.toFixed(2)}%` });
+    });
+    logCallback({ step: 'Upload File', status: 'success', message: 'File uploaded successfully' });
+
+    const files = await fileOperations.listStorageFiles();
+    logCallback({ step: 'List Files', status: 'success', message: `${files.length} files listed successfully` });
+
+    await fileOperations.deleteFile(uploadPath);
+    logCallback({ step: 'Delete File', status: 'success', message: 'File deleted successfully' });
+
+    logCallback({ step: 'All Tests', status: 'success', message: 'All Firebase operations completed successfully' });
+  } catch (error) {
+    console.error('Error during Firebase operations test:', error);
+    logCallback({ step: 'Error', status: 'error', message: `Test failed: ${error.message}` });
+  }
+};
+
+const clearAllData = async () => {
+  const collections = ['test_collection', 'products', 'orders'];
+  const folders = ['uploads', 'avatars', 'products'];
+
+  try {
+    for (const collectionName of collections) {
+      const querySnapshot = await getDocs(collection(db, collectionName));
+      await Promise.all(querySnapshot.docs.map(doc => deleteDoc(doc.ref)));
+    }
+
+    for (const folder of folders) {
+      const listRef = ref(storage, folder);
+      const res = await listAll(listRef);
+      await Promise.all(res.items.map(itemRef => deleteObject(itemRef)));
+    }
+
+    console.log('All data cleared successfully.');
+  } catch (error) {
+    console.error('Error clearing data:', error);
+    throw error;
+  }
+};
+
 const firebaseOperations = {
   ...crudOperations,
   ...userOperations,
   ...productOperations,
   ...fileOperations,
-  ...adminOperations,
   testFirebaseOperations,
   clearAllData
 };
