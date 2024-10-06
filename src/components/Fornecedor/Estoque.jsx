@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EstoqueForm from './EstoqueForm';
 import EstoqueTable from './EstoqueTable';
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +32,9 @@ const Estoque = () => {
     produto.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
     produto.sku.toLowerCase().includes(filtro.toLowerCase())
   );
+
+  const produtosAtivos = produtosFiltrados.filter(produto => produto.status === 'ativo');
+  const produtosInativos = produtosFiltrados.filter(produto => produto.status === 'inativo');
 
   return (
     <div className="space-y-6">
@@ -64,12 +68,37 @@ const Estoque = () => {
         </Dialog>
       </div>
 
-      <EstoqueTable 
-        produtos={produtosFiltrados} 
-        onDelete={handleDeleteProduct} 
-        onDetalhes={(productId) => navigate(`/produto/${productId}`)}
-        onEdit={handleEditProduct}
-      />
+      <Tabs defaultValue="todos">
+        <TabsList>
+          <TabsTrigger value="todos">Todos os Produtos</TabsTrigger>
+          <TabsTrigger value="ativos">Produtos Ativos</TabsTrigger>
+          <TabsTrigger value="inativos">Produtos Inativos</TabsTrigger>
+        </TabsList>
+        <TabsContent value="todos">
+          <EstoqueTable 
+            produtos={produtosFiltrados} 
+            onDelete={handleDeleteProduct} 
+            onDetalhes={(productId) => navigate(`/produto/${productId}`)}
+            onEdit={handleEditProduct}
+          />
+        </TabsContent>
+        <TabsContent value="ativos">
+          <EstoqueTable 
+            produtos={produtosAtivos} 
+            onDelete={handleDeleteProduct} 
+            onDetalhes={(productId) => navigate(`/produto/${productId}`)}
+            onEdit={handleEditProduct}
+          />
+        </TabsContent>
+        <TabsContent value="inativos">
+          <EstoqueTable 
+            produtos={produtosInativos} 
+            onDelete={handleDeleteProduct} 
+            onDetalhes={(productId) => navigate(`/produto/${productId}`)}
+            onEdit={handleEditProduct}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

@@ -7,12 +7,14 @@ import { Switch } from "@/components/ui/switch";
 import { db } from '../../firebase/config';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
+import { useAuth } from '../Auth/AuthProvider';
 
 const ChatSettings = () => {
   const [chatEnabled, setChatEnabled] = useState(true);
   const [primaryColor, setPrimaryColor] = useState('#007bff');
   const [secondaryColor, setSecondaryColor] = useState('#6c757d');
   const [isSaving, setIsSaving] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchChatSettings = async () => {
@@ -34,13 +36,20 @@ const ChatSettings = () => {
   }, []);
 
   const handleSaveChanges = async () => {
+    if (!user) {
+      toast.error('Você precisa estar autenticado para salvar as configurações.');
+      return;
+    }
+
     setIsSaving(true);
     try {
       const chatSettingsRef = doc(db, 'chat_settings', 'general');
       await setDoc(chatSettingsRef, {
         chatEnabled,
         primaryColor,
-        secondaryColor
+        secondaryColor,
+        lastUpdatedBy: user.uid,
+        lastUpdatedAt: new Date()
       }, { merge: true });
       toast.success('Configurações do chat salvas com sucesso!');
     } catch (error) {
