@@ -32,6 +32,9 @@ const AppRoutes = () => (
     <Route path="/suporte" element={<ProtectedLayout><PlaceholderComponent title="Suporte" /></ProtectedLayout>} />
     <Route path="/integracoes" element={<ProtectedLayout><PlaceholderComponent title="Integrações" /></ProtectedLayout>} />
     <Route path="/logs" element={<ProtectedLayout><LogsPage /></ProtectedLayout>} />
+    <Route path="/profile" element={<ProtectedLayout><PlaceholderComponent title="Perfil" /></ProtectedLayout>} />
+    <Route path="/documentation" element={<ProtectedLayout><PlaceholderComponent title="Documentação" /></ProtectedLayout>} />
+    <Route path="/apis" element={<ProtectedLayout><PlaceholderComponent title="APIs" /></ProtectedLayout>} />
     <Route path="/" element={<Navigate to="/dashboard" />} />
     <Route path="*" element={<Navigate to="/dashboard" />} />
   </Routes>
