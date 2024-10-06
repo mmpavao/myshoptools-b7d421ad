@@ -10,6 +10,7 @@ const ChatWidget = () => {
   const [showChat, setShowChat] = useState(false);
   const { user } = useAuth();
   const [onlineAgents, setOnlineAgents] = useState([]);
+  const [apiKey, setApiKey] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -22,6 +23,13 @@ const ChatWidget = () => {
         setOnlineAgents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       });
 
+      // Fetch API key from user's settings or environment
+      const fetchApiKey = async () => {
+        // This is a placeholder. In a real app, you'd fetch this securely.
+        setApiKey(process.env.REACT_APP_OPENAI_API_KEY || '');
+      };
+      fetchApiKey();
+
       return () => unsubscribe();
     }
   }, [user]);
@@ -33,7 +41,11 @@ const ChatWidget = () => {
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {showChat ? (
-        <ChatWindow onClose={() => setShowChat(false)} onlineAgents={onlineAgents} />
+        <ChatWindow 
+          onClose={() => setShowChat(false)} 
+          onlineAgents={onlineAgents} 
+          apiKey={apiKey}
+        />
       ) : (
         <Button
           onClick={() => setShowChat(true)}

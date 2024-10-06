@@ -1,16 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '../Auth/AuthProvider';
-import { addDoc, collection, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, query, where, getDocs, onSnapshot, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase/config';
+import { chatWithBot } from '../../integrations/openAIOperations';
 
-const ChatWindow = ({ onClose, onlineAgents }) => {
+const ChatWindow = ({ onClose, onlineAgents, apiKey }) => {
   const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState([]);
   const { user } = useAuth();
   const [activeBots, setActiveBots] = useState([]);
+  const [selectedAgent, setSelectedAgent] = useState('zilda');
+  const scrollAreaRef = useRef(null);
 
   useEffect(() => {
     const fetchActiveBots = async () => {
@@ -19,17 +26,60 @@ const ChatWindow = ({ onClose, onlineAgents }) => {
       setActiveBots(botsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     };
     fetchActiveBots();
-  }, []);
+
+    // Listen for new messages
+    const messagesQuery = query(
+      collection(db, 'messages'),
+      where('userId', '==', user.uid),
+      orderBy('createdAt', 'asc')
+    );
+    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+      const newMessages = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate()
+      }));
+      setMessages(newMessages);
+    });
+
+    return () => unsubscribe();
+  }, [user.uid]);
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSendMessage = async () => {
     if (message.trim()) {
+      const newMessage = {
+        text: message,
+        createdAt: new Date(),
+        userId: user.uid,
+        userName: user.displayName || user.email,
+        agentId: selectedAgent
+      };
+
       try {
-        await addDoc(collection(db, 'messages'), {
-          text: message,
-          createdAt: serverTimestamp(),
-          userId: user.uid,
-          userName: user.displayName || user.email,
-        });
+        if (selectedAgent === 'zilda') {
+          const zildaBot = activeBots.find(bot => bot.name.toLowerCase() === 'zilda');
+          if (zildaBot) {
+            const response = await chatWithBot(apiKey, zildaBot.assistantId, message);
+            await addDoc(collection(db, 'messages'), newMessage);
+            await addDoc(collection(db, 'messages'), {
+              text: response.response,
+              createdAt: new Date(),
+              userId: 'zilda',
+              userName: 'Zilda (Bot)',
+              agentId: 'zilda'
+            });
+          } else {
+            console.error('Zilda bot not found');
+          }
+        } else {
+          await addDoc(collection(db, 'messages'), newMessage);
+        }
         setMessage('');
       } catch (error) {
         console.error('Error sending message:', error);
@@ -45,34 +95,42 @@ const ChatWindow = ({ onClose, onlineAgents }) => {
           <X className="h-4 w-4" />
         </Button>
       </CardHeader>
-      <CardContent className="flex-grow overflow-y-auto">
-        <div>
-          <p className="font-semibold mb-2">Atendentes online:</p>
-          <ul className="space-y-1">
-            {onlineAgents.map(agent => (
-              <li key={agent.id} className="flex items-center">
-                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                {agent.displayName || agent.email}
-              </li>
-            ))}
-            {activeBots.map(bot => (
-              <li key={bot.id} className="flex items-center">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                {bot.name} (Bot)
-              </li>
-            ))}
-          </ul>
-          {/* Here you can add the logic to display messages */}
-        </div>
+      <CardContent className="flex-grow overflow-hidden">
+        <ScrollArea className="h-full" ref={scrollAreaRef}>
+          {messages.map((msg, index) => (
+            <div key={index} className={`mb-2 ${msg.userId === user.uid ? 'text-right' : 'text-left'}`}>
+              <div className={`inline-block p-2 rounded-lg ${msg.userId === user.uid ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
+                <p className="text-sm">{msg.text}</p>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">{msg.userName}</p>
+            </div>
+          ))}
+        </ScrollArea>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex flex-col space-y-2">
+        <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select an agent" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="zilda">Zilda (Bot)</SelectItem>
+            {onlineAgents.map(agent => (
+              <SelectItem key={agent.id} value={agent.id}>
+                {agent.displayName || agent.email}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <div className="flex w-full space-x-2">
           <Input
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Digite sua mensagem..."
+            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
           />
-          <Button onClick={handleSendMessage}>Enviar</Button>
+          <Button onClick={handleSendMessage}>
+            <Send className="h-4 w-4" />
+          </Button>
         </div>
       </CardFooter>
     </Card>
