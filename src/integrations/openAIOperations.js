@@ -166,6 +166,14 @@ export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
   }
 };
 
+const getDefaultBotDetails = () => ({
+  name: 'Unnamed Bot',
+  instructions: '',
+  model: 'gpt-3.5-turbo',
+  temperature: 1,
+  voice: 'alloy',
+});
+
 export const getBotDetails = async (apiKey, assistantId) => {
   try {
     if (!assistantId) {
@@ -186,15 +194,6 @@ export const getBotDetails = async (apiKey, assistantId) => {
     return getDefaultBotDetails();
   }
 };
-
-const getDefaultBotDetails = () => ({
-  name: 'Unnamed Bot',
-  instructions: '',
-  model: 'gpt-3.5-turbo',
-  temperature: 1,
-  voice: 'alloy',
-});
-
 
 const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
   try {
@@ -220,14 +219,15 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
       createdAt: isUpdate ? botData.createdAt : new Date().toISOString(),
     };
 
+    let docRef;
     if (isUpdate) {
       if (!botData.id) {
         throw new Error('Bot ID is missing for update operation');
       }
-      const docRef = doc(db, 'bots', botData.id);
+      docRef = doc(db, 'bots', botData.id);
       await updateDoc(docRef, botDocData);
     } else {
-      const docRef = await addDoc(collection(db, 'bots'), botDocData);
+      docRef = await addDoc(collection(db, 'bots'), botDocData);
       botDocData.id = docRef.id;
     }
 
@@ -239,13 +239,13 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
 };
 
 export const createBot = (apiKey, botData) => createOrUpdateBot(apiKey, botData);
+
 export const updateBot = async (apiKey, botId, botData) => {
   if (!botId) {
     throw new Error('Bot ID is required for updating');
   }
   return createOrUpdateBot(apiKey, { ...botData, id: botId }, true);
 };
-
 
 export const deleteBot = async (apiKey, botId, assistantId) => {
   try {
@@ -293,13 +293,11 @@ const syncBotsWithFirestore = async (mergedBots) => {
   const querySnapshot = await getDocs(collection(db, 'bots'));
   const firestoreBots = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-  // Update or add bots in Firestore
   for (const bot of mergedBots) {
     const botRef = doc(db, 'bots', bot.id);
     await setDoc(botRef, bot, { merge: true });
   }
 
-  // Remove bots from Firestore that no longer exist in OpenAI
   const botsToRemove = firestoreBots.filter(
     firestoreBot => !mergedBots.some(bot => bot.assistantId === firestoreBot.assistantId)
   );
@@ -309,3 +307,4 @@ const syncBotsWithFirestore = async (mergedBots) => {
   }
 };
 
+// Export other functions as needed
