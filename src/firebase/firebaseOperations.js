@@ -202,6 +202,18 @@ const testFirebaseOperations = async (logCallback) => {
   }
 };
 
+const uploadProfileImage = async (file, userId) => {
+  const path = `avatars/${userId}/${Date.now()}_${file.name}`;
+  try {
+    const downloadURL = await uploadFile(file, path);
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading profile image: ", error);
+    throw error;
+  }
+};
+
+
 const clearAllData = async () => {
   const collections = ['test_collection', 'products', 'orders'];
   const folders = ['uploads', 'avatars', 'products'];
@@ -242,5 +254,6 @@ export {
   deleteFile,
   listStorageFiles,
   testFirebaseOperations,
-  clearAllData
+  clearAllData,
+  uploadProfileImage // Add this line to export the new function
 };
