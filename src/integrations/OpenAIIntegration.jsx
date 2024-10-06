@@ -4,8 +4,6 @@ import { createBot, updateBot, deleteBot, getBots, testOpenAIConnection } from '
 import BotList from './components/BotList';
 import BotDialog from './components/BotDialog';
 import BotChatDialog from './components/BotChatDialog';
-import ImageAnalysisGeneration from './components/ImageAnalysisGeneration';
-import AudioTranscriptionSpeech from './components/AudioTranscriptionSpeech';
 import IntegrationLogs from './components/IntegrationLogs';
 import APIKeyManager from './components/APIKeyManager';
 
@@ -155,10 +153,6 @@ const OpenAIIntegration = () => {
         bot={currentBot}
         apiKey={apiKey}
       />
-
-      <ImageAnalysisGeneration apiKey={apiKey} />
-
-      <AudioTranscriptionSpeech apiKey={apiKey} />
 
       <IntegrationLogs logs={logs} />
     </div>

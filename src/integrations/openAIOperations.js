@@ -44,13 +44,19 @@ export const chatWithBot = async (apiKey, assistantId, message) => {
 export const analyzeImage = async (apiKey, file) => {
   try {
     const openai = createOpenAIClient(apiKey);
-    const formData = new FormData();
-    formData.append('image', file);
-    const response = await openai.createImageAnalysis({
-      image: formData,
+    const response = await openai.chat.completions.create({
       model: "gpt-4-vision-preview",
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: "What's in this image?" },
+            { type: "image_url", image_url: { url: URL.createObjectURL(file) } }
+          ],
+        },
+      ],
     });
-    return response.data[0].text;
+    return response.choices[0].message.content;
   } catch (error) {
     handleOpenAIError(error, 'analyze image');
   }
@@ -68,6 +74,34 @@ export const generateImage = async (apiKey, prompt) => {
     return response.data[0].url;
   } catch (error) {
     handleOpenAIError(error, 'generate image');
+  }
+};
+
+export const transcribeAudio = async (apiKey, audioFile) => {
+  try {
+    const openai = createOpenAIClient(apiKey);
+    const response = await openai.audio.transcriptions.create({
+      file: audioFile,
+      model: "whisper-1",
+    });
+    return response.text;
+  } catch (error) {
+    handleOpenAIError(error, 'transcribe audio');
+  }
+};
+
+export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
+  try {
+    const openai = createOpenAIClient(apiKey);
+    const mp3 = await openai.audio.speech.create({
+      model: "tts-1",
+      voice: voice,
+      input: text,
+    });
+    const blob = new Blob([await mp3.arrayBuffer()], { type: 'audio/mpeg' });
+    return URL.createObjectURL(blob);
+  } catch (error) {
+    handleOpenAIError(error, 'text to speech');
   }
 };
 
