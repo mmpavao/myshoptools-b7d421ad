@@ -18,8 +18,6 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }
   const [selectedAgent, setSelectedAgent] = useState('zilda');
   const scrollAreaRef = useRef(null);
   const fileInputRef = useRef(null);
-  const audioRef = useRef(null);
-  const mediaRecorderRef = useRef(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isBotResponding, setIsBotResponding] = useState(false);
 
@@ -157,20 +155,20 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }
   };
 
   return (
-    <Card className="w-80 h-96 flex flex-col">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Chat</CardTitle>
+    <Card className="w-96 h-[500px] flex flex-col">
+      <CardHeader className="flex flex-row items-center justify-between py-2">
+        <CardTitle className="text-lg">Chat</CardTitle>
         <Button variant="ghost" size="icon" onClick={onClose}>
           <X className="h-4 w-4" />
         </Button>
       </CardHeader>
-      <CardContent className="flex-grow overflow-hidden">
-        <ScrollArea className="h-full" ref={scrollAreaRef}>
+      <CardContent className="flex-grow overflow-hidden p-0">
+        <ScrollArea className="h-full px-4" ref={scrollAreaRef}>
           {messages.map((msg, index) => (
-            <div key={index} className={`mb-2 ${msg.userId === user.uid ? 'text-right' : 'text-left'}`}>
-              <div className={`inline-block p-2 rounded-lg ${msg.userId === user.uid ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
+            <div key={index} className={`mb-4 ${msg.userId === user.uid ? 'text-right' : 'text-left'}`}>
+              <div className={`inline-block p-3 rounded-lg ${msg.userId === user.uid ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
                 {msg.type === 'audio' ? (
-                  <audio src={msg.audioUrl} controls />
+                  <audio src={msg.audioUrl} controls className="max-w-full" />
                 ) : (
                   <p className="text-sm">{msg.text}</p>
                 )}
@@ -179,15 +177,15 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }
             </div>
           ))}
           {isBotResponding && (
-            <div className="mb-2 text-left">
-              <div className="inline-block p-2 rounded-lg bg-gray-200">
+            <div className="mb-4 text-left">
+              <div className="inline-block p-3 rounded-lg bg-gray-200">
                 <p className="text-sm">Typing...</p>
               </div>
             </div>
           )}
         </ScrollArea>
       </CardContent>
-      <CardFooter className="flex flex-col space-y-2">
+      <CardFooter className="flex flex-col space-y-2 p-4">
         <Select value={selectedAgent} onValueChange={setSelectedAgent}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select an agent" />
@@ -207,6 +205,7 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Digite sua mensagem..."
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(message)}
+            className="flex-grow"
           />
           <input
             type="file"
@@ -215,13 +214,13 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }
             onChange={handleFileUpload}
             accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv"
           />
-          <Button onClick={() => fileInputRef.current.click()} disabled={isBotResponding}>
+          <Button onClick={() => fileInputRef.current.click()} disabled={isBotResponding} size="icon">
             <Paperclip className="h-4 w-4" />
           </Button>
-          <Button onClick={handleVoiceChat} disabled={isBotResponding}>
+          <Button onClick={handleVoiceChat} disabled={isBotResponding} size="icon">
             <Mic className="h-4 w-4" color={isRecording ? 'red' : 'currentColor'} />
           </Button>
-          <Button onClick={() => handleSendMessage(message)} disabled={isBotResponding}>
+          <Button onClick={() => handleSendMessage(message)} disabled={isBotResponding} size="icon">
             <Send className="h-4 w-4" />
           </Button>
         </div>
