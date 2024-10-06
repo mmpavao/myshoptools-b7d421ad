@@ -41,6 +41,7 @@ const AdminUserList = () => {
             <TabsTrigger value="vendor">Vendor Users</TabsTrigger>
             <TabsTrigger value="provider">Provider Users</TabsTrigger>
             <TabsTrigger value="admin">Admin Users</TabsTrigger>
+            <TabsTrigger value="master">Master Users</TabsTrigger>
           </TabsList>
           <TabsContent value="vendor">
             <UserTable users={groupedUsers['Vendedor'] || []} onUserUpdate={fetchUsers} />
@@ -49,7 +50,10 @@ const AdminUserList = () => {
             <UserTable users={groupedUsers['Fornecedor'] || []} onUserUpdate={fetchUsers} />
           </TabsContent>
           <TabsContent value="admin">
-            <UserTable users={[...(groupedUsers['Admin'] || []), ...(groupedUsers['Master'] || [])]} onUserUpdate={fetchUsers} />
+            <UserTable users={groupedUsers['Admin'] || []} onUserUpdate={fetchUsers} />
+          </TabsContent>
+          <TabsContent value="master">
+            <UserTable users={groupedUsers['Master'] || []} onUserUpdate={fetchUsers} />
           </TabsContent>
         </Tabs>
         <Button onClick={fetchUsers} className="mt-4">Atualizar Lista de Usuários</Button>
