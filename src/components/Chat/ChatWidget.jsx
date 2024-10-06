@@ -12,6 +12,7 @@ const ChatWidget = () => {
   const [onlineAgents, setOnlineAgents] = useState([]);
   const [apiKey, setApiKey] = useState('');
   const [activeBots, setActiveBots] = useState([]);
+  const [chatEnabled, setChatEnabled] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -43,11 +44,22 @@ const ChatWidget = () => {
       };
       fetchActiveBots();
 
+      // Fetch chat settings
+      const fetchChatSettings = async () => {
+        const chatSettingsRef = doc(db, 'chat_settings', 'general');
+        const chatSettingsSnap = await getDoc(chatSettingsRef);
+        if (chatSettingsSnap.exists()) {
+          const chatSettingsData = chatSettingsSnap.data();
+          setChatEnabled(chatSettingsData.chatEnabled || false);
+        }
+      };
+      fetchChatSettings();
+
       return () => unsubscribe();
     }
   }, [user]);
 
-  if (!user) {
+  if (!user || !chatEnabled) {
     return null;
   }
 

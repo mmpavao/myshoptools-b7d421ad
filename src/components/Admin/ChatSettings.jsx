@@ -1,18 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { db } from '../../firebase/config';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { toast } from 'sonner';
 
 const ChatSettings = () => {
   const [chatEnabled, setChatEnabled] = useState(true);
   const [primaryColor, setPrimaryColor] = useState('#007bff');
   const [secondaryColor, setSecondaryColor] = useState('#6c757d');
 
-  const handleSaveChanges = () => {
-    // Aqui você implementaria a lógica para salvar as configurações
-    console.log('Configurações salvas:', { chatEnabled, primaryColor, secondaryColor });
+  useEffect(() => {
+    const fetchChatSettings = async () => {
+      const chatSettingsRef = doc(db, 'chat_settings', 'general');
+      const chatSettingsSnap = await getDoc(chatSettingsRef);
+      if (chatSettingsSnap.exists()) {
+        const chatSettingsData = chatSettingsSnap.data();
+        setChatEnabled(chatSettingsData.chatEnabled || false);
+        setPrimaryColor(chatSettingsData.primaryColor || '#007bff');
+        setSecondaryColor(chatSettingsData.secondaryColor || '#6c757d');
+      }
+    };
+    fetchChatSettings();
+  }, []);
+
+  const handleSaveChanges = async () => {
+    try {
+      const chatSettingsRef = doc(db, 'chat_settings', 'general');
+      await setDoc(chatSettingsRef, {
+        chatEnabled,
+        primaryColor,
+        secondaryColor
+      }, { merge: true });
+      toast.success('Configurações do chat salvas com sucesso!');
+    } catch (error) {
+      console.error('Erro ao salvar configurações:', error);
+      toast.error('Erro ao salvar configurações. Por favor, tente novamente.');
+    }
   };
 
   return (
