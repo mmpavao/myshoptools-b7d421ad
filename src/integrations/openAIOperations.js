@@ -3,10 +3,16 @@ import { db, storage, openAIConfig } from '../firebase/config';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
+// Initialize OpenAI client
 const openai = new OpenAI({ 
   apiKey: openAIConfig.apiKey,
-  dangerouslyAllowBrowser: true // Add this line
+  dangerouslyAllowBrowser: true
 });
+
+// Check if the API key is available
+if (!openAIConfig.apiKey) {
+  console.error('OpenAI API key is missing. Please check your environment variables.');
+}
 
 export const createBot = async (botData) => {
   try {
@@ -152,4 +158,4 @@ export const textToSpeech = async (text, voice = 'alloy') => {
   }
 };
 
-// Ensure all functions are using the 'openai' instance directly instead of relying on initialization
+// Ensure all functions are using the 'openai' instance directly
