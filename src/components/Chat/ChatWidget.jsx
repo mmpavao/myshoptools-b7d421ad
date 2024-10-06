@@ -27,7 +27,7 @@ const ChatWidget = () => {
   }, [user]);
 
   if (!user) {
-    return null;
+    return null; // Don't render anything if the user is not logged in
   }
 
   return (
