@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from '../Auth/AuthProvider';
 
-const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
+const Topbar = ({ companyName, toggleSidebar }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -27,7 +27,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
-            className={`p-2 mr-4 rounded-full hover:bg-gray-200 focus:outline-none ${isSidebarOpen ? 'ml-64' : 'ml-16'} transition-all duration-300`}
+            className="p-2 mr-4 rounded-full hover:bg-gray-200 focus:outline-none"
           >
             <Menu size={24} />
           </button>
