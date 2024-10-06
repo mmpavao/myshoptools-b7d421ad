@@ -16,7 +16,6 @@ export const updateDocument = (collectionName, docId, data) =>
 export const deleteDocument = (collectionName, docId) => 
   safeFirestoreOperation(() => deleteDoc(doc(db, collectionName, docId)));
 
-// Storage Operations
 export const uploadFile = async (file, path) => {
   try {
     const storageRef = ref(storage, path);
@@ -33,26 +32,33 @@ export const deleteFile = (path) =>
 
 export const testFirebaseOperations = async () => {
   try {
+    // Create a document
     const userDocRef = await createDocument('users', { name: 'Test User', email: 'test@example.com' });
     console.log("Created user with ID:", userDocRef.id);
 
+    // Read the document
     const userDocSnapshot = await readDocument('users', userDocRef.id);
     console.log("Read user data:", userDocSnapshot.data());
 
+    // Update the document
     await updateDocument('users', userDocRef.id, { name: 'Updated Test User' });
     console.log("Updated user data");
 
+    // Read the updated document
     const updatedUserDocSnapshot = await readDocument('users', userDocRef.id);
     console.log("Read updated user data:", updatedUserDocSnapshot.data());
 
+    // Delete the document
     await deleteDocument('users', userDocRef.id);
     console.log("Deleted user");
 
+    // Upload a file
     const testFile = new Blob(['Test file content'], { type: 'text/plain' });
     const filePath = `test/testfile_${Date.now()}.txt`;
     const fileUrl = await uploadFile(testFile, filePath);
     console.log("Uploaded file URL:", fileUrl);
 
+    // Delete the file
     await deleteFile(filePath);
     console.log("Deleted file");
 
