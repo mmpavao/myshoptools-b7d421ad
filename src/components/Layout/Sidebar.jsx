@@ -17,7 +17,7 @@ import {
   Users,
 } from 'lucide-react';
 import { useAuth } from '../Auth/AuthProvider';
-import userOperations from '../../firebase/userOperations';
+import { getUserRole } from '../../firebase/userOperations';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
@@ -55,7 +55,6 @@ const navItems = [
 const NavItem = ({ item, isOpen, userRole }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Check if the item has roles and if the user's role is included
   const hasAccess = item.roles ? item.roles.includes(userRole) : true;
 
   if (!hasAccess) {
@@ -119,7 +118,7 @@ const Sidebar = ({ isOpen }) => {
   useEffect(() => {
     const fetchUserRole = async () => {
       if (user) {
-        const role = await userOperations.getUserRole(user.uid);
+        const role = await getUserRole(user.uid);
         setUserRole(role);
       }
     };
