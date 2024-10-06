@@ -49,6 +49,59 @@ const getUserProfile = async (userId) => {
   }
 };
 
+// Product operations
+const createProduct = async (productData) => {
+  try {
+    const docRef = await addDoc(collection(db, 'products'), productData);
+    console.log('Product created with ID: ', docRef.id);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error creating product:', error);
+    throw error;
+  }
+};
+
+const getProducts = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'products'));
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error('Error getting products:', error);
+    throw error;
+  }
+};
+
+const updateProduct = async (productId, productData) => {
+  try {
+    await updateDoc(doc(db, 'products', productId), productData);
+    console.log('Product updated successfully');
+  } catch (error) {
+    console.error('Error updating product:', error);
+    throw error;
+  }
+};
+
+const deleteProduct = async (productId) => {
+  try {
+    await deleteDoc(doc(db, 'products', productId));
+    console.log('Product deleted successfully');
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    throw error;
+  }
+};
+
+const uploadProductImage = async (file, productId) => {
+  const path = `products/${productId}/${Date.now()}_${file.name}`;
+  try {
+    const downloadURL = await uploadFile(file, path);
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading product image: ", error);
+    throw error;
+  }
+};
+
 // File operations
 const uploadFile = async (file, path, onProgress) => {
   const storageRef = ref(storage, path);
@@ -71,18 +124,6 @@ const uploadFile = async (file, path, onProgress) => {
       }
     );
   });
-};
-
-const uploadProfileImage = async (file, userId) => {
-  const path = `avatars/${userId}_${Date.now()}_${file.name}`;
-  try {
-    const downloadURL = await uploadFile(file, path);
-    await updateUserProfile(userId, { photoURL: downloadURL });
-    return downloadURL;
-  } catch (error) {
-    console.error("Error uploading profile image: ", error);
-    throw error;
-  }
 };
 
 const deleteFile = async (path) => {
@@ -192,8 +233,12 @@ export {
   createUser,
   updateUserProfile,
   getUserProfile,
+  createProduct,
+  getProducts,
+  updateProduct,
+  deleteProduct,
+  uploadProductImage,
   uploadFile,
-  uploadProfileImage,
   deleteFile,
   listStorageFiles,
   testFirebaseOperations,
