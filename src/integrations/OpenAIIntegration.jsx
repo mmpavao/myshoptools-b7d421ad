@@ -81,10 +81,11 @@ const OpenAIIntegration = () => {
     }
     try {
       addLog(`${isEditing ? 'Updating' : 'Creating'} bot: ${botData.name}`);
+      let savedBot;
       if (isEditing) {
-        await updateBot(apiKey, botData.id, botData);
+        savedBot = await updateBot(apiKey, botData.id, botData);
       } else {
-        await createBot(apiKey, botData);
+        savedBot = await createBot(apiKey, botData);
       }
       addLog(`Bot ${isEditing ? 'updated' : 'created'} successfully`, 'success');
       toast.success(isEditing ? 'Bot updated successfully!' : 'Bot created successfully!');
@@ -107,11 +108,17 @@ const OpenAIIntegration = () => {
       await deleteBot(apiKey, botId, assistantId);
       addLog('Bot deleted successfully', 'success');
       toast.success('Bot deleted successfully');
+      setIsDialogOpen(false);
       await fetchBots();
     } catch (error) {
       addLog(`Failed to delete bot: ${error.message}`, 'error');
       toast.error(`Failed to delete bot: ${error.message}`);
     }
+  };
+
+  const handleChatWithBot = (bot) => {
+    // Implement chat functionality here
+    toast.info(`Chat with ${bot.name} is not implemented yet.`);
   };
 
   return (
@@ -128,7 +135,7 @@ const OpenAIIntegration = () => {
       <BotList
         bots={bots}
         onEdit={handleOpenDialog}
-        onDelete={handleDeleteBot}
+        onChat={handleChatWithBot}
       />
 
       <BotDialog
@@ -137,6 +144,7 @@ const OpenAIIntegration = () => {
         currentBot={currentBot}
         isEditing={isEditing}
         onSave={handleSaveBot}
+        onDelete={handleDeleteBot}
       />
 
       <ImageAnalysisGeneration apiKey={apiKey} />

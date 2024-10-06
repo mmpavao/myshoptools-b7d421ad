@@ -33,8 +33,16 @@ export const createBot = async (apiKey, botData) => {
       instructions: botData.instructions,
       model: botData.model,
     });
-    const botRef = await addDoc(collection(db, 'bots'), { ...botData, assistantId: assistant.id });
-    return { id: botRef.id, ...botData, assistantId: assistant.id };
+    const now = new Date().toISOString();
+    const botWithTimestamps = {
+      ...botData,
+      assistantId: assistant.id,
+      createdAt: now,
+      updatedAt: now,
+      efficiency: Math.floor(Math.random() * 100) // Placeholder for bot efficiency
+    };
+    const botRef = await addDoc(collection(db, 'bots'), botWithTimestamps);
+    return { id: botRef.id, ...botWithTimestamps };
   } catch (error) {
     handleOpenAIError(error, 'create bot');
   }
@@ -43,13 +51,18 @@ export const createBot = async (apiKey, botData) => {
 export const updateBot = async (apiKey, botId, botData) => {
   try {
     const openai = createOpenAIClient(apiKey);
-    await updateDoc(doc(db, 'bots', botId), botData);
+    const updatedData = {
+      ...botData,
+      updatedAt: new Date().toISOString(),
+      efficiency: Math.floor(Math.random() * 100) // Placeholder for bot efficiency
+    };
+    await updateDoc(doc(db, 'bots', botId), updatedData);
     await openai.beta.assistants.update(botData.assistantId, {
       name: botData.name,
       instructions: botData.instructions,
       model: botData.model,
     });
-    return { id: botId, ...botData };
+    return { id: botId, ...updatedData };
   } catch (error) {
     handleOpenAIError(error, 'update bot');
   }
@@ -79,7 +92,10 @@ export const getBots = async (apiKey) => {
         name: assistant.name,
         instructions: assistant.instructions,
         model: assistant.model,
-        assistantId: assistant.id
+        assistantId: assistant.id,
+        createdAt: assistant.created_at,
+        updatedAt: assistant.created_at,
+        efficiency: Math.floor(Math.random() * 100) // Placeholder for bot efficiency
       };
     });
   } catch (error) {
