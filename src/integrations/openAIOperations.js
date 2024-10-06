@@ -21,6 +21,7 @@ export const chatWithBot = async (apiKey, assistantId, message) => {
 
     const openai = createOpenAIClient(apiKey);
     const thread = await openai.beta.threads.create();
+    const startTime = Date.now();
     await openai.beta.threads.messages.create(thread.id, {
       role: "user",
       content: message
@@ -38,9 +39,46 @@ export const chatWithBot = async (apiKey, assistantId, message) => {
     
     const messages = await openai.beta.threads.messages.list(thread.id);
     const lastMessage = messages.data[0];
-    return lastMessage.content[0].text.value;
+    const responseTime = Date.now() - startTime;
+    const efficiency = calculateEfficiency(message, lastMessage.content[0].text.value, responseTime);
+    
+    await updateBotEfficiency(assistantId, efficiency);
+
+    return {
+      response: lastMessage.content[0].text.value,
+      efficiency: efficiency
+    };
   } catch (error) {
     handleOpenAIError(error, 'chat with bot');
+  }
+};
+
+const calculateEfficiency = (prompt, response, responseTime) => {
+  const promptLength = prompt.length;
+  const responseLength = response.length;
+  const responseQuality = responseLength > promptLength ? 1 : responseLength / promptLength;
+  const timeEfficiency = Math.min(1, 10000 / responseTime); // 10 segundos ou menos é considerado eficiente
+
+  // Pontuação baseada em vários fatores
+  const lengthScore = Math.min(1, responseLength / 500); // Respostas de até 500 caracteres são consideradas boas
+  const qualityScore = responseQuality;
+  const timeScore = timeEfficiency;
+
+  // Média ponderada dos scores
+  const efficiency = (lengthScore * 0.3 + qualityScore * 0.4 + timeScore * 0.3) * 100;
+  return Math.round(efficiency);
+};
+
+const updateBotEfficiency = async (assistantId, efficiency) => {
+  const botsRef = collection(db, 'bots');
+  const q = query(botsRef, where('assistantId', '==', assistantId));
+  const querySnapshot = await getDocs(q);
+  
+  if (!querySnapshot.empty) {
+    const botDoc = querySnapshot.docs[0];
+    const currentEfficiency = botDoc.data().efficiency || 0;
+    const newEfficiency = Math.round((currentEfficiency + efficiency) / 2); // Média móvel
+    await updateDoc(doc(db, 'bots', botDoc.id), { efficiency: newEfficiency });
   }
 };
 
@@ -283,6 +321,7 @@ export const getBots = async (apiKey) => {
         createdAt: firestoreBot?.createdAt || new Date(assistant.created_at * 1000).toISOString(),
         updatedAt: new Date().toISOString(),
         isActive: firestoreBot?.isActive || false,
+        efficiency: firestoreBot?.efficiency || 0,
       };
     }));
 

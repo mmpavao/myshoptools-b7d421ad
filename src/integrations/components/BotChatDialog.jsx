@@ -43,8 +43,8 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
       } else if (type === 'audio') {
         const transcription = await transcribeAudio(apiKey, content);
         const textResponse = await chatWithBot(apiKey, bot.assistantId, transcription);
-        const audioUrl = await textToSpeech(apiKey, textResponse, bot.voice || 'alloy');
-        botResponse = { audioUrl, transcription: textResponse };
+        const audioUrl = await textToSpeech(apiKey, textResponse.response, bot.voice || 'alloy');
+        botResponse = { audioUrl, transcription: textResponse.response, efficiency: textResponse.efficiency };
       } else {
         if (!bot.assistantId) {
           throw new Error('Bot assistant ID is missing. Please check the bot configuration.');
@@ -54,10 +54,15 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
 
       const botMessage = { 
         role: 'assistant', 
-        content: botResponse, 
-        type: type
+        content: botResponse.response || botResponse, 
+        type: type,
+        efficiency: botResponse.efficiency
       };
       setMessages(prev => [...prev, botMessage]);
+      
+      if (botResponse.efficiency) {
+        toast.success(`Bot efficiency: ${botResponse.efficiency}%`);
+      }
     } catch (error) {
       console.error('Error processing message:', error);
       const errorMessage = { 
@@ -130,6 +135,9 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
                   </div>
                 ) : (
                   <p>{message.content}</p>
+                )}
+                {message.efficiency && (
+                  <p className="text-xs text-gray-500 mt-1">Efficiency: {message.efficiency}%</p>
                 )}
               </div>
             ))}
