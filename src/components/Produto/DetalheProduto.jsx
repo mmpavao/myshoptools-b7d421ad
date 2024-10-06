@@ -13,7 +13,6 @@ const DetalheProduto = () => {
   const [produto, setProduto] = useState(null);
   const [isImportado, setIsImportado] = useState(false);
   const [fotoPrincipal, setFotoPrincipal] = useState('');
-  const [mostrarTodasFotos, setMostrarTodasFotos] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -85,13 +84,13 @@ const DetalheProduto = () => {
         {/* Imagem do Produto */}
         <div className="md:w-1/2">
           <img src={fotoPrincipal} alt={produto.titulo} className="w-full h-auto object-cover rounded-lg mb-4" />
-          <div className="flex gap-2 mb-2">
+          <div className="grid grid-cols-4 gap-2">
             {produto.fotos.slice(0, 4).map((img, index) => (
               <img 
                 key={index} 
                 src={img} 
                 alt={`${produto.titulo} ${index + 1}`} 
-                className="w-20 h-20 object-cover rounded-lg cursor-pointer" 
+                className="w-full h-24 object-cover rounded-lg cursor-pointer" 
                 onClick={() => handleThumbnailClick(img)}
               />
             ))}
@@ -99,7 +98,7 @@ const DetalheProduto = () => {
           {produto.fotos.length > 4 && (
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="link" onClick={() => setMostrarTodasFotos(true)}>
+                <Button variant="link" className="mt-2 w-full">
                   Ver todas as fotos
                 </Button>
               </DialogTrigger>
@@ -111,10 +110,7 @@ const DetalheProduto = () => {
                       src={img} 
                       alt={`${produto.titulo} ${index + 1}`} 
                       className="w-full h-auto object-cover rounded-lg cursor-pointer" 
-                      onClick={() => {
-                        handleThumbnailClick(img);
-                        setMostrarTodasFotos(false);
-                      }}
+                      onClick={() => handleThumbnailClick(img)}
                     />
                   ))}
                 </div>
