@@ -42,6 +42,10 @@ const OpenAIIntegration = () => {
         addLog('Successfully connected to OpenAI', 'success');
         toast.success('Successfully connected to OpenAI');
         await fetchBots();
+      } else {
+        setConnectionStatus('Connection failed');
+        addLog('Failed to connect to OpenAI', 'error');
+        toast.error('Failed to connect to OpenAI. Please check your API key and try again.');
       }
     } catch (error) {
       setConnectionStatus('Connection error');
@@ -132,27 +136,31 @@ const OpenAIIntegration = () => {
         connectionStatus={connectionStatus}
       />
 
-      <BotList
-        bots={bots}
-        onEdit={handleOpenDialog}
-        onChat={handleChatWithBot}
-      />
+      {connectionStatus === 'Connected' && (
+        <>
+          <BotList
+            bots={bots}
+            onEdit={handleOpenDialog}
+            onChat={handleChatWithBot}
+          />
 
-      <BotDialog
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        currentBot={currentBot}
-        isEditing={isEditing}
-        onSave={handleSaveBot}
-        onDelete={handleDeleteBot}
-      />
+          <BotDialog
+            isOpen={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            currentBot={currentBot}
+            isEditing={isEditing}
+            onSave={handleSaveBot}
+            onDelete={handleDeleteBot}
+          />
 
-      <BotChatDialog
-        isOpen={isChatDialogOpen}
-        onOpenChange={setIsChatDialogOpen}
-        bot={currentBot}
-        apiKey={apiKey}
-      />
+          <BotChatDialog
+            isOpen={isChatDialogOpen}
+            onOpenChange={setIsChatDialogOpen}
+            bot={currentBot}
+            apiKey={apiKey}
+          />
+        </>
+      )}
 
       <IntegrationLogs logs={logs} />
     </div>

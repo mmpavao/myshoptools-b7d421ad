@@ -6,12 +6,32 @@ const createOpenAIClient = (apiKey) => new OpenAI({ apiKey, dangerouslyAllowBrow
 
 const handleOpenAIError = (error, operation) => {
   console.error(`Error in ${operation}:`, error);
-  if (error.status === 401) {
-    throw new Error('Authentication failed. Please check your API key.');
-  } else if (error.status === 403) {
-    throw new Error('Access forbidden. Your account may not have the necessary permissions.');
+  if (error.response) {
+    const status = error.response.status;
+    if (status === 401) {
+      throw new Error('Authentication failed. Please check your API key.');
+    } else if (status === 403) {
+      throw new Error('Access forbidden. Your account may not have the necessary permissions.');
+    } else if (status === 429) {
+      throw new Error('Rate limit exceeded. Please try again later.');
+    } else {
+      throw new Error(`OpenAI API error: ${error.response.data.error.message}`);
+    }
+  } else if (error.request) {
+    throw new Error('No response received from OpenAI. Please check your internet connection.');
   } else {
     throw new Error(`Failed to ${operation}: ${error.message}`);
+  }
+};
+
+export const testOpenAIConnection = async (apiKey) => {
+  try {
+    const openai = createOpenAIClient(apiKey);
+    await openai.models.list();
+    return true;
+  } catch (error) {
+    handleOpenAIError(error, 'test connection');
+    return false;
   }
 };
 
@@ -106,21 +126,45 @@ export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
 };
 
 export const createBot = async (apiKey, botData) => {
-  // Implementation for creating a bot
+  try {
+    const openai = createOpenAIClient(apiKey);
+    const assistant = await openai.beta.assistants.create(botData);
+    const docRef = await addDoc(collection(db, 'bots'), {
+      ...botData,
+      assistantId: assistant.id,
+    });
+    return { id: docRef.id, ...botData, assistantId: assistant.id };
+  } catch (error) {
+    handleOpenAIError(error, 'create bot');
+  }
 };
 
 export const updateBot = async (apiKey, botId, botData) => {
-  // Implementation for updating a bot
+  try {
+    const openai = createOpenAIClient(apiKey);
+    await openai.beta.assistants.update(botData.assistantId, botData);
+    await updateDoc(doc(db, 'bots', botId), botData);
+    return { id: botId, ...botData };
+  } catch (error) {
+    handleOpenAIError(error, 'update bot');
+  }
 };
 
 export const deleteBot = async (apiKey, botId, assistantId) => {
-  // Implementation for deleting a bot
+  try {
+    const openai = createOpenAIClient(apiKey);
+    await openai.beta.assistants.del(assistantId);
+    await deleteDoc(doc(db, 'bots', botId));
+  } catch (error) {
+    handleOpenAIError(error, 'delete bot');
+  }
 };
 
 export const getBots = async (apiKey) => {
-  // Implementation for fetching bots
-};
-
-export const testOpenAIConnection = async (apiKey) => {
-  // Implementation for testing OpenAI connection
+  try {
+    const querySnapshot = await getDocs(collection(db, 'bots'));
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    handleOpenAIError(error, 'get bots');
+  }
 };
