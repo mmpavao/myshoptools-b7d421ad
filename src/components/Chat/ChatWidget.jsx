@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '../Auth/AuthProvider';
 import ChatWindow from './ChatWindow';
 import { db } from '../../firebase/config';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
 
 const ChatWidget = () => {
   const [showChat, setShowChat] = useState(false);
@@ -23,10 +23,14 @@ const ChatWidget = () => {
         setOnlineAgents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       });
 
-      // Fetch API key from user's settings or environment
+      // Fetch API key from user's settings
       const fetchApiKey = async () => {
-        // Use Vite's environment variable syntax
-        setApiKey(import.meta.env.VITE_OPENAI_API_KEY || '');
+        const userSettingsRef = doc(db, 'user_settings', user.uid);
+        const userSettingsSnap = await getDoc(userSettingsRef);
+        if (userSettingsSnap.exists()) {
+          const userData = userSettingsSnap.data();
+          setApiKey(userData.openai_api_key || '');
+        }
       };
       fetchApiKey();
 

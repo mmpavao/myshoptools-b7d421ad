@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '../Auth/AuthProvider';
 import { addDoc, collection, serverTimestamp, query, where, getDocs, onSnapshot, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { chatWithBot } from '../../integrations/openAIOperations';
+import { toast } from 'sonner';
 
 const ChatWindow = ({ onClose, onlineAgents, apiKey }) => {
   const [message, setMessage] = useState('');
@@ -63,10 +63,14 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey }) => {
 
       try {
         if (selectedAgent === 'zilda') {
+          if (!apiKey) {
+            toast.error('OpenAI API key is not set. Please configure it in your settings.');
+            return;
+          }
           const zildaBot = activeBots.find(bot => bot.name.toLowerCase() === 'zilda');
           if (zildaBot) {
-            const response = await chatWithBot(apiKey, zildaBot.assistantId, message);
             await addDoc(collection(db, 'messages'), newMessage);
+            const response = await chatWithBot(apiKey, zildaBot.assistantId, message);
             await addDoc(collection(db, 'messages'), {
               text: response.response,
               createdAt: new Date(),
@@ -76,6 +80,7 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey }) => {
             });
           } else {
             console.error('Zilda bot not found');
+            toast.error('Zilda bot is not available. Please try again later.');
           }
         } else {
           await addDoc(collection(db, 'messages'), newMessage);
@@ -83,6 +88,7 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey }) => {
         setMessage('');
       } catch (error) {
         console.error('Error sending message:', error);
+        toast.error('Failed to send message. Please try again.');
       }
     }
   };
