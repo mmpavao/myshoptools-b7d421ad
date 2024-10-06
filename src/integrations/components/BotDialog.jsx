@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -9,12 +9,41 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getBotDetails } from '../openAIOperations';
+import { toast } from "sonner";
 
 const voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'];
 
-const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDelete }) => {
+const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDelete, apiKey }) => {
   const [botData, setBotData] = useState({ ...currentBot, isActive: currentBot.isActive || false });
   const [avatarPreview, setAvatarPreview] = useState(currentBot.avatar || '');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBotDetails = async () => {
+      if (isEditing && currentBot.assistantId) {
+        setIsLoading(true);
+        try {
+          const botDetails = await getBotDetails(apiKey, currentBot.assistantId);
+          setBotData(prevData => ({
+            ...prevData,
+            ...botDetails,
+            isActive: currentBot.isActive || false
+          }));
+          setAvatarPreview(botDetails.avatar || '');
+        } catch (error) {
+          console.error('Error fetching bot details:', error);
+          toast.error('Failed to load bot details. Please try again.');
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBotDetails();
+  }, [isEditing, currentBot.assistantId, apiKey]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,6 +66,10 @@ const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDele
     e.preventDefault();
     onSave(botData);
   };
+
+  if (isLoading) {
+    return <div>Loading bot details...</div>;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -87,7 +120,7 @@ const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDele
                 </SelectContent>
               </Select>
             </div>
-          </div>
+          
           <div>
             <Label htmlFor="instructions">Instructions</Label>
             <Textarea

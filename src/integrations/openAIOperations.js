@@ -2,6 +2,10 @@ import { db } from '../firebase/config';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
 import { createOpenAIClient, handleOpenAIError } from '../utils/openAIUtils';
 
+import { db } from '../firebase/config';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
+import { createOpenAIClient, handleOpenAIError } from '../utils/openAIUtils';
+
 export const testOpenAIConnection = async (apiKey) => {
   try {
     const openai = createOpenAIClient(apiKey);
@@ -168,6 +172,23 @@ export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
   }
 };
 
+
+export const getBotDetails = async (apiKey, assistantId) => {
+  try {
+    const openai = createOpenAIClient(apiKey);
+    const assistant = await openai.beta.assistants.retrieve(assistantId);
+    return {
+      name: assistant.name,
+      instructions: assistant.instructions,
+      model: assistant.model,
+      temperature: 1, // Default value, as OpenAI doesn't store this
+      voice: 'alloy', // Default value, as OpenAI doesn't store this
+    };
+  } catch (error) {
+    handleOpenAIError(error, 'get bot details');
+  }
+};
+
 const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
   try {
     const openai = createOpenAIClient(apiKey);
@@ -245,3 +266,4 @@ export const getBots = async (apiKey) => {
     handleOpenAIError(error, 'get bots');
   }
 };
+
