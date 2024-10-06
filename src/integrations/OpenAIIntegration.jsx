@@ -8,6 +8,7 @@ import BotList from './components/BotList';
 import BotDialog from './components/BotDialog';
 import ImageAnalysisGeneration from './components/ImageAnalysisGeneration';
 import AudioTranscriptionSpeech from './components/AudioTranscriptionSpeech';
+import IntegrationLogs from './components/IntegrationLogs';
 
 const OpenAIIntegration = () => {
   const [bots, setBots] = useState([]);
@@ -21,12 +22,17 @@ const OpenAIIntegration = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openaiApiKey') || '');
   const [connectionStatus, setConnectionStatus] = useState('Not connected');
+  const [logs, setLogs] = useState([]);
 
   useEffect(() => {
     if (apiKey) {
       testConnection();
     }
   }, [apiKey]);
+
+  const addLog = (message, type = 'info') => {
+    setLogs(prevLogs => [...prevLogs, { message, type, timestamp: new Date() }]);
+  };
 
   const handleApiKeyChange = (e) => {
     const newApiKey = e.target.value;
@@ -37,35 +43,40 @@ const OpenAIIntegration = () => {
   const testConnection = async () => {
     try {
       setConnectionStatus('Testing...');
+      addLog('Testing OpenAI connection...');
       const isConnected = await testOpenAIConnection(apiKey);
       if (isConnected) {
         setConnectionStatus('Connected');
+        addLog('Successfully connected to OpenAI', 'success');
         toast.success('Successfully connected to OpenAI');
         await fetchBots();
       } else {
         setConnectionStatus('Connection failed');
+        addLog('Failed to connect to OpenAI', 'error');
         toast.error('Failed to connect to OpenAI');
       }
     } catch (error) {
       console.error('Error testing connection:', error);
       setConnectionStatus('Connection error');
+      addLog(`Error testing connection: ${error.message}`, 'error');
       toast.error('Error testing connection to OpenAI');
     }
   };
 
   const fetchBots = async () => {
     if (!apiKey) {
-      console.log('API key is not set. Skipping bot fetch.');
+      addLog('API key is not set. Skipping bot fetch.', 'warning');
       return;
     }
     try {
-      console.log('Fetching bots...');
+      addLog('Fetching bots...');
       const fetchedBots = await getBots(apiKey);
-      console.log('Fetched bots:', fetchedBots);
+      addLog(`Successfully fetched ${fetchedBots.length} bots`, 'success');
       setBots(fetchedBots);
       toast.success(`Successfully fetched ${fetchedBots.length} bots`);
     } catch (error) {
       console.error('Error fetching bots:', error);
+      addLog(`Failed to fetch bots: ${error.message}`, 'error');
       toast.error('Failed to fetch bots: ' + error.message);
     }
   };
@@ -88,35 +99,43 @@ const OpenAIIntegration = () => {
 
   const handleSaveBot = async (botData) => {
     if (!apiKey) {
+      addLog('API key is not set. Cannot save bot.', 'error');
       toast.error('Please set and test your API key first');
       return;
     }
     try {
+      addLog(`${isEditing ? 'Updating' : 'Creating'} bot: ${botData.name}`);
       if (isEditing) {
         await updateBot(apiKey, botData.id, botData);
       } else {
         await createBot(apiKey, botData);
       }
+      addLog(`Bot ${isEditing ? 'updated' : 'created'} successfully`, 'success');
       toast.success(isEditing ? 'Bot updated successfully!' : 'Bot created successfully!');
       setIsDialogOpen(false);
       await fetchBots();
     } catch (error) {
       console.error('Error saving bot:', error);
+      addLog(`Failed to save bot: ${error.message}`, 'error');
       toast.error('Failed to save bot');
     }
   };
 
   const handleDeleteBot = async (botId, assistantId) => {
     if (!apiKey) {
+      addLog('API key is not set. Cannot delete bot.', 'error');
       toast.error('Please set and test your API key first');
       return;
     }
     try {
+      addLog(`Deleting bot: ${botId}`);
       await deleteBot(apiKey, botId, assistantId);
+      addLog('Bot deleted successfully', 'success');
       toast.success('Bot deleted successfully');
       await fetchBots();
     } catch (error) {
       console.error('Error deleting bot:', error);
+      addLog(`Failed to delete bot: ${error.message}`, 'error');
       toast.error('Failed to delete bot');
     }
   };
@@ -162,6 +181,8 @@ const OpenAIIntegration = () => {
       <ImageAnalysisGeneration apiKey={apiKey} />
 
       <AudioTranscriptionSpeech apiKey={apiKey} />
+
+      <IntegrationLogs logs={logs} />
     </div>
   );
 };

@@ -16,7 +16,7 @@ export const testOpenAIConnection = async (apiKey) => {
     return true;
   } catch (error) {
     console.error('Error testing OpenAI connection:', error);
-    return false;
+    throw new Error(`Failed to connect to OpenAI: ${error.message}`);
   }
 };
 
@@ -37,7 +37,7 @@ export const createBot = async (apiKey, botData) => {
     return { id: botRef.id, ...botData, assistantId: assistant.id };
   } catch (error) {
     console.error('Error creating bot:', error);
-    throw error;
+    throw new Error(`Failed to create bot: ${error.message}`);
   }
 };
 
@@ -56,7 +56,7 @@ export const updateBot = async (apiKey, botId, botData) => {
     return { id: botId, ...botData };
   } catch (error) {
     console.error('Error updating bot:', error);
-    throw error;
+    throw new Error(`Failed to update bot: ${error.message}`);
   }
 };
 
@@ -67,7 +67,7 @@ export const deleteBot = async (apiKey, botId, assistantId) => {
     await openai.beta.assistants.del(assistantId);
   } catch (error) {
     console.error('Error deleting bot:', error);
-    throw error;
+    throw new Error(`Failed to delete bot: ${error.message}`);
   }
 };
 
@@ -97,7 +97,7 @@ export const getBots = async (apiKey) => {
     return mergedBots;
   } catch (error) {
     console.error('Error fetching bots:', error);
-    throw error;
+    throw new Error(`Failed to fetch bots: ${error.message}`);
   }
 };
 
