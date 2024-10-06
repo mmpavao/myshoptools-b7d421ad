@@ -12,22 +12,29 @@ const ChatSettings = () => {
   const [chatEnabled, setChatEnabled] = useState(true);
   const [primaryColor, setPrimaryColor] = useState('#007bff');
   const [secondaryColor, setSecondaryColor] = useState('#6c757d');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const fetchChatSettings = async () => {
-      const chatSettingsRef = doc(db, 'chat_settings', 'general');
-      const chatSettingsSnap = await getDoc(chatSettingsRef);
-      if (chatSettingsSnap.exists()) {
-        const chatSettingsData = chatSettingsSnap.data();
-        setChatEnabled(chatSettingsData.chatEnabled || false);
-        setPrimaryColor(chatSettingsData.primaryColor || '#007bff');
-        setSecondaryColor(chatSettingsData.secondaryColor || '#6c757d');
+      try {
+        const chatSettingsRef = doc(db, 'chat_settings', 'general');
+        const chatSettingsSnap = await getDoc(chatSettingsRef);
+        if (chatSettingsSnap.exists()) {
+          const chatSettingsData = chatSettingsSnap.data();
+          setChatEnabled(chatSettingsData.chatEnabled ?? true);
+          setPrimaryColor(chatSettingsData.primaryColor || '#007bff');
+          setSecondaryColor(chatSettingsData.secondaryColor || '#6c757d');
+        }
+      } catch (error) {
+        console.error('Erro ao carregar configurações:', error);
+        toast.error('Falha ao carregar configurações do chat.');
       }
     };
     fetchChatSettings();
   }, []);
 
   const handleSaveChanges = async () => {
+    setIsSaving(true);
     try {
       const chatSettingsRef = doc(db, 'chat_settings', 'general');
       await setDoc(chatSettingsRef, {
@@ -39,6 +46,8 @@ const ChatSettings = () => {
     } catch (error) {
       console.error('Erro ao salvar configurações:', error);
       toast.error('Erro ao salvar configurações. Por favor, tente novamente.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -93,7 +102,9 @@ const ChatSettings = () => {
             />
           </div>
         </div>
-        <Button onClick={handleSaveChanges}>Salvar Alterações</Button>
+        <Button onClick={handleSaveChanges} disabled={isSaving}>
+          {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+        </Button>
       </CardContent>
     </Card>
   );
