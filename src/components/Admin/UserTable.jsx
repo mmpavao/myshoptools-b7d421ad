@@ -11,6 +11,88 @@ import { useAuth } from '../Auth/AuthProvider';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/use-toast";
 
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'Active': return 'bg-green-500';
+    case 'Inactive': return 'bg-red-500';
+    default: return 'bg-gray-500';
+  }
+};
+
+const UserActions = ({ user, isMasterAdmin, onEdit, onToggleStatus, onDelete }) => (
+  <TableCell className="text-right space-x-2">
+    {user.role !== 'Master' && (
+      <>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button 
+              variant="ghost" 
+              className="h-8 w-8 p-0" 
+              onClick={() => onEdit(user)}
+              disabled={!isMasterAdmin && (user.role === 'Admin' || user.role === 'Master')}
+            >
+              <span className="sr-only">Edit</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-4 h-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                />
+              </svg>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Edit User Profile</DialogTitle>
+            </DialogHeader>
+            <PersonalInfoForm user={user} updateUserContext={onEdit} />
+          </DialogContent>
+        </Dialog>
+        
+        {isMasterAdmin && (
+          <>
+            <Button
+              variant="outline"
+              onClick={() => onToggleStatus(user.id, user.status)}
+            >
+              {user.status === 'Active' ? 'Deactivate' : 'Activate'}
+            </Button>
+            
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">Delete</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete the user
+                    account and remove all associated data from our servers, including
+                    authentication records.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => onDelete(user.id)}>
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
+        )}
+      </>
+    )}
+  </TableCell>
+);
+
 export const UserTable = ({ users, onUserUpdate }) => {
   const [selectedUser, setSelectedUser] = useState(null);
   const { user: currentUser } = useAuth();
@@ -27,7 +109,7 @@ export const UserTable = ({ users, onUserUpdate }) => {
   const handleRoleChange = async (userId, newRole) => {
     try {
       await firebaseOperations.updateUserRole(userId, newRole);
-      onUserUpdate(); // Refresh the user list
+      onUserUpdate();
       toast({
         title: "Role Updated",
         description: `User role has been updated to ${newRole}.`,
@@ -132,79 +214,13 @@ export const UserTable = ({ users, onUserUpdate }) => {
                 <span>{user.isOnline ? 'Online' : 'Offline'}</span>
               </Badge>
             </TableCell>
-            <TableCell className="text-right space-x-2">
-              {user.role !== 'Master' && (
-                <>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        className="h-8 w-8 p-0" 
-                        onClick={() => setSelectedUser(user)}
-                        disabled={!isMasterAdmin && (user.role === 'Admin' || user.role === 'Master')}
-                      >
-                        <span className="sr-only">Edit</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-4 h-4"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-                          />
-                        </svg>
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Edit User Profile</DialogTitle>
-                      </DialogHeader>
-                      {selectedUser && (
-                        <PersonalInfoForm user={selectedUser} updateUserContext={onUserUpdate} />
-                      )}
-                    </DialogContent>
-                  </Dialog>
-                  
-                  {isMasterAdmin && (
-                    <>
-                      <Button
-                        variant="outline"
-                        onClick={() => handleToggleUserStatus(user.id, user.status)}
-                      >
-                        {user.status === 'Active' ? 'Deactivate' : 'Activate'}
-                      </Button>
-                      
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive">Delete</Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will permanently delete the user
-                              account and remove all associated data from our servers, including
-                              authentication records.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDeleteUser(user.id)}>
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </>
-                  )}
-                </>
-              )}
-            </TableCell>
+            <UserActions
+              user={user}
+              isMasterAdmin={isMasterAdmin}
+              onEdit={setSelectedUser}
+              onToggleStatus={handleToggleUserStatus}
+              onDelete={handleDeleteUser}
+            />
           </TableRow>
         ))}
       </TableBody>
