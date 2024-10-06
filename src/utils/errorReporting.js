@@ -6,16 +6,24 @@ const createSafeRequestObject = (request) => {
       url: request.url,
       method: request.method,
       headers: Object.fromEntries(request.headers.entries()),
-      // Add any other properties you need, but avoid non-clonable ones
+      // Adicione outras propriedades necessárias, evitando as não clonáveis
     };
   }
-  return String(request); // Convert to string if not a Request object
+  return String(request); // Converte para string se não for um objeto Request
+};
+
+const createSafeErrorObject = (error) => {
+  return {
+    message: error.message,
+    name: error.name,
+    stack: error.stack,
+    // Adicione outras propriedades de erro que sejam relevantes e seguras para clonar
+  };
 };
 
 export const reportHTTPError = (error, request) => {
   const errorData = {
-    message: error.message,
-    stack: error.stack,
+    error: createSafeErrorObject(error),
     request: createSafeRequestObject(request),
   };
 

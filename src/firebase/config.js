@@ -30,12 +30,17 @@ export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : nul
 
 export const safeLogError = (error) => {
   console.error("Error occurred:", error);
-  // Implement logic to send the error to a logging service if needed
+  // Implemente a lógica para enviar o erro para um serviço de logging, se necessário
 };
 
 export const safePostMessage = (target, message, origin) => {
   if (target && typeof target.postMessage === 'function') {
-    target.postMessage(message, origin);
+    try {
+      const safeMessage = JSON.parse(JSON.stringify(message));
+      target.postMessage(safeMessage, origin);
+    } catch (error) {
+      console.warn('Failed to post message:', error);
+    }
   } else {
     console.warn('Target does not support postMessage');
   }
