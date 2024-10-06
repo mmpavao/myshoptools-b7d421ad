@@ -1,19 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Progress } from '../ui/progress';
-import { uploadFile } from '../../firebase/firebaseOperations';
+import { uploadFile, listStorageFiles } from '../../firebase/firebaseOperations';
 import { toast } from '@/components/ui/use-toast';
+import StoredImages from './StoredImages';
 
 const ImageUpload = () => {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadLogs, setUploadLogs] = useState([]);
+  const [storedImages, setStoredImages] = useState([]);
+
+  useEffect(() => {
+    fetchStoredImages();
+  }, []);
+
+  const fetchStoredImages = async () => {
+    try {
+      const images = await listStorageFiles('uploads');
+      setStoredImages(images);
+    } catch (error) {
+      console.error("Error fetching stored images:", error);
+      toast({
+        title: "Erro",
+        description: "Falha ao carregar as imagens armazenadas.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleFileChange = (e) => {
     if (e.target.files[0]) {
       setFile(e.target.files[0]);
     }
+  };
+
+  const addLog = (message, status = 'info') => {
+    setUploadLogs(prev => [...prev, { message, status, timestamp: new Date().toISOString() }]);
   };
 
   const handleUpload = async () => {
@@ -28,19 +53,26 @@ const ImageUpload = () => {
 
     setUploading(true);
     setUploadProgress(0);
+    setUploadLogs([]);
+    addLog("Iniciando upload...");
 
     try {
       const filePath = `uploads/${Date.now()}_${file.name}`;
+      addLog(`Enviando arquivo: ${file.name}`);
       await uploadFile(file, filePath, (progress) => {
         setUploadProgress(progress);
+        addLog(`Progresso: ${progress.toFixed(0)}%`);
       });
 
+      addLog("Upload concluído com sucesso!", "success");
       toast({
         title: "Sucesso",
         description: "Imagem enviada com sucesso!",
       });
+      fetchStoredImages(); // Atualiza a lista de imagens após o upload
     } catch (error) {
       console.error("Erro ao fazer upload da imagem:", error);
+      addLog(`Erro no upload: ${error.message}`, "error");
       toast({
         title: "Erro",
         description: `Falha ao enviar a imagem: ${error.message}`,
@@ -53,18 +85,33 @@ const ImageUpload = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Upload de Imagem</h2>
-      <Input type="file" onChange={handleFileChange} accept="image/*" />
-      <Button onClick={handleUpload} disabled={!file || uploading}>
-        {uploading ? 'Enviando...' : 'Enviar Imagem'}
-      </Button>
-      {uploading && (
-        <div className="space-y-2">
-          <Progress value={uploadProgress} />
-          <p>{uploadProgress.toFixed(0)}% concluído</p>
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Upload de Imagem</h2>
+        <Input type="file" onChange={handleFileChange} accept="image/*" />
+        <Button onClick={handleUpload} disabled={!file || uploading}>
+          {uploading ? 'Enviando...' : 'Enviar Imagem'}
+        </Button>
+        {uploading && (
+          <div className="space-y-2">
+            <Progress value={uploadProgress} />
+            <p>{uploadProgress.toFixed(0)}% concluído</p>
+          </div>
+        )}
+      </div>
+      
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold">Log de Upload</h3>
+        <div className="bg-gray-100 p-4 rounded-md max-h-40 overflow-y-auto">
+          {uploadLogs.map((log, index) => (
+            <p key={index} className={`text-sm ${log.status === 'error' ? 'text-red-600' : log.status === 'success' ? 'text-green-600' : 'text-gray-700'}`}>
+              [{log.timestamp}] {log.message}
+            </p>
+          ))}
         </div>
-      )}
+      </div>
+
+      <StoredImages images={storedImages} onRefresh={fetchStoredImages} />
     </div>
   );
 };

@@ -27,19 +27,21 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Bem-vindo ao Painel do MyShopTools</h1>
-      <p className="mb-4">Logado como: {user?.email}</p>
-      <div className="space-y-4">
-        <Button onClick={handleLogout}>Sair</Button>
-        <Button onClick={handleTestFirebase} disabled={isTestingFirebase}>
-          {isTestingFirebase ? 'Executando Testes...' : 'Executar Testes do Firebase'}
-        </Button>
+    <div className="p-6 space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold mb-4">Bem-vindo ao Painel do MyShopTools</h1>
+        <p className="mb-4">Logado como: {user?.email}</p>
+        <div className="space-y-4">
+          <Button onClick={handleLogout}>Sair</Button>
+          <Button onClick={handleTestFirebase} disabled={isTestingFirebase}>
+            {isTestingFirebase ? 'Executando Testes...' : 'Executar Testes do Firebase'}
+          </Button>
+        </div>
       </div>
+      
       {logs.length > 0 && <FirebaseTestLog logs={logs} />}
-      <div className="mt-8">
-        <ImageUpload />
-      </div>
+      
+      <ImageUpload />
     </div>
   );
 };

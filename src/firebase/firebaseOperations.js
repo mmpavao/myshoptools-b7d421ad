@@ -1,6 +1,6 @@
 import { db, storage } from './config';
 import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
-import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
 import { safeFirestoreOperation } from '../utils/errorReporting';
 import { toast } from '@/components/ui/use-toast';
 
@@ -46,6 +46,21 @@ export const uploadFile = async (file, path, onProgress) => {
 
 export const deleteFile = (path) => 
   deleteObject(ref(storage, path));
+
+export const listStorageFiles = async (path) => {
+  const listRef = ref(storage, path);
+  try {
+    const res = await listAll(listRef);
+    const fileURLs = await Promise.all(res.items.map(async (itemRef) => {
+      const url = await getDownloadURL(itemRef);
+      return { name: itemRef.name, url };
+    }));
+    return fileURLs;
+  } catch (error) {
+    console.error("Error listing files: ", error);
+    throw error;
+  }
+};
 
 export const testFirebaseOperations = async (logCallback) => {
   try {
