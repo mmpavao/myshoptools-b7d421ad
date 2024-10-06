@@ -52,7 +52,8 @@ const Login = () => {
         navigate('/dashboard');
       }
     } catch (error) {
-      setError(error.message);
+      console.error('Login error:', error);
+      setError("Falha no login. Verifique suas credenciais ou entre em contato com o administrador.");
     }
   };
 

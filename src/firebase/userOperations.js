@@ -134,6 +134,10 @@ const checkUserStatus = async (userId) => {
     const userDoc = await getDoc(doc(db, 'users', userId));
     if (userDoc.exists()) {
       const userData = userDoc.data();
+      // Always allow access for the master user
+      if (userData.email === MASTER_USER_EMAIL) {
+        return true;
+      }
       return userData.status === 'Active';
     }
     return false;
