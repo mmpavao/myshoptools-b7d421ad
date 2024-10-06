@@ -134,7 +134,6 @@ export const transcribeAudio = async (apiKey, audioFile) => {
   }
 };
 
-
 const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
   try {
     const openai = createOpenAIClient(apiKey);
@@ -198,12 +197,24 @@ export const deleteBot = async (apiKey, botId, assistantId) => {
 
 export const getBots = async (apiKey, userId) => {
   try {
+    console.log('Getting bots for userId:', userId);
     const openai = createOpenAIClient(apiKey);
     const firestoreBots = await firebaseOperations.getBots(userId);
-    const assistants = await openai.beta.assistants.list();
+    console.log('Firestore bots:', firestoreBots);
 
-    return firestoreBots.map(bot => {
+    if (firestoreBots.length === 0) {
+      console.log('No bots found in Firestore');
+      return [];
+    }
+
+    const assistants = await openai.beta.assistants.list();
+    console.log('OpenAI assistants:', assistants.data);
+
+    const bots = firestoreBots.map(bot => {
       const assistant = assistants.data.find(a => a.id === bot.assistantId);
+      if (!assistant) {
+        console.log(`No matching OpenAI assistant found for bot ${bot.id}`);
+      }
       return {
         ...bot,
         name: assistant?.name || bot.name,
@@ -211,24 +222,12 @@ export const getBots = async (apiKey, userId) => {
         model: assistant?.model || bot.model,
       };
     });
+
+    console.log('Final bots array:', bots);
+    return bots;
   } catch (error) {
+    console.error('Error in getBots:', error);
     handleOpenAIError(error, 'get bots');
+    return [];
   }
 };
-
-export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
-  try {
-    const openai = createOpenAIClient(apiKey);
-    const mp3 = await openai.audio.speech.create({
-      model: "tts-1",
-      voice: voice,
-      input: text,
-    });
-    const buffer = Buffer.from(await mp3.arrayBuffer());
-    return buffer;
-  } catch (error) {
-    handleOpenAIError(error, 'text to speech');
-  }
-};
-
-// ... keep existing code for other functions
