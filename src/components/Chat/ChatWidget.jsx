@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { MessageCircle, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../Auth/AuthProvider';
 
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleChatOption = () => {
     navigate('/chat');
@@ -16,6 +18,10 @@ const ChatWidget = () => {
     window.open('https://wa.me/+1407300181', '_blank');
     setIsOpen(false);
   };
+
+  if (!user) {
+    return null; // Don't render the widget if there's no logged-in user
+  }
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
