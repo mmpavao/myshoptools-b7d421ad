@@ -25,6 +25,16 @@ const ImageUpload = () => {
     }
   };
 
+  const handleFileChange = (e) => {
+    if (e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const addLog = (message, status = 'info') => {
+    setUploadLogs(prev => [...prev, { message, status, timestamp: new Date().toLocaleTimeString() }]);
+  };
+
   const handleUpload = async () => {
     if (!file) {
       console.error("Por favor, selecione um arquivo para fazer upload.");
