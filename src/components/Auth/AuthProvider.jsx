@@ -18,7 +18,6 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -26,7 +25,6 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }, (error) => {
       safeLogError(error);
-      setError(error);
       setLoading(false);
       toast({
         title: "Authentication Error",
@@ -58,7 +56,6 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     loading,
-    error,
     logout
   };
 
@@ -66,14 +63,10 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const ProtectedRoute = ({ children }) => {
-  const { user, loading, error } = useAuth();
+  const { user, loading } = useAuth();
 
   if (loading) {
     return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error.message}</div>;
   }
 
   if (!user) {
