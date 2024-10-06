@@ -37,6 +37,15 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
 
+    // Adicionando regras para bots e user_settings
+    match /bots/{botId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /user_settings/{settingId} {
+      allow read, write: if isAuthenticated() && isOwner(resource.data.user_id);
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
