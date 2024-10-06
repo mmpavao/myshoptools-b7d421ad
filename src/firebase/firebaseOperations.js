@@ -97,7 +97,6 @@ export const listStorageFiles = async () => {
           return { name: itemRef.name, url, folder };
         } catch (error) {
           console.error(`Erro ao obter URL para ${itemRef.name}:`, error);
-          // Não exibimos mais o toast aqui, pois lidaremos com o erro no componente
           return null;
         }
       }));
@@ -125,7 +124,7 @@ export const updateUserProfile = async (userId, profileData) => {
       await updateProfile(auth.currentUser, {
         displayName: profileData.displayName,
         photoURL: profileData.photoURL,
-        email: profileData.email
+        phoneNumber: profileData.phoneNumber,
       });
     }
     
@@ -137,21 +136,8 @@ export const updateUserProfile = async (userId, profileData) => {
   }
 };
 
-export const uploadProfileImage = async (file, userId) => {
-  const path = `avatars/${userId}`;
-  try {
-    const downloadURL = await uploadFile(file, path);
-    return downloadURL;
-  } catch (error) {
-    console.error('Erro ao fazer upload da imagem de perfil:', error);
-    throw error;
-  }
-};
-
-
 export const testFirebaseOperations = async (logCallback) => {
   try {
-    // Test Firestore operations
     const testDoc = await createDocument('test_collection', { test: 'data' });
     logCallback({ step: 'Create Document', status: 'success', message: 'Document created successfully' });
 
@@ -164,7 +150,6 @@ export const testFirebaseOperations = async (logCallback) => {
     await deleteDocument('test_collection', testDoc.id);
     logCallback({ step: 'Delete Document', status: 'success', message: 'Document deleted successfully' });
 
-    // Test Storage operations
     const testFile = new File(['test content'], 'test.txt', { type: 'text/plain' });
     const uploadPath = 'test/test.txt';
     
@@ -188,7 +173,6 @@ export const testFirebaseOperations = async (logCallback) => {
 
 export const clearAllData = async () => {
   try {
-    // Limpar Firestore
     const collections = ['test_collection', 'products', 'orders'];
     for (const collectionName of collections) {
       const querySnapshot = await getDocs(collection(db, collectionName));
@@ -197,7 +181,6 @@ export const clearAllData = async () => {
       });
     }
 
-    // Limpar Storage
     const folders = ['uploads', 'avatars', 'products'];
     for (const folder of folders) {
       const listRef = ref(storage, folder);
@@ -229,5 +212,3 @@ export const initializeCollections = async () => {
     throw error;
   }
 };
-
-// ... keep existing code

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -21,9 +21,9 @@ const countries = [
 export const PersonalInfoForm = ({ user, updateUserContext }) => {
   const [name, setName] = useState(user?.displayName || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [phone, setPhone] = useState(user?.phone?.slice(3) || '');
+  const [phone, setPhone] = useState(user?.phoneNumber?.slice(3) || '');
   const [address, setAddress] = useState(user?.address || '');
-  const [country, setCountry] = useState(countries.find(c => c.ddi === user?.phone?.slice(0, 3)) || countries[0]);
+  const [country, setCountry] = useState(countries.find(c => c.ddi === user?.phoneNumber?.slice(0, 3)) || countries[0]);
   const [profileImage, setProfileImage] = useState(user?.photoURL || "/placeholder.svg");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -54,7 +54,7 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
       const updatedUserData = {
         displayName: name,
         email,
-        phone: `${country.ddi}${phone}`,
+        phoneNumber: `${country.ddi}${phone}`,
         address,
         country: country.code,
         photoURL: profileImage,
