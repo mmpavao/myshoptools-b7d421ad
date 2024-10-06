@@ -70,25 +70,28 @@ export const handleStream = async (streamGetter) => {
   }
 };
 
-const createRequestClone = (request) => {
-  return {
-    url: request.url,
-    method: request.method,
-    headers: Object.fromEntries(request.headers.entries()),
-    // Não incluímos o body, pois ele pode não ser clonável
-  };
+const createCloneableObject = (obj) => {
+  if (obj instanceof Request) {
+    return {
+      url: obj.url,
+      method: obj.method,
+      headers: Object.fromEntries(obj.headers.entries()),
+      // Não incluímos o body, pois ele pode não ser clonável
+    };
+  }
+  return obj;
 };
 
 export const safePostMessage = (targetWindow, message, targetOrigin, transfer) => {
   try {
-    let clonedMessage = message;
-    if (message instanceof Request) {
-      clonedMessage = createRequestClone(message);
-    } else if (typeof structuredClone === 'function') {
-      clonedMessage = structuredClone(message);
+    let clonedMessage = createCloneableObject(message);
+    
+    if (typeof structuredClone === 'function') {
+      clonedMessage = structuredClone(clonedMessage);
     } else {
-      clonedMessage = JSON.parse(JSON.stringify(message));
+      clonedMessage = JSON.parse(JSON.stringify(clonedMessage));
     }
+    
     targetWindow.postMessage(clonedMessage, targetOrigin, transfer);
   } catch (error) {
     safeLogError(error);
