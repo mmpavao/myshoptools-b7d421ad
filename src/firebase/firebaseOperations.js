@@ -1,71 +1,9 @@
 import { db, storage, auth } from './config';
-import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, query, where, setDoc } from 'firebase/firestore';
+import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
-import { updateProfile } from 'firebase/auth';
-import { safeFirestoreOperation } from '../utils/errorReporting';
 import { toast } from '@/components/ui/use-toast';
-
-const crudOperations = {
-  createDocument: (collectionName, data) => 
-    safeFirestoreOperation(() => addDoc(collection(db, collectionName), data)),
-  readDocument: (collectionName, docId) => 
-    safeFirestoreOperation(() => getDoc(doc(db, collectionName, docId))),
-  updateDocument: (collectionName, docId, data) => 
-    safeFirestoreOperation(() => updateDoc(doc(db, collectionName, docId), data)),
-  deleteDocument: (collectionName, docId) => 
-    safeFirestoreOperation(() => deleteDoc(doc(db, collectionName, docId)))
-};
-
-// User profile operations
-
-const userOperations = {
-  createUser: (userData) => 
-    safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), userData)),
-  updateUserProfile: async (userId, profileData) => {
-    try {
-      await setDoc(doc(db, 'users', userId), profileData, { merge: true });
-      if (auth.currentUser) {
-        await updateProfile(auth.currentUser, {
-          displayName: profileData.displayName,
-          photoURL: profileData.photoURL,
-        });
-      }
-      return true;
-    } catch (error) {
-      console.error('Error updating user profile:', error);
-      throw error;
-    }
-  },
-
-  getAllUsers: async () => {
-    try {
-      const usersSnapshot = await getDocs(collection(db, 'users'));
-      const currentUser = auth.currentUser;
-      return usersSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        avatar: doc.data().photoURL || 'https://i.pravatar.cc/150',
-        name: doc.data().displayName || 'Unknown User',
-        email: doc.data().email || 'No email',
-        title: doc.data().title || 'No title',
-        department: doc.data().department || 'No department',
-        status: doc.data().status || 'Inactive',
-        role: doc.data().role || 'User',
-        isOnline: doc.id === currentUser?.uid, // Set online status based on current user
-      }));
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch users. Please try again.",
-        variant: "destructive",
-      });
-      return [];
-    }
-  }
-};
-
-};
+import crudOperations from './crudOperations';
+import userOperations from './userOperations';
 
 const productOperations = {
   createProduct: async (productData) => {
@@ -141,7 +79,6 @@ const productOperations = {
       throw error;
     }
   },
-
   importarProduto: async (userId, produto) => {
     const userProductRef = doc(db, 'users', userId, 'produtosImportados', produto.id);
     await setDoc(userProductRef, produto);
@@ -230,35 +167,33 @@ const fileOperations = {
   }
 };
 
-// Test functions
 const testFirebaseOperations = async (logCallback) => {
   try {
     const testDoc = await crudOperations.createDocument('test_collection', { test: 'data' });
     logCallback({ step: 'Create Document', status: 'success', message: 'Document created successfully' });
 
-      await crudOperations.readDocument('test_collection', testDoc.id);
-      logCallback({ step: 'Read Document', status: 'success', message: 'Document read successfully' });
+    await crudOperations.readDocument('test_collection', testDoc.id);
+    logCallback({ step: 'Read Document', status: 'success', message: 'Document read successfully' });
 
-      await crudOperations.updateDocument('test_collection', testDoc.id, { test: 'updated data' });
-      logCallback({ step: 'Update Document', status: 'success', message: 'Document updated successfully' });
+    await crudOperations.updateDocument('test_collection', testDoc.id, { test: 'updated data' });
+    logCallback({ step: 'Update Document', status: 'success', message: 'Document updated successfully' });
 
-      await crudOperations.deleteDocument('test_collection', testDoc.id);
-      logCallback({ step: 'Delete Document', status: 'success', message: 'Document deleted successfully' });
+    await crudOperations.deleteDocument('test_collection', testDoc.id);
+    logCallback({ step: 'Delete Document', status: 'success', message: 'Document deleted successfully' });
 
-      const testFile = new File(['test content'], 'test.txt', { type: 'text/plain' });
-      const uploadPath = 'test/test.txt';
-      
-      await fileOperations.uploadFile(testFile, uploadPath, (progress) => {
-        logCallback({ step: 'Upload File', status: 'progress', message: `Upload progress: ${progress.toFixed(2)}%` });
-      });
-      logCallback({ step: 'Upload File', status: 'success', message: 'File uploaded successfully' });
+    const testFile = new File(['test content'], 'test.txt', { type: 'text/plain' });
+    const uploadPath = 'test/test.txt';
+    
+    await fileOperations.uploadFile(testFile, uploadPath, (progress) => {
+      logCallback({ step: 'Upload File', status: 'progress', message: `Upload progress: ${progress.toFixed(2)}%` });
+    });
+    logCallback({ step: 'Upload File', status: 'success', message: 'File uploaded successfully' });
 
-      const files = await fileOperations.listStorageFiles();
-      logCallback({ step: 'List Files', status: 'success', message: `${files.length} files listed successfully` });
+    const files = await fileOperations.listStorageFiles();
+    logCallback({ step: 'List Files', status: 'success', message: `${files.length} files listed successfully` });
 
-      await fileOperations.deleteFile(uploadPath);
-      logCallback({ step: 'Delete File', status: 'success', message: 'File deleted successfully' });
-
+    await fileOperations.deleteFile(uploadPath);
+    logCallback({ step: 'Delete File', status: 'success', message: 'File deleted successfully' });
 
     logCallback({ step: 'All Tests', status: 'success', message: 'All Firebase operations completed successfully' });
   } catch (error) {
