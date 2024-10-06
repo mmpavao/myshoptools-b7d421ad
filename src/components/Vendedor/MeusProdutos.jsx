@@ -49,13 +49,13 @@ const MeusProdutos = () => {
   const handleSubmitAvaliacao = async () => {
     try {
       await firebaseOperations.adicionarAvaliacao(avaliacaoAtual.produtoId, user.uid, avaliacaoAtual.nota, avaliacaoAtual.comentario);
+      setDialogOpen(false); // Fechar o popup
       toast({
         title: "Sucesso",
         description: "Avaliação enviada com sucesso!",
       });
       setAvaliacaoAtual({ produtoId: null, nota: 0, comentario: '' });
-      setDialogOpen(false);
-      fetchMeusProdutos();
+      fetchMeusProdutos(); // Atualizar a lista de produtos
     } catch (error) {
       console.error("Erro ao enviar avaliação:", error);
       toast({
