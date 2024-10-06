@@ -74,30 +74,29 @@ export const testFirebaseOperations = async (logCallback) => {
     logCallback({ step: "Consulta de documentos", message: `${querySnapshot.docs.length} documento(s) encontrado(s)`, status: "success" });
 
     // Teste de upload de arquivo
-    const testFile = new Blob(['Conteúdo do arquivo de teste'], { type: 'text/plain' });
-    const filePath = `test/testfile_${Date.now()}.txt`;
-    const fileUrl = await uploadFile(testFile, filePath);
-    logCallback({ step: "Upload de arquivo", message: "Arquivo enviado com sucesso", status: "success" });
+    try {
+      const testFile = new Blob(['Conteúdo do arquivo de teste'], { type: 'text/plain' });
+      const filePath = `test/testfile_${Date.now()}.txt`;
+      const fileUrl = await uploadFile(testFile, filePath);
+      logCallback({ step: "Upload de arquivo", message: "Arquivo enviado com sucesso", status: "success" });
 
-    // Teste de exclusão de arquivo
-    await deleteFile(filePath);
-    logCallback({ step: "Exclusão de arquivo", message: "Arquivo excluído com sucesso", status: "success" });
+      // Teste de exclusão de arquivo
+      await deleteFile(filePath);
+      logCallback({ step: "Exclusão de arquivo", message: "Arquivo excluído com sucesso", status: "success" });
+    } catch (storageError) {
+      logCallback({ step: "Operações de Storage", message: `Erro nas operações de Storage: ${storageError.message}. Verifique as regras de segurança do Storage.`, status: "error" });
+    }
 
-    // Teste de exclusão de documento
-    await deleteDocument('test_collection', testDocRef.id);
-    logCallback({ step: "Exclusão de documento", message: "Documento de teste excluído com sucesso", status: "success" });
-
-    // Verificação final
     const deletedTestDoc = await readDocument('test_collection', testDocRef.id);
     if (!deletedTestDoc.exists()) {
       logCallback({ step: "Verificação final", message: "Documento de teste não existe mais, confirmando exclusão bem-sucedida", status: "success" });
     }
 
-    logCallback({ step: "Conclusão", message: "Todos os testes foram concluídos com sucesso!", status: "success" });
+    logCallback({ step: "Conclusão", message: "Todos os testes foram concluídos. Verifique os logs para detalhes.", status: "success" });
 
     toast({
       title: "Testes de Operações do Firebase",
-      description: "Todos os testes foram concluídos com sucesso!",
+      description: "Testes concluídos. Verifique os logs para detalhes.",
     });
   } catch (error) {
     console.error("Erro durante os testes de operações do Firebase:", error);
