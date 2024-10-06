@@ -33,8 +33,8 @@ export const wrapFetch = () => {
     } catch (error) {
       if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
         console.error('Network error when fetching resource:', args[0]);
-        // You can choose to return a fallback image or null here
-        return null;
+        // Return a fallback image URL or null
+        return { ok: true, url: '/placeholder.svg' };
       }
       reportHTTPError(error);
       throw error;

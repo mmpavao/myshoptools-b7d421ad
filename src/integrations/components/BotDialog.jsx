@@ -25,12 +25,16 @@ const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDele
         setIsLoading(true);
         try {
           const botDetails = await getBotDetails(apiKey, currentBot.assistantId);
-          setBotData(prevData => ({
-            ...prevData,
-            ...botDetails,
-            isActive: currentBot.isActive || false
-          }));
-          setAvatarPreview(botDetails.avatar || '');
+          if (botDetails) {
+            setBotData(prevData => ({
+              ...prevData,
+              ...botDetails,
+              isActive: currentBot.isActive || false
+            }));
+            setAvatarPreview(botDetails.avatar || '');
+          } else {
+            toast.error('Failed to load bot details. Using default values.');
+          }
         } catch (error) {
           console.error('Error fetching bot details:', error);
           toast.error('Failed to load bot details. Please try again.');

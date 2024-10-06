@@ -2,7 +2,6 @@ import { db } from '../firebase/config';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
 import { createOpenAIClient, handleOpenAIError } from '../utils/openAIUtils';
 
-
 export const testOpenAIConnection = async (apiKey) => {
   try {
     const openai = createOpenAIClient(apiKey);
@@ -72,7 +71,6 @@ export const analyzeDocument = async (apiKey, file) => {
   }
 };
 
-
 export const analyzeImage = async (apiKey, imageFile) => {
   try {
     const openai = createOpenAIClient(apiKey);
@@ -101,7 +99,6 @@ export const analyzeImage = async (apiKey, imageFile) => {
     handleOpenAIError(error, 'analyze image');
   }
 };
-
 
 const imageFileToBase64 = (file) => {
   return new Promise((resolve, reject) => {
@@ -169,9 +166,11 @@ export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
   }
 };
 
-
 export const getBotDetails = async (apiKey, assistantId) => {
   try {
+    if (!assistantId) {
+      throw new Error('Assistant ID is undefined. Please ensure a valid bot is selected.');
+    }
     const openai = createOpenAIClient(apiKey);
     const assistant = await openai.beta.assistants.retrieve(assistantId);
     return {
@@ -230,7 +229,6 @@ export const deleteBot = async (apiKey, botId, assistantId) => {
   }
 };
 
-// Refatorando a função getBots para reduzir o tamanho do arquivo
 const syncBotsWithFirestore = async (mergedBots) => {
   for (const bot of mergedBots) {
     const botRef = doc(db, 'bots', bot.id);
@@ -245,25 +243,25 @@ export const getBots = async (apiKey) => {
     const querySnapshot = await getDocs(collection(db, 'bots'));
     const firestoreBots = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    const mergedBots = assistants.data.map(assistant => ({
-      id: firestoreBots.find(bot => bot.assistantId === assistant.id)?.id || assistant.id,
-      name: assistant.name,
-      instructions: assistant.instructions,
-      model: assistant.model,
-      assistantId: assistant.id,
-      avatar: firestoreBots.find(bot => bot.assistantId === assistant.id)?.avatar || null,
-      createdAt: firestoreBots.find(bot => bot.assistantId === assistant.id)?.createdAt || assistant.created_at,
-      updatedAt: firestoreBots.find(bot => bot.assistantId === assistant.id)?.updatedAt || new Date().toISOString(),
-    }));
+    const mergedBots = assistants.data.map(assistant => {
+      const firestoreBot = firestoreBots.find(bot => bot.assistantId === assistant.id);
+      return {
+        id: firestoreBot?.id || assistant.id,
+        name: assistant.name,
+        instructions: assistant.instructions,
+        model: assistant.model,
+        assistantId: assistant.id,
+        avatar: firestoreBot?.avatar || null,
+        createdAt: firestoreBot?.createdAt || assistant.created_at,
+        updatedAt: firestoreBot?.updatedAt || new Date().toISOString(),
+      };
+    });
 
     await syncBotsWithFirestore(mergedBots);
 
     return mergedBots;
   } catch (error) {
     handleOpenAIError(error, 'get bots');
+    return []; // Return an empty array if there's an error
   }
 };
-
-
-
-// Remova as importações duplicadas e mantenha o restante do código inalterado
