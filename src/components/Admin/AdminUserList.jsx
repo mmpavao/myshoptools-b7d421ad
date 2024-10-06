@@ -4,13 +4,19 @@ import { UserTable } from './UserTable';
 import { Button } from "@/components/ui/button";
 import Alert from '../ui/Alert';
 import firebaseOperations from '../../firebase/firebaseOperations';
+import { useAuth } from '../Auth/AuthProvider';
 
 const AdminUserList = () => {
   const [users, setUsers] = useState([]);
+  const { user: currentUser } = useAuth();
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+    if (currentUser) {
+      firebaseOperations.getUserRole(currentUser.uid).then(setUserRole);
+    }
+  }, [currentUser]);
 
   const fetchUsers = async () => {
     const fetchedUsers = await firebaseOperations.getAllUsers();
@@ -27,6 +33,7 @@ const AdminUserList = () => {
   };
 
   const groupedUsers = groupUsersByRole();
+  const isMasterAdmin = userRole === 'Master';
 
   return (
     <div className="space-y-6">
@@ -41,7 +48,7 @@ const AdminUserList = () => {
             <TabsTrigger value="vendor">Vendor Users</TabsTrigger>
             <TabsTrigger value="provider">Provider Users</TabsTrigger>
             <TabsTrigger value="admin">Admin Users</TabsTrigger>
-            <TabsTrigger value="master">Master Users</TabsTrigger>
+            {isMasterAdmin && <TabsTrigger value="master">Master Users</TabsTrigger>}
           </TabsList>
           <TabsContent value="vendor">
             <UserTable users={groupedUsers['Vendedor'] || []} onUserUpdate={fetchUsers} />
@@ -52,9 +59,11 @@ const AdminUserList = () => {
           <TabsContent value="admin">
             <UserTable users={groupedUsers['Admin'] || []} onUserUpdate={fetchUsers} />
           </TabsContent>
-          <TabsContent value="master">
-            <UserTable users={groupedUsers['Master'] || []} onUserUpdate={fetchUsers} />
-          </TabsContent>
+          {isMasterAdmin && (
+            <TabsContent value="master">
+              <UserTable users={groupedUsers['Master'] || []} onUserUpdate={fetchUsers} />
+            </TabsContent>
+          )}
         </Tabs>
         <Button onClick={fetchUsers} className="mt-4">Atualizar Lista de Usuários</Button>
       </div>

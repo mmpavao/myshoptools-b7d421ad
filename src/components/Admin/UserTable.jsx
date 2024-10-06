@@ -13,8 +13,15 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 export const UserTable = ({ users, onUserUpdate }) => {
   const [selectedUser, setSelectedUser] = useState(null);
   const { user: currentUser } = useAuth();
+  const [currentUserRole, setCurrentUserRole] = useState(null);
 
-  const isMasterAdmin = currentUser?.role === 'Master';
+  React.useEffect(() => {
+    if (currentUser) {
+      firebaseOperations.getUserRole(currentUser.uid).then(setCurrentUserRole);
+    }
+  }, [currentUser]);
+
+  const isMasterAdmin = currentUserRole === 'Master';
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -114,7 +121,7 @@ export const UserTable = ({ users, onUserUpdate }) => {
                         variant="ghost" 
                         className="h-8 w-8 p-0" 
                         onClick={() => setSelectedUser(user)}
-                        disabled={!isMasterAdmin && user.role === 'Admin'}
+                        disabled={!isMasterAdmin && (user.role === 'Admin' || user.role === 'Master')}
                       >
                         <span className="sr-only">Edit</span>
                         <svg
