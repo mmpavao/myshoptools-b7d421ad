@@ -3,6 +3,7 @@ import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc,
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
 import { safeFirestoreOperation } from '../utils/errorReporting';
+import crudOperations from './crudOperations';
 
 const productOperations = {
   createProduct: async (productData) => {
@@ -277,7 +278,6 @@ const clearAllData = async () => {
 
 const firebaseOperations = {
   ...crudOperations,
-  ...userOperations,
   ...productOperations,
   ...fileOperations,
   ...botOperations,
