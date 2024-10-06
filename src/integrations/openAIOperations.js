@@ -127,48 +127,45 @@ export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
   }
 };
 
-export const createBot = async (apiKey, botData) => {
+const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
   try {
     const openai = createOpenAIClient(apiKey);
-    const assistant = await openai.beta.assistants.create({
+    const assistantData = {
       name: botData.name,
       instructions: botData.instructions,
       model: botData.model,
-    });
-    const docRef = await addDoc(collection(db, 'bots'), {
+    };
+
+    let assistant;
+    if (isUpdate) {
+      assistant = await openai.beta.assistants.update(botData.assistantId, assistantData);
+    } else {
+      assistant = await openai.beta.assistants.create(assistantData);
+    }
+
+    const botDocData = {
       ...botData,
       assistantId: assistant.id,
-      avatar: botData.avatar, // Adicionando o avatar
-      createdAt: new Date().toISOString(),
+      avatar: botData.avatar || null, // Use null if avatar is undefined
       updatedAt: new Date().toISOString(),
-    });
-    return { id: docRef.id, ...botData, assistantId: assistant.id };
+    };
+
+    if (!isUpdate) {
+      botDocData.createdAt = new Date().toISOString();
+    }
+
+    const docRef = isUpdate ? doc(db, 'bots', botData.id) : collection(db, 'bots');
+    const operation = isUpdate ? updateDoc : addDoc;
+    await operation(docRef, botDocData);
+
+    return { id: isUpdate ? botData.id : docRef.id, ...botDocData };
   } catch (error) {
-    handleOpenAIError(error, 'create bot');
+    handleOpenAIError(error, isUpdate ? 'update bot' : 'create bot');
   }
 };
 
-export const updateBot = async (apiKey, botId, botData) => {
-  try {
-    const openai = createOpenAIClient(apiKey);
-    await openai.beta.assistants.update(botData.assistantId, {
-      name: botData.name,
-      instructions: botData.instructions,
-      model: botData.model,
-    });
-
-    const botRef = doc(db, 'bots', botId);
-    await setDoc(botRef, {
-      ...botData,
-      avatar: botData.avatar, // Adicionando o avatar
-      updatedAt: new Date().toISOString(),
-    }, { merge: true });
-
-    return { id: botId, ...botData };
-  } catch (error) {
-    handleOpenAIError(error, 'update bot');
-  }
-};
+export const createBot = (apiKey, botData) => createOrUpdateBot(apiKey, botData);
+export const updateBot = (apiKey, botId, botData) => createOrUpdateBot(apiKey, { ...botData, id: botId }, true);
 
 export const deleteBot = async (apiKey, botId, assistantId) => {
   try {
@@ -195,7 +192,7 @@ export const getBots = async (apiKey) => {
         instructions: assistant.instructions,
         model: assistant.model,
         assistantId: assistant.id,
-        avatar: firestoreBot?.avatar, // Incluindo o avatar
+        avatar: firestoreBot?.avatar || null, // Use null if avatar is undefined
         createdAt: firestoreBot?.createdAt || assistant.created_at,
         updatedAt: firestoreBot?.updatedAt || new Date().toISOString(),
       };
@@ -203,11 +200,7 @@ export const getBots = async (apiKey) => {
 
     for (const bot of mergedBots) {
       const botRef = doc(db, 'bots', bot.id);
-      await setDoc(botRef, {
-        ...bot,
-        createdAt: bot.createdAt,
-        updatedAt: new Date().toISOString(),
-      }, { merge: true });
+      await setDoc(botRef, bot, { merge: true });
     }
 
     return mergedBots;
