@@ -26,7 +26,7 @@ const OpenAIIntegration = () => {
     if (apiKey) {
       testConnection();
     }
-  }, []);
+  }, [apiKey]);
 
   const handleApiKeyChange = (e) => {
     const newApiKey = e.target.value;
@@ -59,11 +59,14 @@ const OpenAIIntegration = () => {
       return;
     }
     try {
+      console.log('Fetching bots...');
       const fetchedBots = await getBots(apiKey);
+      console.log('Fetched bots:', fetchedBots);
       setBots(fetchedBots);
+      toast.success(`Successfully fetched ${fetchedBots.length} bots`);
     } catch (error) {
       console.error('Error fetching bots:', error);
-      toast.error('Failed to fetch bots');
+      toast.error('Failed to fetch bots: ' + error.message);
     }
   };
 

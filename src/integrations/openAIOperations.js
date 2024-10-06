@@ -75,15 +75,25 @@ export const getBots = async (apiKey) => {
   try {
     const openai = createOpenAIClient(apiKey);
     const assistants = await openai.beta.assistants.list();
+    console.log('Assistants from OpenAI:', assistants);
+
     const querySnapshot = await getDocs(collection(db, 'bots'));
     const localBots = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log('Local bots from Firestore:', localBots);
 
-    // Merge local bots with OpenAI assistants
+    // Merge OpenAI assistants with local bots
     const mergedBots = assistants.data.map(assistant => {
       const localBot = localBots.find(bot => bot.assistantId === assistant.id);
-      return localBot ? { ...localBot, ...assistant } : assistant;
+      return localBot ? { ...localBot, ...assistant } : {
+        id: assistant.id,
+        name: assistant.name,
+        instructions: assistant.instructions,
+        model: assistant.model,
+        assistantId: assistant.id
+      };
     });
 
+    console.log('Merged bots:', mergedBots);
     return mergedBots;
   } catch (error) {
     console.error('Error fetching bots:', error);
