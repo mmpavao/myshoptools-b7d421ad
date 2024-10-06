@@ -1,6 +1,7 @@
-import { db, storage } from './config';
-import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
+import { db, storage, auth } from './config';
+import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, query, where, setDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
+import { updateProfile } from 'firebase/auth';
 import { safeFirestoreOperation } from '../utils/errorReporting';
 import { toast } from '@/components/ui/use-toast';
 
@@ -100,6 +101,39 @@ export const listStorageFiles = async () => {
   return allFiles;
 };
 
+export const updateUserProfile = async (userId, profileData) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await setDoc(userRef, profileData, { merge: true });
+    
+    if (profileData.displayName || profileData.photoURL) {
+      await updateProfile(auth.currentUser, {
+        displayName: profileData.displayName,
+        photoURL: profileData.photoURL
+      });
+    }
+    
+    console.log('Perfil do usuário atualizado com sucesso');
+    return true;
+  } catch (error) {
+    console.error('Erro ao atualizar perfil do usuário:', error);
+    throw error;
+  }
+};
+
+export const uploadProfileImage = async (file, userId) => {
+  const path = `avatars/${userId}`;
+  try {
+    const downloadURL = await uploadFile(file, path);
+    await updateUserProfile(userId, { photoURL: downloadURL });
+    return downloadURL;
+  } catch (error) {
+    console.error('Erro ao fazer upload da imagem de perfil:', error);
+    throw error;
+  }
+};
+
+
 export const testFirebaseOperations = async (logCallback) => {
   try {
     // Test Firestore operations
@@ -164,3 +198,4 @@ export const clearAllData = async () => {
     throw error;
   }
 };
+

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../Auth/AuthProvider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,29 +8,71 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { updateUserProfile, uploadProfileImage } from '../../firebase/firebaseOperations';
+
+const countries = [
+  { code: 'BR', name: 'Brasil', flag: '🇧🇷', ddi: '+55' },
+  { code: 'US', name: 'Estados Unidos', flag: '🇺🇸', ddi: '+1' },
+  { code: 'PT', name: 'Portugal', flag: '🇵🇹', ddi: '+351' },
+  // Adicione mais países conforme necessário
+];
 
 const UserProfile = () => {
   const { user } = useAuth();
   const [profileImage, setProfileImage] = useState(user?.photoURL || "/placeholder.svg");
+  const [name, setName] = useState(user?.displayName || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [country, setCountry] = useState(countries[0]);
 
-  const handleImageChange = (e) => {
+  useEffect(() => {
+    // Aqui você pode carregar os dados adicionais do usuário do Firestore
+    // e atualizar os estados correspondentes
+  }, [user]);
+
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const downloadURL = await uploadProfileImage(file, user.uid);
+        setProfileImage(downloadURL);
+        toast({
+          title: "Imagem de Perfil Atualizada",
+          description: "Sua foto de perfil foi atualizada com sucesso.",
+        });
+      } catch (error) {
+        toast({
+          title: "Erro",
+          description: "Não foi possível atualizar a imagem de perfil.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Implementar lógica de atualização do perfil aqui
-    toast({
-      title: "Perfil Atualizado",
-      description: "Suas informações foram atualizadas com sucesso.",
-    });
+    try {
+      await updateUserProfile(user.uid, {
+        displayName: name,
+        email,
+        phone: `${country.ddi} ${phone}`,
+        address,
+        country: country.code,
+      });
+      toast({
+        title: "Perfil Atualizado",
+        description: "Suas informações foram atualizadas com sucesso.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o perfil. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -68,19 +110,45 @@ const UserProfile = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="name">Nome</Label>
-                      <Input id="name" defaultValue={user?.displayName || ''} />
+                      <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">E-mail</Label>
-                      <Input id="email" type="email" defaultValue={user?.email || ''} />
+                      <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="country">País</Label>
+                      <Select value={country.code} onValueChange={(value) => setCountry(countries.find(c => c.code === value))}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Selecione um país" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countries.map((country) => (
+                            <SelectItem key={country.code} value={country.code}>
+                              {country.flag} {country.name} ({country.ddi})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone">Telefone</Label>
-                      <Input id="phone" type="tel" />
+                      <div className="flex">
+                        <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md">
+                          {country.ddi}
+                        </span>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          className="rounded-l-none"
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 col-span-2">
                       <Label htmlFor="address">Endereço</Label>
-                      <Input id="address" />
+                      <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} />
                     </div>
                   </div>
                 </div>
