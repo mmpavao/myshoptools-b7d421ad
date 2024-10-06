@@ -7,9 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { PersonalInfoForm } from '../Profile/PersonalInfoForm';
 import firebaseOperations from '../../firebase/firebaseOperations';
+import { useAuth } from '../Auth/AuthProvider';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 export const UserTable = ({ users, onUserUpdate }) => {
   const [selectedUser, setSelectedUser] = useState(null);
+  const { user: currentUser } = useAuth();
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -25,8 +28,22 @@ export const UserTable = ({ users, onUserUpdate }) => {
     onUserUpdate();
   };
 
+  const handleToggleUserStatus = async (userId, currentStatus) => {
+    const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
+    await firebaseOperations.updateUserStatus(userId, newStatus);
+    onUserUpdate();
+  };
+
+  const handleDeleteUser = async (userId) => {
+    await firebaseOperations.deleteUser(userId);
+    onUserUpdate();
+  };
+
+  const isMasterAdmin = currentUser?.role === 'Master';
+
   return (
     <Table>
+      <TableHeader>
       <TableHeader>
         <TableRow>
           <TableHead>Name</TableHead>
@@ -37,6 +54,7 @@ export const UserTable = ({ users, onUserUpdate }) => {
           <TableHead>Online Status</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
+      </TableHeader>
       </TableHeader>
       <TableBody>
         {users.map((user) => (
@@ -85,7 +103,7 @@ export const UserTable = ({ users, onUserUpdate }) => {
                 <span>{user.isOnline ? 'Online' : 'Offline'}</span>
               </Badge>
             </TableCell>
-            <TableCell className="text-right">
+            <TableCell className="text-right space-x-2">
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => setSelectedUser(user)}>
@@ -115,6 +133,38 @@ export const UserTable = ({ users, onUserUpdate }) => {
                   )}
                 </DialogContent>
               </Dialog>
+              
+              {isMasterAdmin && user.role !== 'Master' && (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleToggleUserStatus(user.id, user.status)}
+                  >
+                    {user.status === 'Active' ? 'Deactivate' : 'Activate'}
+                  </Button>
+                  
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive">Delete</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete the user
+                          account and remove all associated data from our servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDeleteUser(user.id)}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
+              )}
             </TableCell>
           </TableRow>
         ))}
