@@ -33,9 +33,9 @@ const Dashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      <Sidebar isOpen={isSidebarOpen} />
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
-        <Topbar companyName={companyName} />
+        <Topbar companyName={companyName} toggleSidebar={toggleSidebar} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 pt-16">
           <div className="container mx-auto px-6 py-8">
             <h1 className="text-3xl font-semibold text-gray-800 mb-6">Dashboard</h1>

@@ -9,8 +9,6 @@ import {
   LifeBuoy,
   Plug,
   FileText,
-  ChevronLeft,
-  ChevronRight
 } from 'lucide-react';
 
 const navItems = [
@@ -23,27 +21,19 @@ const navItems = [
   { icon: FileText, label: 'Logs', to: '/logs' },
 ];
 
-const Sidebar = ({ isOpen, toggleSidebar }) => {
+const Sidebar = ({ isOpen }) => {
   return (
     <aside className={cn(
-      "fixed left-0 top-0 z-40 h-screen transition-all duration-300",
+      "fixed left-0 top-0 z-40 h-screen transition-all duration-300 pt-16",
       isOpen ? "w-64" : "w-16"
     )}>
       <div className="h-full overflow-y-auto bg-white border-r border-gray-200 py-4 px-3">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className={cn(
-            "text-xl font-bold text-gray-800 transition-opacity duration-300",
-            isOpen ? "opacity-100" : "opacity-0"
-          )}>
-            MyShopTools
-          </h1>
-          <button
-            onClick={toggleSidebar}
-            className="p-1 rounded-full hover:bg-gray-200"
-          >
-            {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-          </button>
-        </div>
+        <h1 className={cn(
+          "text-xl font-bold text-gray-800 transition-opacity duration-300 mb-6",
+          isOpen ? "opacity-100" : "opacity-0"
+        )}>
+          MyShopTools
+        </h1>
         <ul className="space-y-2">
           {navItems.map((item) => (
             <li key={item.to}>
