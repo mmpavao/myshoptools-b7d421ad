@@ -35,24 +35,24 @@ export const testFirebaseOperations = async (logCallback) => {
     logCallback({ step: "Iniciando testes", message: "Iniciando testes de operações do Firebase", status: "success" });
 
     // Teste de criação de documento
-    const userDocRef = await createDocument('users', { name: 'Test User', email: 'test@example.com' });
-    logCallback({ step: "Criação de documento", message: `Documento de usuário criado com ID: ${userDocRef.id}`, status: "success" });
+    const testDocRef = await createDocument('test_collection', { name: 'Test User', email: 'test@example.com' });
+    logCallback({ step: "Criação de documento", message: `Documento de teste criado com ID: ${testDocRef.id}`, status: "success" });
 
     // Teste de leitura de documento
-    const userDocSnapshot = await readDocument('users', userDocRef.id);
-    logCallback({ step: "Leitura de documento", message: "Dados do usuário lidos com sucesso", status: "success" });
+    const testDocSnapshot = await readDocument('test_collection', testDocRef.id);
+    logCallback({ step: "Leitura de documento", message: "Dados do documento de teste lidos com sucesso", status: "success" });
 
     // Teste de atualização de documento
-    await updateDocument('users', userDocRef.id, { name: 'Updated Test User' });
-    logCallback({ step: "Atualização de documento", message: "Dados do usuário atualizados com sucesso", status: "success" });
+    await updateDocument('test_collection', testDocRef.id, { name: 'Updated Test User' });
+    logCallback({ step: "Atualização de documento", message: "Dados do documento de teste atualizados com sucesso", status: "success" });
 
     // Teste de leitura do documento atualizado
-    const updatedUserDocSnapshot = await readDocument('users', userDocRef.id);
-    logCallback({ step: "Leitura de documento atualizado", message: "Dados atualizados do usuário lidos com sucesso", status: "success" });
+    const updatedTestDocSnapshot = await readDocument('test_collection', testDocRef.id);
+    logCallback({ step: "Leitura de documento atualizado", message: "Dados atualizados do documento de teste lidos com sucesso", status: "success" });
 
     // Teste de consulta de documentos
-    const usersCollection = collection(db, 'users');
-    const q = query(usersCollection, where("email", "==", "test@example.com"));
+    const testCollection = collection(db, 'test_collection');
+    const q = query(testCollection, where("email", "==", "test@example.com"));
     const querySnapshot = await getDocs(q);
     logCallback({ step: "Consulta de documentos", message: `${querySnapshot.docs.length} documento(s) encontrado(s)`, status: "success" });
 
@@ -67,13 +67,13 @@ export const testFirebaseOperations = async (logCallback) => {
     logCallback({ step: "Exclusão de arquivo", message: "Arquivo excluído com sucesso", status: "success" });
 
     // Teste de exclusão de documento
-    await deleteDocument('users', userDocRef.id);
-    logCallback({ step: "Exclusão de documento", message: "Documento de usuário excluído com sucesso", status: "success" });
+    await deleteDocument('test_collection', testDocRef.id);
+    logCallback({ step: "Exclusão de documento", message: "Documento de teste excluído com sucesso", status: "success" });
 
     // Verificação final
-    const deletedUserDoc = await readDocument('users', userDocRef.id);
-    if (!deletedUserDoc.exists()) {
-      logCallback({ step: "Verificação final", message: "Documento de usuário não existe mais, confirmando exclusão bem-sucedida", status: "success" });
+    const deletedTestDoc = await readDocument('test_collection', testDocRef.id);
+    if (!deletedTestDoc.exists()) {
+      logCallback({ step: "Verificação final", message: "Documento de teste não existe mais, confirmando exclusão bem-sucedida", status: "success" });
     }
 
     logCallback({ step: "Conclusão", message: "Todos os testes foram concluídos com sucesso!", status: "success" });
