@@ -20,21 +20,9 @@ const EstoqueForm = ({
 }) => {
   const handleCurrencyChange = (e) => {
     const { name, value } = e.target;
-    const numericValue = parseCurrency(value);
-    handleInputChange({ target: { name, value: numericValue } });
-  };
-
-  const onDragEnd = (result) => {
-    if (!result.destination) return;
-    const items = Array.from(novoProduto.fotos);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-    updateFotos(items);
-  };
-
-  const handleGenerateAIContent = (e, field, prompt) => {
-    e.preventDefault(); // Previne o comportamento padrão do botão
-    generateAIContent(field, prompt);
+    const formattedValue = formatCurrency(parseCurrency(value));
+    e.target.value = formattedValue;
+    handleInputChange(e);
   };
 
   return (
@@ -47,7 +35,7 @@ const EstoqueForm = ({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
-                    type="button" // Especifica que é um botão do tipo "button"
+                    type="button" 
                     variant="ghost" 
                     size="icon" 
                     className="ml-2" 
@@ -77,7 +65,7 @@ const EstoqueForm = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button 
-                  type="button" // Especifica que é um botão do tipo "button"
+                  type="button" 
                   variant="ghost" 
                   size="icon" 
                   className="ml-2" 

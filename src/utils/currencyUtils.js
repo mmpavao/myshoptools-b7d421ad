@@ -9,5 +9,6 @@ export const formatCurrency = (value) => {
 };
 
 export const parseCurrency = (value) => {
+  if (typeof value === 'number') return value;
   return parseFloat(value.replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
 };
