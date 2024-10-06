@@ -1,7 +1,6 @@
 import OpenAI from 'openai';
-import { db, storage } from '../firebase/config';
+import { db } from '../firebase/config';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const createOpenAIClient = (apiKey) => {
   return new OpenAI({ 
@@ -88,28 +87,6 @@ export const getBots = async (apiKey) => {
     return mergedBots;
   } catch (error) {
     console.error('Error fetching bots:', error);
-    throw error;
-  }
-};
-
-export const addKnowledgeBase = async (assistantId, file) => {
-  try {
-    const fileRef = ref(storage, `knowledge_base/${assistantId}/${file.name}`);
-    await uploadBytes(fileRef, file);
-    const fileUrl = await getDownloadURL(fileRef);
-
-    const uploadedFile = await openai.files.create({
-      file: await fetch(fileUrl).then(r => r.blob()),
-      purpose: 'assistants',
-    });
-
-    await openai.beta.assistants.files.create(assistantId, {
-      file_id: uploadedFile.id,
-    });
-
-    return uploadedFile.id;
-  } catch (error) {
-    console.error('Error adding knowledge base:', error);
     throw error;
   }
 };

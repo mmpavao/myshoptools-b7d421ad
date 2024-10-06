@@ -33,7 +33,7 @@ const OpenAIIntegration = () => {
       if (isConnected) {
         setConnectionStatus('Connected');
         toast.success('Successfully connected to OpenAI');
-        fetchBots();
+        await fetchBots();
       } else {
         setConnectionStatus('Connection failed');
         toast.error('Failed to connect to OpenAI');
@@ -46,6 +46,10 @@ const OpenAIIntegration = () => {
   };
 
   const fetchBots = async () => {
+    if (!apiKey) {
+      console.log('API key is not set. Skipping bot fetch.');
+      return;
+    }
     try {
       const fetchedBots = await getBots(apiKey);
       setBots(fetchedBots);
@@ -72,6 +76,10 @@ const OpenAIIntegration = () => {
   };
 
   const handleSaveBot = async (botData) => {
+    if (!apiKey) {
+      toast.error('Please set and test your API key first');
+      return;
+    }
     try {
       if (isEditing) {
         await updateBot(apiKey, botData.id, botData);
@@ -80,7 +88,7 @@ const OpenAIIntegration = () => {
       }
       toast.success(isEditing ? 'Bot updated successfully!' : 'Bot created successfully!');
       setIsDialogOpen(false);
-      fetchBots();
+      await fetchBots();
     } catch (error) {
       console.error('Error saving bot:', error);
       toast.error('Failed to save bot');
@@ -88,10 +96,14 @@ const OpenAIIntegration = () => {
   };
 
   const handleDeleteBot = async (botId, assistantId) => {
+    if (!apiKey) {
+      toast.error('Please set and test your API key first');
+      return;
+    }
     try {
       await deleteBot(apiKey, botId, assistantId);
       toast.success('Bot deleted successfully');
-      fetchBots();
+      await fetchBots();
     } catch (error) {
       console.error('Error deleting bot:', error);
       toast.error('Failed to delete bot');
@@ -116,7 +128,9 @@ const OpenAIIntegration = () => {
             />
             <Button onClick={testConnection}>Test Connection</Button>
           </div>
-          <p className="mt-2">Connection status: {connectionStatus}</p>
+          <p className={`mt-2 ${connectionStatus === 'Connected' ? 'text-green-500 font-semibold' : ''}`}>
+            Connection status: {connectionStatus}
+          </p>
         </CardContent>
       </Card>
 
