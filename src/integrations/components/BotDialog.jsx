@@ -120,6 +120,7 @@ const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDele
                 </SelectContent>
               </Select>
             </div>
+          </div>
           
           <div>
             <Label htmlFor="instructions">Instructions</Label>

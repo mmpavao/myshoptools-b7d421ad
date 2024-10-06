@@ -2,9 +2,6 @@ import { db } from '../firebase/config';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
 import { createOpenAIClient, handleOpenAIError } from '../utils/openAIUtils';
 
-import { db } from '../firebase/config';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
-import { createOpenAIClient, handleOpenAIError } from '../utils/openAIUtils';
 
 export const testOpenAIConnection = async (apiKey) => {
   try {
@@ -267,3 +264,6 @@ export const getBots = async (apiKey) => {
   }
 };
 
+
+
+// Remova as importações duplicadas e mantenha o restante do código inalterado
