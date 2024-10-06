@@ -39,8 +39,8 @@ const Topbar = ({ companyName, toggleSidebar }) => {
             <Bell size={24} />
           </button>
           <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarImage src="/placeholder.svg" alt="User avatar" />
+            <AvatarFallback>UN</AvatarFallback>
           </Avatar>
         </div>
       </div>

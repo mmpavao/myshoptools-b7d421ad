@@ -9,7 +9,7 @@ const StoredImages = ({ images, onRefresh }) => {
     console.error(`Erro ao carregar imagem: ${imageName}`);
     toast({
       title: "Erro de Carregamento",
-      description: `Não foi possível carregar a imagem: ${imageName}. Verifique as configurações de CORS.`,
+      description: `Não foi possível carregar a imagem: ${imageName}. Verifique as configurações de CORS e as regras do Firebase Storage.`,
       variant: "destructive",
     });
   };

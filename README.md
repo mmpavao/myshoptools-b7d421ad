@@ -1,36 +1,39 @@
 # MyShopTools
 
-MyShopTools is a comprehensive dropshipping management platform that connects importers with sellers, facilitating seamless transactions across various marketplaces such as Mercado Livre, Shopee, Amazon, and Shopify.
+## Configuração do CORS para Firebase Storage
 
-## Features
+Para configurar o CORS no Firebase Storage, siga estes passos:
 
-- Dropshipping management
-- AI-powered chatbots and data analysis
-- Integration with multiple e-commerce platforms
-- Custom API for third-party connections
-- SaaS payment model for suppliers and sellers
-- Firebase backend for robust data management and real-time updates
+1. Instale o Firebase CLI globalmente:
+   ```
+   npm install -g firebase-tools
+   ```
 
-## Getting Started
+2. Faça login no Firebase:
+   ```
+   firebase login
+   ```
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Run the development server: `npm run dev`
+3. Configure o projeto:
+   ```
+   firebase init
+   ```
+   Selecione apenas a opção "Storage" quando solicitado.
 
-## Firebase Configuration
+4. Crie um arquivo chamado `cors.json` na raiz do projeto com o seguinte conteúdo:
+   ```json
+   [
+     {
+       "origin": ["*"],
+       "method": ["GET", "HEAD", "PUT", "POST", "DELETE"],
+       "maxAgeSeconds": 3600
+     }
+   ]
+   ```
 
-The project uses Firebase for authentication and data storage. Make sure to set up your Firebase project and update the configuration in `src/firebase/config.js`.
+5. Aplique as regras CORS:
+   ```
+   firebase storage:cors set cors.json
+   ```
 
-## Available Scripts
-
-- `npm run dev`: Runs the app in development mode
-- `npm run build`: Builds the app for production
-- `npm run serve`: Serves the production build locally
-
-## Contributing
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+Isso permitirá que o Firebase Storage aceite solicitações do seu domínio.
