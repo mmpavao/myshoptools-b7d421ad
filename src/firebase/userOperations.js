@@ -39,7 +39,7 @@ const userOperations = {
           title: userData.title || 'No title',
           department: userData.department || 'No department',
           status: isMarcioPavao ? 'Active' : (userData.status || 'Inactive'),
-          role: isMarcioPavao ? 'Master' : (userData.role || 'User'),
+          role: isMarcioPavao ? 'Master' : (userData.role || 'Vendedor'),
           isOnline: doc.id === currentUser?.uid,
         };
       });
@@ -51,6 +51,29 @@ const userOperations = {
         variant: "destructive",
       });
       return [];
+    }
+  },
+
+  updateUserRole: async (userId, newRole) => {
+    try {
+      await setDoc(doc(db, 'users', userId), { role: newRole }, { merge: true });
+      return true;
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      throw error;
+    }
+  },
+
+  getUserRole: async (userId) => {
+    try {
+      const userDoc = await safeFirestoreOperation(() => getDoc(doc(db, 'users', userId)));
+      if (userDoc.exists()) {
+        return userDoc.data().role || 'Vendedor';
+      }
+      return 'Vendedor';
+    } catch (error) {
+      console.error('Error getting user role:', error);
+      return 'Vendedor';
     }
   }
 };

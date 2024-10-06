@@ -18,6 +18,8 @@ import PedidosFornecedor from "./components/Fornecedor/PedidosFornecedor";
 import DetalheProduto from "./components/Produto/DetalheProduto";
 import ListaProdutos from "./components/Produto/ListaProdutos";
 import AdminUserList from "./components/Admin/AdminUserList";
+import { useAuth } from "./components/Auth/AuthProvider";
+import userOperations from "./firebase/userOperations";
 
 const queryClient = new QueryClient();
 
@@ -25,30 +27,53 @@ const PlaceholderComponent = ({ title }) => (
   <h1 className="text-2xl font-bold">{title}</h1>
 );
 
-const ProtectedLayout = ({ children }) => (
-  <ProtectedRoute>
-    <Layout>{children}</Layout>
-  </ProtectedRoute>
-);
+const RoleBasedRoute = ({ element: Element, allowedRoles, ...rest }) => {
+  const { user } = useAuth();
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (user) {
+        const role = await userOperations.getUserRole(user.uid);
+        setUserRole(role);
+      }
+    };
+    fetchUserRole();
+  }, [user]);
+
+  if (!userRole) {
+    return <div>Loading...</div>;
+  }
+
+  return allowedRoles.includes(userRole) ? (
+    <ProtectedRoute>
+      <Layout>
+        <Element {...rest} />
+      </Layout>
+    </ProtectedRoute>
+  ) : (
+    <Navigate to="/dashboard" replace />
+  );
+};
 
 const AppRoutes = () => (
   <Routes>
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
-    <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
-    <Route path="/vitrine" element={<ProtectedLayout><Vitrine /></ProtectedLayout>} />
-    <Route path="/meus-pedidos" element={<ProtectedLayout><MeusPedidos /></ProtectedLayout>} />
-    <Route path="/estoque" element={<ProtectedLayout><Estoque /></ProtectedLayout>} />
-    <Route path="/pedidos-fornecedor" element={<ProtectedLayout><PedidosFornecedor /></ProtectedLayout>} />
-    <Route path="/lista-produtos" element={<ProtectedLayout><ListaProdutos /></ProtectedLayout>} />
-    <Route path="/integracoes" element={<ProtectedLayout><PlaceholderComponent title="Integrações" /></ProtectedLayout>} />
-    <Route path="/logs" element={<ProtectedLayout><LogsPage /></ProtectedLayout>} />
-    <Route path="/profile" element={<ProtectedLayout><UserProfile /></ProtectedLayout>} />
-    <Route path="/documentation" element={<ProtectedLayout><DocumentationPage /></ProtectedLayout>} />
-    <Route path="/apis" element={<ProtectedLayout><APIPage /></ProtectedLayout>} />
-    <Route path="/suporte" element={<ProtectedLayout><PlaceholderComponent title="Suporte" /></ProtectedLayout>} />
-    <Route path="/produto/:id" element={<ProtectedLayout><DetalheProduto /></ProtectedLayout>} />
-    <Route path="/admin/users" element={<ProtectedLayout><AdminUserList /></ProtectedLayout>} />
+    <Route path="/dashboard" element={<RoleBasedRoute element={Dashboard} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
+    <Route path="/vitrine" element={<RoleBasedRoute element={Vitrine} allowedRoles={['Vendedor', 'Admin', 'Master']} />} />
+    <Route path="/meus-pedidos" element={<RoleBasedRoute element={MeusPedidos} allowedRoles={['Vendedor', 'Admin', 'Master']} />} />
+    <Route path="/estoque" element={<RoleBasedRoute element={Estoque} allowedRoles={['Fornecedor', 'Admin', 'Master']} />} />
+    <Route path="/pedidos-fornecedor" element={<RoleBasedRoute element={PedidosFornecedor} allowedRoles={['Fornecedor', 'Admin', 'Master']} />} />
+    <Route path="/lista-produtos" element={<RoleBasedRoute element={ListaProdutos} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
+    <Route path="/integracoes" element={<RoleBasedRoute element={() => <PlaceholderComponent title="Integrações" />} allowedRoles={['Admin', 'Master']} />} />
+    <Route path="/logs" element={<RoleBasedRoute element={LogsPage} allowedRoles={['Admin', 'Master']} />} />
+    <Route path="/profile" element={<RoleBasedRoute element={UserProfile} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
+    <Route path="/documentation" element={<RoleBasedRoute element={DocumentationPage} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
+    <Route path="/apis" element={<RoleBasedRoute element={APIPage} allowedRoles={['Admin', 'Master']} />} />
+    <Route path="/suporte" element={<RoleBasedRoute element={() => <PlaceholderComponent title="Suporte" />} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
+    <Route path="/produto/:id" element={<RoleBasedRoute element={DetalheProduto} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
+    <Route path="/admin/users" element={<RoleBasedRoute element={AdminUserList} allowedRoles={['Admin', 'Master']} />} />
     <Route path="/" element={<Navigate to="/dashboard" />} />
     <Route path="*" element={<Navigate to="/dashboard" />} />
   </Routes>
