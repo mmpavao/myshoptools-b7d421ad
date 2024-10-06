@@ -128,7 +128,11 @@ export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
 export const createBot = async (apiKey, botData) => {
   try {
     const openai = createOpenAIClient(apiKey);
-    const assistant = await openai.beta.assistants.create(botData);
+    const assistant = await openai.beta.assistants.create({
+      name: botData.name,
+      instructions: botData.instructions,
+      model: botData.model,
+    });
     const docRef = await addDoc(collection(db, 'bots'), {
       ...botData,
       assistantId: assistant.id,
@@ -142,7 +146,11 @@ export const createBot = async (apiKey, botData) => {
 export const updateBot = async (apiKey, botId, botData) => {
   try {
     const openai = createOpenAIClient(apiKey);
-    await openai.beta.assistants.update(botData.assistantId, botData);
+    await openai.beta.assistants.update(botData.assistantId, {
+      name: botData.name,
+      instructions: botData.instructions,
+      model: botData.model,
+    });
     await updateDoc(doc(db, 'bots', botId), botData);
     return { id: botId, ...botData };
   } catch (error) {
@@ -160,7 +168,7 @@ export const deleteBot = async (apiKey, botId, assistantId) => {
   }
 };
 
-export const getBots = async (apiKey) => {
+export const getBots = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, 'bots'));
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));

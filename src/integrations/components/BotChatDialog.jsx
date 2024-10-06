@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Paperclip, Mic, Send } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { chatWithBot, analyzeImage, generateImage, transcribeAudio, textToSpeech } from '../openAIOperations';
 
 const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
@@ -12,7 +11,6 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState('alloy');
   const scrollAreaRef = useRef(null);
   const fileInputRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -39,7 +37,7 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
       } else if (type === 'audio') {
         const transcription = await transcribeAudio(apiKey, content);
         botResponse = await chatWithBot(apiKey, bot.assistantId, transcription);
-        const audioUrl = await textToSpeech(apiKey, botResponse, selectedVoice);
+        const audioUrl = await textToSpeech(apiKey, botResponse, bot.voice || 'alloy');
         botResponse = { text: botResponse, audioUrl };
       } else if (type === 'generate-image') {
         const imageUrl = await generateImage(apiKey, content);
@@ -69,7 +67,6 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
       if (file.type.startsWith('image/')) {
         handleSendMessage(file, 'image');
       } else {
-        // Handle document upload (you may want to add document analysis functionality)
         console.log('Document uploaded:', file.name);
       }
     }
@@ -100,7 +97,6 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
       })
       .catch(error => {
         console.error('Error accessing microphone:', error);
-        toast.error('Falha ao acessar o microfone');
       });
   };
 
@@ -110,8 +106,6 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
       setIsRecording(false);
     }
   };
-
-  const voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'];
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -155,18 +149,6 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
             <Button onClick={handleVoiceChat} className="ml-2" disabled={isLoading}>
               <Mic size={20} color={isRecording ? 'red' : 'currentColor'} />
             </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="ml-2">Voice</Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {voices.map((voice) => (
-                  <DropdownMenuItem key={voice} onSelect={() => setSelectedVoice(voice)}>
-                    {voice}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
             <Button onClick={() => handleSendMessage(input)} className="ml-2" disabled={isLoading}>
               <Send size={20} />
             </Button>

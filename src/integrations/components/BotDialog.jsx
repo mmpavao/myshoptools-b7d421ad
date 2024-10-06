@@ -25,6 +25,8 @@ const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDele
     onSave(botData);
   };
 
+  const voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'];
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
@@ -78,6 +80,25 @@ const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDele
               step={0.1}
               className="mt-2"
             />
+          </div>
+          <div>
+            <Label htmlFor="voice">Voice</Label>
+            <Select
+              name="voice"
+              value={botData.voice || 'alloy'}
+              onValueChange={(value) => setBotData((prev) => ({ ...prev, voice: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select voice" />
+              </SelectTrigger>
+              <SelectContent>
+                {voices.map((voice) => (
+                  <SelectItem key={voice} value={voice}>
+                    {voice}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <DialogFooter className="flex justify-between items-center">
             {isEditing && (
