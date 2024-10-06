@@ -14,7 +14,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import AdminUserTable from '../Admin/AdminUserTable';
 import Alert from '../ui/Alert';
 
 const LogsPage = () => {
@@ -74,7 +73,8 @@ const LogsPage = () => {
       {/* User Management Section */}
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">User Management</h2>
-        <AdminUserTable users={users} />
+        {/* Placeholder for user management functionality */}
+        <p>User management functionality to be implemented.</p>
       </div>
 
       {/* Admin Logs Section */}
