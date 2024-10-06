@@ -35,6 +35,7 @@ const AdminUserList = () => {
                 <TableHead>Status</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead>Online Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -64,6 +65,11 @@ const AdminUserList = () => {
                   </TableCell>
                   <TableCell>{user.role || 'No role'}</TableCell>
                   <TableCell>{user.email}</TableCell>
+                  <TableCell>
+                    <Badge variant={user.isOnline ? 'success' : 'secondary'}>
+                      {user.isOnline ? 'Online' : 'Offline'}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" className="h-8 w-8 p-0">
                       <span className="sr-only">Edit</span>

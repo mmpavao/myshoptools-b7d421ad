@@ -17,6 +17,7 @@ const crudOperations = {
 };
 
 // User profile operations
+
 const userOperations = {
   createUser: (userData) => 
     safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), userData)),
@@ -35,13 +36,11 @@ const userOperations = {
       throw error;
     }
   },
-  getUserProfile: async (userId) => {
-    const userDoc = await getDoc(doc(db, 'users', userId));
-    return userDoc.exists() ? userDoc.data() : null;
-  },
+
   getAllUsers: async () => {
     try {
       const usersSnapshot = await getDocs(collection(db, 'users'));
+      const currentUser = auth.currentUser;
       return usersSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
@@ -52,6 +51,7 @@ const userOperations = {
         department: doc.data().department || 'No department',
         status: doc.data().status || 'Inactive',
         role: doc.data().role || 'User',
+        isOnline: doc.id === currentUser?.uid, // Set online status based on current user
       }));
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -63,6 +63,8 @@ const userOperations = {
       return [];
     }
   }
+};
+
 };
 
 const productOperations = {
