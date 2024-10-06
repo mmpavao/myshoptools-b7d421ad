@@ -104,10 +104,7 @@ export const transcribeAudio = async (apiKey, audioFile) => {
     formData.append('file', audioFile, 'audio.wav');
     formData.append('model', 'whisper-1');
 
-    const response = await openai.audio.transcriptions.create({
-      file: audioFile,
-      model: 'whisper-1',
-    });
+    const response = await openai.audio.transcriptions.create(formData);
     return response.text;
   } catch (error) {
     handleOpenAIError(error, 'transcribe audio');
