@@ -79,11 +79,24 @@ export const generateImage = async (apiKey, prompt) => {
 export const transcribeAudio = async (apiKey, audioFile) => {
   try {
     const openai = createOpenAIClient(apiKey);
-    const response = await openai.audio.transcriptions.create({
-      file: audioFile,
-      model: 'whisper-1',
+    const formData = new FormData();
+    formData.append('file', audioFile);
+    formData.append('model', 'whisper-1');
+
+    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: formData,
     });
-    return response.text;
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.text;
   } catch (error) {
     handleOpenAIError(error, 'transcribe audio');
   }
