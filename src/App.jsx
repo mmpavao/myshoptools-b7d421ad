@@ -6,7 +6,6 @@ import { AuthProvider, ProtectedRoute } from "./components/Auth/AuthProvider";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Dashboard from "./components/Dashboard/Dashboard";
-import ProfileForm from "./components/Profile/ProfileForm";
 
 const queryClient = new QueryClient();
 
@@ -25,14 +24,6 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <Layout><Dashboard /></Layout>
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/profile"
-      element={
-        <ProtectedRoute>
-          <Layout><ProfileForm /></Layout>
         </ProtectedRoute>
       }
     />
