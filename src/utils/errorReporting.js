@@ -6,7 +6,11 @@ const createSafeErrorObject = (error) => ({
 
 const safePostMessage = (target, message, origin) => {
   if (target && typeof target.postMessage === 'function') {
-    target.postMessage(message, origin);
+    try {
+      target.postMessage(message, origin);
+    } catch (postMessageError) {
+      console.error('Error in postMessage:', postMessageError);
+    }
   }
 };
 
@@ -17,7 +21,7 @@ export const reportHTTPError = (error) => {
 
   safePostMessage(window.parent, {
     type: 'error',
-    data: errorData,
+    data: JSON.parse(JSON.stringify(errorData)),
   }, '*');
 };
 
@@ -33,7 +37,6 @@ export const wrapFetch = () => {
     } catch (error) {
       if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
         console.error('Network error when fetching resource:', args[0]);
-        // Return a mock successful response with a placeholder image URL
         return {
           ok: true,
           status: 200,
@@ -54,7 +57,6 @@ export const safeFirestoreOperation = async (operation) => {
     return await operation();
   } catch (error) {
     console.error("Firestore operation error:", error);
-    // Don't report the error here to avoid cloning issues
     throw error;
   }
 };

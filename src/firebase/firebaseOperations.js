@@ -213,7 +213,6 @@ const meusProdutosOperations = {
 
 const testFirebaseOperations = async (logCallback) => {
   try {
-    // Check if the user is authenticated
     if (!auth.currentUser) {
       throw new Error('User is not authenticated. Please log in to run the tests.');
     }
