@@ -15,6 +15,10 @@ export const testOpenAIConnection = async (apiKey) => {
 
 export const chatWithBot = async (apiKey, assistantId, message) => {
   try {
+    if (!assistantId) {
+      throw new Error('Assistant ID is undefined. Please ensure a valid bot is selected.');
+    }
+
     const openai = createOpenAIClient(apiKey);
     const thread = await openai.beta.threads.create();
     await openai.beta.threads.messages.create(thread.id, {

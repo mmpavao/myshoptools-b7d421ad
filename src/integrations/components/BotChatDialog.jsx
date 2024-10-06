@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Paperclip, Mic, Send } from 'lucide-react';
 import { chatWithBot, analyzeImage, generateImage, transcribeAudio, textToSpeech, analyzeDocument } from '../openAIOperations';
+import { toast } from "sonner";
 
 const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
   const [messages, setMessages] = useState([]);
@@ -45,6 +46,9 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
         const audioUrl = await textToSpeech(apiKey, textResponse, bot.voice || 'alloy');
         botResponse = { audioUrl, transcription: textResponse };
       } else {
+        if (!bot.assistantId) {
+          throw new Error('Bot assistant ID is missing. Please check the bot configuration.');
+        }
         botResponse = await chatWithBot(apiKey, bot.assistantId, content);
       }
 
@@ -56,8 +60,13 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
       console.error('Error processing message:', error);
-      const errorMessage = { role: 'assistant', content: 'Desculpe, ocorreu um erro ao processar sua mensagem.', type: 'text' };
+      const errorMessage = { 
+        role: 'assistant', 
+        content: `Error: ${error.message}. Please try again or contact support.`, 
+        type: 'text' 
+      };
       setMessages(prev => [...prev, errorMessage]);
+      toast.error(error.message);
     } finally {
       setIsLoading(false);
       setIsBotResponding(false);
