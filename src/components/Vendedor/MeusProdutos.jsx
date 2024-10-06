@@ -49,13 +49,13 @@ const MeusProdutos = () => {
   const handleSubmitAvaliacao = async () => {
     try {
       await firebaseOperations.adicionarAvaliacao(avaliacaoAtual.produtoId, user.uid, avaliacaoAtual.nota, avaliacaoAtual.comentario);
-      setDialogOpen(false); // Ensure the dialog is closed
+      setDialogOpen(false);
       toast({
         title: "Sucesso",
         description: "Avaliação enviada com sucesso!",
       });
       setAvaliacaoAtual({ produtoId: null, nota: 0, comentario: '' });
-      fetchMeusProdutos(); // Atualizar a lista de produtos
+      fetchMeusProdutos();
     } catch (error) {
       console.error("Erro ao enviar avaliação:", error);
       toast({
@@ -142,7 +142,10 @@ const MeusProdutos = () => {
                       value={avaliacaoAtual.comentario}
                       onChange={(e) => setAvaliacaoAtual(prev => ({ ...prev, comentario: e.target.value }))}
                     />
-                    <Button onClick={handleSubmitAvaliacao}>Enviar Avaliação</Button>
+                    <Button onClick={() => {
+                      handleSubmitAvaliacao();
+                      setDialogOpen(false);
+                    }}>Enviar Avaliação</Button>
                   </div>
                 </DialogContent>
               </Dialog>
