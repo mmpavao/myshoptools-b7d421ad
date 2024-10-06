@@ -57,9 +57,10 @@ export const handleStream = async (streamGetter) => {
   }
 };
 
-const createSimplifiedObject = (obj) => {
+const createSafeObject = (obj) => {
   if (obj instanceof Request) {
     return {
+      type: 'Request',
       url: obj.url,
       method: obj.method,
       headers: Object.fromEntries(obj.headers.entries()),
@@ -77,20 +78,35 @@ const createSimplifiedObject = (obj) => {
   if (typeof obj === 'function') {
     return `[Function: ${obj.name || 'anonymous'}]`;
   }
+  if (Array.isArray(obj)) {
+    return obj.map(createSafeObject);
+  }
   if (typeof obj === 'object' && obj !== null) {
-    return Object.fromEntries(
-      Object.entries(obj).map(([key, value]) => [key, createSimplifiedObject(value)])
-    );
+    const safeObj = {};
+    for (const [key, value] of Object.entries(obj)) {
+      try {
+        safeObj[key] = createSafeObject(value);
+      } catch (error) {
+        safeObj[key] = '[Unserializable]';
+      }
+    }
+    return safeObj;
   }
   return obj;
 };
 
-export const safePostMessage = (targetWindow, message, targetOrigin, transfer) => {
+export const safePostMessage = (targetWindow, message, targetOrigin) => {
   try {
-    let simplifiedMessage = createSimplifiedObject(message);
-    targetWindow.postMessage(simplifiedMessage, targetOrigin, transfer);
+    const safeMessage = createSafeObject(message);
+    targetWindow.postMessage(safeMessage, targetOrigin);
   } catch (error) {
     safeLogError(error);
     console.error("Failed to post message:", error);
+    // Fallback: send a simplified error message
+    try {
+      targetWindow.postMessage({ error: "Failed to send original message" }, targetOrigin);
+    } catch (fallbackError) {
+      console.error("Failed to send fallback error message:", fallbackError);
+    }
   }
 };
