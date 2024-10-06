@@ -222,11 +222,22 @@ export const getBots = async (apiKey, userId) => {
       return [];
     }
 
-    const assistants = await openai.beta.assistants.list();
-    console.log('OpenAI assistants:', assistants.data);
+    const assistantIds = firestoreBots.map(bot => bot.assistantId).filter(Boolean);
+    const assistants = await Promise.all(
+      assistantIds.map(async (id) => {
+        try {
+          return await openai.beta.assistants.retrieve(id);
+        } catch (error) {
+          console.error(`Failed to retrieve assistant ${id}:`, error);
+          return null;
+        }
+      })
+    );
+
+    console.log('OpenAI assistants:', assistants);
 
     const bots = firestoreBots.map(bot => {
-      const assistant = assistants.data.find(a => a.id === bot.assistantId);
+      const assistant = assistants.find(a => a && a.id === bot.assistantId);
       if (!assistant) {
         console.log(`No matching OpenAI assistant found for bot ${bot.id}`);
       }

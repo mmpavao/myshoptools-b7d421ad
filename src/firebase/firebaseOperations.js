@@ -2,8 +2,6 @@ import { db, storage } from './config';
 import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
-import crudOperations from './crudOperations';
-import * as userOperations from './userOperations';
 import { safeFirestoreOperation } from '../utils/errorReporting';
 
 const productOperations = {
