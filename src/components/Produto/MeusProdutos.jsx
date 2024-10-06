@@ -12,6 +12,7 @@ import { useAuth } from '../../components/Auth/AuthProvider';
 const MeusProdutos = () => {
   const [produtos, setProdutos] = useState([]);
   const [filtro, setFiltro] = useState('');
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -20,7 +21,10 @@ const MeusProdutos = () => {
     const fetchMeusProdutos = async () => {
       if (user) {
         try {
+          setLoading(true);
+          console.log("Fetching products for user:", user.uid);
           const meusProdutos = await firebaseOperations.getMeusProdutos(user.uid);
+          console.log("Fetched products:", meusProdutos);
           setProdutos(meusProdutos);
         } catch (error) {
           console.error("Erro ao buscar meus produtos:", error);
@@ -29,7 +33,12 @@ const MeusProdutos = () => {
             description: "Falha ao carregar seus produtos. Tente novamente.",
             variant: "destructive",
           });
+        } finally {
+          setLoading(false);
         }
+      } else {
+        console.log("No user logged in");
+        setLoading(false);
       }
     };
     fetchMeusProdutos();
@@ -59,6 +68,20 @@ const MeusProdutos = () => {
     produto.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
     produto.sku.toLowerCase().includes(filtro.toLowerCase())
   );
+
+  if (loading) {
+    return <div>Carregando seus produtos...</div>;
+  }
+
+  if (produtos.length === 0) {
+    return (
+      <div className="text-center mt-8">
+        <h1 className="text-2xl font-bold mb-4">Meus Produtos</h1>
+        <p>Você ainda não importou nenhum produto. Visite a Vitrine para importar produtos.</p>
+        <Button className="mt-4" onClick={() => navigate('/vitrine')}>Ir para Vitrine</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
