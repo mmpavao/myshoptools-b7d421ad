@@ -38,18 +38,20 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
         const transcription = await transcribeAudio(apiKey, content);
         botResponse = await chatWithBot(apiKey, bot.assistantId, transcription);
         const audioUrl = await textToSpeech(apiKey, botResponse, bot.voice || 'alloy');
-        botResponse = { text: botResponse, audioUrl };
+        botResponse = { text: botResponse, audioUrl, transcription };
       } else if (type === 'generate-image') {
         const imageUrl = await generateImage(apiKey, content);
         botResponse = { text: 'Imagem gerada com sucesso:', imageUrl };
       } else {
         botResponse = await chatWithBot(apiKey, bot.assistantId, content);
+        const audioUrl = await textToSpeech(apiKey, botResponse, bot.voice || 'alloy');
+        botResponse = { text: botResponse, audioUrl };
       }
 
       const botMessage = { 
         role: 'assistant', 
         content: botResponse, 
-        type: type === 'audio' ? 'audio' : type === 'generate-image' ? 'image' : 'text' 
+        type: type === 'audio' || type === 'text' ? 'audio' : type === 'generate-image' ? 'image' : 'text' 
       };
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
@@ -118,7 +120,15 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
             {messages.map((message, index) => (
               <div key={index} className={`mb-2 p-2 rounded ${message.role === 'user' ? 'bg-blue-100 ml-auto' : 'bg-gray-100'}`}>
                 {message.type === 'audio' ? (
-                  <audio src={message.content.audioUrl} controls />
+                  <div>
+                    {message.role === 'user' && message.content.transcription && (
+                      <p className="mb-2">{message.content.transcription}</p>
+                    )}
+                    <audio src={message.content.audioUrl} controls />
+                    {message.role === 'assistant' && message.content.text && (
+                      <p className="mt-2">{message.content.text}</p>
+                    )}
+                  </div>
                 ) : message.type === 'image' ? (
                   <img src={message.content.imageUrl} alt="Generated" className="max-w-full h-auto" />
                 ) : (

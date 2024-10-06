@@ -122,7 +122,8 @@ export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
       voice: voice,
       input: text,
     });
-    const blob = new Blob([await mp3.arrayBuffer()], { type: 'audio/mpeg' });
+    const buffer = await mp3.arrayBuffer();
+    const blob = new Blob([buffer], { type: 'audio/mpeg' });
     return URL.createObjectURL(blob);
   } catch (error) {
     handleOpenAIError(error, 'text to speech');
