@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getProducts, createDocument } from '../../firebase/firebaseOperations';
+import { getProducts, importarProduto, verificarProdutoImportado } from '../../firebase/firebaseOperations';
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth'; // Certifique-se de que este hook existe e fornece o usuário atual
 
 const Vitrine = () => {
   const [produtos, setProdutos] = useState([]);
+  const [produtosImportados, setProdutosImportados] = useState({});
   const navigate = useNavigate();
+  const { user } = useAuth(); // Hook para obter o usuário atual
 
   useEffect(() => {
     fetchProdutos();
@@ -17,6 +20,13 @@ const Vitrine = () => {
     try {
       const produtosData = await getProducts();
       setProdutos(produtosData);
+      if (user) {
+        const importadosStatus = {};
+        for (const produto of produtosData) {
+          importadosStatus[produto.id] = await verificarProdutoImportado(user.uid, produto.id);
+        }
+        setProdutosImportados(importadosStatus);
+      }
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
       toast({
@@ -28,8 +38,18 @@ const Vitrine = () => {
   };
 
   const handleImportar = async (produto) => {
+    if (!user) {
+      toast({
+        title: "Erro",
+        description: "Você precisa estar logado para importar produtos.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      await createDocument('meusProdutos', produto);
+      await importarProduto(user.uid, produto);
+      setProdutosImportados(prev => ({ ...prev, [produto.id]: true }));
       toast({
         title: "Sucesso",
         description: "Produto importado com sucesso!",
@@ -62,7 +82,12 @@ const Vitrine = () => {
             </CardContent>
             <CardFooter className="flex justify-between">
               <Button variant="outline">Detalhes</Button>
-              <Button onClick={() => handleImportar(produto)}>Importar</Button>
+              <Button 
+                onClick={() => handleImportar(produto)}
+                disabled={produtosImportados[produto.id]}
+              >
+                {produtosImportados[produto.id] ? 'Importado' : 'Importar'}
+              </Button>
             </CardFooter>
           </Card>
         ))}

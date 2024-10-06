@@ -2,20 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { getDocs, collection } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { toast } from "@/components/ui/use-toast";
+import { useAuth } from '../../hooks/useAuth'; // Certifique-se de que este hook existe e fornece o usuário atual
 
 const MeusProdutos = () => {
   const [produtos, setProdutos] = useState([]);
+  const { user } = useAuth(); // Hook para obter o usuário atual
 
   useEffect(() => {
-    fetchMeusProdutos();
-  }, []);
+    if (user) {
+      fetchMeusProdutos();
+    }
+  }, [user]);
 
   const fetchMeusProdutos = async () => {
+    if (!user) return;
+
     try {
-      const querySnapshot = await getDocs(collection(db, 'meusProdutos'));
+      const q = query(collection(db, 'meusProdutos'), where('userId', '==', user.uid));
+      const querySnapshot = await getDocs(q);
       const produtosData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setProdutos(produtosData);
     } catch (error) {

@@ -214,6 +214,40 @@ const uploadProfileImage = async (file, userId) => {
 };
 
 
+// Função para importar um produto para a coleção 'meusProdutos'
+const importarProduto = async (userId, produto) => {
+  try {
+    const produtoImportado = {
+      ...produto,
+      userId,
+      importadoEm: new Date()
+    };
+    const docRef = await addDoc(collection(db, 'meusProdutos'), produtoImportado);
+    console.log('Produto importado com ID: ', docRef.id);
+    return docRef.id;
+  } catch (error) {
+    console.error('Erro ao importar produto:', error);
+    throw error;
+  }
+};
+
+// Função para verificar se um produto já foi importado
+const verificarProdutoImportado = async (userId, produtoId) => {
+  try {
+    const q = query(
+      collection(db, 'meusProdutos'),
+      where('userId', '==', userId),
+      where('id', '==', produtoId)
+    );
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  } catch (error) {
+    console.error('Erro ao verificar produto importado:', error);
+    throw error;
+  }
+};
+
+
 const clearAllData = async () => {
   const collections = ['test_collection', 'products', 'orders'];
   const folders = ['uploads', 'avatars', 'products'];
@@ -256,4 +290,6 @@ export {
   testFirebaseOperations,
   clearAllData,
   uploadProfileImage // Add this line to export the new function
+  importarProduto,
+  verificarProdutoImportado,
 };
