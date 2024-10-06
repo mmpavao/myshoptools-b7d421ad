@@ -35,13 +35,15 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
         try {
           const userProfile = await getUserProfile(user.uid);
           if (userProfile) {
+            const phoneNumber = userProfile.phoneNumber || '';
+            const country = countries.find(c => phoneNumber.startsWith(c.ddi)) || countries[0];
             setFormData({
               name: userProfile.displayName || '',
               email: userProfile.email || '',
-              phone: userProfile.phoneNumber?.slice(3) || '',
+              phone: phoneNumber.slice(country.ddi.length),
               address: userProfile.address || '',
               profileImage: userProfile.photoURL || "/placeholder.svg",
-              country: countries.find(c => c.ddi === userProfile.phoneNumber?.slice(0, 3)) || countries[0],
+              country: country,
             });
           }
         } catch (error) {
@@ -88,6 +90,17 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
     }
   };
 
+  const formatPhoneNumber = (phoneNumber, country) => {
+    if (country.code === 'US') {
+      const cleaned = ('' + phoneNumber).replace(/\D/g, '');
+      const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+      if (match) {
+        return `${country.ddi} (${match[1]}) ${match[2]}-${match[3]}`;
+      }
+    }
+    return `${country.ddi}${phoneNumber}`;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -95,7 +108,7 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
       const updatedUserData = {
         displayName: formData.name,
         email: formData.email,
-        phoneNumber: `${formData.country.ddi}${formData.phone}`,
+        phoneNumber: formatPhoneNumber(formData.phone, formData.country),
         address: formData.address,
         country: formData.country.code,
         photoURL: formData.profileImage,
@@ -145,13 +158,13 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
             <Label htmlFor="phone">Telefone</Label>
             <div className="flex">
               <Select value={formData.country.code} onValueChange={handleCountryChange}>
-                <SelectTrigger className="w-[100px]">
-                  <SelectValue placeholder="País" />
+                <SelectTrigger className="w-[70px]">
+                  <SelectValue>{formData.country.flag}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((c) => (
                     <SelectItem key={c.code} value={c.code}>
-                      {c.flag} {c.ddi}
+                      {c.flag}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -163,6 +176,7 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
                 value={formData.phone}
                 onChange={handleChange}
                 className="flex-grow ml-2"
+                placeholder={`${formData.country.ddi} Número de telefone`}
               />
             </div>
           </div>
