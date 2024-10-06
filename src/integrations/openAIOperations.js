@@ -217,4 +217,19 @@ export const getBots = async (apiKey, userId) => {
   }
 };
 
+export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
+  try {
+    const openai = createOpenAIClient(apiKey);
+    const mp3 = await openai.audio.speech.create({
+      model: "tts-1",
+      voice: voice,
+      input: text,
+    });
+    const buffer = Buffer.from(await mp3.arrayBuffer());
+    return buffer;
+  } catch (error) {
+    handleOpenAIError(error, 'text to speech');
+  }
+};
+
 // ... keep existing code for other functions
