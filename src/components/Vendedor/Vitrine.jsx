@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getProducts, importarProduto, verificarProdutoImportado } from '../../firebase/firebaseOperations';
+import firebaseOperations from '../../firebase/firebaseOperations';
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../components/Auth/AuthProvider';
@@ -18,12 +18,12 @@ const Vitrine = () => {
 
   const fetchProdutos = async () => {
     try {
-      const produtosData = await getProducts();
+      const produtosData = await firebaseOperations.getProducts();
       setProdutos(produtosData);
       if (user) {
         const importadosStatus = {};
         for (const produto of produtosData) {
-          importadosStatus[produto.id] = await verificarProdutoImportado(user.uid, produto.id);
+          importadosStatus[produto.id] = await firebaseOperations.verificarProdutoImportado(user.uid, produto.id);
         }
         setProdutosImportados(importadosStatus);
       }
@@ -48,7 +48,7 @@ const Vitrine = () => {
     }
 
     try {
-      await importarProduto(user.uid, produto);
+      await firebaseOperations.importarProduto(user.uid, produto);
       setProdutosImportados(prev => ({ ...prev, [produto.id]: true }));
       toast({
         title: "Sucesso",

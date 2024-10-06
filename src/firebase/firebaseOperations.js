@@ -5,7 +5,6 @@ import { updateProfile } from 'firebase/auth';
 import { safeFirestoreOperation } from '../utils/errorReporting';
 import { toast } from '@/components/ui/use-toast';
 
-// Basic CRUD operations
 const crudOperations = {
   createDocument: (collectionName, data) => 
     safeFirestoreOperation(() => addDoc(collection(db, collectionName), data)),
@@ -211,10 +210,13 @@ const testOperations = {
   }
 };
 
-export {
+// Export all operations as a single object
+const firebaseOperations = {
   ...crudOperations,
   ...userOperations,
   ...productOperations,
   ...fileOperations,
   ...testOperations
 };
+
+export default firebaseOperations;
