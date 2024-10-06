@@ -55,7 +55,10 @@ const navItems = [
 const NavItem = ({ item, isOpen, userRole }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  if (!item.roles.includes(userRole)) {
+  // Check if the item has roles and if the user's role is included
+  const hasAccess = item.roles ? item.roles.includes(userRole) : true;
+
+  if (!hasAccess) {
     return null;
   }
 
