@@ -19,11 +19,11 @@ const Dashboard = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Bem-vindo ao Painel do MyShopTools</h1>
-      <p className="mb-4">Logado como: {user?.email}</p>
+      <h1 className="text-2xl font-bold mb-4">Welcome to MyShopTools Dashboard</h1>
+      <p className="mb-4">Logged in as: {user?.email}</p>
       <div className="space-x-4">
-        <Button onClick={handleLogout}>Sair</Button>
-        <Button onClick={handleTestFirebase}>Testar Operações Firebase</Button>
+        <Button onClick={handleLogout}>Logout</Button>
+        <Button onClick={handleTestFirebase}>Test Firebase Operations</Button>
       </div>
     </div>
   );
