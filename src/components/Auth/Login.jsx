@@ -53,7 +53,15 @@ const Login = () => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError("Falha no login. Verifique suas credenciais ou entre em contato com o administrador.");
+      if (error.code === 'auth/invalid-login-credentials') {
+        setError("Credenciais inválidas. Por favor, verifique seu e-mail e senha.");
+      } else if (error.code === 'auth/user-not-found') {
+        setError("Usuário não encontrado. Verifique seu e-mail ou registre-se.");
+      } else if (error.code === 'auth/wrong-password') {
+        setError("Senha incorreta. Por favor, tente novamente.");
+      } else {
+        setError("Erro ao fazer login. Por favor, tente novamente mais tarde.");
+      }
     }
   };
 
