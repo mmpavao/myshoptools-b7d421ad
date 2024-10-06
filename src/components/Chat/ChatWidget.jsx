@@ -13,7 +13,7 @@ const ChatWidget = () => {
   };
 
   const handleWhatsAppOption = () => {
-    window.open('https://wa.me/yourphonenumber', '_blank');
+    window.open('https://wa.me/+1407300181', '_blank');
     setIsOpen(false);
   };
 
@@ -21,11 +21,11 @@ const ChatWidget = () => {
     <div className="fixed bottom-4 right-4 z-50">
       {isOpen && (
         <div className="mb-2 flex flex-col space-y-2">
-          <Button onClick={handleChatOption} variant="secondary">
+          <Button onClick={handleChatOption} variant="secondary" className="justify-start">
             <MessageSquare className="mr-2 h-4 w-4" />
             Chat
           </Button>
-          <Button onClick={handleWhatsAppOption} variant="secondary">
+          <Button onClick={handleWhatsAppOption} variant="secondary" className="justify-start">
             <MessageCircle className="mr-2 h-4 w-4" />
             WhatsApp
           </Button>
