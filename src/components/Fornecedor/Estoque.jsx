@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { toast } from "@/components/ui/use-toast";
 import EstoqueForm from './EstoqueForm';
@@ -14,6 +15,7 @@ const Estoque = () => {
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
+  const [filtro, setFiltro] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -130,36 +132,49 @@ const Estoque = () => {
     setIsDialogOpen(true);
   };
 
+  const produtosFiltrados = produtos.filter(produto =>
+    produto.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
+    produto.sku.toLowerCase().includes(filtro.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Estoque</h1>
       
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogTrigger asChild>
-          <Button onClick={() => {
-            setNovoProduto({
-              titulo: '', fotos: [], descricao: '', sku: '', estoque: 0, preco: 0, desconto: 0, tipoDesconto: '%', variacoes: [], vendaSugerida: 0
-            });
-            setEditingProductId(null);
-            setIsDialogOpen(true);
-          }}>Novo Produto</Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{editingProductId ? 'Editar Produto' : 'Adicionar Novo Produto'}</DialogTitle>
-          </DialogHeader>
-          <EstoqueForm
-            novoProduto={novoProduto}
-            handleInputChange={handleInputChange}
-            handleFileChange={handleFileChange}
-            handleSubmit={handleSubmit}
-            calcularMarkup={calcularMarkup}
-          />
-        </DialogContent>
-      </Dialog>
+      <div className="flex justify-between items-center">
+        <Input
+          placeholder="Filtrar por título ou SKU"
+          value={filtro}
+          onChange={(e) => setFiltro(e.target.value)}
+          className="max-w-sm"
+        />
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={() => {
+              setNovoProduto({
+                titulo: '', fotos: [], descricao: '', sku: '', estoque: 0, preco: 0, desconto: 0, tipoDesconto: '%', variacoes: [], vendaSugerida: 0
+              });
+              setEditingProductId(null);
+              setIsDialogOpen(true);
+            }}>Novo Produto</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{editingProductId ? 'Editar Produto' : 'Adicionar Novo Produto'}</DialogTitle>
+            </DialogHeader>
+            <EstoqueForm
+              novoProduto={novoProduto}
+              handleInputChange={handleInputChange}
+              handleFileChange={handleFileChange}
+              handleSubmit={handleSubmit}
+              calcularMarkup={calcularMarkup}
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
 
       <EstoqueTable 
-        produtos={produtos} 
+        produtos={produtosFiltrados} 
         onDelete={handleDeleteProduct} 
         onDetalhes={handleDetalhes}
         onEdit={handleEditProduct}

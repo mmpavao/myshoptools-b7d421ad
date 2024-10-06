@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { StarIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +14,7 @@ const Vitrine = () => {
   const [produtos, setProdutos] = useState([]);
   const [produtosImportados, setProdutosImportados] = useState({});
   const [avaliacaoAtual, setAvaliacaoAtual] = useState({ produtoId: null, nota: 0, comentario: '' });
+  const [filtro, setFiltro] = useState('');
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -108,11 +110,22 @@ const Vitrine = () => {
     return typeof price === 'number' ? price.toFixed(2) : '0.00';
   };
 
+  const produtosFiltrados = produtos.filter(produto =>
+    produto.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
+    produto.sku.toLowerCase().includes(filtro.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Vitrine</h1>
+      <Input
+        placeholder="Filtrar por título ou SKU"
+        value={filtro}
+        onChange={(e) => setFiltro(e.target.value)}
+        className="max-w-sm mb-4"
+      />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {produtos.map((produto) => (
+        {produtosFiltrados.map((produto) => (
           <Card key={produto.id} className="flex flex-col">
             <CardHeader>
               <CardTitle className="line-clamp-2 h-14 overflow-hidden">{produto.titulo}</CardTitle>
