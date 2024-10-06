@@ -96,6 +96,43 @@ export const listStorageFiles = async () => {
   return allFiles;
 };
 
+export const testFirebaseOperations = async (logCallback) => {
+  try {
+    // Test Firestore operations
+    const testDoc = await createDocument('test_collection', { test: 'data' });
+    logCallback({ step: 'Create Document', status: 'success', message: 'Document created successfully' });
+
+    const readDoc = await readDocument('test_collection', testDoc.id);
+    logCallback({ step: 'Read Document', status: 'success', message: 'Document read successfully' });
+
+    await updateDocument('test_collection', testDoc.id, { test: 'updated data' });
+    logCallback({ step: 'Update Document', status: 'success', message: 'Document updated successfully' });
+
+    await deleteDocument('test_collection', testDoc.id);
+    logCallback({ step: 'Delete Document', status: 'success', message: 'Document deleted successfully' });
+
+    // Test Storage operations
+    const testFile = new File(['test content'], 'test.txt', { type: 'text/plain' });
+    const uploadPath = 'test/test.txt';
+    
+    await uploadFile(testFile, uploadPath, (progress) => {
+      logCallback({ step: 'Upload File', status: 'progress', message: `Upload progress: ${progress.toFixed(2)}%` });
+    });
+    logCallback({ step: 'Upload File', status: 'success', message: 'File uploaded successfully' });
+
+    const files = await listStorageFiles();
+    logCallback({ step: 'List Files', status: 'success', message: `${files.length} files listed successfully` });
+
+    await deleteFile(uploadPath);
+    logCallback({ step: 'Delete File', status: 'success', message: 'File deleted successfully' });
+
+    logCallback({ step: 'All Tests', status: 'success', message: 'All Firebase operations completed successfully' });
+  } catch (error) {
+    console.error('Error during Firebase operations test:', error);
+    logCallback({ step: 'Error', status: 'error', message: `Test failed: ${error.message}` });
+  }
+};
+
 export const clearAllData = async () => {
   try {
     // Limpar Firestore
