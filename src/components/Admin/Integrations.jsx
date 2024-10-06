@@ -4,6 +4,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { integrations } from '../../data/integrations';
 import GoogleSheetsIntegration from '../../integrations/GoogleSheetsIntegration';
+import OpenAIIntegration from '../../integrations/OpenAIIntegration';
 
 const Integrations = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,7 +54,9 @@ const Integrations = () => {
             {...integration} 
             onIntegrate={() => handleIntegrate(integration)}
             configurationComponent={
-              integration.name === "Google Sheets" ? GoogleSheetsIntegration : null
+              integration.name === "Google Sheets" ? GoogleSheetsIntegration :
+              integration.name === "OpenAI GPT-4" ? OpenAIIntegration :
+              null
             }
           />
         ))}
