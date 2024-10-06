@@ -129,6 +129,20 @@ const updateUserStatus = async (userId, newStatus) => {
   }
 };
 
+const checkUserStatus = async (userId) => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      return userData.status === 'Active';
+    }
+    return false;
+  } catch (error) {
+    console.error('Error checking user status:', error);
+    return false;
+  }
+};
+
 const deleteUser = async (userId) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
@@ -174,5 +188,6 @@ export {
   getUserRole,
   updateUserStatus,
   deleteUser,
-  userRoles
+  userRoles,
+  checkUserStatus
 };
