@@ -39,7 +39,7 @@ const EstoqueForm = ({ novoProduto, handleInputChange, handleFileChange, handleS
           ))}
         </div>
       )}
-      <Button type="submit">Salvar Produto</Button>
+      <Button type="submit">{novoProduto.id ? 'Atualizar Produto' : 'Salvar Produto'}</Button>
     </form>
   );
 };

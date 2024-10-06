@@ -13,6 +13,7 @@ const Estoque = () => {
     titulo: '', fotos: [], descricao: '', sku: '', estoque: 0, preco: 0, desconto: 0, tipoDesconto: '%', variacoes: [], vendaSugerida: 0
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingProductId, setEditingProductId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,21 +65,30 @@ const Estoque = () => {
         estoque: Number(novoProduto.estoque),
         vendaSugerida: Number(novoProduto.vendaSugerida)
       };
-      await firebaseOperations.createProduct(produtoParaSalvar);
-      toast({
-        title: "Sucesso",
-        description: "Produto adicionado com sucesso!",
-      });
+      if (editingProductId) {
+        await firebaseOperations.updateProduct(editingProductId, produtoParaSalvar);
+        toast({
+          title: "Sucesso",
+          description: "Produto atualizado com sucesso!",
+        });
+      } else {
+        await firebaseOperations.createProduct(produtoParaSalvar);
+        toast({
+          title: "Sucesso",
+          description: "Produto adicionado com sucesso!",
+        });
+      }
       fetchProdutos();
       setIsDialogOpen(false);
       setNovoProduto({
         titulo: '', fotos: [], descricao: '', sku: '', estoque: 0, preco: 0, desconto: 0, tipoDesconto: '%', variacoes: [], vendaSugerida: 0
       });
+      setEditingProductId(null);
     } catch (error) {
-      console.error("Erro ao adicionar produto:", error);
+      console.error("Erro ao salvar produto:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível adicionar o produto.",
+        description: "Não foi possível salvar o produto.",
         variant: "destructive",
       });
     }
@@ -114,17 +124,29 @@ const Estoque = () => {
     navigate(`/produto/${productId}`);
   };
 
+  const handleEditProduct = (product) => {
+    setNovoProduto(product);
+    setEditingProductId(product.id);
+    setIsDialogOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Estoque</h1>
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
-          <Button onClick={() => setIsDialogOpen(true)}>Novo Produto</Button>
+          <Button onClick={() => {
+            setNovoProduto({
+              titulo: '', fotos: [], descricao: '', sku: '', estoque: 0, preco: 0, desconto: 0, tipoDesconto: '%', variacoes: [], vendaSugerida: 0
+            });
+            setEditingProductId(null);
+            setIsDialogOpen(true);
+          }}>Novo Produto</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Adicionar Novo Produto</DialogTitle>
+            <DialogTitle>{editingProductId ? 'Editar Produto' : 'Adicionar Novo Produto'}</DialogTitle>
           </DialogHeader>
           <EstoqueForm
             novoProduto={novoProduto}
@@ -136,7 +158,12 @@ const Estoque = () => {
         </DialogContent>
       </Dialog>
 
-      <EstoqueTable produtos={produtos} onDelete={handleDeleteProduct} onDetalhes={handleDetalhes} />
+      <EstoqueTable 
+        produtos={produtos} 
+        onDelete={handleDeleteProduct} 
+        onDetalhes={handleDetalhes}
+        onEdit={handleEditProduct}
+      />
     </div>
   );
 };

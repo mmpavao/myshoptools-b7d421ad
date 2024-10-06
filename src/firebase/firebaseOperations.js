@@ -51,8 +51,15 @@ const productOperations = {
     const querySnapshot = await getDocs(collection(db, 'products'));
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
-  updateProduct: (productId, productData) => 
-    updateDoc(doc(db, 'products', productId), productData),
+  updateProduct: async (productId, productData) => {
+    try {
+      await updateDoc(doc(db, 'products', productId), productData);
+      return true;
+    } catch (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    }
+  },
   deleteProduct: (productId) => 
     deleteDoc(doc(db, 'products', productId)),
   uploadProductImage: async (file, productId) => {
