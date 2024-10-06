@@ -9,6 +9,8 @@ import Dashboard from "./components/Dashboard/Dashboard";
 import LogsPage from "./components/Logs/LogsPage";
 import Layout from "./components/Layout/Layout";
 import UserProfile from "./components/Profile/UserProfile";
+import DocumentationPage from "./components/Documentation/DocumentationPage";
+import APIPage from "./components/APIs/APIPage";
 
 const queryClient = new QueryClient();
 
@@ -34,8 +36,8 @@ const AppRoutes = () => (
     <Route path="/integracoes" element={<ProtectedLayout><PlaceholderComponent title="Integrações" /></ProtectedLayout>} />
     <Route path="/logs" element={<ProtectedLayout><LogsPage /></ProtectedLayout>} />
     <Route path="/profile" element={<ProtectedLayout><UserProfile /></ProtectedLayout>} />
-    <Route path="/documentation" element={<ProtectedLayout><PlaceholderComponent title="Documentação" /></ProtectedLayout>} />
-    <Route path="/apis" element={<ProtectedLayout><PlaceholderComponent title="APIs" /></ProtectedLayout>} />
+    <Route path="/documentation" element={<ProtectedLayout><DocumentationPage /></ProtectedLayout>} />
+    <Route path="/apis" element={<ProtectedLayout><APIPage /></ProtectedLayout>} />
     <Route path="/" element={<Navigate to="/dashboard" />} />
     <Route path="*" element={<Navigate to="/dashboard" />} />
   </Routes>
