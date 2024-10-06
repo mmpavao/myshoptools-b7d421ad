@@ -166,10 +166,18 @@ export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
   }
 };
 
+
 export const getBotDetails = async (apiKey, assistantId) => {
   try {
     if (!assistantId) {
-      throw new Error('Assistant ID is undefined. Please ensure a valid bot is selected.');
+      console.warn('Assistant ID is undefined. Returning default bot details.');
+      return {
+        name: 'Unnamed Bot',
+        instructions: '',
+        model: 'gpt-3.5-turbo',
+        temperature: 1,
+        voice: 'alloy',
+      };
     }
     const openai = createOpenAIClient(apiKey);
     const assistant = await openai.beta.assistants.retrieve(assistantId);
@@ -177,11 +185,18 @@ export const getBotDetails = async (apiKey, assistantId) => {
       name: assistant.name,
       instructions: assistant.instructions,
       model: assistant.model,
-      temperature: 1, // Default value, as OpenAI doesn't store this
-      voice: 'alloy', // Default value, as OpenAI doesn't store this
+      temperature: 1,
+      voice: 'alloy',
     };
   } catch (error) {
-    handleOpenAIError(error, 'get bot details');
+    console.error('Error getting bot details:', error);
+    return {
+      name: 'Error Bot',
+      instructions: 'Failed to load bot details',
+      model: 'gpt-3.5-turbo',
+      temperature: 1,
+      voice: 'alloy',
+    };
   }
 };
 
@@ -247,9 +262,9 @@ export const getBots = async (apiKey) => {
       const firestoreBot = firestoreBots.find(bot => bot.assistantId === assistant.id);
       return {
         id: firestoreBot?.id || assistant.id,
-        name: assistant.name,
-        instructions: assistant.instructions,
-        model: assistant.model,
+        name: assistant.name || 'Unnamed Bot',
+        instructions: assistant.instructions || '',
+        model: assistant.model || 'gpt-3.5-turbo',
         assistantId: assistant.id,
         avatar: firestoreBot?.avatar || null,
         createdAt: firestoreBot?.createdAt || assistant.created_at,
@@ -261,7 +276,9 @@ export const getBots = async (apiKey) => {
 
     return mergedBots;
   } catch (error) {
-    handleOpenAIError(error, 'get bots');
+    console.error('Error getting bots:', error);
     return []; // Return an empty array if there's an error
   }
 };
+
+// ... keep existing code for other functions

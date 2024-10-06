@@ -33,8 +33,15 @@ export const wrapFetch = () => {
     } catch (error) {
       if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
         console.error('Network error when fetching resource:', args[0]);
-        // Return a fallback image URL or null
-        return { ok: true, url: '/placeholder.svg' };
+        // Return a mock successful response with a placeholder image URL
+        return {
+          ok: true,
+          status: 200,
+          url: '/placeholder.svg',
+          blob: async () => new Blob([''], { type: 'image/svg+xml' }),
+          text: async () => '',
+          json: async () => ({}),
+        };
       }
       reportHTTPError(error);
       throw error;
@@ -47,7 +54,7 @@ export const safeFirestoreOperation = async (operation) => {
     return await operation();
   } catch (error) {
     console.error("Firestore operation error:", error);
-    // Não reportamos o erro aqui para evitar problemas de clonagem
+    // Don't report the error here to avoid cloning issues
     throw error;
   }
 };
