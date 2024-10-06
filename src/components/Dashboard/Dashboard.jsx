@@ -12,7 +12,7 @@ const Dashboard = () => {
   const [logs, setLogs] = useState([]);
   const [isTestingFirebase, setIsTestingFirebase] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [companyName, setCompanyName] = useState('Minha Empresa'); // Exemplo de nome de empresa
+  const [companyName, setCompanyName] = useState('Minha Empresa');
 
   const handleLogout = async () => {
     await logout();
@@ -34,8 +34,8 @@ const Dashboard = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Topbar toggleSidebar={toggleSidebar} companyName={companyName} />
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
+        <Topbar companyName={companyName} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 pt-16">
           <div className="container mx-auto px-6 py-8">
             <h1 className="text-3xl font-semibold text-gray-800 mb-6">Dashboard</h1>
