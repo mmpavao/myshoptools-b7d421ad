@@ -23,7 +23,7 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
   }, [messages]);
 
   const handleSendMessage = async (content, type = 'text') => {
-    if ((!content.trim() && type === 'text') || isLoading) return;
+    if ((type === 'text' && !content.trim()) || isLoading) return;
 
     const userMessage = { role: 'user', content, type };
     setMessages(prev => [...prev, userMessage]);
