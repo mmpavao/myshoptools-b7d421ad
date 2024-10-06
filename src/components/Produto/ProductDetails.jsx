@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { StarIcon } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 const ProductDetails = ({ produto, isImportado, handleImportar }) => {
   const renderStars = (rating) => {
@@ -55,6 +56,14 @@ const ProductDetails = ({ produto, isImportado, handleImportar }) => {
           {isImportado ? 'Adicionado' : 'Adicionar'}
         </Button>
       </div>
+
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <p><strong>SKU:</strong> n23k2025</p>
+          <p><strong>Estoque:</strong> 5</p>
+          <p><strong>Preço de Venda Sugerido:</strong> R$ 60.00</p>
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -28,9 +28,12 @@ const ProductTabs = ({ produto }) => {
         <Card>
           <CardContent className="pt-6">
             <ul className="list-disc pl-5">
-              <li>SKU: {produto.sku}</li>
-              <li>Estoque: {produto.estoque}</li>
-              <li>Preço de Venda Sugerido: R$ {typeof produto.vendaSugerida === 'number' ? produto.vendaSugerida.toFixed(2) : '0.00'}</li>
+              <li>Tamanho: 30 x 20 x 10 cm</li>
+              <li>Material: Plástico ABS</li>
+              <li>Voltagem: Bivolt (110V/220V)</li>
+              <li>Peso: 500g</li>
+              <li>Cor: Preto</li>
+              <li>Garantia: 12 meses</li>
             </ul>
           </CardContent>
         </Card>
