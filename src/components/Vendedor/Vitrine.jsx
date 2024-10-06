@@ -3,7 +3,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { StarIcon } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { toast } from "@/components/ui/use-toast";
@@ -105,6 +104,10 @@ const Vitrine = () => {
     ));
   };
 
+  const formatPrice = (price) => {
+    return typeof price === 'number' ? price.toFixed(2) : '0.00';
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Vitrine</h1>
@@ -117,16 +120,18 @@ const Vitrine = () => {
             <CardContent>
               <img src={produto.fotos[0] || "/placeholder.svg"} alt={produto.titulo} className="w-full h-48 object-cover mb-2" />
               <div className="flex justify-between items-center mb-2">
-                <p className="text-2xl font-bold text-primary">R$ {produto.preco.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
                 {produto.desconto > 0 && (
                   <div>
-                    <span className="text-gray-500 line-through mr-2">R$ {(produto.preco / (1 - produto.desconto / 100)).toFixed(2)}</span>
+                    <span className="text-gray-500 line-through mr-2">
+                      R$ {formatPrice(produto.preco / (1 - produto.desconto / 100))}
+                    </span>
                     <span className="bg-red-500 text-white px-2 py-1 rounded-full text-sm">-{produto.desconto}%</span>
                   </div>
                 )}
               </div>
               <p>Estoque: {produto.estoque}</p>
-              <p>Venda sugerida: R$ {produto.vendaSugerida.toFixed(2)}</p>
+              <p>Venda sugerida: R$ {formatPrice(produto.vendaSugerida)}</p>
               <div className="flex items-center mt-2">
                 {renderStars(produto.avaliacao || 0)}
                 <span className="ml-2 text-sm text-gray-600">({produto.numeroAvaliacoes || 0})</span>
