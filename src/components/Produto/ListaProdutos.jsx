@@ -15,32 +15,49 @@ const ListaProdutos = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user) {
-      fetchProdutosImportados();
-    }
-  }, [user]);
-
-  const fetchProdutosImportados = async () => {
-    try {
-      const produtosImportados = await firebaseOperations.getProdutosImportados(user.uid);
-      setProdutos(produtosImportados);
-    } catch (error) {
-      console.error("Erro ao buscar produtos importados:", error);
-    }
-  };
+    // Adicionando produtos de exemplo
+    const produtosExemplo = [
+      {
+        id: '1',
+        titulo: 'Produto Exemplo 1',
+        sku: 'SKU001',
+        preco: 99.99,
+        fotos: ['/placeholder.svg'],
+        avaliacao: 4,
+        numeroAvaliacoes: 10,
+        estoque: 50
+      },
+      {
+        id: '2',
+        titulo: 'Produto Exemplo 2',
+        sku: 'SKU002',
+        preco: 149.99,
+        fotos: ['/placeholder.svg'],
+        avaliacao: 3,
+        numeroAvaliacoes: 5,
+        estoque: 30
+      },
+      {
+        id: '3',
+        titulo: 'Produto Exemplo 3',
+        sku: 'SKU003',
+        preco: 79.99,
+        fotos: ['/placeholder.svg'],
+        avaliacao: 5,
+        numeroAvaliacoes: 15,
+        estoque: 20
+      }
+    ];
+    setProdutos(produtosExemplo);
+  }, []);
 
   const handleDetalhes = (produtoId) => {
     navigate(`/produto/${produtoId}`);
   };
 
   const handleExcluir = async (produtoId) => {
-    try {
-      await firebaseOperations.removerProdutoImportado(user.uid, produtoId);
-      console.log("Produto removido da sua lista com sucesso.");
-      fetchProdutosImportados();
-    } catch (error) {
-      console.error("Erro ao excluir produto:", error);
-    }
+    setProdutos(produtos.filter(p => p.id !== produtoId));
+    console.log("Produto removido da sua lista com sucesso.");
   };
 
   const renderStars = (rating) => {
