@@ -31,7 +31,6 @@ const updateUserProfile = async (userId, profileData) => {
       await updateProfile(auth.currentUser, {
         displayName: profileData.displayName,
         photoURL: profileData.photoURL,
-        phoneNumber: profileData.phoneNumber,
       });
     }
     
