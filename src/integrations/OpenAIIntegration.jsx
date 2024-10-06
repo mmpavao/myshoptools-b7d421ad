@@ -93,6 +93,7 @@ const OpenAIIntegration = () => {
     } else {
       setConnectionStatus('Error fetching bots');
       setErrorDetails(error.message);
+      console.error('Detailed error:', error);
     }
   };
 

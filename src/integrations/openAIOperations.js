@@ -78,6 +78,10 @@ export const getBots = async (apiKey) => {
     const assistants = await openai.beta.assistants.list();
     console.log('Assistants from OpenAI:', assistants);
 
+    if (!assistants.data || assistants.data.length === 0) {
+      console.log('No assistants found in OpenAI. This is unexpected if you just created a bot.');
+    }
+
     console.log('Fetching bots from Firestore...');
     const querySnapshot = await getDocs(collection(db, 'bots'));
     const localBots = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -104,7 +108,8 @@ export const getBots = async (apiKey) => {
     } else if (error.status === 403) {
       throw new Error('Access forbidden. Your account may not have the necessary permissions for the Assistants API.');
     } else {
-      throw new Error(`Failed to fetch bots: ${error.message}`);
+      console.error('Detailed error:', JSON.stringify(error, null, 2));
+      throw new Error(`Failed to fetch bots: ${error.message}. Check console for more details.`);
     }
   }
 };
