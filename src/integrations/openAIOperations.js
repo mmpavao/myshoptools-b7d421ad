@@ -1,28 +1,6 @@
-import OpenAI from 'openai';
 import { db } from '../firebase/config';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
-
-const createOpenAIClient = (apiKey) => new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
-
-const handleOpenAIError = (error, operation) => {
-  console.error(`Error in ${operation}:`, error);
-  if (error.response) {
-    const status = error.response.status;
-    if (status === 401) {
-      throw new Error('Authentication failed. Please check your API key.');
-    } else if (status === 403) {
-      throw new Error('Access forbidden. Your account may not have the necessary permissions.');
-    } else if (status === 429) {
-      throw new Error('Rate limit exceeded. Please try again later.');
-    } else {
-      throw new Error(`OpenAI API error: ${error.response.data.error.message}`);
-    }
-  } else if (error.request) {
-    throw new Error('No response received from OpenAI. Please check your internet connection.');
-  } else {
-    throw new Error(`Failed to ${operation}: ${error.message}`);
-  }
-};
+import { createOpenAIClient, handleOpenAIError } from '../utils/openAIUtils';
 
 export const testOpenAIConnection = async (apiKey) => {
   try {
@@ -45,7 +23,7 @@ export const chatWithBot = async (apiKey, assistantId, message) => {
     });
     const run = await openai.beta.threads.runs.create(thread.id, {
       assistant_id: assistantId,
-      model: "gpt-3.5-turbo" // Changed from 'gpt-4' to 'gpt-3.5-turbo'
+      model: "gpt-3.5-turbo"
     });
     
     let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
@@ -101,11 +79,10 @@ export const generateImage = async (apiKey, prompt) => {
 export const transcribeAudio = async (apiKey, audioFile) => {
   try {
     const openai = createOpenAIClient(apiKey);
-    const formData = new FormData();
-    formData.append('file', audioFile);
-    formData.append('model', 'whisper-1');
-
-    const response = await openai.audio.transcriptions.create(formData);
+    const response = await openai.audio.transcriptions.create({
+      file: audioFile,
+      model: 'whisper-1',
+    });
     return response.text;
   } catch (error) {
     handleOpenAIError(error, 'transcribe audio');
@@ -134,7 +111,7 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
     const assistantData = {
       name: botData.name,
       instructions: botData.instructions,
-      model: "gpt-3.5-turbo", // Changed from 'gpt-4' to 'gpt-3.5-turbo'
+      model: "gpt-3.5-turbo",
     };
 
     let assistant;
@@ -149,7 +126,7 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
       assistantId: assistant.id,
       avatar: botData.avatar || null,
       updatedAt: new Date().toISOString(),
-      model: "gpt-3.5-turbo", // Ensure the model is updated in Firestore as well
+      model: "gpt-3.5-turbo",
     };
 
     if (!isUpdate) {
@@ -194,7 +171,7 @@ export const getBots = async (apiKey) => {
         instructions: assistant.instructions,
         model: assistant.model,
         assistantId: assistant.id,
-        avatar: firestoreBot?.avatar || null, // Use null if avatar is undefined
+        avatar: firestoreBot?.avatar || null,
         createdAt: firestoreBot?.createdAt || assistant.created_at,
         updatedAt: firestoreBot?.updatedAt || new Date().toISOString(),
       };
