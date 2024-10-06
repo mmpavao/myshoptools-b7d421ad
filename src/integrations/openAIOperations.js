@@ -134,6 +134,21 @@ export const transcribeAudio = async (apiKey, audioFile) => {
   }
 };
 
+export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
+  try {
+    const openai = createOpenAIClient(apiKey);
+    const mp3 = await openai.audio.speech.create({
+      model: "tts-1",
+      voice: voice,
+      input: text,
+    });
+    const buffer = Buffer.from(await mp3.arrayBuffer());
+    return buffer;
+  } catch (error) {
+    handleOpenAIError(error, 'text to speech');
+  }
+};
+
 const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
   try {
     const openai = createOpenAIClient(apiKey);
@@ -230,4 +245,18 @@ export const getBots = async (apiKey, userId) => {
     handleOpenAIError(error, 'get bots');
     return [];
   }
+};
+
+// Ensure all functions are properly exported
+export {
+  testOpenAIConnection,
+  chatWithBot,
+  analyzeDocument,
+  analyzeImage,
+  generateImage,
+  transcribeAudio,
+  createBot,
+  updateBot,
+  deleteBot,
+  getBots
 };
