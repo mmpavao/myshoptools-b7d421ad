@@ -101,7 +101,7 @@ export const transcribeAudio = async (apiKey, audioFile) => {
   try {
     const openai = createOpenAIClient(apiKey);
     const formData = new FormData();
-    formData.append('file', audioFile, 'audio.wav');
+    formData.append('file', audioFile);
     formData.append('model', 'whisper-1');
 
     const response = await openai.audio.transcriptions.create(formData);

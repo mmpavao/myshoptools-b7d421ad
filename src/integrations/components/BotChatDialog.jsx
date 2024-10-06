@@ -11,6 +11,8 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [isBotTyping, setIsBotTyping] = useState(false);
+  const [isBotRecording, setIsBotRecording] = useState(false);
   const scrollAreaRef = useRef(null);
   const fileInputRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -29,12 +31,14 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+    setIsBotTyping(true);
 
     try {
       let botResponse;
       if (type === 'image') {
         botResponse = await analyzeImage(apiKey, content);
       } else if (type === 'audio') {
+        setIsBotRecording(true);
         const transcription = await transcribeAudio(apiKey, content);
         botResponse = await chatWithBot(apiKey, bot.assistantId, transcription);
         const audioUrl = await textToSpeech(apiKey, botResponse, bot.voice || 'alloy');
@@ -44,14 +48,12 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
         botResponse = { text: 'Imagem gerada com sucesso:', imageUrl };
       } else {
         botResponse = await chatWithBot(apiKey, bot.assistantId, content);
-        const audioUrl = await textToSpeech(apiKey, botResponse, bot.voice || 'alloy');
-        botResponse = { text: botResponse, audioUrl };
       }
 
       const botMessage = { 
         role: 'assistant', 
         content: botResponse, 
-        type: type === 'audio' || type === 'text' ? 'audio' : type === 'generate-image' ? 'image' : 'text' 
+        type: type === 'audio' ? 'audio' : type === 'generate-image' ? 'image' : 'text' 
       };
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
@@ -60,6 +62,8 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      setIsBotTyping(false);
+      setIsBotRecording(false);
     }
   };
 
@@ -136,6 +140,16 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
                 )}
               </div>
             ))}
+            {isBotTyping && (
+              <div className="mb-2 p-2 rounded bg-gray-100">
+                <p>Digitando...</p>
+              </div>
+            )}
+            {isBotRecording && (
+              <div className="mb-2 p-2 rounded bg-gray-100">
+                <p>Gravando áudio...</p>
+              </div>
+            )}
           </ScrollArea>
           <div className="flex mt-4 items-center">
             <div className="flex-grow relative">
