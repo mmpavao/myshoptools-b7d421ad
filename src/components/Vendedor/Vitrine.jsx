@@ -21,7 +21,7 @@ const Vitrine = () => {
             </CardHeader>
             <CardContent>
               <img src="/placeholder.svg" alt={produto.titulo} className="w-full h-48 object-cover mb-2" />
-              <p>Preço: R$ {produto.preco}</p>
+              <p className="text-2xl font-bold text-primary">R$ {produto.preco}</p>
               <p>Estoque: {produto.estoque}</p>
               <p>Venda sugerida: R$ {produto.vendaSugerida}</p>
             </CardContent>
