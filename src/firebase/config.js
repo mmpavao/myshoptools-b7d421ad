@@ -16,7 +16,7 @@ const firebaseConfig = {
 };
 
 const openAIConfig = {
-  apiKey: "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"
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY // Use an environment variable instead of hardcoding the key
 };
 
 const app = initializeApp(firebaseConfig);

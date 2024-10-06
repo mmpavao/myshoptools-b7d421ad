@@ -3,9 +3,10 @@ import { db, storage, openAIConfig } from '../firebase/config';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-const openai = new OpenAI({ apiKey: openAIConfig.apiKey });
-
-// Remova a função initializeOpenAI, pois não é mais necessária
+const openai = new OpenAI({ 
+  apiKey: openAIConfig.apiKey,
+  dangerouslyAllowBrowser: true // Add this line
+});
 
 export const createBot = async (botData) => {
   try {
@@ -150,7 +151,5 @@ export const textToSpeech = async (text, voice = 'alloy') => {
     throw error;
   }
 };
-
-// Adicione mais funções conforme necessário para outras funcionalidades da OpenAI
 
 // Ensure all functions are using the 'openai' instance directly instead of relying on initialization
