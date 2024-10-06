@@ -19,11 +19,19 @@ const OpenAIIntegration = () => {
     temperature: 1,
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [apiKey, setApiKey] = useState('');
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('openaiApiKey') || '');
   const [connectionStatus, setConnectionStatus] = useState('Not connected');
 
+  useEffect(() => {
+    if (apiKey) {
+      testConnection();
+    }
+  }, []);
+
   const handleApiKeyChange = (e) => {
-    setApiKey(e.target.value);
+    const newApiKey = e.target.value;
+    setApiKey(newApiKey);
+    localStorage.setItem('openaiApiKey', newApiKey);
   };
 
   const testConnection = async () => {

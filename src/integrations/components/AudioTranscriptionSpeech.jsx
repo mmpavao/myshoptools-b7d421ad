@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { transcribeAudio, textToSpeech } from '../openAIOperations';
 
-const AudioTranscriptionSpeech = () => {
+const AudioTranscriptionSpeech = ({ apiKey }) => {
   const [file, setFile] = useState(null);
   const [text, setText] = useState('');
 
@@ -17,7 +17,7 @@ const AudioTranscriptionSpeech = () => {
       return;
     }
     try {
-      const transcript = await transcribeAudio(file);
+      const transcript = await transcribeAudio(apiKey, file);
       console.log('Transcription:', transcript);
       toast.success('Audio transcribed successfully');
     } catch (error) {
@@ -32,7 +32,7 @@ const AudioTranscriptionSpeech = () => {
       return;
     }
     try {
-      const audioBuffer = await textToSpeech(text);
+      const audioBuffer = await textToSpeech(apiKey, text);
       const audioUrl = URL.createObjectURL(new Blob([audioBuffer], { type: 'audio/mp3' }));
       const audio = new Audio(audioUrl);
       audio.play();

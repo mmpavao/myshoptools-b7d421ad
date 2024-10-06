@@ -91,8 +91,9 @@ export const getBots = async (apiKey) => {
   }
 };
 
-export const analyzeImage = async (imageFile) => {
+export const analyzeImage = async (apiKey, imageFile) => {
   try {
+    const openai = createOpenAIClient(apiKey);
     const response = await openai.chat.completions.create({
       model: "gpt-4-vision-preview",
       messages: [
@@ -112,8 +113,9 @@ export const analyzeImage = async (imageFile) => {
   }
 };
 
-export const generateImage = async (prompt) => {
+export const generateImage = async (apiKey, prompt) => {
   try {
+    const openai = createOpenAIClient(apiKey);
     const response = await openai.images.generate({
       model: "dall-e-3",
       prompt: prompt,
@@ -127,8 +129,9 @@ export const generateImage = async (prompt) => {
   }
 };
 
-export const transcribeAudio = async (audioFile) => {
+export const transcribeAudio = async (apiKey, audioFile) => {
   try {
+    const openai = createOpenAIClient(apiKey);
     const transcript = await openai.audio.transcriptions.create({
       file: audioFile,
       model: "whisper-1",
@@ -140,8 +143,9 @@ export const transcribeAudio = async (audioFile) => {
   }
 };
 
-export const textToSpeech = async (text, voice = 'alloy') => {
+export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
   try {
+    const openai = createOpenAIClient(apiKey);
     const mp3 = await openai.audio.speech.create({
       model: "tts-1",
       voice: voice,
@@ -154,4 +158,3 @@ export const textToSpeech = async (text, voice = 'alloy') => {
     throw error;
   }
 };
-// Make sure to update these functions to use the createOpenAIClient(apiKey) instead of the global openai instance

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { analyzeImage, generateImage } from '../openAIOperations';
 
-const ImageAnalysisGeneration = () => {
+const ImageAnalysisGeneration = ({ apiKey }) => {
   const [file, setFile] = useState(null);
   const [imagePrompt, setImagePrompt] = useState('');
   const [generatedImageUrl, setGeneratedImageUrl] = useState('');
@@ -17,7 +17,7 @@ const ImageAnalysisGeneration = () => {
       return;
     }
     try {
-      const result = await analyzeImage(file);
+      const result = await analyzeImage(apiKey, file);
       toast.success('Image analyzed successfully');
       console.log('Analysis result:', result);
     } catch (error) {
@@ -32,7 +32,7 @@ const ImageAnalysisGeneration = () => {
       return;
     }
     try {
-      const imageUrl = await generateImage(imagePrompt);
+      const imageUrl = await generateImage(apiKey, imagePrompt);
       setGeneratedImageUrl(imageUrl);
       toast.success('Image generated successfully');
     } catch (error) {
