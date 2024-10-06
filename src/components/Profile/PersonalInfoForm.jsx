@@ -148,24 +148,7 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
     return formData.phone;
   };
 
-    <form onSubmit={handleSubmit}>
-      <div className="space-y-4">
-        <div className="flex items-center space-x-4 mb-4">
-          <Avatar className="w-24 h-24">
-            <AvatarImage src={formData.profileImage} alt="Profile" />
-            <AvatarFallback>{formData.name[0] || 'U'}</AvatarFallback>
-          </Avatar>
-          <div>
-            <Label htmlFor="picture" className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-500">
-              Alterar foto
-            </Label>
-            <Input id="picture" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-          </div>
-        </div>
-
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="space-y-4">
     <form onSubmit={handleSubmit}>
       <div className="space-y-4">
         <div className="flex items-center space-x-4 mb-4">
