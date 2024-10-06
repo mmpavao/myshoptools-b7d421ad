@@ -1,12 +1,15 @@
-import { doc, setDoc, getDocs, collection } from 'firebase/firestore';
+import { doc, setDoc, getDocs, collection, getDoc } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
 import { db, auth } from './config';
 import { safeFirestoreOperation } from '../utils/errorReporting';
 import { toast } from '@/components/ui/use-toast';
 
+const MASTER_USER_EMAIL = 'pavaosmart@gmail.com';
+
 const userOperations = {
   createUser: (userData) => 
     safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), userData)),
+
   updateUserProfile: async (userId, profileData) => {
     try {
       await setDoc(doc(db, 'users', userId), profileData, { merge: true });
@@ -29,7 +32,7 @@ const userOperations = {
       const currentUser = auth.currentUser;
       return usersSnapshot.docs.map(doc => {
         const userData = doc.data();
-        const isMarcioPavao = userData.email === 'marcio.pavao@example.com';
+        const isMasterUser = userData.email === MASTER_USER_EMAIL;
         return {
           id: doc.id,
           ...userData,
@@ -38,8 +41,8 @@ const userOperations = {
           email: userData.email || 'No email',
           title: userData.title || 'No title',
           department: userData.department || 'No department',
-          status: isMarcioPavao ? 'Active' : (userData.status || 'Inactive'),
-          role: isMarcioPavao ? 'Master' : (userData.role || 'Vendedor'),
+          status: isMasterUser ? 'Active' : (userData.status || 'Inactive'),
+          role: isMasterUser ? 'Master' : (userData.role || 'Vendedor'),
           isOnline: doc.id === currentUser?.uid,
         };
       });
@@ -68,7 +71,8 @@ const userOperations = {
     try {
       const userDoc = await safeFirestoreOperation(() => getDoc(doc(db, 'users', userId)));
       if (userDoc.exists()) {
-        return userDoc.data().role || 'Vendedor';
+        const userData = userDoc.data();
+        return userData.email === MASTER_USER_EMAIL ? 'Master' : (userData.role || 'Vendedor');
       }
       return 'Vendedor';
     } catch (error) {
