@@ -7,11 +7,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '../Auth/AuthProvider';
 import { addDoc, collection, serverTimestamp, query, where, getDocs, onSnapshot, orderBy } from 'firebase/firestore';
-import { db } from '../../firebase/config';
+import { db, getOpenAIApiKey } from '../../firebase/config';
 import { chatWithBot, transcribeAudio, textToSpeech, analyzeDocument } from '../../integrations/openAIOperations';
 import { toast } from 'sonner';
 
-const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }) => {
+const ChatWindow = ({ onClose, onlineAgents, activeBots, setActiveBots }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const { user } = useAuth();
@@ -70,8 +70,9 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }
       await addDoc(collection(db, 'messages'), newMessage);
 
       if (selectedAgent === 'zilda') {
+        const apiKey = getOpenAIApiKey();
         if (!apiKey) {
-          throw new Error('OpenAI API key is not set. Please configure it in your settings.');
+          throw new Error('OpenAI API key is not configured. Please contact the administrator.');
         }
         const zildaBot = activeBots.find(bot => bot.name.toLowerCase() === 'zilda');
         if (!zildaBot) {

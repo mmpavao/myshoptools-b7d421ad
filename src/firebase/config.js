@@ -29,6 +29,8 @@ export const safeLogError = (error) => {
   console.error("Safely logged error:", error);
 };
 
+export const getOpenAIApiKey = () => openAIConfig.apiKey;
+
 const initializeCollections = async () => {
   const collectionsToInitialize = ['bots', 'user_settings'];
   
