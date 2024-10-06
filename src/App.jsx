@@ -15,6 +15,12 @@ const Layout = ({ children }) => (
   </div>
 );
 
+const PlaceholderComponent = ({ title }) => (
+  <div className="flex items-center justify-center h-screen">
+    <h1 className="text-2xl font-bold">{title}</h1>
+  </div>
+);
+
 const AppRoutes = () => (
   <Routes>
     <Route path="/login" element={<Layout><Login /></Layout>} />
@@ -23,7 +29,55 @@ const AppRoutes = () => (
       path="/dashboard"
       element={
         <ProtectedRoute>
-          <Layout><Dashboard /></Layout>
+          <Dashboard />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/vitrine"
+      element={
+        <ProtectedRoute>
+          <PlaceholderComponent title="Vitrine" />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/produtos"
+      element={
+        <ProtectedRoute>
+          <PlaceholderComponent title="Meus Produtos" />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/pedidos"
+      element={
+        <ProtectedRoute>
+          <PlaceholderComponent title="Pedidos" />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/suporte"
+      element={
+        <ProtectedRoute>
+          <PlaceholderComponent title="Suporte" />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/integracoes"
+      element={
+        <ProtectedRoute>
+          <PlaceholderComponent title="Integrações" />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/logs"
+      element={
+        <ProtectedRoute>
+          <PlaceholderComponent title="Logs" />
         </ProtectedRoute>
       }
     />
