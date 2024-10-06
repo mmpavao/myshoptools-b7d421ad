@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../../components/Auth/AuthProvider';
 import { toast } from "@/components/ui/use-toast";
@@ -11,6 +12,8 @@ const DetalheProduto = () => {
   const { id } = useParams();
   const [produto, setProduto] = useState(null);
   const [isImportado, setIsImportado] = useState(false);
+  const [fotoPrincipal, setFotoPrincipal] = useState('');
+  const [mostrarTodasFotos, setMostrarTodasFotos] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -18,9 +21,9 @@ const DetalheProduto = () => {
     const fetchProduto = async () => {
       try {
         const produtoData = await firebaseOperations.getProduct(id);
-        // Ensure preco is a number
         produtoData.preco = Number(produtoData.preco);
         setProduto(produtoData);
+        setFotoPrincipal(produtoData.fotos[0] || "/placeholder.svg");
         if (user) {
           const importado = await firebaseOperations.verificarProdutoImportado(user.uid, id);
           setIsImportado(importado);
@@ -68,9 +71,12 @@ const DetalheProduto = () => {
 
   if (!produto) return <div>Carregando...</div>;
 
-  // Helper function to safely format price
   const formatPrice = (price) => {
     return typeof price === 'number' ? price.toFixed(2) : '0.00';
+  };
+
+  const handleThumbnailClick = (foto) => {
+    setFotoPrincipal(foto);
   };
 
   return (
@@ -78,12 +84,43 @@ const DetalheProduto = () => {
       <div className="flex flex-col md:flex-row gap-8">
         {/* Imagem do Produto */}
         <div className="md:w-1/2">
-          <img src={produto.fotos[0] || "/placeholder.svg"} alt={produto.titulo} className="w-full h-auto object-cover rounded-lg" />
-          <div className="flex mt-4 gap-2">
-            {produto.fotos.map((img, index) => (
-              <img key={index} src={img} alt={`${produto.titulo} ${index + 1}`} className="w-20 h-20 object-cover rounded-lg cursor-pointer" />
+          <img src={fotoPrincipal} alt={produto.titulo} className="w-full h-auto object-cover rounded-lg mb-4" />
+          <div className="flex gap-2 mb-2">
+            {produto.fotos.slice(0, 4).map((img, index) => (
+              <img 
+                key={index} 
+                src={img} 
+                alt={`${produto.titulo} ${index + 1}`} 
+                className="w-20 h-20 object-cover rounded-lg cursor-pointer" 
+                onClick={() => handleThumbnailClick(img)}
+              />
             ))}
           </div>
+          {produto.fotos.length > 4 && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="link" onClick={() => setMostrarTodasFotos(true)}>
+                  Ver todas as fotos
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl">
+                <div className="grid grid-cols-3 gap-4">
+                  {produto.fotos.map((img, index) => (
+                    <img 
+                      key={index} 
+                      src={img} 
+                      alt={`${produto.titulo} ${index + 1}`} 
+                      className="w-full h-auto object-cover rounded-lg cursor-pointer" 
+                      onClick={() => {
+                        handleThumbnailClick(img);
+                        setMostrarTodasFotos(false);
+                      }}
+                    />
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
 
         {/* Detalhes do Produto */}
