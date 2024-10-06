@@ -25,10 +25,10 @@ const BotList = ({ bots, onEdit, onChat }) => (
             <Card key={bot.id} className="p-4">
               <div className="flex items-center mb-4">
                 <Avatar className="h-10 w-10 mr-2">
-                  <AvatarImage src={bot.avatar} alt={bot.name} />
-                  <AvatarFallback>{bot.name.charAt(0)}</AvatarFallback>
+                  <AvatarImage src={bot.avatar} alt={bot.name || 'Bot'} />
+                  <AvatarFallback>{bot.name ? bot.name.charAt(0) : 'B'}</AvatarFallback>
                 </Avatar>
-                <h3 className="text-lg font-semibold">{bot.name}</h3>
+                <h3 className="text-lg font-semibold">{bot.name || 'Unnamed Bot'}</h3>
               </div>
               <div className="flex justify-end space-x-2 mb-2">
                 <Button size="icon" variant="ghost" onClick={() => onEdit(bot)}>
@@ -38,7 +38,7 @@ const BotList = ({ bots, onEdit, onChat }) => (
                   <MessageSquare className="h-4 w-4" />
                 </Button>
               </div>
-              <p className="text-sm text-gray-500 mb-2">Model: {bot.model}</p>
+              <p className="text-sm text-gray-500 mb-2">Model: {bot.model || 'Unknown'}</p>
               <p className="text-xs text-gray-400">Created: {formatDate(bot.createdAt)}</p>
               <p className="text-xs text-gray-400">Updated: {formatDate(bot.updatedAt)}</p>
               <div className="flex items-center mt-2">
@@ -46,10 +46,10 @@ const BotList = ({ bots, onEdit, onChat }) => (
                 <div className="bg-gray-200 h-2 flex-grow rounded-full">
                   <div 
                     className="bg-blue-500 h-2 rounded-full" 
-                    style={{ width: `${bot.efficiency}%` }}
+                    style={{ width: `${bot.efficiency || 0}%` }}
                   ></div>
                 </div>
-                <span className="text-xs ml-2">{bot.efficiency}%</span>
+                <span className="text-xs ml-2">{bot.efficiency || 0}%</span>
               </div>
             </Card>
           ))}
