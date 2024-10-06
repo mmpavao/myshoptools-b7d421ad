@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import userOperations from '../../firebase/userOperations';
+import firebaseOperations from '../../firebase/firebaseOperations';
 
 const schema = z.object({
   email: z.string().email({ message: "Endereço de e-mail inválido" }),
@@ -51,7 +51,7 @@ const AuthForm = ({ isLogin }) => {
         await signInWithEmailAndPassword(auth, data.email, data.password);
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-        await userOperations.createUser({
+        await firebaseOperations.createUser({
           uid: userCredential.user.uid,
           email: data.email,
           role: data.role,

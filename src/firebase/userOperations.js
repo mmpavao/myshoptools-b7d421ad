@@ -1,2 +1,2 @@
-// This file is now empty as its contents have been merged into firebaseOperations.js
-// You can safely delete this file if it's no longer referenced elsewhere in your project.
+// This file is no longer in use. All user operations have been moved to firebaseOperations.js.
+// You can safely remove this file from your project.
