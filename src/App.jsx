@@ -20,43 +20,12 @@ import DetalheProduto from "./components/Produto/DetalheProduto";
 import ListaProdutos from "./components/Produto/ListaProdutos";
 import AdminUserList from "./components/Admin/AdminUserList";
 import SettingsPage from "./components/Admin/SettingsPage";
+import ChatAdmin from "./components/Admin/ChatAdmin";
+import ChatWidget from "./components/Chat/ChatWidget";
 import { useAuth } from "./components/Auth/AuthProvider";
 import { getUserRole } from "./firebase/userOperations";
 
 const queryClient = new QueryClient();
-
-const PlaceholderComponent = ({ title }) => (
-  <h1 className="text-2xl font-bold">{title}</h1>
-);
-
-const RoleBasedRoute = ({ element: Element, allowedRoles, ...rest }) => {
-  const { user } = useAuth();
-  const [userRole, setUserRole] = useState(null);
-
-  useEffect(() => {
-    const fetchUserRole = async () => {
-      if (user) {
-        const role = await getUserRole(user.uid);
-        setUserRole(role);
-      }
-    };
-    fetchUserRole();
-  }, [user]);
-
-  if (!userRole) {
-    return <div>Loading...</div>;
-  }
-
-  return allowedRoles.includes(userRole) ? (
-    <ProtectedRoute>
-      <Layout>
-        <Element {...rest} />
-      </Layout>
-    </ProtectedRoute>
-  ) : (
-    <Navigate to="/dashboard" replace />
-  );
-};
 
 const AppRoutes = () => (
   <Routes>
@@ -77,6 +46,7 @@ const AppRoutes = () => (
     <Route path="/produto/:id" element={<RoleBasedRoute element={DetalheProduto} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
     <Route path="/admin/users" element={<RoleBasedRoute element={AdminUserList} allowedRoles={['Admin', 'Master']} />} />
     <Route path="/admin/settings" element={<RoleBasedRoute element={SettingsPage} allowedRoles={['Admin', 'Master']} />} />
+    <Route path="/admin/chat" element={<RoleBasedRoute element={ChatAdmin} allowedRoles={['Admin', 'Master']} />} />
     <Route path="/" element={<Navigate to="/dashboard" />} />
     <Route path="*" element={<Navigate to="/dashboard" />} />
   </Routes>
@@ -89,6 +59,7 @@ const App = () => (
         <AuthProvider>
           <Toaster position="top-right" />
           <AppRoutes />
+          <ChatWidget />
         </AuthProvider>
       </Router>
     </TooltipProvider>
