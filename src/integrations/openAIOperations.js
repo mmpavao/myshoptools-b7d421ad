@@ -134,6 +134,7 @@ export const transcribeAudio = async (apiKey, audioFile) => {
   }
 };
 
+
 const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
   try {
     const openai = createOpenAIClient(apiKey);
@@ -201,7 +202,7 @@ export const getBots = async (apiKey, userId) => {
     const firestoreBots = await firebaseOperations.getBots(userId);
     const assistants = await openai.beta.assistants.list();
 
-    const mergedBots = firestoreBots.map(bot => {
+    return firestoreBots.map(bot => {
       const assistant = assistants.data.find(a => a.id === bot.assistantId);
       return {
         ...bot,
@@ -210,8 +211,6 @@ export const getBots = async (apiKey, userId) => {
         model: assistant?.model || bot.model,
       };
     });
-
-    return mergedBots;
   } catch (error) {
     handleOpenAIError(error, 'get bots');
   }

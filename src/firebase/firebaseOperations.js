@@ -183,6 +183,10 @@ const botOperations = {
     return await safeFirestoreOperation(() => deleteDoc(doc(db, 'bots', botId)));
   },
   getBots: async (userId) => {
+    if (!userId) {
+      console.error('UserId is undefined in getBots');
+      return [];
+    }
     const botsRef = collection(db, 'bots');
     const q = query(botsRef, where('userId', '==', userId));
     const querySnapshot = await getDocs(q);
