@@ -10,7 +10,6 @@ import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-// Define the voices array
 const voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'];
 
 const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDelete }) => {
@@ -88,7 +87,7 @@ const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDele
                 </SelectContent>
               </Select>
             </div>
-
+          </div>
           <div>
             <Label htmlFor="instructions">Instructions</Label>
             <Textarea
