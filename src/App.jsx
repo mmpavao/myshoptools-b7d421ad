@@ -8,6 +8,7 @@ import Register from "./components/Auth/Register";
 import Dashboard from "./components/Dashboard/Dashboard";
 import LogsPage from "./components/Logs/LogsPage";
 import Layout from "./components/Layout/Layout";
+import UserProfile from "./components/Profile/UserProfile";
 
 const queryClient = new QueryClient();
 
@@ -32,7 +33,7 @@ const AppRoutes = () => (
     <Route path="/suporte" element={<ProtectedLayout><PlaceholderComponent title="Suporte" /></ProtectedLayout>} />
     <Route path="/integracoes" element={<ProtectedLayout><PlaceholderComponent title="Integrações" /></ProtectedLayout>} />
     <Route path="/logs" element={<ProtectedLayout><LogsPage /></ProtectedLayout>} />
-    <Route path="/profile" element={<ProtectedLayout><PlaceholderComponent title="Perfil" /></ProtectedLayout>} />
+    <Route path="/profile" element={<ProtectedLayout><UserProfile /></ProtectedLayout>} />
     <Route path="/documentation" element={<ProtectedLayout><PlaceholderComponent title="Documentação" /></ProtectedLayout>} />
     <Route path="/apis" element={<ProtectedLayout><PlaceholderComponent title="APIs" /></ProtectedLayout>} />
     <Route path="/" element={<Navigate to="/dashboard" />} />
