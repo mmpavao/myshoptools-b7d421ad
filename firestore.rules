@@ -23,6 +23,16 @@ service cloud.firestore {
       allow read, write: if isAuthenticated();
     }
 
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
     // Regra temporária para testes
     match /test_collection/{document=**} {
       allow read, write: if isAuthenticated();

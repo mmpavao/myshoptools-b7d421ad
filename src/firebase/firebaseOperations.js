@@ -17,6 +17,21 @@ export const updateDocument = (collectionName, docId, data) =>
 export const deleteDocument = (collectionName, docId) => 
   safeFirestoreOperation(() => deleteDoc(doc(db, collectionName, docId)));
 
+export const createUser = (userData) => 
+  safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), userData));
+
+export const createProduct = (productData) => 
+  safeFirestoreOperation(() => addDoc(collection(db, 'products'), productData));
+
+export const createOrder = (orderData) => 
+  safeFirestoreOperation(() => addDoc(collection(db, 'orders'), orderData));
+
+export const createCategory = (categoryData) => 
+  safeFirestoreOperation(() => addDoc(collection(db, 'categories'), categoryData));
+
+export const createReview = (reviewData) => 
+  safeFirestoreOperation(() => addDoc(collection(db, 'reviews'), reviewData));
+
 export const deleteFile = async (path) => {
   try {
     const fileRef = ref(storage, path);
@@ -199,3 +214,20 @@ export const clearAllData = async () => {
   }
 };
 
+// Função auxiliar para criar várias coleções de uma vez
+export const initializeCollections = async () => {
+  try {
+    await createUser({ uid: 'testUser', name: 'Test User', email: 'test@example.com' });
+    await createProduct({ name: 'Test Product', price: 9.99, description: 'This is a test product' });
+    await createOrder({ userId: 'testUser', products: ['testProductId'], total: 9.99 });
+    await createCategory({ name: 'Test Category' });
+    await createReview({ userId: 'testUser', productId: 'testProductId', rating: 5, comment: 'Great product!' });
+    
+    console.log('Coleções inicializadas com sucesso');
+  } catch (error) {
+    console.error('Erro ao inicializar coleções:', error);
+    throw error;
+  }
+};
+
+// ... keep existing code
