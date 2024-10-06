@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { StarIcon } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../../components/Auth/AuthProvider';
 import { toast } from "@/components/ui/use-toast";
@@ -19,6 +13,7 @@ const DetalheProduto = () => {
   const [produto, setProduto] = useState(null);
   const [isImportado, setIsImportado] = useState(false);
   const [avaliacaoAtual, setAvaliacaoAtual] = useState({ nota: 0, comentario: '' });
+  const [activeTab, setActiveTab] = useState('descricao');
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -104,12 +99,18 @@ const DetalheProduto = () => {
           handleImportar={handleImportar}
         />
       </div>
-      <ProductTabs produto={produto} />
-      <RatingForm 
-        avaliacaoAtual={avaliacaoAtual} 
-        setAvaliacaoAtual={setAvaliacaoAtual} 
-        handleSubmitAvaliacao={handleSubmitAvaliacao}
+      <ProductTabs 
+        produto={produto} 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab}
       />
+      {activeTab === 'avaliacoes' && (
+        <RatingForm 
+          avaliacaoAtual={avaliacaoAtual} 
+          setAvaliacaoAtual={setAvaliacaoAtual} 
+          handleSubmitAvaliacao={handleSubmitAvaliacao}
+        />
+      )}
     </div>
   );
 };
