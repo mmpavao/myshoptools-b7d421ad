@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
-import { updateUserProfile, uploadProfileImage } from '../../firebase/firebaseOperations';
+import { updateUserProfile, uploadProfileImage, getUserProfile } from '../../firebase/firebaseOperations';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const countries = [
@@ -19,20 +19,39 @@ const countries = [
 ];
 
 export const PersonalInfoForm = ({ user, updateUserContext }) => {
-  const [name, setName] = useState(user?.displayName || '');
-  const [email, setEmail] = useState(user?.email || '');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [country, setCountry] = useState(countries[0]);
-  const [profileImage, setProfileImage] = useState(user?.photoURL || "/placeholder.svg");
+  const [profileImage, setProfileImage] = useState("/placeholder.svg");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      setPhone(user.phoneNumber?.slice(3) || '');
-      setAddress(user.address || '');
-      setCountry(countries.find(c => c.ddi === user.phoneNumber?.slice(0, 3)) || countries[0]);
-    }
+    const loadUserProfile = async () => {
+      if (user && user.uid) {
+        try {
+          const userProfile = await getUserProfile(user.uid);
+          if (userProfile) {
+            setName(userProfile.displayName || '');
+            setEmail(userProfile.email || '');
+            setPhone(userProfile.phoneNumber?.slice(3) || '');
+            setAddress(userProfile.address || '');
+            setProfileImage(userProfile.photoURL || "/placeholder.svg");
+            setCountry(countries.find(c => c.ddi === userProfile.phoneNumber?.slice(0, 3)) || countries[0]);
+          }
+        } catch (error) {
+          console.error('Erro ao carregar perfil do usuário:', error);
+          toast({
+            title: "Erro",
+            description: "Não foi possível carregar os dados do perfil.",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+
+    loadUserProfile();
   }, [user]);
 
   const handleImageChange = async (e) => {

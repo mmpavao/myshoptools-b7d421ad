@@ -5,7 +5,6 @@ import { updateProfile } from 'firebase/auth';
 import { safeFirestoreOperation } from '../utils/errorReporting';
 import { toast } from '@/components/ui/use-toast';
 
-// Basic CRUD operations
 const createDocument = (collectionName, data) => 
   safeFirestoreOperation(() => addDoc(collection(db, collectionName), data));
 
@@ -21,6 +20,7 @@ const deleteDocument = (collectionName, docId) =>
 // User-related operations
 const createUser = (userData) => 
   safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), userData));
+
 
 const updateUserProfile = async (userId, profileData) => {
   try {
@@ -38,6 +38,22 @@ const updateUserProfile = async (userId, profileData) => {
     return true;
   } catch (error) {
     console.error('Erro ao atualizar perfil do usuário:', error);
+    throw error;
+  }
+};
+
+const getUserProfile = async (userId) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userRef);
+    if (userDoc.exists()) {
+      return userDoc.data();
+    } else {
+      console.log('Nenhum documento de usuário encontrado');
+      return null;
+    }
+  } catch (error) {
+    console.error('Erro ao obter perfil do usuário:', error);
     throw error;
   }
 };
@@ -187,19 +203,6 @@ const clearAllData = async () => {
     console.log('Todos os dados foram apagados com sucesso.');
   } catch (error) {
     console.error('Erro ao apagar dados:', error);
-    throw error;
-  }
-};
-
-const initializeCollections = async () => {
-  try {
-    await createUser({ uid: 'testUser', name: 'Test User', email: 'test@example.com' });
-    await createOrder({ userId: 'testUser', products: ['testProductId'], total: 9.99 });
-    await createCategory({ name: 'Test Category' });
-    await createReview({ userId: 'testUser', productId: 'testProductId', rating: 5, comment: 'Great product!' });
-    console.log('Coleções inicializadas com sucesso');
-  } catch (error) {
-    console.error('Erro ao inicializar coleções:', error);
     throw error;
   }
 };
