@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { createBot, updateBot, deleteBot, getBots, testOpenAIConnection } from './openAIOperations';
 import BotList from './components/BotList';
 import BotDialog from './components/BotDialog';
+import BotChatDialog from './components/BotChatDialog';
 import ImageAnalysisGeneration from './components/ImageAnalysisGeneration';
 import AudioTranscriptionSpeech from './components/AudioTranscriptionSpeech';
 import IntegrationLogs from './components/IntegrationLogs';
@@ -11,6 +12,7 @@ import APIKeyManager from './components/APIKeyManager';
 const OpenAIIntegration = () => {
   const [bots, setBots] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isChatDialogOpen, setIsChatDialogOpen] = useState(false);
   const [currentBot, setCurrentBot] = useState({ name: '', instructions: '', model: 'gpt-3.5-turbo', temperature: 1 });
   const [isEditing, setIsEditing] = useState(false);
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openaiApiKey') || '');
@@ -117,8 +119,8 @@ const OpenAIIntegration = () => {
   };
 
   const handleChatWithBot = (bot) => {
-    // Implement chat functionality here
-    toast.info(`Chat with ${bot.name} is not implemented yet.`);
+    setCurrentBot(bot);
+    setIsChatDialogOpen(true);
   };
 
   return (
@@ -145,6 +147,13 @@ const OpenAIIntegration = () => {
         isEditing={isEditing}
         onSave={handleSaveBot}
         onDelete={handleDeleteBot}
+      />
+
+      <BotChatDialog
+        isOpen={isChatDialogOpen}
+        onOpenChange={setIsChatDialogOpen}
+        bot={currentBot}
+        apiKey={apiKey}
       />
 
       <ImageAnalysisGeneration apiKey={apiKey} />
