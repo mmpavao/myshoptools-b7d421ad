@@ -70,7 +70,7 @@ const createSimplifiedObject = (obj) => {
 
 export const safePostMessage = (targetWindow, message, targetOrigin, transfer) => {
   try {
-    let simplifiedMessage = createSimplifiedObject(message);
+    let simplifiedMessage = JSON.parse(JSON.stringify(createSimplifiedObject(message)));
     targetWindow.postMessage(simplifiedMessage, targetOrigin, transfer);
   } catch (error) {
     safeLogError(error);
