@@ -24,6 +24,8 @@ import SettingsPage from "./components/Admin/SettingsPage";
 import ChatAdmin from "./components/Admin/ChatAdmin";
 import ChatWidget from "./components/Chat/ChatWidget";
 import { getUserRole } from "./firebase/userOperations";
+import OpenAIIntegration from "./integrations/OpenAIIntegration";
+import GoogleSheetsIntegration from "./integrations/GoogleSheetsIntegration";
 
 const queryClient = new QueryClient();
 
@@ -58,13 +60,6 @@ const RoleBasedRoute = ({ element: Element, allowedRoles }) => {
   );
 };
 
-const PlaceholderComponent = ({ title }) => (
-  <div className="p-4">
-    <h1 className="text-2xl font-bold mb-4">{title}</h1>
-    <p>This is a placeholder for the {title} page.</p>
-  </div>
-);
-
 const AppRoutes = () => (
   <Routes>
     <Route path="/login" element={<Login />} />
@@ -85,6 +80,8 @@ const AppRoutes = () => (
     <Route path="/admin/users" element={<RoleBasedRoute element={AdminUserList} allowedRoles={['Admin', 'Master']} />} />
     <Route path="/admin/settings" element={<RoleBasedRoute element={SettingsPage} allowedRoles={['Admin', 'Master']} />} />
     <Route path="/admin/chat" element={<RoleBasedRoute element={ChatAdmin} allowedRoles={['Admin', 'Master']} />} />
+    <Route path="/admin/integrations/openai" element={<RoleBasedRoute element={OpenAIIntegration} allowedRoles={['Admin', 'Master']} />} />
+    <Route path="/admin/integrations/google-sheets" element={<RoleBasedRoute element={GoogleSheetsIntegration} allowedRoles={['Admin', 'Master']} />} />
     <Route path="/" element={<Navigate to="/dashboard" />} />
     <Route path="*" element={<Navigate to="/dashboard" />} />
   </Routes>
@@ -105,5 +102,3 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
 );
-
-export default App;

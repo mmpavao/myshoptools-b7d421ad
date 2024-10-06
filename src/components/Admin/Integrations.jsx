@@ -25,10 +25,15 @@ const Integrations = () => {
   };
 
   const handleIntegrate = (integration) => {
-    if (integration.name === "OpenAI GPT-4") {
-      navigate('/admin/integrations/openai');
-    } else {
-      console.log(`Integrating ${integration.name}`);
+    switch (integration.name) {
+      case "OpenAI GPT-4":
+        navigate('/admin/integrations/openai');
+        break;
+      case "Google Sheets":
+        navigate('/admin/integrations/google-sheets');
+        break;
+      default:
+        console.log(`Integrating ${integration.name}`);
     }
   };
 
