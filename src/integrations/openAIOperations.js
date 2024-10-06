@@ -153,8 +153,8 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
   try {
     const openai = createOpenAIClient(apiKey);
     const assistantData = {
-      name: botData.name,
-      instructions: botData.instructions,
+      name: botData.name || 'Unnamed Bot',
+      instructions: botData.instructions || '',
       model: botData.model || "gpt-3.5-turbo",
       tools: [{ type: "code_interpreter" }],
     };
@@ -166,49 +166,43 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
       assistant = await openai.beta.assistants.create(assistantData);
     }
 
-    let avatarUrl = botData.avatar;
+    let avatarUrl = botData.avatar || null;
     if (botData.avatarFile) {
       avatarUrl = await firebaseOperations.uploadBotAvatar(botData.avatarFile, assistant.id);
     }
 
     const botDocData = {
-      ...botData,
+      name: botData.name || 'Unnamed Bot',
+      instructions: botData.instructions || '',
+      model: botData.model || "gpt-3.5-turbo",
       assistantId: assistant.id,
       avatar: avatarUrl,
       voice: botData.voice || 'alloy',
       updatedAt: new Date().toISOString(),
+      userId: botData.userId,
     };
 
     if (!isUpdate) {
       botDocData.createdAt = new Date().toISOString();
     }
 
+    let botId;
     if (isUpdate) {
-      await firebaseOperations.updateBot(botData.id, botDocData);
+      botId = botData.id;
+      await firebaseOperations.updateBot(botId, botDocData);
     } else {
-      await firebaseOperations.createBot(botDocData);
+      botId = await firebaseOperations.createBot(botDocData);
     }
 
-    return { id: botData.id, ...botDocData };
+    return { id: botId, ...botDocData };
   } catch (error) {
+    console.error('Error in createOrUpdateBot:', error);
     handleOpenAIError(error, isUpdate ? 'update bot' : 'create bot');
   }
 };
 
 export const createBot = (apiKey, botData) => createOrUpdateBot(apiKey, botData);
 export const updateBot = (apiKey, botId, botData) => createOrUpdateBot(apiKey, { ...botData, id: botId }, true);
-
-export const deleteBot = async (apiKey, botId, assistantId) => {
-  try {
-    const openai = createOpenAIClient(apiKey);
-    if (assistantId) {
-      await openai.beta.assistants.del(assistantId);
-    }
-    await firebaseOperations.deleteBot(botId);
-  } catch (error) {
-    handleOpenAIError(error, 'delete bot');
-  }
-};
 
 export const getBots = async (apiKey, userId) => {
   try {
@@ -238,14 +232,11 @@ export const getBots = async (apiKey, userId) => {
 
     const bots = firestoreBots.map(bot => {
       const assistant = assistants.find(a => a && a.id === bot.assistantId);
-      if (!assistant) {
-        console.log(`No matching OpenAI assistant found for bot ${bot.id}`);
-      }
       return {
         ...bot,
-        name: assistant?.name || bot.name,
-        instructions: assistant?.instructions || bot.instructions,
-        model: assistant?.model || bot.model,
+        name: assistant?.name || bot.name || 'Unnamed Bot',
+        instructions: assistant?.instructions || bot.instructions || '',
+        model: assistant?.model || bot.model || 'gpt-3.5-turbo',
       };
     });
 
@@ -257,5 +248,3 @@ export const getBots = async (apiKey, userId) => {
     return [];
   }
 };
-
-// Remove the duplicate exports at the end of the file
