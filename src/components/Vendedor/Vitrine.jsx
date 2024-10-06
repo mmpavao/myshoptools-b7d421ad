@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { StarIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../components/Auth/AuthProvider';
@@ -16,6 +17,7 @@ const Vitrine = () => {
   const [filtro, setFiltro] = useState('');
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchProdutos();
@@ -45,17 +47,28 @@ const Vitrine = () => {
 
   const handleImportar = async (produto) => {
     if (!user) {
-      console.error("Você precisa estar logado para importar produtos.");
+      toast({
+        title: "Erro",
+        description: "Você precisa estar logado para importar produtos.",
+        variant: "destructive",
+      });
       return;
     }
 
     try {
-      console.log(`Tentando importar produto: ${produto.id}`);
-      await firebaseOperations.importarProduto(user.uid, produto);
-      console.log(`Produto importado com sucesso: ${produto.id}`);
+      await firebaseOperations.importarProdutoParaMeusProdutos(user.uid, produto);
       setProdutosImportados(prev => ({ ...prev, [produto.id]: true }));
+      toast({
+        title: "Sucesso",
+        description: "Produto importado com sucesso para Meus Produtos!",
+      });
     } catch (error) {
       console.error("Erro ao importar produto:", error);
+      toast({
+        title: "Erro",
+        description: "Falha ao importar o produto. Tente novamente.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -166,7 +179,6 @@ const Vitrine = () => {
                 <Button 
                   onClick={() => handleImportar(produto)}
                   disabled={produtosImportados[produto.id]}
-                  className={produtosImportados[produto.id] ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : ''}
                 >
                   {produtosImportados[produto.id] ? 'Importado' : 'Importar'}
                 </Button>

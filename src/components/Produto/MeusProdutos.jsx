@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StarIcon, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../../components/Auth/AuthProvider';
 
@@ -13,16 +14,26 @@ const MeusProdutos = () => {
   const [filtro, setFiltro] = useState('');
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchMeusProdutos = async () => {
       if (user) {
-        const produtosImportados = await firebaseOperations.getProdutosImportados(user.uid);
-        setProdutos(produtosImportados);
+        try {
+          const meusProdutos = await firebaseOperations.getMeusProdutos(user.uid);
+          setProdutos(meusProdutos);
+        } catch (error) {
+          console.error("Erro ao buscar meus produtos:", error);
+          toast({
+            title: "Erro",
+            description: "Falha ao carregar seus produtos. Tente novamente.",
+            variant: "destructive",
+          });
+        }
       }
     };
     fetchMeusProdutos();
-  }, [user]);
+  }, [user, toast]);
 
   const handleDetalhes = (produtoId) => {
     navigate(`/produto/${produtoId}`);
@@ -73,6 +84,8 @@ const MeusProdutos = () => {
                 </div>
               </div>
               <p className="text-sm">Estoque: {produto.estoque}</p>
+              <p className="text-sm">Status: {produto.status}</p>
+              <p className="text-sm">Importado em: {new Date(produto.dataImportacao).toLocaleDateString()}</p>
             </CardContent>
             <CardFooter className="p-4 mt-auto flex justify-between">
               <Button onClick={() => handleDetalhes(produto.id)}>Ver Detalhes</Button>
