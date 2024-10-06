@@ -23,9 +23,11 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [country, setCountry] = useState(countries[0]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       await updateUserProfile(user.uid, {
         displayName: name,
@@ -38,6 +40,7 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
       toast({
         title: "Perfil Atualizado",
         description: "Suas informações foram atualizadas com sucesso.",
+        variant: "success",
       });
     } catch (error) {
       toast({
@@ -45,6 +48,8 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
         description: "Não foi possível atualizar o perfil. Tente novamente.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -90,7 +95,9 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
           </div>
         </div>
       </div>
-      <Button type="submit" className="mt-6">Salvar Alterações</Button>
+      <Button type="submit" className="mt-6" disabled={isSubmitting}>
+        {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
+      </Button>
     </form>
   );
 };

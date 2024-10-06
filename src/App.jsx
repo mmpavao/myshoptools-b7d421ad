@@ -46,7 +46,7 @@ const App = () => (
     <TooltipProvider>
       <Router>
         <AuthProvider>
-          <Toaster />
+          <Toaster position="top-right" />
           <AppRoutes />
         </AuthProvider>
       </Router>
