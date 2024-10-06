@@ -260,4 +260,11 @@ export const getBots = async (apiKey, userId) => {
   }
 };
 
-export { testOpenAIConnection, chatWithBot, analyzeDocument, analyzeImage, generateImage, transcribeAudio, textToSpeech, createBot, updateBot, deleteBot, getBots };
+// Remove the duplicate export statement at the end of the file
+// The following line should be deleted:
+// export { testOpenAIConnection, chatWithBot, analyzeDocument, analyzeImage, generateImage, transcribeAudio, textToSpeech, createBot, updateBot, deleteBot, getBots };
+
+// Instead, ensure that each function is exported individually when it's defined, like this:
+// export const functionName = ...
+
+// If any function is missing an export, add it at the point of declaration
