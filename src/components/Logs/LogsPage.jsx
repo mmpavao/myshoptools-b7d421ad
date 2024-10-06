@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import FirebaseTestLog from '../Dashboard/FirebaseTestLog';
@@ -18,9 +18,19 @@ import { toast } from '@/components/ui/use-toast';
 
 const LogsPage = () => {
   const [logs, setLogs] = useState([]);
+  const [adminLogs, setAdminLogs] = useState([]);
   const [isTestingFirebase, setIsTestingFirebase] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [pin, setPin] = useState('');
+
+  useEffect(() => {
+    fetchAdminLogs();
+  }, []);
+
+  const fetchAdminLogs = async () => {
+    const logs = await firebaseOperations.getAdminLogs();
+    setAdminLogs(logs);
+  };
 
   const handleTestFirebase = async () => {
     setIsTestingFirebase(true);
@@ -60,6 +70,25 @@ const LogsPage = () => {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-semibold text-gray-800">Logs e Testes</h1>
+      
+      {/* Admin Logs Section */}
+      <div className="bg-white shadow rounded-lg p-6">
+        <h2 className="text-xl font-semibold mb-4">Logs de Administração</h2>
+        <div className="max-h-96 overflow-y-auto">
+          {adminLogs.map((log) => (
+            <div key={log.id} className="mb-2 p-2 border-b">
+              <p><strong>Ação:</strong> {log.action}</p>
+              <p><strong>Usuário:</strong> {log.userId}</p>
+              <p><strong>Produto:</strong> {log.productId}</p>
+              <p><strong>Data:</strong> {new Date(log.timestamp).toLocaleString()}</p>
+              <p><strong>Status:</strong> {log.status}</p>
+              {log.errorMessage && <p><strong>Erro:</strong> {log.errorMessage}</p>}
+            </div>
+          ))}
+        </div>
+        <Button onClick={fetchAdminLogs} className="mt-4">Atualizar Logs</Button>
+      </div>
+
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Testes do Firebase</h2>
         <Button onClick={handleTestFirebase} disabled={isTestingFirebase}>

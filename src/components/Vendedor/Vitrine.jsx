@@ -53,11 +53,21 @@ const Vitrine = () => {
     }
 
     try {
+      console.log(`Tentando importar produto: ${produto.id}`);
       await firebaseOperations.importarProduto(user.uid, produto);
+      console.log(`Produto importado com sucesso: ${produto.id}`);
       setProdutosImportados(prev => ({ ...prev, [produto.id]: true }));
       toast({
         title: "Sucesso",
         description: "Produto importado com sucesso!",
+      });
+      // Add log to admin logs
+      await firebaseOperations.addAdminLog({
+        action: 'import_product',
+        userId: user.uid,
+        productId: produto.id,
+        timestamp: new Date().toISOString(),
+        status: 'success'
       });
     } catch (error) {
       console.error("Erro ao importar produto:", error);
@@ -65,6 +75,15 @@ const Vitrine = () => {
         title: "Erro",
         description: "Não foi possível importar o produto.",
         variant: "destructive",
+      });
+      // Add error log to admin logs
+      await firebaseOperations.addAdminLog({
+        action: 'import_product',
+        userId: user.uid,
+        productId: produto.id,
+        timestamp: new Date().toISOString(),
+        status: 'error',
+        errorMessage: error.message
       });
     }
   };

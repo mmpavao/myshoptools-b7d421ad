@@ -264,11 +264,31 @@ const clearAllData = async () => {
   }
 };
 
+const adminOperations = {
+  addAdminLog: async (logData) => {
+    try {
+      await addDoc(collection(db, 'adminLogs'), logData);
+    } catch (error) {
+      console.error('Error adding admin log:', error);
+    }
+  },
+  getAdminLogs: async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'adminLogs'));
+      return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      console.error('Error getting admin logs:', error);
+      return [];
+    }
+  }
+};
+
 const firebaseOperations = {
   ...crudOperations,
   ...userOperations,
   ...productOperations,
   ...fileOperations,
+  ...adminOperations,
   testFirebaseOperations,
   clearAllData
 };
