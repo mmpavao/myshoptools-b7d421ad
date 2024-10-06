@@ -20,6 +20,7 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }
   const fileInputRef = useRef(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isBotResponding, setIsBotResponding] = useState(false);
+  const mediaRecorderRef = useRef(null);
 
   useEffect(() => {
     const fetchActiveBots = async () => {
@@ -29,7 +30,6 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }
     };
     fetchActiveBots();
 
-    // Listen for new messages
     const messagesQuery = query(
       collection(db, 'messages'),
       where('userId', '==', user.uid),
@@ -58,7 +58,7 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }
 
     const newMessage = {
       text: content,
-      createdAt: new Date(),
+      createdAt: serverTimestamp(),
       userId: user.uid,
       userName: user.displayName || user.email,
       agentId: selectedAgent,
@@ -90,7 +90,7 @@ const ChatWindow = ({ onClose, onlineAgents, apiKey, activeBots, setActiveBots }
 
           await addDoc(collection(db, 'messages'), {
             text: botResponse.response,
-            createdAt: new Date(),
+            createdAt: serverTimestamp(),
             userId: 'zilda',
             userName: 'Zilda (Bot)',
             agentId: 'zilda',
