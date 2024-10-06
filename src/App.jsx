@@ -20,7 +20,7 @@ import DetalheProduto from "./components/Produto/DetalheProduto";
 import ListaProdutos from "./components/Produto/ListaProdutos";
 import AdminUserList from "./components/Admin/AdminUserList";
 import { useAuth } from "./components/Auth/AuthProvider";
-import userOperations from "./firebase/userOperations";
+import { getUserRole } from "./firebase/userOperations";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +35,7 @@ const RoleBasedRoute = ({ element: Element, allowedRoles, ...rest }) => {
   useEffect(() => {
     const fetchUserRole = async () => {
       if (user) {
-        const role = await userOperations.getUserRole(user.uid);
+        const role = await getUserRole(user.uid);
         setUserRole(role);
       }
     };
