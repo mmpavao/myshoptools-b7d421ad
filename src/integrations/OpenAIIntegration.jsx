@@ -85,12 +85,9 @@ const OpenAIIntegration = () => {
     }
     try {
       addLog(`${isEditing ? 'Updating' : 'Creating'} bot: ${botData.name}`);
-      let savedBot;
-      if (isEditing) {
-        savedBot = await updateBot(apiKey, botData.id, botData);
-      } else {
-        savedBot = await createBot(apiKey, botData);
-      }
+      const savedBot = isEditing
+        ? await updateBot(apiKey, botData.id, botData)
+        : await createBot(apiKey, botData);
       addLog(`Bot ${isEditing ? 'updated' : 'created'} successfully`, 'success');
       toast.success(isEditing ? 'Bot updated successfully!' : 'Bot created successfully!');
       setIsDialogOpen(false);
@@ -118,11 +115,6 @@ const OpenAIIntegration = () => {
       addLog(`Failed to delete bot: ${error.message}`, 'error');
       toast.error(`Failed to delete bot: ${error.message}`);
     }
-  };
-
-  const handleChatWithBot = (bot) => {
-    setCurrentBot(bot);
-    setIsChatDialogOpen(true);
   };
 
   return (

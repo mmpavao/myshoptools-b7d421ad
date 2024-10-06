@@ -1,5 +1,5 @@
 import { db } from '../firebase/config';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where } from 'firebase/firestore';
 import { createOpenAIClient, handleOpenAIError } from '../utils/openAIUtils';
 
 export const testOpenAIConnection = async (apiKey) => {
@@ -170,34 +170,30 @@ export const getBotDetails = async (apiKey, assistantId) => {
   try {
     if (!assistantId) {
       console.warn('Assistant ID is undefined. Returning default bot details.');
-      return {
-        name: 'Unnamed Bot',
-        instructions: '',
-        model: 'gpt-3.5-turbo',
-        temperature: 1,
-        voice: 'alloy',
-      };
+      return getDefaultBotDetails();
     }
     const openai = createOpenAIClient(apiKey);
     const assistant = await openai.beta.assistants.retrieve(assistantId);
     return {
-      name: assistant.name,
-      instructions: assistant.instructions,
-      model: assistant.model,
+      name: assistant.name || 'Unnamed Bot',
+      instructions: assistant.instructions || '',
+      model: assistant.model || 'gpt-3.5-turbo',
       temperature: 1,
       voice: 'alloy',
     };
   } catch (error) {
     console.error('Error getting bot details:', error);
-    return {
-      name: 'Error Bot',
-      instructions: 'Failed to load bot details',
-      model: 'gpt-3.5-turbo',
-      temperature: 1,
-      voice: 'alloy',
-    };
+    return getDefaultBotDetails();
   }
 };
+
+const getDefaultBotDetails = () => ({
+  name: 'Unnamed Bot',
+  instructions: '',
+  model: 'gpt-3.5-turbo',
+  temperature: 1,
+  voice: 'alloy',
+});
 
 const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
   try {
@@ -205,11 +201,11 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
     const assistantData = {
       name: botData.name,
       instructions: botData.instructions,
-      model: "gpt-3.5-turbo",
+      model: botData.model || "gpt-3.5-turbo",
     };
 
     let assistant;
-    if (isUpdate) {
+    if (isUpdate && botData.assistantId) {
       assistant = await openai.beta.assistants.update(botData.assistantId, assistantData);
     } else {
       assistant = await openai.beta.assistants.create(assistantData);
@@ -220,7 +216,6 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
       assistantId: assistant.id,
       avatar: botData.avatar || null,
       updatedAt: new Date().toISOString(),
-      model: "gpt-3.5-turbo",
       createdAt: isUpdate ? botData.createdAt : new Date().toISOString(),
     };
 
@@ -239,17 +234,12 @@ export const updateBot = (apiKey, botId, botData) => createOrUpdateBot(apiKey, {
 export const deleteBot = async (apiKey, botId, assistantId) => {
   try {
     const openai = createOpenAIClient(apiKey);
-    await openai.beta.assistants.del(assistantId);
+    if (assistantId) {
+      await openai.beta.assistants.del(assistantId);
+    }
     await deleteDoc(doc(db, 'bots', botId));
   } catch (error) {
     handleOpenAIError(error, 'delete bot');
-  }
-};
-
-const syncBotsWithFirestore = async (mergedBots) => {
-  for (const bot of mergedBots) {
-    const botRef = doc(db, 'bots', bot.id);
-    await setDoc(botRef, bot, { merge: true });
   }
 };
 
@@ -260,42 +250,45 @@ export const getBots = async (apiKey) => {
     const querySnapshot = await getDocs(collection(db, 'bots'));
     const firestoreBots = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    const mergedBots = assistants.data.map(assistant => {
+    const mergedBots = await Promise.all(assistants.data.map(async (assistant) => {
       const firestoreBot = firestoreBots.find(bot => bot.assistantId === assistant.id);
+      const botDetails = await getBotDetails(apiKey, assistant.id);
       return {
         id: firestoreBot?.id || assistant.id,
-        name: assistant.name || 'Unnamed Bot',
-        instructions: assistant.instructions || '',
-        model: assistant.model || 'gpt-3.5-turbo',
+        ...botDetails,
         assistantId: assistant.id,
         avatar: firestoreBot?.avatar || null,
         createdAt: firestoreBot?.createdAt || new Date(assistant.created_at * 1000).toISOString(),
         updatedAt: new Date().toISOString(),
         isActive: firestoreBot?.isActive || false,
-        temperature: firestoreBot?.temperature || 1,
-        voice: firestoreBot?.voice || 'alloy',
       };
-    });
+    }));
 
-    // Remove bots from Firestore that no longer exist in OpenAI
-    const botsToRemove = firestoreBots.filter(
-      firestoreBot => !assistants.data.some(assistant => assistant.id === firestoreBot.assistantId)
-    );
-
-    for (const botToRemove of botsToRemove) {
-      await deleteDoc(doc(db, 'bots', botToRemove.id));
-    }
-
-    // Update or add bots in Firestore
-    for (const bot of mergedBots) {
-      const botRef = doc(db, 'bots', bot.id);
-      await setDoc(botRef, bot, { merge: true });
-    }
-
+    await syncBotsWithFirestore(mergedBots);
     return mergedBots;
   } catch (error) {
     console.error('Error getting bots:', error);
     handleOpenAIError(error, 'get bots');
     return [];
+  }
+};
+
+const syncBotsWithFirestore = async (mergedBots) => {
+  const querySnapshot = await getDocs(collection(db, 'bots'));
+  const firestoreBots = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+  // Update or add bots in Firestore
+  for (const bot of mergedBots) {
+    const botRef = doc(db, 'bots', bot.id);
+    await setDoc(botRef, bot, { merge: true });
+  }
+
+  // Remove bots from Firestore that no longer exist in OpenAI
+  const botsToRemove = firestoreBots.filter(
+    firestoreBot => !mergedBots.some(bot => bot.assistantId === firestoreBot.assistantId)
+  );
+
+  for (const botToRemove of botsToRemove) {
+    await deleteDoc(doc(db, 'bots', botToRemove.id));
   }
 };
