@@ -32,6 +32,11 @@ const EstoqueForm = ({
     updateFotos(items);
   };
 
+  const handleGenerateAIContent = (e, field, prompt) => {
+    e.preventDefault(); // Previne o comportamento padrão do botão
+    generateAIContent(field, prompt);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
@@ -42,10 +47,11 @@ const EstoqueForm = ({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
+                    type="button" // Especifica que é um botão do tipo "button"
                     variant="ghost" 
                     size="icon" 
                     className="ml-2" 
-                    onClick={() => generateAIContent('titulo', novoProduto.sku)}
+                    onClick={(e) => handleGenerateAIContent(e, 'titulo', novoProduto.sku)}
                   >
                     <Sparkles className="h-4 w-4" />
                   </Button>
@@ -71,10 +77,11 @@ const EstoqueForm = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button 
+                  type="button" // Especifica que é um botão do tipo "button"
                   variant="ghost" 
                   size="icon" 
                   className="ml-2" 
-                  onClick={() => generateAIContent('descricao', `${novoProduto.titulo} ${novoProduto.sku}`)}
+                  onClick={(e) => handleGenerateAIContent(e, 'descricao', `${novoProduto.titulo} ${novoProduto.sku}`)}
                 >
                   <Sparkles className="h-4 w-4" />
                 </Button>
