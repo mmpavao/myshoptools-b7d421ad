@@ -56,12 +56,14 @@ const Vitrine = () => {
     }
 
     try {
-      await firebaseOperations.importarProdutoParaMeusProdutos(user.uid, produto);
+      await firebaseOperations.importarProduto(user.uid, produto);
       setProdutosImportados(prev => ({ ...prev, [produto.id]: true }));
       toast({
         title: "Sucesso",
         description: "Produto importado com sucesso para Meus Produtos!",
       });
+      // Adicione esta linha para atualizar a lista de produtos importados
+      await fetchProdutos();
     } catch (error) {
       console.error("Erro ao importar produto:", error);
       toast({
