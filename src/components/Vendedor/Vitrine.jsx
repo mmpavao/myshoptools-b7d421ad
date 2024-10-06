@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getProducts } from '../../firebase/firebaseOperations';
+import { getProducts, createDocument } from '../../firebase/firebaseOperations';
 import { toast } from "@/components/ui/use-toast";
+import { useNavigate } from 'react-router-dom';
 
 const Vitrine = () => {
   const [produtos, setProdutos] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProdutos();
@@ -20,6 +22,24 @@ const Vitrine = () => {
       toast({
         title: "Erro",
         description: "Não foi possível carregar os produtos.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleImportar = async (produto) => {
+    try {
+      await createDocument('meusProdutos', produto);
+      toast({
+        title: "Sucesso",
+        description: "Produto importado com sucesso!",
+      });
+      navigate('/meus-produtos');
+    } catch (error) {
+      console.error("Erro ao importar produto:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível importar o produto.",
         variant: "destructive",
       });
     }
@@ -42,7 +62,7 @@ const Vitrine = () => {
             </CardContent>
             <CardFooter className="flex justify-between">
               <Button variant="outline">Detalhes</Button>
-              <Button>Importar</Button>
+              <Button onClick={() => handleImportar(produto)}>Importar</Button>
             </CardFooter>
           </Card>
         ))}
