@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from '../../firebase/config';
+import { auth, safeLogError } from '../../firebase/config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { safeLogError } from '../../firebase/config';
 import { Spinner } from '../ui/spinner';
 import { checkUserStatus } from '../../firebase/userOperations';
 import { toast } from '@/components/ui/use-toast';

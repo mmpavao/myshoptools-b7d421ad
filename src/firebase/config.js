@@ -26,6 +26,12 @@ export const storage = getStorage(app);
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 export { openAIConfig };
 
+// Add the safeLogError function
+export const safeLogError = (error) => {
+  console.error("Safely logged error:", error);
+  // You can add more error logging logic here if needed
+};
+
 const initializeCollections = async () => {
   const collectionsToInitialize = ['bots', 'user_settings'];
   
