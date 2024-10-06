@@ -4,16 +4,21 @@ export const createOpenAIClient = (apiKey) => new OpenAI({ apiKey, dangerouslyAl
 
 export const handleOpenAIError = (error, operation) => {
   console.error(`Error in ${operation}:`, error);
+  
   if (error.response) {
     const status = error.response.status;
+    const errorMessage = error.response.data?.error?.message || 'Unknown error occurred';
+    
     if (status === 401) {
       throw new Error('Authentication failed. Please check your API key.');
     } else if (status === 403) {
       throw new Error('Access forbidden. Your account may not have the necessary permissions.');
+    } else if (status === 404) {
+      throw new Error(`Resource not found. ${errorMessage}`);
     } else if (status === 429) {
       throw new Error('Rate limit exceeded. Please try again later.');
     } else {
-      throw new Error(`OpenAI API error: ${error.response.data.error.message}`);
+      throw new Error(`OpenAI API error: ${errorMessage}`);
     }
   } else if (error.request) {
     throw new Error('No response received from OpenAI. Please check your internet connection.');

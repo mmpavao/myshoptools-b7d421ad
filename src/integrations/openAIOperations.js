@@ -209,9 +209,12 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
       model: "gpt-3.5-turbo",
     };
 
-    let assistant = isUpdate
-      ? await openai.beta.assistants.update(botData.assistantId, assistantData)
-      : await openai.beta.assistants.create(assistantData);
+    let assistant;
+    if (isUpdate) {
+      assistant = await openai.beta.assistants.update(botData.assistantId, assistantData);
+    } else {
+      assistant = await openai.beta.assistants.create(assistantData);
+    }
 
     const botDocData = {
       ...botData,
