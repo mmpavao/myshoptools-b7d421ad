@@ -6,81 +6,31 @@ import { AuthProvider, ProtectedRoute } from "./components/Auth/AuthProvider";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Dashboard from "./components/Dashboard/Dashboard";
+import Layout from "./components/Layout/Layout";
 
 const queryClient = new QueryClient();
 
-const Layout = ({ children }) => (
-  <div className="min-h-screen bg-background">
-    <main className="container mx-auto py-6">{children}</main>
-  </div>
+const PlaceholderComponent = ({ title }) => (
+  <h1 className="text-2xl font-bold">{title}</h1>
 );
 
-const PlaceholderComponent = ({ title }) => (
-  <div className="flex items-center justify-center h-screen">
-    <h1 className="text-2xl font-bold">{title}</h1>
-  </div>
+const ProtectedLayout = ({ children }) => (
+  <ProtectedRoute>
+    <Layout>{children}</Layout>
+  </ProtectedRoute>
 );
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/login" element={<Layout><Login /></Layout>} />
-    <Route path="/register" element={<Layout><Register /></Layout>} />
-    <Route
-      path="/dashboard"
-      element={
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/vitrine"
-      element={
-        <ProtectedRoute>
-          <PlaceholderComponent title="Vitrine" />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/produtos"
-      element={
-        <ProtectedRoute>
-          <PlaceholderComponent title="Meus Produtos" />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/pedidos"
-      element={
-        <ProtectedRoute>
-          <PlaceholderComponent title="Pedidos" />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/suporte"
-      element={
-        <ProtectedRoute>
-          <PlaceholderComponent title="Suporte" />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/integracoes"
-      element={
-        <ProtectedRoute>
-          <PlaceholderComponent title="Integrações" />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/logs"
-      element={
-        <ProtectedRoute>
-          <PlaceholderComponent title="Logs" />
-        </ProtectedRoute>
-      }
-    />
+    <Route path="/login" element={<Login />} />
+    <Route path="/register" element={<Register />} />
+    <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
+    <Route path="/vitrine" element={<ProtectedLayout><PlaceholderComponent title="Vitrine" /></ProtectedLayout>} />
+    <Route path="/produtos" element={<ProtectedLayout><PlaceholderComponent title="Meus Produtos" /></ProtectedLayout>} />
+    <Route path="/pedidos" element={<ProtectedLayout><PlaceholderComponent title="Pedidos" /></ProtectedLayout>} />
+    <Route path="/suporte" element={<ProtectedLayout><PlaceholderComponent title="Suporte" /></ProtectedLayout>} />
+    <Route path="/integracoes" element={<ProtectedLayout><PlaceholderComponent title="Integrações" /></ProtectedLayout>} />
+    <Route path="/logs" element={<ProtectedLayout><PlaceholderComponent title="Logs" /></ProtectedLayout>} />
     <Route path="/" element={<Navigate to="/dashboard" />} />
     <Route path="*" element={<Navigate to="/dashboard" />} />
   </Routes>
