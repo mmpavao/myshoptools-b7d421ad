@@ -168,6 +168,49 @@ const fileOperations = {
   }
 };
 
+const meusProdutosOperations = {
+  getMeusProdutos: async (userId) => {
+    try {
+      const meusProdutosRef = collection(db, 'users', userId, 'meusProdutos');
+      const snapshot = await getDocs(meusProdutosRef);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      console.error('Erro ao buscar meus produtos:', error);
+      throw error;
+    }
+  },
+
+  adicionarMeuProduto: async (userId, produto) => {
+    try {
+      const meusProdutosRef = collection(db, 'users', userId, 'meusProdutos');
+      await addDoc(meusProdutosRef, produto);
+    } catch (error) {
+      console.error('Erro ao adicionar produto:', error);
+      throw error;
+    }
+  },
+
+  removerMeuProduto: async (userId, produtoId) => {
+    try {
+      const produtoRef = doc(db, 'users', userId, 'meusProdutos', produtoId);
+      await deleteDoc(produtoRef);
+    } catch (error) {
+      console.error('Erro ao remover produto:', error);
+      throw error;
+    }
+  },
+
+  atualizarMeuProduto: async (userId, produtoId, dadosAtualizados) => {
+    try {
+      const produtoRef = doc(db, 'users', userId, 'meusProdutos', produtoId);
+      await updateDoc(produtoRef, dadosAtualizados);
+    } catch (error) {
+      console.error('Erro ao atualizar produto:', error);
+      throw error;
+    }
+  }
+};
+
 const testFirebaseOperations = async (logCallback) => {
   try {
     const testDoc = await crudOperations.createDocument('test_collection', { test: 'data' });
@@ -231,6 +274,7 @@ const firebaseOperations = {
   ...userOperations,
   ...productOperations,
   ...fileOperations,
+  ...meusProdutosOperations,
   testFirebaseOperations,
   clearAllData
 };
