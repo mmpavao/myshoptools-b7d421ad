@@ -1,5 +1,3 @@
-import { db } from '../firebase/config';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
 import { createOpenAIClient, handleOpenAIError } from '../utils/openAIUtils';
 import firebaseOperations from '../firebase/firebaseOperations';
 
@@ -147,7 +145,7 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
     };
 
     let assistant;
-    if (isUpdate) {
+    if (isUpdate && botData.assistantId) {
       assistant = await openai.beta.assistants.update(botData.assistantId, assistantData);
     } else {
       assistant = await openai.beta.assistants.create(assistantData);
@@ -170,11 +168,13 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
       botDocData.createdAt = new Date().toISOString();
     }
 
-    const docRef = isUpdate ? doc(db, 'bots', botData.id) : collection(db, 'bots');
-    const operation = isUpdate ? updateDoc : addDoc;
-    await operation(docRef, botDocData);
+    if (isUpdate) {
+      await firebaseOperations.updateBot(botData.id, botDocData);
+    } else {
+      await firebaseOperations.createBot(botDocData);
+    }
 
-    return { id: isUpdate ? botData.id : docRef.id, ...botDocData };
+    return { id: botData.id, ...botDocData };
   } catch (error) {
     handleOpenAIError(error, isUpdate ? 'update bot' : 'create bot');
   }
@@ -186,42 +186,35 @@ export const updateBot = (apiKey, botId, botData) => createOrUpdateBot(apiKey, {
 export const deleteBot = async (apiKey, botId, assistantId) => {
   try {
     const openai = createOpenAIClient(apiKey);
-    await openai.beta.assistants.del(assistantId);
-    await deleteDoc(doc(db, 'bots', botId));
+    if (assistantId) {
+      await openai.beta.assistants.del(assistantId);
+    }
+    await firebaseOperations.deleteBot(botId);
   } catch (error) {
     handleOpenAIError(error, 'delete bot');
   }
 };
 
-export const getBots = async (apiKey) => {
+export const getBots = async (apiKey, userId) => {
   try {
     const openai = createOpenAIClient(apiKey);
+    const firestoreBots = await firebaseOperations.getBots(userId);
     const assistants = await openai.beta.assistants.list();
-    const querySnapshot = await getDocs(collection(db, 'bots'));
-    const firestoreBots = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    const mergedBots = assistants.data.map(assistant => {
-      const firestoreBot = firestoreBots.find(bot => bot.assistantId === assistant.id);
+    const mergedBots = firestoreBots.map(bot => {
+      const assistant = assistants.data.find(a => a.id === bot.assistantId);
       return {
-        id: firestoreBot?.id || assistant.id,
-        name: assistant.name,
-        instructions: assistant.instructions,
-        model: assistant.model,
-        assistantId: assistant.id,
-        avatar: firestoreBot?.avatar || null,
-        voice: firestoreBot?.voice || 'alloy',
-        createdAt: firestoreBot?.createdAt || assistant.created_at,
-        updatedAt: firestoreBot?.updatedAt || new Date().toISOString(),
+        ...bot,
+        name: assistant?.name || bot.name,
+        instructions: assistant?.instructions || bot.instructions,
+        model: assistant?.model || bot.model,
       };
     });
-
-    for (const bot of mergedBots) {
-      const botRef = doc(db, 'bots', bot.id);
-      await setDoc(botRef, bot, { merge: true });
-    }
 
     return mergedBots;
   } catch (error) {
     handleOpenAIError(error, 'get bots');
   }
 };
+
+// ... keep existing code for other functions

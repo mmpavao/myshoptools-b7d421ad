@@ -172,6 +172,49 @@ const fileOperations = {
   }
 };
 
+const botOperations = {
+  createBot: async (botData) => {
+    return await safeFirestoreOperation(() => addDoc(collection(db, 'bots'), botData));
+  },
+  updateBot: async (botId, botData) => {
+    return await safeFirestoreOperation(() => updateDoc(doc(db, 'bots', botId), botData));
+  },
+  deleteBot: async (botId) => {
+    return await safeFirestoreOperation(() => deleteDoc(doc(db, 'bots', botId)));
+  },
+  getBots: async (userId) => {
+    const botsRef = collection(db, 'bots');
+    const q = query(botsRef, where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  },
+  getBotById: async (botId) => {
+    const docRef = doc(db, 'bots', botId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
+    } else {
+      throw new Error('Bot não encontrado');
+    }
+  }
+};
+
+const userSettingsOperations = {
+  getUserSettings: async (userId) => {
+    const docRef = doc(db, 'user_settings', userId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    } else {
+      return null;
+    }
+  },
+  updateUserSettings: async (userId, settings) => {
+    const docRef = doc(db, 'user_settings', userId);
+    return await safeFirestoreOperation(() => setDoc(docRef, settings, { merge: true }));
+  }
+};
+
 const testFirebaseOperations = async (logCallback) => {
   try {
     const testDoc = await crudOperations.createDocument('test_collection', { test: 'data' });
@@ -235,6 +278,8 @@ const firebaseOperations = {
   ...userOperations,
   ...productOperations,
   ...fileOperations,
+  ...botOperations,
+  ...userSettingsOperations,
   testFirebaseOperations,
   clearAllData
 };
