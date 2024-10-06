@@ -12,9 +12,11 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState('alloy'); // Default voice
+  const [selectedVoice, setSelectedVoice] = useState('alloy');
   const scrollAreaRef = useRef(null);
   const fileInputRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -37,14 +39,20 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
       } else if (type === 'audio') {
         const transcription = await transcribeAudio(apiKey, content);
         botResponse = await chatWithBot(apiKey, bot.assistantId, transcription);
-        // Convert text response to speech
         const audioUrl = await textToSpeech(apiKey, botResponse, selectedVoice);
         botResponse = { text: botResponse, audioUrl };
+      } else if (type === 'generate-image') {
+        const imageUrl = await generateImage(apiKey, content);
+        botResponse = { text: 'Imagem gerada com sucesso:', imageUrl };
       } else {
         botResponse = await chatWithBot(apiKey, bot.assistantId, content);
       }
 
-      const botMessage = { role: 'assistant', content: botResponse, type: type === 'audio' ? 'audio' : 'text' };
+      const botMessage = { 
+        role: 'assistant', 
+        content: botResponse, 
+        type: type === 'audio' ? 'audio' : type === 'generate-image' ? 'image' : 'text' 
+      };
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
       console.error('Error processing message:', error);
@@ -68,9 +76,39 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
   };
 
   const handleVoiceChat = () => {
-    setIsRecording(!isRecording);
-    // Implement voice recording logic here
-    // When recording is done, call handleSendMessage with the audio file and type 'audio'
+    if (!isRecording) {
+      startRecording();
+    } else {
+      stopRecording();
+    }
+  };
+
+  const startRecording = () => {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        mediaRecorderRef.current = new MediaRecorder(stream);
+        mediaRecorderRef.current.ondataavailable = (event) => {
+          audioChunksRef.current.push(event.data);
+        };
+        mediaRecorderRef.current.onstop = () => {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+          handleSendMessage(audioBlob, 'audio');
+          audioChunksRef.current = [];
+        };
+        mediaRecorderRef.current.start();
+        setIsRecording(true);
+      })
+      .catch(error => {
+        console.error('Error accessing microphone:', error);
+        toast.error('Falha ao acessar o microfone');
+      });
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
   };
 
   const voices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'];
@@ -87,6 +125,8 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
               <div key={index} className={`mb-2 p-2 rounded ${message.role === 'user' ? 'bg-blue-100 ml-auto' : 'bg-gray-100'}`}>
                 {message.type === 'audio' ? (
                   <audio src={message.content.audioUrl} controls />
+                ) : message.type === 'image' ? (
+                  <img src={message.content.imageUrl} alt="Generated" className="max-w-full h-auto" />
                 ) : (
                   message.content
                 )}
