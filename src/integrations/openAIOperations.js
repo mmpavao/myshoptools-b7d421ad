@@ -101,6 +101,7 @@ export const analyzeImage = async (apiKey, imageFile) => {
           ],
         },
       ],
+      max_tokens: 300,
     });
     return response.choices[0].message.content;
   } catch (error) {
