@@ -65,31 +65,6 @@ const productOperations = {
     const path = `products/${productId}/${Date.now()}_${file.name}`;
     return await fileOperations.uploadFile(file, path);
   },
-  importarProduto: async (userId, produto) => {
-    const produtoImportado = {
-      ...produto,
-      userId,
-      importadoEm: new Date().toISOString(),
-      originalId: produto.id
-    };
-    delete produtoImportado.id; // Remover o ID original para gerar um novo
-    const docRef = await addDoc(collection(db, 'meusProdutos'), produtoImportado);
-    return docRef.id;
-  },
-  verificarProdutoImportado: async (userId, produtoId) => {
-    const q = query(
-      collection(db, 'meusProdutos'),
-      where('userId', '==', userId),
-      where('originalId', '==', produtoId)
-    );
-    const querySnapshot = await getDocs(q);
-    return !querySnapshot.empty;
-  },
-  getMeusProdutos: async (userId) => {
-    const q = query(collection(db, 'meusProdutos'), where('userId', '==', userId));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  },
   getProduct: async (productId) => {
     const docRef = doc(db, 'products', productId);
     const docSnap = await getDoc(docRef);
@@ -99,7 +74,6 @@ const productOperations = {
       throw new Error('Produto não encontrado');
     }
   },
-
   adicionarAvaliacao: async (produtoId, userId, nota, comentario) => {
     try {
       const produtoRef = doc(db, 'products', produtoId);

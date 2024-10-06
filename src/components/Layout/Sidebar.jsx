@@ -22,7 +22,6 @@ const navItems = [
     children: [
       { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
       { icon: Store, label: 'Vitrine', to: '/vitrine' },
-      { icon: Package, label: 'Meus Produtos', to: '/meus-produtos' },
       { icon: ClipboardList, label: 'Meus Pedidos', to: '/meus-pedidos' },
     ],
   },

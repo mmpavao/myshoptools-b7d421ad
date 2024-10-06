@@ -12,7 +12,6 @@ import UserProfile from "./components/Profile/UserProfile";
 import DocumentationPage from "./components/Documentation/DocumentationPage";
 import APIPage from "./components/APIs/APIPage";
 import Vitrine from "./components/Vendedor/Vitrine";
-import MeusProdutos from "./components/Vendedor/MeusProdutos";
 import MeusPedidos from "./components/Vendedor/MeusPedidos";
 import Estoque from "./components/Fornecedor/Estoque";
 import PedidosFornecedor from "./components/Fornecedor/PedidosFornecedor";
@@ -36,7 +35,6 @@ const AppRoutes = () => (
     <Route path="/register" element={<Register />} />
     <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
     <Route path="/vitrine" element={<ProtectedLayout><Vitrine /></ProtectedLayout>} />
-    <Route path="/meus-produtos" element={<ProtectedLayout><MeusProdutos /></ProtectedLayout>} />
     <Route path="/meus-pedidos" element={<ProtectedLayout><MeusPedidos /></ProtectedLayout>} />
     <Route path="/estoque" element={<ProtectedLayout><Estoque /></ProtectedLayout>} />
     <Route path="/pedidos-fornecedor" element={<ProtectedLayout><PedidosFornecedor /></ProtectedLayout>} />
@@ -66,3 +64,4 @@ const App = () => (
 );
 
 export default App;
+
