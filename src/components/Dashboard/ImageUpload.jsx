@@ -19,8 +19,9 @@ const ImageUpload = () => {
 
   const fetchStoredImages = async () => {
     try {
-      const images = await listStorageFiles('uploads');
-      setStoredImages(images);
+      const uploadsImages = await listStorageFiles('uploads');
+      const avatarsImages = await listStorageFiles('avatars');
+      setStoredImages([...uploadsImages, ...avatarsImages]);
     } catch (error) {
       console.error("Error fetching stored images:", error);
       toast({
@@ -69,7 +70,7 @@ const ImageUpload = () => {
         title: "Sucesso",
         description: "Imagem enviada com sucesso!",
       });
-      fetchStoredImages(); // Atualiza a lista de imagens após o upload
+      fetchStoredImages();
     } catch (error) {
       console.error("Erro ao fazer upload da imagem:", error);
       addLog(`Erro no upload: ${error.message}`, "error");

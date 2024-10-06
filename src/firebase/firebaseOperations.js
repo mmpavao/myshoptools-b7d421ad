@@ -52,13 +52,25 @@ export const listStorageFiles = async (path) => {
   try {
     const res = await listAll(listRef);
     const fileURLs = await Promise.all(res.items.map(async (itemRef) => {
-      const url = await getDownloadURL(itemRef);
-      return { name: itemRef.name, url };
+      try {
+        const url = await getDownloadURL(itemRef);
+        return { name: itemRef.name, url };
+      } catch (error) {
+        console.warn(`Não foi possível obter a URL para ${itemRef.name}:`, error);
+        return null;
+      }
     }));
-    return fileURLs;
+    return fileURLs.filter(item => item !== null);
   } catch (error) {
-    console.error("Error listing files: ", error);
-    throw error;
+    console.error(`Erro ao listar arquivos em ${path}:`, error);
+    if (error.code === 'storage/unauthorized') {
+      toast({
+        title: "Erro de Permissão",
+        description: `Sem permissão para acessar ${path}. Verifique as regras de segurança do Storage.`,
+        variant: "destructive",
+      });
+    }
+    return [];
   }
 };
 
