@@ -247,16 +247,4 @@ export const getBots = async (apiKey, userId) => {
   }
 };
 
-// Ensure all functions are properly exported
-export {
-  testOpenAIConnection,
-  chatWithBot,
-  analyzeDocument,
-  analyzeImage,
-  generateImage,
-  transcribeAudio,
-  createBot,
-  updateBot,
-  deleteBot,
-  getBots
-};
+// Remove the duplicate exports at the end of the file
