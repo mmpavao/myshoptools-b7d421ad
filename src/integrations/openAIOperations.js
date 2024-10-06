@@ -138,6 +138,7 @@ export const createBot = async (apiKey, botData) => {
     const docRef = await addDoc(collection(db, 'bots'), {
       ...botData,
       assistantId: assistant.id,
+      avatar: botData.avatar, // Adicionando o avatar
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
@@ -159,6 +160,7 @@ export const updateBot = async (apiKey, botId, botData) => {
     const botRef = doc(db, 'bots', botId);
     await setDoc(botRef, {
       ...botData,
+      avatar: botData.avatar, // Adicionando o avatar
       updatedAt: new Date().toISOString(),
     }, { merge: true });
 
@@ -193,6 +195,7 @@ export const getBots = async (apiKey) => {
         instructions: assistant.instructions,
         model: assistant.model,
         assistantId: assistant.id,
+        avatar: firestoreBot?.avatar, // Incluindo o avatar
         createdAt: firestoreBot?.createdAt || assistant.created_at,
         updatedAt: firestoreBot?.updatedAt || new Date().toISOString(),
       };
