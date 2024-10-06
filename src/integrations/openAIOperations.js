@@ -221,6 +221,9 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
     };
 
     if (isUpdate) {
+      if (!botData.id) {
+        throw new Error('Bot ID is missing for update operation');
+      }
       const docRef = doc(db, 'bots', botData.id);
       await updateDoc(docRef, botDocData);
     } else {
@@ -231,7 +234,7 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
     return botDocData;
   } catch (error) {
     console.error('Error in createOrUpdateBot:', error);
-    handleOpenAIError(error, isUpdate ? 'update bot' : 'create bot');
+    throw error;
   }
 };
 

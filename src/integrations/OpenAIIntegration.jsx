@@ -107,30 +107,6 @@ const OpenAIIntegration = () => {
     }
   };
 
-  const handleDeleteBot = async (botId, assistantId) => {
-    if (!apiKey) {
-      addLog('API key is not set. Cannot delete bot.', 'error');
-      toast.error('Please set and test your API key first');
-      return;
-    }
-    try {
-      addLog(`Deleting bot: ${botId}`);
-      await deleteBot(apiKey, botId, assistantId);
-      addLog('Bot deleted successfully', 'success');
-      toast.success('Bot deleted successfully');
-      setIsDialogOpen(false);
-      await fetchBots();
-    } catch (error) {
-      addLog(`Failed to delete bot: ${error.message}`, 'error');
-      toast.error(`Failed to delete bot: ${error.message}`);
-    }
-  };
-
-  const handleChatWithBot = (bot) => {
-    setCurrentBot(bot);
-    setIsChatDialogOpen(true);
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">OpenAI Integration</h1>
