@@ -16,6 +16,7 @@ import MeusPedidos from "./components/Vendedor/MeusPedidos";
 import Estoque from "./components/Fornecedor/Estoque";
 import PedidosFornecedor from "./components/Fornecedor/PedidosFornecedor";
 import DetalheProduto from "./components/Produto/DetalheProduto";
+import ListaProdutos from "./components/Produto/ListaProdutos";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const AppRoutes = () => (
     <Route path="/meus-pedidos" element={<ProtectedLayout><MeusPedidos /></ProtectedLayout>} />
     <Route path="/estoque" element={<ProtectedLayout><Estoque /></ProtectedLayout>} />
     <Route path="/pedidos-fornecedor" element={<ProtectedLayout><PedidosFornecedor /></ProtectedLayout>} />
+    <Route path="/lista-produtos" element={<ProtectedLayout><ListaProdutos /></ProtectedLayout>} />
     <Route path="/integracoes" element={<ProtectedLayout><PlaceholderComponent title="Integrações" /></ProtectedLayout>} />
     <Route path="/logs" element={<ProtectedLayout><LogsPage /></ProtectedLayout>} />
     <Route path="/profile" element={<ProtectedLayout><UserProfile /></ProtectedLayout>} />

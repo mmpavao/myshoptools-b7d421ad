@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Box,
   ShoppingCart,
+  List,
 } from 'lucide-react';
 
 const navItems = [
@@ -31,6 +32,7 @@ const navItems = [
     children: [
       { icon: Package, label: 'Estoque', to: '/estoque' },
       { icon: ShoppingCart, label: 'Pedidos', to: '/pedidos-fornecedor' },
+      { icon: List, label: 'Lista de Produtos', to: '/lista-produtos' }, // New item
     ],
   },
   {
