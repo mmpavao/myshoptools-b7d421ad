@@ -29,7 +29,7 @@ const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDele
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarPreview(reader.result);
-        setBotData((prev) => ({ ...prev, avatar: reader.result }));
+        setBotData((prev) => ({ ...prev, avatarFile: file }));
       };
       reader.readAsDataURL(file);
     }

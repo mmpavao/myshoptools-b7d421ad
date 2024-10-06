@@ -165,6 +165,10 @@ const fileOperations = {
   uploadProfileImage: async (file, userId) => {
     const path = `avatars/${userId}/${Date.now()}_${file.name}`;
     return await fileOperations.uploadFile(file, path);
+  },
+  uploadBotAvatar: async (file, botId) => {
+    const path = `bot_avatars/${botId}/${Date.now()}_${file.name}`;
+    return await fileOperations.uploadFile(file, path);
   }
 };
 
