@@ -6,9 +6,10 @@ const createSafeRequestObject = (request) => {
       url: request.url,
       method: request.method,
       headers: Object.fromEntries(request.headers.entries()),
+      // Add any other properties you need, but avoid non-clonable ones
     };
   }
-  return request;
+  return String(request); // Convert to string if not a Request object
 };
 
 export const reportHTTPError = (error, request) => {
