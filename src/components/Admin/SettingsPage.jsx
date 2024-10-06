@@ -5,6 +5,7 @@ import SystemSettings from './SystemSettings';
 import Integrations from './Integrations';
 import Logs from './Logs';
 import Billing from './Billing';
+import ChatSettings from './ChatSettings'; // Novo import
 
 const SettingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,6 +28,7 @@ const SettingsPage = () => {
       <Tabs value={defaultTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="system">System</TabsTrigger>
+          <TabsTrigger value="chat">Chat de Suporte</TabsTrigger>
           <TabsTrigger value="integrations">Integrações</TabsTrigger>
           <TabsTrigger value="logs">Logs de Integrações</TabsTrigger>
           <TabsTrigger value="billing">Billing</TabsTrigger>
@@ -34,6 +36,10 @@ const SettingsPage = () => {
         
         <TabsContent value="system">
           <SystemSettings />
+        </TabsContent>
+        
+        <TabsContent value="chat">
+          <ChatSettings />
         </TabsContent>
         
         <TabsContent value="integrations">
