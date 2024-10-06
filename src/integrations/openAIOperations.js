@@ -102,7 +102,7 @@ export const getBots = async (apiKey) => {
     if (error.status === 401) {
       throw new Error('Authentication failed. Please check your API key.');
     } else if (error.status === 403) {
-      throw new Error('Access forbidden. Your account may not have the necessary permissions.');
+      throw new Error('Access forbidden. Your account may not have the necessary permissions for the Assistants API.');
     } else {
       throw new Error(`Failed to fetch bots: ${error.message}`);
     }

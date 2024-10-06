@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { createBot, updateBot, deleteBot, getBots, testOpenAIConnection } from './openAIOperations';
 import BotList from './components/BotList';
@@ -9,6 +6,7 @@ import BotDialog from './components/BotDialog';
 import ImageAnalysisGeneration from './components/ImageAnalysisGeneration';
 import AudioTranscriptionSpeech from './components/AudioTranscriptionSpeech';
 import IntegrationLogs from './components/IntegrationLogs';
+import APIKeyManager from './components/APIKeyManager';
 
 const OpenAIIntegration = () => {
   const [bots, setBots] = useState([]);
@@ -34,8 +32,7 @@ const OpenAIIntegration = () => {
     setLogs(prevLogs => [...prevLogs, { message, type, timestamp: new Date() }]);
   };
 
-  const handleApiKeyChange = (e) => {
-    const newApiKey = e.target.value;
+  const handleApiKeyChange = (newApiKey) => {
     setApiKey(newApiKey);
     localStorage.setItem('openaiApiKey', newApiKey);
   };
@@ -78,30 +75,29 @@ const OpenAIIntegration = () => {
       console.error('Error fetching bots:', error);
       addLog(`Failed to fetch bots: ${error.message}`, 'error');
       toast.error('Failed to fetch bots: ' + error.message);
-      if (error.message.includes('Authentication failed')) {
-        setConnectionStatus('Authentication failed');
-      } else if (error.message.includes('Access forbidden') || error.message.includes('insufficient permissions')) {
-        setConnectionStatus('Access forbidden');
-        toast.error('Your OpenAI account may not have the necessary permissions. Please check your account settings and ensure you have access to the Assistants API.');
-      } else {
-        setConnectionStatus('Error fetching bots');
-      }
+      handleFetchError(error);
+    }
+  };
+
+  const handleFetchError = (error) => {
+    if (error.message.includes('Authentication failed')) {
+      setConnectionStatus('Authentication failed');
+    } else if (error.message.includes('Access forbidden') || error.message.includes('insufficient permissions')) {
+      setConnectionStatus('Access forbidden');
+      toast.error('Your OpenAI account may not have the necessary permissions. Please check your account settings and ensure you have access to the Assistants API.');
+    } else {
+      setConnectionStatus('Error fetching bots');
     }
   };
 
   const handleOpenDialog = (bot = null) => {
-    if (bot) {
-      setCurrentBot(bot);
-      setIsEditing(true);
-    } else {
-      setCurrentBot({
-        name: '',
-        instructions: '',
-        model: 'gpt-3.5-turbo',
-        temperature: 1,
-      });
-      setIsEditing(false);
-    }
+    setCurrentBot(bot || {
+      name: '',
+      instructions: '',
+      model: 'gpt-3.5-turbo',
+      temperature: 1,
+    });
+    setIsEditing(!!bot);
     setIsDialogOpen(true);
   };
 
@@ -152,35 +148,12 @@ const OpenAIIntegration = () => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">OpenAI Integration</h1>
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>OpenAI API Key</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center space-x-2">
-            <Input
-              type="password"
-              value={apiKey}
-              onChange={handleApiKeyChange}
-              placeholder="Enter your OpenAI API Key"
-            />
-            <Button onClick={testConnection}>Test Connection</Button>
-          </div>
-          <p className={`mt-2 ${
-            connectionStatus === 'Connected' ? 'text-green-500' : 
-            connectionStatus === 'Authentication failed' || connectionStatus === 'Access forbidden' ? 'text-red-500' :
-            'text-yellow-500'
-          } font-semibold`}>
-            Connection status: {connectionStatus}
-          </p>
-          {connectionStatus === 'Access forbidden' && (
-            <p className="mt-2 text-sm text-red-500">
-              Your OpenAI account may not have access to the Assistants API. 
-              Please check your account settings and ensure you have the necessary permissions.
-            </p>
-          )}
-        </CardContent>
-      </Card>
+      <APIKeyManager
+        apiKey={apiKey}
+        onApiKeyChange={handleApiKeyChange}
+        onTestConnection={testConnection}
+        connectionStatus={connectionStatus}
+      />
 
       <BotList
         bots={bots}
