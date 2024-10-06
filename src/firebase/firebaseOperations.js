@@ -1,21 +1,19 @@
 import { db, storage } from './config';
 import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { safeFirestoreOperation } from '../utils/errorReporting';
 
 // Firestore Operations
 export const createDocument = async (collectionName, data) => {
-  try {
+  return safeFirestoreOperation(async () => {
     const docRef = await addDoc(collection(db, collectionName), data);
     console.log("Document written with ID: ", docRef.id);
     return docRef.id;
-  } catch (e) {
-    console.error("Error adding document: ", e);
-    throw e;
-  }
+  });
 };
 
 export const readDocument = async (collectionName, docId) => {
-  try {
+  return safeFirestoreOperation(async () => {
     const docRef = doc(db, collectionName, docId);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
@@ -25,31 +23,22 @@ export const readDocument = async (collectionName, docId) => {
       console.log("No such document!");
       return null;
     }
-  } catch (e) {
-    console.error("Error reading document: ", e);
-    throw e;
-  }
+  });
 };
 
 export const updateDocument = async (collectionName, docId, data) => {
-  try {
+  return safeFirestoreOperation(async () => {
     const docRef = doc(db, collectionName, docId);
     await updateDoc(docRef, data);
     console.log("Document successfully updated");
-  } catch (e) {
-    console.error("Error updating document: ", e);
-    throw e;
-  }
+  });
 };
 
 export const deleteDocument = async (collectionName, docId) => {
-  try {
+  return safeFirestoreOperation(async () => {
     await deleteDoc(doc(db, collectionName, docId));
     console.log("Document successfully deleted");
-  } catch (e) {
-    console.error("Error deleting document: ", e);
-    throw e;
-  }
+  });
 };
 
 // Storage Operations

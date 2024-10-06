@@ -6,10 +6,10 @@ const createSafeRequestObject = (request) => {
       url: request.url,
       method: request.method,
       headers: Object.fromEntries(request.headers.entries()),
-      // Adicione outras propriedades necessárias, evitando as não clonáveis
+      // Add other necessary properties, avoiding non-clonable ones
     };
   }
-  return String(request); // Converte para string se não for um objeto Request
+  return String(request); // Convert to string if not a Request object
 };
 
 const createSafeErrorObject = (error) => {
@@ -17,7 +17,7 @@ const createSafeErrorObject = (error) => {
     message: error.message,
     name: error.name,
     stack: error.stack,
-    // Adicione outras propriedades de erro que sejam relevantes e seguras para clonar
+    // Add other relevant and safe-to-clone error properties
   };
 };
 
@@ -47,4 +47,15 @@ export const wrapFetch = () => {
       throw error;
     }
   };
+};
+
+// New function to handle Firestore operations safely
+export const safeFirestoreOperation = async (operation) => {
+  try {
+    return await operation();
+  } catch (error) {
+    console.error("Firestore operation error:", error);
+    reportHTTPError(error, "Firestore Operation");
+    throw error;
+  }
 };
