@@ -11,7 +11,8 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [isBotTyping, setIsBotTyping] = useState(false);
+  const [isBotResponding, setIsBotResponding] = useState(false);
+  const [responseType, setResponseType] = useState('text');
   const scrollAreaRef = useRef(null);
   const fileInputRef = useRef(null);
   const audioRef = useRef(null);
@@ -30,17 +31,19 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
-    setIsBotTyping(true);
+    setIsBotResponding(true);
+    setResponseType(type);
 
     try {
       let botResponse;
       if (type === 'file') {
         botResponse = await analyzeDocument(apiKey, content);
+        type = 'text';
       } else if (type === 'audio') {
         const transcription = await transcribeAudio(apiKey, content);
-        botResponse = await chatWithBot(apiKey, bot.assistantId, transcription);
-        const audioUrl = await textToSpeech(apiKey, botResponse, bot.voice || 'alloy');
-        botResponse = { text: botResponse, audioUrl, transcription };
+        const textResponse = await chatWithBot(apiKey, bot.assistantId, transcription);
+        const audioUrl = await textToSpeech(apiKey, textResponse, bot.voice || 'alloy');
+        botResponse = { audioUrl, transcription: textResponse };
       } else {
         botResponse = await chatWithBot(apiKey, bot.assistantId, content);
       }
@@ -48,7 +51,7 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
       const botMessage = { 
         role: 'assistant', 
         content: botResponse, 
-        type: type === 'audio' ? 'audio' : 'text' 
+        type: type
       };
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
@@ -57,7 +60,7 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
-      setIsBotTyping(false);
+      setIsBotResponding(false);
     }
   };
 
@@ -111,22 +114,19 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
               <div key={index} className={`mb-2 p-2 rounded ${message.role === 'user' ? 'bg-blue-100 ml-auto' : 'bg-gray-100'}`}>
                 {message.type === 'audio' ? (
                   <div>
-                    {message.role === 'user' && message.content.transcription && (
-                      <p className="mb-2">{message.content.transcription}</p>
-                    )}
-                    <audio src={message.content.audioUrl} controls ref={audioRef} />
-                    {message.role === 'assistant' && message.content.text && (
-                      <p className="mt-2">{message.content.text}</p>
+                    {message.role === 'user' && <p className="mb-2">Áudio enviado</p>}
+                    {message.role === 'assistant' && (
+                      <audio src={message.content.audioUrl} controls ref={audioRef} />
                     )}
                   </div>
                 ) : (
-                  message.content
+                  <p>{message.content}</p>
                 )}
               </div>
             ))}
-            {isBotTyping && (
+            {isBotResponding && (
               <div className="mb-2 p-2 rounded bg-gray-100">
-                <p>Digitando...</p>
+                <p>{responseType === 'audio' ? 'Gravando áudio...' : 'Digitando...'}</p>
               </div>
             )}
           </ScrollArea>
