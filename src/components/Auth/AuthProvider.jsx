@@ -4,6 +4,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { Navigate } from 'react-router-dom';
 import { toast } from '@/components/ui/use-toast';
 import { safeLogError } from '../../firebase/config';
+import { Spinner } from '../ui/spinner'; // Vamos criar este componente
 
 const AuthContext = createContext();
 
@@ -66,7 +67,7 @@ export const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Spinner />;
   }
 
   if (!user) {
