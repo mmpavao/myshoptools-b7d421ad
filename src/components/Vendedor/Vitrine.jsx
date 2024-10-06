@@ -131,7 +131,7 @@ const Vitrine = () => {
                 )}
               </div>
               <p>Estoque: {produto.estoque}</p>
-              <p>Venda sugerida: R$ {formatPrice(produto.vendaSugerida)}</p>
+              <p>Venda Sugerida: R$ {formatPrice(produto.vendaSugerida)}</p>
               <div className="flex items-center justify-between mt-2">
                 <div className="flex items-center">
                   {renderStars(produto.avaliacao || 0)}

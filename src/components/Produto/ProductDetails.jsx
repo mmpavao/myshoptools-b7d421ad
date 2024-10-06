@@ -59,9 +59,9 @@ const ProductDetails = ({ produto, isImportado, handleImportar }) => {
 
       <Card className="mb-6">
         <CardContent className="pt-6">
-          <p><strong>SKU:</strong> n23k2025</p>
-          <p><strong>Estoque:</strong> 5</p>
-          <p><strong>Preço de Venda Sugerido:</strong> R$ 60.00</p>
+          <p><strong>SKU:</strong> {produto.sku}</p>
+          <p><strong>Estoque:</strong> {produto.estoque}</p>
+          <p><strong>Venda Sugerida:</strong> R$ {formatPrice(produto.vendaSugerida)}</p>
         </CardContent>
       </Card>
     </div>
