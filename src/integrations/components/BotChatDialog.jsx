@@ -128,14 +128,23 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
             ))}
           </ScrollArea>
           <div className="flex mt-4 items-center">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(input)}
-              placeholder="Digite sua mensagem..."
-              className="flex-grow"
-              disabled={isLoading}
-            />
+            <div className="flex-grow relative">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage(input)}
+                placeholder="Digite sua mensagem..."
+                className="pr-10"
+                disabled={isLoading}
+              />
+              <Button 
+                onClick={() => handleSendMessage(input)} 
+                className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                disabled={isLoading}
+              >
+                <Send size={20} />
+              </Button>
+            </div>
             <input
               type="file"
               ref={fileInputRef}
@@ -148,9 +157,6 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
             </Button>
             <Button onClick={handleVoiceChat} className="ml-2" disabled={isLoading}>
               <Mic size={20} color={isRecording ? 'red' : 'currentColor'} />
-            </Button>
-            <Button onClick={() => handleSendMessage(input)} className="ml-2" disabled={isLoading}>
-              <Send size={20} />
             </Button>
           </div>
         </div>
