@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -7,17 +7,32 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDelete }) => {
-  const [botData, setBotData] = React.useState(currentBot);
+  const [botData, setBotData] = useState(currentBot);
+  const [avatarPreview, setAvatarPreview] = useState(currentBot.avatar || '');
 
   React.useEffect(() => {
     setBotData(currentBot);
+    setAvatarPreview(currentBot.avatar || '');
   }, [currentBot]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setBotData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+        setBotData((prev) => ({ ...prev, avatar: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -34,6 +49,22 @@ const BotDialog = ({ isOpen, onOpenChange, currentBot, isEditing, onSave, onDele
           <DialogTitle>{isEditing ? 'Edit Bot' : 'Create New Bot'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="flex items-center space-x-4">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={avatarPreview} alt="Bot Avatar" />
+              <AvatarFallback>{botData.name ? botData.name.charAt(0) : 'B'}</AvatarFallback>
+            </Avatar>
+            <div>
+              <Label htmlFor="avatar">Avatar</Label>
+              <Input
+                id="avatar"
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="mt-1"
+              />
+            </div>
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="botName">Bot Name</Label>

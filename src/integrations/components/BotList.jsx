@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Edit, MessageSquare, Thermometer } from 'lucide-react';
 import { format, isValid } from 'date-fns';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -22,16 +23,20 @@ const BotList = ({ bots, onEdit, onChat }) => (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {bots.map((bot) => (
             <Card key={bot.id} className="p-4">
-              <div className="flex justify-between items-start mb-2">
+              <div className="flex items-center mb-4">
+                <Avatar className="h-10 w-10 mr-2">
+                  <AvatarImage src={bot.avatar} alt={bot.name} />
+                  <AvatarFallback>{bot.name.charAt(0)}</AvatarFallback>
+                </Avatar>
                 <h3 className="text-lg font-semibold">{bot.name}</h3>
-                <div className="flex space-x-2">
-                  <Button size="icon" variant="ghost" onClick={() => onEdit(bot)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button size="icon" variant="ghost" onClick={() => onChat(bot)}>
-                    <MessageSquare className="h-4 w-4" />
-                  </Button>
-                </div>
+              </div>
+              <div className="flex justify-end space-x-2 mb-2">
+                <Button size="icon" variant="ghost" onClick={() => onEdit(bot)}>
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button size="icon" variant="ghost" onClick={() => onChat(bot)}>
+                  <MessageSquare className="h-4 w-4" />
+                </Button>
               </div>
               <p className="text-sm text-gray-500 mb-2">Model: {bot.model}</p>
               <p className="text-xs text-gray-400">Created: {formatDate(bot.createdAt)}</p>
