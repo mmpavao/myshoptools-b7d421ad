@@ -204,6 +204,17 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
 export const createBot = (apiKey, botData) => createOrUpdateBot(apiKey, botData);
 export const updateBot = (apiKey, botId, botData) => createOrUpdateBot(apiKey, { ...botData, id: botId }, true);
 
+export const deleteBot = async (apiKey, botId, assistantId) => {
+  try {
+    const openai = createOpenAIClient(apiKey);
+    await openai.beta.assistants.del(assistantId);
+    await firebaseOperations.deleteBot(botId);
+  } catch (error) {
+    console.error('Error in deleteBot:', error);
+    handleOpenAIError(error, 'delete bot');
+  }
+};
+
 export const getBots = async (apiKey, userId) => {
   try {
     console.log('Getting bots for userId:', userId);
@@ -248,3 +259,5 @@ export const getBots = async (apiKey, userId) => {
     return [];
   }
 };
+
+export { testOpenAIConnection, chatWithBot, analyzeDocument, analyzeImage, generateImage, transcribeAudio, textToSpeech };
