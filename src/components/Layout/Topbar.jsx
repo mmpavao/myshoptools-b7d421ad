@@ -38,8 +38,10 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
             <DropdownMenuContent>
               <DropdownMenuLabel>Empresas</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Empresa 1</DropdownMenuItem>
-              <DropdownMenuItem>Empresa 2</DropdownMenuItem>
+              <DropdownMenuItem>Vissa Ecommerce</DropdownMenuItem>
+              <DropdownMenuItem>Meubles Frire</DropdownMenuItem>
+              <DropdownMenuItem>ColorFios</DropdownMenuItem>
+              <DropdownMenuItem>Online Sales</DropdownMenuItem>
               <DropdownMenuItem>Adicionar nova empresa</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

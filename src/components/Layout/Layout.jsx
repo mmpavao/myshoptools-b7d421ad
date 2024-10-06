@@ -4,7 +4,7 @@ import Topbar from './Topbar';
 
 const Layout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [companyName, setCompanyName] = useState('Minha Empresa');
+  const [companyName, setCompanyName] = useState('Vissa Ecommerce');
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);

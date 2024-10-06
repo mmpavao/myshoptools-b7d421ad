@@ -133,6 +133,12 @@ const Sidebar = ({ isOpen }) => {
       "bg-white text-gray-900 shadow-md"
     )}>
       <div className="h-full overflow-y-auto py-4 px-3">
+        <div className={cn(
+          "text-xl font-bold mb-6 text-center",
+          !isOpen && "text-sm"
+        )}>
+          {isOpen ? "MyShopTools" : "MST"}
+        </div>
         <ul className="space-y-2">
           {navItems.map((item, index) => (
             <NavItem key={index} item={item} isOpen={isOpen} userRole={userRole} />
