@@ -68,6 +68,15 @@ const createSimplifiedObject = (obj) => {
   if (obj instanceof ReadableStream) {
     return { type: 'ReadableStream' };
   }
+  if (obj instanceof Blob) {
+    return { type: 'Blob', size: obj.size, type: obj.type };
+  }
+  if (obj instanceof ArrayBuffer) {
+    return { type: 'ArrayBuffer', byteLength: obj.byteLength };
+  }
+  if (typeof obj === 'function') {
+    return `[Function: ${obj.name || 'anonymous'}]`;
+  }
   if (typeof obj === 'object' && obj !== null) {
     return Object.fromEntries(
       Object.entries(obj).map(([key, value]) => [key, createSimplifiedObject(value)])
