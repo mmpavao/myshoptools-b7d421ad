@@ -16,6 +16,17 @@ export const updateDocument = (collectionName, docId, data) =>
 export const deleteDocument = (collectionName, docId) => 
   safeFirestoreOperation(() => deleteDoc(doc(db, collectionName, docId)));
 
+export const deleteFile = async (path) => {
+  try {
+    const fileRef = ref(storage, path);
+    await deleteObject(fileRef);
+    console.log(`File deleted successfully: ${path}`);
+  } catch (error) {
+    console.error(`Error deleting file: ${path}`, error);
+    throw error;
+  }
+};
+
 export const uploadFile = async (file, path, onProgress) => {
   try {
     const storageRef = ref(storage, path);
@@ -54,9 +65,6 @@ export const uploadFile = async (file, path, onProgress) => {
   }
 };
 
-export const deleteFile = (path) => 
-  deleteObject(ref(storage, path));
-
 export const listStorageFiles = async () => {
   const folders = ['uploads', 'avatars'];
   let allFiles = [];
@@ -73,11 +81,7 @@ export const listStorageFiles = async () => {
           return { name: itemRef.name, url, folder };
         } catch (error) {
           console.error(`Erro ao obter URL para ${itemRef.name}:`, error);
-          toast({
-            title: "Erro de Acesso",
-            description: `Não foi possível acessar ${itemRef.name}. Erro: ${error.message}`,
-            variant: "destructive",
-          });
+          // Não exibimos mais o toast aqui, pois lidaremos com o erro no componente
           return null;
         }
       }));
