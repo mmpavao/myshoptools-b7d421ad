@@ -1,6 +1,6 @@
 import { db, storage } from './config';
 import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 import { safeFirestoreOperation } from '../utils/errorReporting';
 import { toast } from '@/components/ui/use-toast';
 
@@ -16,11 +16,28 @@ export const updateDocument = (collectionName, docId, data) =>
 export const deleteDocument = (collectionName, docId) => 
   safeFirestoreOperation(() => deleteDoc(doc(db, collectionName, docId)));
 
-export const uploadFile = async (file, path) => {
+
+export const uploadFile = async (file, path, onProgress) => {
   try {
     const storageRef = ref(storage, path);
-    const snapshot = await uploadBytes(storageRef, file);
-    return getDownloadURL(snapshot.ref);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    return new Promise((resolve, reject) => {
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          if (onProgress) onProgress(progress);
+        },
+        (error) => {
+          console.error("Error uploading file: ", error);
+          reject(error);
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve(downloadURL);
+        }
+      );
+    });
   } catch (e) {
     console.error("Error uploading file: ", e);
     throw e;

@@ -4,6 +4,7 @@ import { Button } from '../ui/button';
 import { useNavigate } from 'react-router-dom';
 import { testFirebaseOperations } from '../../firebase/firebaseOperations';
 import FirebaseTestLog from './FirebaseTestLog';
+import ImageUpload from './ImageUpload';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -36,6 +37,9 @@ const Dashboard = () => {
         </Button>
       </div>
       {logs.length > 0 && <FirebaseTestLog logs={logs} />}
+      <div className="mt-8">
+        <ImageUpload />
+      </div>
     </div>
   );
 };
