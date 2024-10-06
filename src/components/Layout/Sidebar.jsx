@@ -20,12 +20,12 @@ import { useAuth } from '../Auth/AuthProvider';
 import userOperations from '../../firebase/userOperations';
 
 const navItems = [
+  { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
   {
     label: 'Vendedor',
     icon: Store,
     roles: ['Vendedor', 'Admin', 'Master'],
     children: [
-      { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
       { icon: Store, label: 'Vitrine', to: '/vitrine' },
       { icon: ClipboardList, label: 'Meus Pedidos', to: '/meus-pedidos' },
       { icon: List, label: 'Lista de Produtos', to: '/lista-produtos' },
@@ -139,7 +139,8 @@ const Sidebar = ({ isOpen }) => {
           MyShopTools
         </h1>
         <ul className="space-y-2">
-          {navItems.map((item, index) => (
+          <NavItem item={navItems[0]} isOpen={isOpen} userRole={userRole} />
+          {navItems.slice(1).map((item, index) => (
             <NavItem key={index} item={item} isOpen={isOpen} userRole={userRole} />
           ))}
         </ul>
