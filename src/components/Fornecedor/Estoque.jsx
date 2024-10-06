@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import firebaseOperations from '../../firebase/firebaseOperations';
 import EstoqueForm from './EstoqueForm';
 import EstoqueTable from './EstoqueTable';
 import { useNavigate } from 'react-router-dom';
-import { useEstoque } from './useEstoque'; // We'll create this custom hook
+import { useEstoque } from './useEstoque';
 
 const Estoque = () => {
   const navigate = useNavigate();
@@ -21,8 +20,9 @@ const Estoque = () => {
     handleDeleteProduct, 
     setIsDialogOpen, 
     setFiltro,
-    handleEditProduct, // New function
-    resetNovoProduto
+    handleEditProduct,
+    resetNovoProduto,
+    calcularMarkup
   } = useEstoque();
 
   const produtosFiltrados = produtos.filter(produto =>
@@ -43,7 +43,7 @@ const Estoque = () => {
         />
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={resetNovoProduto}>Novo Produto</Button>
+            <Button onClick={() => { resetNovoProduto(); setIsDialogOpen(true); }}>Novo Produto</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
@@ -54,6 +54,7 @@ const Estoque = () => {
               handleInputChange={handleInputChange}
               handleFileChange={handleFileChange}
               handleSubmit={handleSubmit}
+              calcularMarkup={calcularMarkup}
             />
           </DialogContent>
         </Dialog>

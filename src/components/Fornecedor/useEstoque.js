@@ -82,7 +82,15 @@ export const useEstoque = () => {
     setNovoProduto({
       titulo: '', fotos: [], descricao: '', sku: '', estoque: 0, preco: 0, desconto: 0, tipoDesconto: '%', variacoes: [], vendaSugerida: 0
     });
-    setIsDialogOpen(true);
+  };
+
+  const calcularMarkup = () => {
+    const precoVenda = Number(novoProduto.vendaSugerida);
+    const precoCusto = Number(novoProduto.preco);
+    if (precoCusto > 0) {
+      return ((precoVenda - precoCusto) / precoCusto * 100).toFixed(2) + '%';
+    }
+    return '0%';
   };
 
   return {
@@ -97,6 +105,7 @@ export const useEstoque = () => {
     setIsDialogOpen,
     setFiltro,
     handleEditProduct,
-    resetNovoProduto
+    resetNovoProduto,
+    calcularMarkup
   };
 };
