@@ -12,6 +12,13 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
+// Verificação das variáveis de ambiente
+Object.entries(firebaseConfig).forEach(([key, value]) => {
+  if (!value) {
+    console.warn(`Firebase configuration is missing for: ${key}`);
+  }
+});
+
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
