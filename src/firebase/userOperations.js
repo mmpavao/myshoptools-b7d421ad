@@ -72,13 +72,18 @@ const updateUserRole = async (userId, newRole) => {
       throw new Error('Cannot change Master user role');
     }
 
-    await updateDoc(doc(db, 'users', userId), { role: newRole });
-    toast({
-      title: "Role Updated",
-      description: `User role has been updated to ${newRole}.`,
-      variant: "success",
-    });
-    return true;
+    // Permitir a mudança de role para Admin, exceto para o usuário Admin padrão
+    if (userData.email !== ADMIN_USER_EMAIL) {
+      await updateDoc(doc(db, 'users', userId), { role: newRole });
+      toast({
+        title: "Role Updated",
+        description: `User role has been updated to ${newRole}.`,
+        variant: "success",
+      });
+      return true;
+    } else {
+      throw new Error('Cannot change default Admin user role');
+    }
   } catch (error) {
     console.error('Error updating user role:', error);
     toast({

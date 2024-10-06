@@ -97,7 +97,7 @@ export const UserTable = ({ users, onUserUpdate }) => {
                 <Select
                   value={user.role}
                   onValueChange={(newRole) => handleRoleChange(user.id, newRole)}
-                  disabled={!isMasterAdmin || user.role === 'Master'}
+                  disabled={!isMasterAdmin || user.role === 'Master' || user.email === 'marcio@talkmaker.io'}
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select a role" />
