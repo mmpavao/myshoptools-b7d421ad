@@ -23,7 +23,6 @@ const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
   {
     label: 'Vendedor',
-    icon: Store,
     roles: ['Vendedor', 'Admin', 'Master'],
     children: [
       { icon: Store, label: 'Vitrine', to: '/vitrine' },
@@ -33,7 +32,6 @@ const navItems = [
   },
   {
     label: 'Fornecedor',
-    icon: Box,
     roles: ['Fornecedor', 'Admin', 'Master'],
     children: [
       { icon: Package, label: 'Estoque', to: '/estoque' },
@@ -42,7 +40,6 @@ const navItems = [
   },
   {
     label: 'Admin',
-    icon: LayoutDashboard,
     roles: ['Admin', 'Master'],
     children: [
       { icon: Users, label: 'Usuários', to: '/admin/users' },
@@ -67,20 +64,21 @@ const NavItem = ({ item, isOpen, userRole }) => {
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn(
-            "flex items-center w-full p-2 text-base font-normal rounded-lg text-gray-900 hover:bg-gray-100",
+            "flex items-center w-full p-2 text-base font-semibold rounded-lg text-gray-900 hover:bg-gray-100",
+            isExpanded ? "bg-gray-100" : "",
             !isOpen && "justify-center"
           )}
         >
-          <item.icon className={cn("w-6 h-6", !isOpen && "mx-auto")} />
           {isOpen && (
             <>
-              <span className="ml-3 flex-1 text-left whitespace-nowrap">{item.label}</span>
+              <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>
               {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </>
           )}
+          {!isOpen && <span className="text-xs">{item.label[0]}</span>}
         </button>
         {isExpanded && isOpen && (
-          <ul className="py-2 space-y-2">
+          <ul className="py-2 space-y-2 pl-4">
             {item.children.map((child) => (
               <NavItem key={child.to} item={child} isOpen={isOpen} userRole={userRole} />
             ))}
@@ -104,7 +102,7 @@ const NavItem = ({ item, isOpen, userRole }) => {
           )
         }
       >
-        <item.icon className={cn("w-6 h-6", !isOpen && "mx-auto")} />
+        {item.icon && <item.icon className={cn("w-6 h-6", !isOpen && "mx-auto")} />}
         {isOpen && <span className="ml-3">{item.label}</span>}
       </NavLink>
     </li>
