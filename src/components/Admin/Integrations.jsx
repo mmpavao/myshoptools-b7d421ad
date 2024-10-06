@@ -3,12 +3,12 @@ import IntegrationCard from './IntegrationCard';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { integrations } from '../../data/integrations';
-import GoogleSheetsIntegration from '../../integrations/GoogleSheetsIntegration';
-import OpenAIIntegration from '../../integrations/OpenAIIntegration';
+import { useNavigate } from 'react-router-dom';
 
 const Integrations = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
+  const navigate = useNavigate();
 
   const totalItems = integrations.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -25,7 +25,11 @@ const Integrations = () => {
   };
 
   const handleIntegrate = (integration) => {
-    console.log(`Integrating ${integration.name}`);
+    if (integration.name === "OpenAI GPT-4") {
+      navigate('/admin/integrations/openai');
+    } else {
+      console.log(`Integrating ${integration.name}`);
+    }
   };
 
   return (
@@ -53,11 +57,6 @@ const Integrations = () => {
             key={index} 
             {...integration} 
             onIntegrate={() => handleIntegrate(integration)}
-            configurationComponent={
-              integration.name === "Google Sheets" ? GoogleSheetsIntegration :
-              integration.name === "OpenAI GPT-4" ? OpenAIIntegration :
-              null
-            }
           />
         ))}
       </div>
