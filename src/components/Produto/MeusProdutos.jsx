@@ -8,54 +8,28 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../../components/Auth/AuthProvider';
 
-const ListaProdutos = () => {
+const MeusProdutos = () => {
   const [produtos, setProdutos] = useState([]);
   const [filtro, setFiltro] = useState('');
   const navigate = useNavigate();
   const { user } = useAuth();
 
   useEffect(() => {
-    // Adicionando produtos de exemplo
-    const produtosExemplo = [
-      {
-        id: '1',
-        titulo: 'Produto Exemplo 1',
-        sku: 'SKU001',
-        preco: 99.99,
-        fotos: ['/placeholder.svg'],
-        avaliacao: 4,
-        numeroAvaliacoes: 10,
-        estoque: 50
-      },
-      {
-        id: '2',
-        titulo: 'Produto Exemplo 2',
-        sku: 'SKU002',
-        preco: 149.99,
-        fotos: ['/placeholder.svg'],
-        avaliacao: 3,
-        numeroAvaliacoes: 5,
-        estoque: 30
-      },
-      {
-        id: '3',
-        titulo: 'Produto Exemplo 3',
-        sku: 'SKU003',
-        preco: 79.99,
-        fotos: ['/placeholder.svg'],
-        avaliacao: 5,
-        numeroAvaliacoes: 15,
-        estoque: 20
+    const fetchMeusProdutos = async () => {
+      if (user) {
+        const meusProdutos = await firebaseOperations.getMeusProdutos(user.uid);
+        setProdutos(meusProdutos);
       }
-    ];
-    setProdutos(produtosExemplo);
-  }, []);
+    };
+    fetchMeusProdutos();
+  }, [user]);
 
   const handleDetalhes = (produtoId) => {
     navigate(`/produto/${produtoId}`);
   };
 
   const handleExcluir = async (produtoId) => {
+    await firebaseOperations.removerMeuProduto(user.uid, produtoId);
     setProdutos(produtos.filter(p => p.id !== produtoId));
     console.log("Produto removido da sua lista com sucesso.");
   };
@@ -129,4 +103,4 @@ const ListaProdutos = () => {
   );
 };
 
-export default ListaProdutos;
+export default MeusProdutos;

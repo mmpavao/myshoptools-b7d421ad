@@ -18,7 +18,6 @@ import MeusPedidos from "./components/Vendedor/MeusPedidos";
 import Estoque from "./components/Fornecedor/Estoque";
 import PedidosFornecedor from "./components/Fornecedor/PedidosFornecedor";
 import DetalheProduto from "./components/Produto/DetalheProduto";
-import ListaProdutos from "./components/Produto/ListaProdutos";
 import MeusProdutos from "./components/Produto/MeusProdutos";
 import AdminUserList from "./components/Admin/AdminUserList";
 import SettingsPage from "./components/Admin/SettingsPage";
@@ -70,7 +69,6 @@ const AppRoutes = () => (
     <Route path="/meus-pedidos" element={<RoleBasedRoute element={MeusPedidos} allowedRoles={['Vendedor', 'Admin', 'Master']} />} />
     <Route path="/estoque" element={<RoleBasedRoute element={Estoque} allowedRoles={['Fornecedor', 'Admin', 'Master']} />} />
     <Route path="/pedidos-fornecedor" element={<RoleBasedRoute element={PedidosFornecedor} allowedRoles={['Fornecedor', 'Admin', 'Master']} />} />
-    <Route path="/lista-produtos" element={<RoleBasedRoute element={ListaProdutos} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
     <Route path="/meus-produtos" element={<RoleBasedRoute element={MeusProdutos} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
     <Route path="/integracoes" element={<RoleBasedRoute element={() => <div>Integrações</div>} allowedRoles={['Admin', 'Master']} />} />
     <Route path="/logs" element={<RoleBasedRoute element={LogsPage} allowedRoles={['Admin', 'Master']} />} />
@@ -106,3 +104,4 @@ const App = () => (
 );
 
 export default App;
+
