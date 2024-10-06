@@ -67,6 +67,33 @@ export const analyzeDocument = async (apiKey, file) => {
   }
 };
 
+export const analyzeImage = async (apiKey, imageFile) => {
+  try {
+    const openai = createOpenAIClient(apiKey);
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append('model', 'gpt-4-vision-preview');
+    formData.append('prompt', 'Analyze this image and provide a brief description.');
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  } catch (error) {
+    handleOpenAIError(error, 'analyze image');
+  }
+};
+
 export const generateImage = async (apiKey, prompt) => {
   try {
     const openai = createOpenAIClient(apiKey);
