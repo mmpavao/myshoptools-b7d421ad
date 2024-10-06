@@ -16,6 +16,7 @@ import MeusProdutos from "./components/Vendedor/MeusProdutos";
 import MeusPedidos from "./components/Vendedor/MeusPedidos";
 import Estoque from "./components/Fornecedor/Estoque";
 import PedidosFornecedor from "./components/Fornecedor/PedidosFornecedor";
+import DetalheProduto from "./components/Produto/DetalheProduto";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const AppRoutes = () => (
     <Route path="/documentation" element={<ProtectedLayout><DocumentationPage /></ProtectedLayout>} />
     <Route path="/apis" element={<ProtectedLayout><APIPage /></ProtectedLayout>} />
     <Route path="/suporte" element={<ProtectedLayout><PlaceholderComponent title="Suporte" /></ProtectedLayout>} />
+    <Route path="/produto/:id" element={<ProtectedLayout><DetalheProduto /></ProtectedLayout>} />
     <Route path="/" element={<Navigate to="/dashboard" />} />
     <Route path="*" element={<Navigate to="/dashboard" />} />
   </Routes>
