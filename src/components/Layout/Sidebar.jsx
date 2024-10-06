@@ -128,12 +128,15 @@ const Sidebar = ({ isOpen }) => {
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 z-40 h-screen transition-all duration-300",
+      "fixed left-0 top-0 z-50 h-screen transition-all duration-300",
       isOpen ? "w-64" : "w-16",
       "bg-destructive text-destructive-foreground"
     )}>
       <div className="h-full overflow-y-auto py-4 px-3">
-        <ul className="space-y-2 mt-16">
+        <div className="flex items-center justify-center h-14 mb-4">
+          <h1 className="text-xl font-bold text-white">MyShopTools</h1>
+        </div>
+        <ul className="space-y-2">
           {navItems.map((item, index) => (
             <NavItem key={index} item={item} isOpen={isOpen} userRole={userRole} />
           ))}
