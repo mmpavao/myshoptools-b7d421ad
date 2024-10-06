@@ -19,9 +19,8 @@ const ImageUpload = () => {
 
   const fetchStoredImages = async () => {
     try {
-      const uploadsImages = await listStorageFiles('uploads');
-      const avatarsImages = await listStorageFiles('avatars');
-      setStoredImages([...uploadsImages, ...avatarsImages]);
+      const images = await listStorageFiles();
+      setStoredImages(images);
     } catch (error) {
       console.error("Error fetching stored images:", error);
       toast({

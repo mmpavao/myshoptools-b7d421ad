@@ -47,31 +47,37 @@ export const uploadFile = async (file, path, onProgress) => {
 export const deleteFile = (path) => 
   deleteObject(ref(storage, path));
 
-export const listStorageFiles = async (path) => {
-  const listRef = ref(storage, path);
-  try {
-    const res = await listAll(listRef);
-    const fileURLs = await Promise.all(res.items.map(async (itemRef) => {
-      try {
-        const url = await getDownloadURL(itemRef);
-        return { name: itemRef.name, url };
-      } catch (error) {
-        console.warn(`Não foi possível obter a URL para ${itemRef.name}:`, error);
-        return null;
+export const listStorageFiles = async () => {
+  const folders = ['uploads', 'avatars'];
+  let allFiles = [];
+
+  for (const folder of folders) {
+    const listRef = ref(storage, folder);
+    try {
+      const res = await listAll(listRef);
+      const folderFiles = await Promise.all(res.items.map(async (itemRef) => {
+        try {
+          const url = await getDownloadURL(itemRef);
+          return { name: itemRef.name, url, folder };
+        } catch (error) {
+          console.warn(`Não foi possível obter a URL para ${itemRef.name}:`, error);
+          return null;
+        }
+      }));
+      allFiles = [...allFiles, ...folderFiles.filter(item => item !== null)];
+    } catch (error) {
+      console.error(`Erro ao listar arquivos em ${folder}:`, error);
+      if (error.code === 'storage/unauthorized') {
+        toast({
+          title: "Erro de Permissão",
+          description: `Sem permissão para acessar ${folder}. Verifique as regras de segurança do Storage.`,
+          variant: "destructive",
+        });
       }
-    }));
-    return fileURLs.filter(item => item !== null);
-  } catch (error) {
-    console.error(`Erro ao listar arquivos em ${path}:`, error);
-    if (error.code === 'storage/unauthorized') {
-      toast({
-        title: "Erro de Permissão",
-        description: `Sem permissão para acessar ${path}. Verifique as regras de segurança do Storage.`,
-        variant: "destructive",
-      });
     }
-    return [];
   }
+
+  return allFiles;
 };
 
 export const testFirebaseOperations = async (logCallback) => {
@@ -135,3 +141,4 @@ export const testFirebaseOperations = async (logCallback) => {
     });
   }
 };
+
