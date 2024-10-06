@@ -24,11 +24,11 @@ export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSi
     }
   }, [currentUser]);
 
-  const isMasterAdmin = currentUserRole === 'Master';
+  const isMasterAdmin = currentUserRole === firebaseOperations.userRoles.MASTER;
 
   const handleRoleChange = async (userId, newRole) => {
     try {
-      await firebaseOperations.updateUserRole(userId, newRole);
+      await firebaseOperations.updateUserRole(userId, newRole, currentUserRole);
       onUserUpdate();
       toast({ title: "Role Updated", description: `User role has been updated to ${newRole}.`, variant: "success" });
     } catch (error) {
@@ -95,21 +95,22 @@ export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSi
                 </Badge>
               </TableCell>
               <TableCell>
-                {user.role === 'Master' ? (
+                {user.role === firebaseOperations.userRoles.MASTER ? (
                   <Badge>Master</Badge>
                 ) : (
                   <Select
                     value={user.role}
                     onValueChange={(newRole) => handleRoleChange(user.id, newRole)}
-                    disabled={!isMasterAdmin || user.role === 'Master' || user.email === 'marcio@talkmaker.io'}
+                    disabled={!isMasterAdmin || user.role === firebaseOperations.userRoles.MASTER}
                   >
                     <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Select a role" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Vendedor">Vendedor</SelectItem>
-                      <SelectItem value="Fornecedor">Fornecedor</SelectItem>
-                      <SelectItem value="Admin">Admin</SelectItem>
+                      <SelectItem value={firebaseOperations.userRoles.VENDOR}>Vendedor</SelectItem>
+                      <SelectItem value={firebaseOperations.userRoles.PROVIDER}>Fornecedor</SelectItem>
+                      <SelectItem value={firebaseOperations.userRoles.ADMIN}>Admin</SelectItem>
+                      {isMasterAdmin && <SelectItem value={firebaseOperations.userRoles.MASTER}>Master</SelectItem>}
                     </SelectContent>
                   </Select>
                 )}
