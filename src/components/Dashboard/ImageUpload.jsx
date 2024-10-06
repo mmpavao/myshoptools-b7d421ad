@@ -73,6 +73,11 @@ const ImageUpload = () => {
     } catch (error) {
       console.error("Erro ao fazer upload da imagem:", error);
       addLog(`Erro no upload: ${error.message}`, "error");
+      if (error.code === 'storage/unauthorized') {
+        addLog("Erro de autorização. Verifique as regras do Firebase Storage.", "error");
+      } else if (error.name === 'AbortError') {
+        addLog("Upload cancelado devido a um erro de CORS. Verifique as configurações do Firebase.", "error");
+      }
       toast({
         title: "Erro",
         description: `Falha ao enviar a imagem: ${error.message}`,

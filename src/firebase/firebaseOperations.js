@@ -30,16 +30,27 @@ export const uploadFile = async (file, path, onProgress) => {
         },
         (error) => {
           console.error("Error uploading file: ", error);
-          reject(error);
+          if (error.code === 'storage/unauthorized') {
+            reject(new Error('Erro de autorização. Verifique as regras do Firebase Storage.'));
+          } else if (error.name === 'AbortError') {
+            reject(new Error('Upload cancelado devido a um erro de CORS. Verifique as configurações do Firebase.'));
+          } else {
+            reject(error);
+          }
         },
         async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          resolve(downloadURL);
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadURL);
+          } catch (error) {
+            console.error("Error getting download URL: ", error);
+            reject(error);
+          }
         }
       );
     });
   } catch (e) {
-    console.error("Error uploading file: ", e);
+    console.error("Error initializing upload: ", e);
     throw e;
   }
 };
