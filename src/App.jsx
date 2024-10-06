@@ -6,6 +6,7 @@ import { AuthProvider, ProtectedRoute } from "./components/Auth/AuthProvider";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Dashboard from "./components/Dashboard/Dashboard";
+import LogsPage from "./components/Logs/LogsPage";
 import Layout from "./components/Layout/Layout";
 
 const queryClient = new QueryClient();
@@ -30,7 +31,7 @@ const AppRoutes = () => (
     <Route path="/pedidos" element={<ProtectedLayout><PlaceholderComponent title="Pedidos" /></ProtectedLayout>} />
     <Route path="/suporte" element={<ProtectedLayout><PlaceholderComponent title="Suporte" /></ProtectedLayout>} />
     <Route path="/integracoes" element={<ProtectedLayout><PlaceholderComponent title="Integrações" /></ProtectedLayout>} />
-    <Route path="/logs" element={<ProtectedLayout><PlaceholderComponent title="Logs" /></ProtectedLayout>} />
+    <Route path="/logs" element={<ProtectedLayout><LogsPage /></ProtectedLayout>} />
     <Route path="/" element={<Navigate to="/dashboard" />} />
     <Route path="*" element={<Navigate to="/dashboard" />} />
   </Routes>
