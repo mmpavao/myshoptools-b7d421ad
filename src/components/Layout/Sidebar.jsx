@@ -118,8 +118,13 @@ const Sidebar = ({ isOpen }) => {
   useEffect(() => {
     const fetchUserRole = async () => {
       if (user) {
-        const role = await getUserRole(user.uid);
-        setUserRole(role);
+        try {
+          const role = await getUserRole(user.uid);
+          setUserRole(role);
+        } catch (error) {
+          console.error('Erro ao buscar o papel do usuário:', error);
+          setUserRole('Vendedor'); // Fallback para o papel padrão
+        }
       }
     };
     fetchUserRole();
