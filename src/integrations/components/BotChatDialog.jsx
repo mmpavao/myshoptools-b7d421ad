@@ -3,10 +3,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { chatWithBot } from '../openAIOperations';
 
 const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef(null);
 
   useEffect(() => {
@@ -16,18 +18,24 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage = { role: 'user', content: input };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
+    setIsLoading(true);
 
-    // Aqui você implementaria a lógica para enviar a mensagem para a API do OpenAI
-    // e receber a resposta do bot. Por enquanto, vamos simular uma resposta.
-    setTimeout(() => {
-      const botMessage = { role: 'assistant', content: `Resposta simulada do bot ${bot.name} para: "${input}"` };
+    try {
+      const botResponse = await chatWithBot(apiKey, bot.assistantId, input);
+      const botMessage = { role: 'assistant', content: botResponse };
       setMessages(prev => [...prev, botMessage]);
-    }, 1000);
+    } catch (error) {
+      console.error('Error chatting with bot:', error);
+      const errorMessage = { role: 'assistant', content: 'Desculpe, ocorreu um erro ao processar sua mensagem.' };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -51,8 +59,11 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
               placeholder="Digite sua mensagem..."
               className="flex-grow"
+              disabled={isLoading}
             />
-            <Button onClick={handleSendMessage} className="ml-2">Enviar</Button>
+            <Button onClick={handleSendMessage} className="ml-2" disabled={isLoading}>
+              {isLoading ? 'Enviando...' : 'Enviar'}
+            </Button>
           </div>
         </div>
       </DialogContent>
