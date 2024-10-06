@@ -3,8 +3,9 @@ import { Button } from '../ui/button';
 
 const StoredImages = ({ images, onRefresh }) => {
   const handleImageError = (e) => {
-    e.target.src = '/placeholder.svg'; // Substitua por uma imagem de placeholder real
+    e.target.src = '/placeholder.svg';
     e.target.alt = 'Imagem não disponível';
+    console.error(`Erro ao carregar imagem: ${e.target.src}`);
   };
 
   return (

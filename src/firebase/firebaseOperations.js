@@ -55,28 +55,34 @@ export const listStorageFiles = async () => {
     const listRef = ref(storage, folder);
     try {
       const res = await listAll(listRef);
+      console.log(`Listando arquivos em ${folder}:`, res.items);
       const folderFiles = await Promise.all(res.items.map(async (itemRef) => {
         try {
           const url = await getDownloadURL(itemRef);
+          console.log(`URL obtida para ${itemRef.name}:`, url);
           return { name: itemRef.name, url, folder };
         } catch (error) {
-          console.warn(`Não foi possível obter a URL para ${itemRef.name}:`, error);
+          console.error(`Erro ao obter URL para ${itemRef.name}:`, error);
+          toast({
+            title: "Erro de Acesso",
+            description: `Não foi possível acessar ${itemRef.name}. Erro: ${error.message}`,
+            variant: "destructive",
+          });
           return null;
         }
       }));
       allFiles = [...allFiles, ...folderFiles.filter(item => item !== null)];
     } catch (error) {
       console.error(`Erro ao listar arquivos em ${folder}:`, error);
-      if (error.code === 'storage/unauthorized') {
-        toast({
-          title: "Erro de Permissão",
-          description: `Sem permissão para acessar ${folder}. Verifique as regras de segurança do Storage.`,
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Erro de Listagem",
+        description: `Não foi possível listar arquivos em ${folder}. Erro: ${error.message}`,
+        variant: "destructive",
+      });
     }
   }
 
+  console.log("Todos os arquivos listados:", allFiles);
   return allFiles;
 };
 
