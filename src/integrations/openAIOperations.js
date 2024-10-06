@@ -1,5 +1,6 @@
+import { db } from '../firebase/config';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
 import { createOpenAIClient, handleOpenAIError } from '../utils/openAIUtils';
-import firebaseOperations from '../firebase/firebaseOperations';
 
 export const testOpenAIConnection = async (apiKey) => {
   try {
@@ -142,8 +143,9 @@ export const textToSpeech = async (apiKey, text, voice = 'alloy') => {
       voice: voice,
       input: text,
     });
-    const buffer = Buffer.from(await mp3.arrayBuffer());
-    return buffer;
+    const buffer = await mp3.arrayBuffer();
+    const blob = new Blob([buffer], { type: 'audio/mpeg' });
+    return URL.createObjectURL(blob);
   } catch (error) {
     handleOpenAIError(error, 'text to speech');
   }
@@ -153,50 +155,36 @@ const createOrUpdateBot = async (apiKey, botData, isUpdate = false) => {
   try {
     const openai = createOpenAIClient(apiKey);
     const assistantData = {
-      name: botData.name || 'Unnamed Bot',
-      instructions: botData.instructions || '',
-      model: botData.model || "gpt-3.5-turbo",
-      tools: [{ type: "code_interpreter" }],
+      name: botData.name,
+      instructions: botData.instructions,
+      model: "gpt-3.5-turbo",
     };
 
     let assistant;
-    if (isUpdate && botData.assistantId) {
+    if (isUpdate) {
       assistant = await openai.beta.assistants.update(botData.assistantId, assistantData);
     } else {
       assistant = await openai.beta.assistants.create(assistantData);
     }
 
-    let avatarUrl = botData.avatar || null;
-    if (botData.avatarFile) {
-      avatarUrl = await firebaseOperations.uploadBotAvatar(botData.avatarFile, assistant.id);
-    }
-
     const botDocData = {
-      name: botData.name || 'Unnamed Bot',
-      instructions: botData.instructions || '',
-      model: botData.model || "gpt-3.5-turbo",
+      ...botData,
       assistantId: assistant.id,
-      avatar: avatarUrl,
-      voice: botData.voice || 'alloy',
+      avatar: botData.avatar || null,
       updatedAt: new Date().toISOString(),
-      userId: botData.userId,
+      model: "gpt-3.5-turbo",
     };
 
     if (!isUpdate) {
       botDocData.createdAt = new Date().toISOString();
     }
 
-    let botId;
-    if (isUpdate) {
-      botId = botData.id;
-      await firebaseOperations.updateBot(botId, botDocData);
-    } else {
-      botId = await firebaseOperations.createBot(botDocData);
-    }
+    const docRef = isUpdate ? doc(db, 'bots', botData.id) : collection(db, 'bots');
+    const operation = isUpdate ? updateDoc : addDoc;
+    await operation(docRef, botDocData);
 
-    return { id: botId, ...botDocData };
+    return { id: isUpdate ? botData.id : docRef.id, ...botDocData };
   } catch (error) {
-    console.error('Error in createOrUpdateBot:', error);
     handleOpenAIError(error, isUpdate ? 'update bot' : 'create bot');
   }
 };
@@ -208,63 +196,40 @@ export const deleteBot = async (apiKey, botId, assistantId) => {
   try {
     const openai = createOpenAIClient(apiKey);
     await openai.beta.assistants.del(assistantId);
-    await firebaseOperations.deleteBot(botId);
+    await deleteDoc(doc(db, 'bots', botId));
   } catch (error) {
-    console.error('Error in deleteBot:', error);
     handleOpenAIError(error, 'delete bot');
   }
 };
 
-export const getBots = async (apiKey, userId) => {
+export const getBots = async (apiKey) => {
   try {
-    console.log('Getting bots for userId:', userId);
     const openai = createOpenAIClient(apiKey);
-    const firestoreBots = await firebaseOperations.getBots(userId);
-    console.log('Firestore bots:', firestoreBots);
+    const assistants = await openai.beta.assistants.list();
+    const querySnapshot = await getDocs(collection(db, 'bots'));
+    const firestoreBots = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    if (firestoreBots.length === 0) {
-      console.log('No bots found in Firestore');
-      return [];
-    }
-
-    const assistantIds = firestoreBots.map(bot => bot.assistantId).filter(Boolean);
-    const assistants = await Promise.all(
-      assistantIds.map(async (id) => {
-        try {
-          return await openai.beta.assistants.retrieve(id);
-        } catch (error) {
-          console.error(`Failed to retrieve assistant ${id}:`, error);
-          return null;
-        }
-      })
-    );
-
-    console.log('OpenAI assistants:', assistants);
-
-    const bots = firestoreBots.map(bot => {
-      const assistant = assistants.find(a => a && a.id === bot.assistantId);
+    const mergedBots = assistants.data.map(assistant => {
+      const firestoreBot = firestoreBots.find(bot => bot.assistantId === assistant.id);
       return {
-        ...bot,
-        name: assistant?.name || bot.name || 'Unnamed Bot',
-        instructions: assistant?.instructions || bot.instructions || '',
-        model: assistant?.model || bot.model || 'gpt-3.5-turbo',
+        id: firestoreBot?.id || assistant.id,
+        name: assistant.name,
+        instructions: assistant.instructions,
+        model: assistant.model,
+        assistantId: assistant.id,
+        avatar: firestoreBot?.avatar || null,
+        createdAt: firestoreBot?.createdAt || assistant.created_at,
+        updatedAt: firestoreBot?.updatedAt || new Date().toISOString(),
       };
     });
 
-    console.log('Final bots array:', bots);
-    return bots;
+    for (const bot of mergedBots) {
+      const botRef = doc(db, 'bots', bot.id);
+      await setDoc(botRef, bot, { merge: true });
+    }
+
+    return mergedBots;
   } catch (error) {
-    console.error('Error in getBots:', error);
     handleOpenAIError(error, 'get bots');
-    return [];
   }
 };
-
-// Remove the duplicate export statement at the end of the file
-// The following line should be deleted:
-// export { testOpenAIConnection, chatWithBot, analyzeDocument, analyzeImage, generateImage, transcribeAudio, textToSpeech, createBot, updateBot, deleteBot, getBots };
-
-// Instead, ensure that each function is exported individually when it's defined, like this:
-// export const functionName = ...
-
-// If any function is missing an export, add it at the point of declaration

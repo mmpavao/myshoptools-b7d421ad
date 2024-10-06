@@ -29,12 +29,6 @@ service firebase.storage {
       allow write: if request.auth != null;
     }
     
-    // Nova regra para avatares de bots
-    match /bot_avatars/{botId}/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-    
     // Regra temporária para testes
     match /test/{allPaths=**} {
       allow read, write: if request.auth != null;
