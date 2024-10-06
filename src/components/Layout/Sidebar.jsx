@@ -48,7 +48,7 @@ const navItems = [
     roles: ['Admin', 'Master'],
     children: [
       { icon: Plug, label: 'Integrações', to: '/integracoes' },
-      { icon: FileText, label: 'Logs', to: '/logs' },
+      { icon: FileText, label: 'Logs de Integrações', to: '/admin/settings?tab=logs' },
       { icon: Users, label: 'Usuários', to: '/admin/users' },
       { icon: Settings, label: 'Configurações', to: '/admin/settings' },
       { icon: MessageSquare, label: 'Chat Admin', to: '/admin/chat' },
