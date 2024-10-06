@@ -1,10 +1,14 @@
-import { safePostMessage } from '../firebase/config';
-
 const createSafeErrorObject = (error) => ({
   message: error.message,
   name: error.name,
   stack: error.stack,
 });
+
+const safePostMessage = (target, message, origin) => {
+  if (target && typeof target.postMessage === 'function') {
+    target.postMessage(message, origin);
+  }
+};
 
 export const reportHTTPError = (error) => {
   const errorData = {
