@@ -8,6 +8,7 @@ import GoogleSheetsIntegration from '../../integrations/GoogleSheetsIntegration'
 const Integrations = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
+  const [showGoogleSheetsIntegration, setShowGoogleSheetsIntegration] = useState(false);
 
   const totalItems = integrations.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -23,9 +24,16 @@ const Integrations = () => {
     setCurrentPage(1);
   };
 
+  const handleIntegrate = (integration) => {
+    if (integration.name === "Google Sheets") {
+      setShowGoogleSheetsIntegration(true);
+    }
+    // Handle other integrations as needed
+  };
+
   return (
     <div className="space-y-6">
-      <GoogleSheetsIntegration />
+      {showGoogleSheetsIntegration && <GoogleSheetsIntegration />}
       
       <div className="flex justify-between items-center mb-4">
         <p className="text-sm text-gray-500">Total integrations: {totalItems}</p>
@@ -46,7 +54,11 @@ const Integrations = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {paginatedIntegrations.map((integration, index) => (
-          <IntegrationCard key={index} {...integration} />
+          <IntegrationCard 
+            key={index} 
+            {...integration} 
+            onIntegrate={() => handleIntegrate(integration)}
+          />
         ))}
       </div>
 

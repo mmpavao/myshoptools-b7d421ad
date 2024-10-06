@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-const IntegrationCard = ({ name, category, description, pricing, icon }) => (
+const IntegrationCard = ({ name, category, description, pricing, icon, onIntegrate }) => (
   <Card className="flex flex-col h-full">
     <CardHeader>
       <div className="flex items-center justify-between">
@@ -18,7 +18,7 @@ const IntegrationCard = ({ name, category, description, pricing, icon }) => (
       <p className="text-sm font-semibold">{pricing}</p>
     </CardContent>
     <div className="p-4 mt-auto">
-      <Button className="w-full">Integrate</Button>
+      <Button className="w-full" onClick={onIntegrate}>Integrate</Button>
     </div>
   </Card>
 );
