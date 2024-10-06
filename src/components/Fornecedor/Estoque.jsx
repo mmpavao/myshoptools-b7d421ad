@@ -36,6 +36,16 @@ const Estoque = () => {
   const produtosAtivos = produtosFiltrados.filter(produto => produto.status === 'ativo');
   const produtosInativos = produtosFiltrados.filter(produto => produto.status === 'inativo');
 
+  const onDragEnd = (result) => {
+    if (!result.destination) {
+      return;
+    }
+    const newFotos = Array.from(novoProduto.fotos);
+    const [reorderedItem] = newFotos.splice(result.source.index, 1);
+    newFotos.splice(result.destination.index, 0, reorderedItem);
+    updateFotos(newFotos);
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Estoque</h1>
@@ -63,6 +73,7 @@ const Estoque = () => {
               calcularMarkup={calcularMarkup}
               updateFotos={updateFotos}
               generateAIContent={generateAIContent}
+              onDragEnd={onDragEnd}
             />
           </DialogContent>
         </Dialog>

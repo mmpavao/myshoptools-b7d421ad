@@ -16,13 +16,19 @@ const EstoqueForm = ({
   handleSubmit, 
   calcularMarkup, 
   updateFotos,
-  generateAIContent
+  generateAIContent,
+  onDragEnd // Add this prop
 }) => {
   const handleCurrencyChange = (e) => {
     const { name, value } = e.target;
     const formattedValue = formatCurrency(parseCurrency(value));
     e.target.value = formattedValue;
     handleInputChange(e);
+  };
+
+  const handleGenerateAIContent = (e, field, context) => {
+    e.preventDefault();
+    generateAIContent(field, context);
   };
 
   return (
