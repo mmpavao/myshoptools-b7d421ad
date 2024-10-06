@@ -44,11 +44,8 @@ export const handleStream = async (streamGetter) => {
       try {
         reader = stream.getReader();
       } catch (readerError) {
-        if (readerError.message.includes('locked to a reader')) {
-          console.warn("Stream is already locked. Proceeding without reading.");
-          return;
-        }
-        throw readerError;
+        console.warn("Stream is already locked. Proceeding without reading.");
+        return;
       }
       
       try {
@@ -76,7 +73,7 @@ const createCloneableObject = (obj) => {
       url: obj.url,
       method: obj.method,
       headers: Object.fromEntries(obj.headers.entries()),
-      // Não incluímos o body, pois ele pode não ser clonável
+      // We don't include the body as it might not be clonable
     };
   }
   return obj;
