@@ -38,13 +38,16 @@ const ChatWindow = ({ onClose, onlineAgents }) => {
       <CardContent className="flex-grow overflow-y-auto">
         {onlineAgents.length > 0 ? (
           <div>
-            <p>Agentes online:</p>
-            <ul>
+            <p className="font-semibold mb-2">Agentes online:</p>
+            <ul className="space-y-1">
               {onlineAgents.map(agent => (
-                <li key={agent.id}>{agent.displayName || agent.email}</li>
+                <li key={agent.id} className="flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  {agent.displayName || agent.email}
+                </li>
               ))}
             </ul>
-            {/* Aqui você pode adicionar a lógica para exibir as mensagens */}
+            {/* Here you can add the logic to display messages */}
           </div>
         ) : (
           <p>Todos os agentes estão ocupados no momento. Deixe uma mensagem e responderemos assim que possível.</p>

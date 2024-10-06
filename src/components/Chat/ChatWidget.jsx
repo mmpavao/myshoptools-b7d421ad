@@ -14,7 +14,11 @@ const ChatWidget = () => {
 
   useEffect(() => {
     if (user) {
-      const agentsQuery = query(collection(db, 'users'), where('role', 'in', ['Admin', 'Master']), where('isOnline', '==', true));
+      const agentsQuery = query(
+        collection(db, 'users'),
+        where('role', 'in', ['Admin', 'Master']),
+        where('isOnline', '==', true)
+      );
       const unsubscribe = onSnapshot(agentsQuery, (snapshot) => {
         setOnlineAgents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       });

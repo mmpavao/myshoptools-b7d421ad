@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../firebase/config';
 
 const ChatAdmin = () => {
   const { user } = useAuth();
@@ -19,9 +21,12 @@ const ChatAdmin = () => {
     ]);
   }, []);
 
-  const handleStatusChange = (checked) => {
+  const handleStatusChange = async (checked) => {
     setIsOnline(checked);
-    // Aqui você atualizaria o status do usuário no banco de dados
+    if (user) {
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, { isOnline: checked });
+    }
   };
 
   return (
