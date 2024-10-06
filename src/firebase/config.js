@@ -30,8 +30,7 @@ export const safeLogError = (error) => {
       stack: error.stack,
     };
     const serializedError = JSON.stringify(safeError);
-    // Here you can implement logic to send the serialized error
-    // to a logging service or analytics, if needed
+    // Implement logic to send the serialized error to a logging service if needed
   } catch (serializationError) {
     console.error("Error during error serialization:", serializationError);
   }
@@ -73,24 +72,21 @@ export const handleStream = async (streamGetter) => {
 
 const createRequestClone = (request) => {
   return {
-    type: 'Request',
     url: request.url,
     method: request.method,
     headers: Object.fromEntries(request.headers.entries()),
-    bodyUsed: request.bodyUsed,
-    // Add more properties as needed, but avoid non-cloneable properties
+    // Não incluímos o body, pois ele pode não ser clonável
   };
 };
 
 export const safePostMessage = (targetWindow, message, targetOrigin, transfer) => {
   try {
-    let clonedMessage;
+    let clonedMessage = message;
     if (message instanceof Request) {
       clonedMessage = createRequestClone(message);
     } else if (typeof structuredClone === 'function') {
       clonedMessage = structuredClone(message);
     } else {
-      // Fallback for environments without structuredClone
       clonedMessage = JSON.parse(JSON.stringify(message));
     }
     targetWindow.postMessage(clonedMessage, targetOrigin, transfer);
