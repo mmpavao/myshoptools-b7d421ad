@@ -15,7 +15,22 @@ const AdminUserList = () => {
 
   const fetchUsers = async () => {
     const fetchedUsers = await firebaseOperations.getAllUsers();
-    setUsers(fetchedUsers);
+    // Ensure Marcio Pavao is set as active and master user
+    const updatedUsers = fetchedUsers.map(user => 
+      user.email === 'marcio.pavao@example.com' 
+        ? { ...user, status: 'Active', role: 'Master' }
+        : user
+    );
+    setUsers(updatedUsers);
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Active': return 'bg-green-500';
+      case 'Inactive': return 'bg-yellow-500';
+      case 'Blocked': return 'bg-red-500';
+      default: return 'bg-gray-500';
+    }
   };
 
   return (
@@ -59,15 +74,16 @@ const AdminUserList = () => {
                     <div className="text-sm text-muted-foreground">{user.department || 'No department'}</div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={user.status === 'Active' ? 'success' : 'secondary'}>
+                    <Badge variant="outline" className={`${getStatusColor(user.status)} text-white`}>
                       {user.status || 'Unknown'}
                     </Badge>
                   </TableCell>
                   <TableCell>{user.role || 'No role'}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <Badge variant={user.isOnline ? 'success' : 'secondary'}>
-                      {user.isOnline ? 'Online' : 'Offline'}
+                    <Badge variant="outline" className="flex items-center space-x-1">
+                      <span className={`w-2 h-2 rounded-full ${user.isOnline ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                      <span>{user.isOnline ? 'Online' : 'Offline'}</span>
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">

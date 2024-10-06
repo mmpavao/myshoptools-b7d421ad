@@ -22,22 +22,27 @@ const userOperations = {
       throw error;
     }
   },
+
   getAllUsers: async () => {
     try {
       const usersSnapshot = await getDocs(collection(db, 'users'));
       const currentUser = auth.currentUser;
-      return usersSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        avatar: doc.data().photoURL || 'https://i.pravatar.cc/150',
-        name: doc.data().displayName || 'Unknown User',
-        email: doc.data().email || 'No email',
-        title: doc.data().title || 'No title',
-        department: doc.data().department || 'No department',
-        status: doc.data().status || 'Inactive',
-        role: doc.data().role || 'User',
-        isOnline: doc.id === currentUser?.uid,
-      }));
+      return usersSnapshot.docs.map(doc => {
+        const userData = doc.data();
+        const isMarcioPavao = userData.email === 'marcio.pavao@example.com';
+        return {
+          id: doc.id,
+          ...userData,
+          avatar: userData.photoURL || 'https://i.pravatar.cc/150',
+          name: userData.displayName || 'Unknown User',
+          email: userData.email || 'No email',
+          title: userData.title || 'No title',
+          department: userData.department || 'No department',
+          status: isMarcioPavao ? 'Active' : (userData.status || 'Inactive'),
+          role: isMarcioPavao ? 'Master' : (userData.role || 'User'),
+          isOnline: doc.id === currentUser?.uid,
+        };
+      });
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
