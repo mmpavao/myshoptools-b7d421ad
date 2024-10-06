@@ -21,6 +21,13 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
     navigate('/login');
   };
 
+  const companies = [
+    "Vissa Ecommerce",
+    "Meubles Frire",
+    "ColorFios",
+    "Online Sales"
+  ];
+
   return (
     <header className="bg-destructive text-destructive-foreground border-b border-destructive/20 fixed top-0 right-0 left-0 z-40">
       <div className="flex items-center justify-between px-4 py-2">
@@ -38,8 +45,9 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
             <DropdownMenuContent>
               <DropdownMenuLabel>Empresas</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Empresa 1</DropdownMenuItem>
-              <DropdownMenuItem>Empresa 2</DropdownMenuItem>
+              {companies.map((company, index) => (
+                <DropdownMenuItem key={index}>{company}</DropdownMenuItem>
+              ))}
               <DropdownMenuItem>Adicionar nova empresa</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

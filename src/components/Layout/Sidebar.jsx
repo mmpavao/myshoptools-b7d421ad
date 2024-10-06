@@ -130,7 +130,7 @@ const Sidebar = ({ isOpen }) => {
     <aside className={cn(
       "fixed left-0 top-0 z-50 h-screen transition-all duration-300",
       isOpen ? "w-64" : "w-16",
-      "bg-destructive text-destructive-foreground"
+      "bg-blue-800 text-white" // Mudança da cor de fundo para azul escuro
     )}>
       <div className="h-full overflow-y-auto py-4 px-3">
         <div className="flex items-center justify-center h-14 mb-4">
@@ -145,7 +145,7 @@ const Sidebar = ({ isOpen }) => {
           <NavLink
             to="/suporte"
             className={cn(
-              "flex items-center p-2 text-base font-normal rounded-lg text-destructive-foreground hover:bg-destructive/90",
+              "flex items-center p-2 text-base font-normal rounded-lg text-white hover:bg-blue-700",
               !isOpen && "justify-center"
             )}
           >
