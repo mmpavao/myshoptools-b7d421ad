@@ -14,6 +14,7 @@ import {
   Box,
   ShoppingCart,
   List,
+  Users,
 } from 'lucide-react';
 
 const navItems = [
@@ -41,6 +42,7 @@ const navItems = [
     children: [
       { icon: Plug, label: 'Integrações', to: '/integracoes' },
       { icon: FileText, label: 'Logs', to: '/logs' },
+      { icon: Users, label: 'Usuários', to: '/admin/users' },
     ],
   },
 ];

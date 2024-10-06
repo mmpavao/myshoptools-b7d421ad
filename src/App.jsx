@@ -17,6 +17,7 @@ import Estoque from "./components/Fornecedor/Estoque";
 import PedidosFornecedor from "./components/Fornecedor/PedidosFornecedor";
 import DetalheProduto from "./components/Produto/DetalheProduto";
 import ListaProdutos from "./components/Produto/ListaProdutos";
+import AdminUserList from "./components/Admin/AdminUserList";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const AppRoutes = () => (
     <Route path="/apis" element={<ProtectedLayout><APIPage /></ProtectedLayout>} />
     <Route path="/suporte" element={<ProtectedLayout><PlaceholderComponent title="Suporte" /></ProtectedLayout>} />
     <Route path="/produto/:id" element={<ProtectedLayout><DetalheProduto /></ProtectedLayout>} />
+    <Route path="/admin/users" element={<ProtectedLayout><AdminUserList /></ProtectedLayout>} />
     <Route path="/" element={<Navigate to="/dashboard" />} />
     <Route path="*" element={<Navigate to="/dashboard" />} />
   </Routes>
@@ -66,4 +68,3 @@ const App = () => (
 );
 
 export default App;
-
