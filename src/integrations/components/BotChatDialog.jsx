@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Paperclip, Mic, Send } from 'lucide-react';
-import { chatWithBot, analyzeImage, generateImage, transcribeAudio, textToSpeech } from '../openAIOperations';
+import { chatWithBot, analyzeImage, generateImage, transcribeAudio, textToSpeech, analyzeDocument } from '../openAIOperations';
 
 const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
   const [messages, setMessages] = useState([]);
@@ -12,11 +12,10 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isBotTyping, setIsBotTyping] = useState(false);
-  const [isBotRecording, setIsBotRecording] = useState(false);
   const scrollAreaRef = useRef(null);
   const fileInputRef = useRef(null);
+  const audioRef = useRef(null);
   const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -35,17 +34,13 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
 
     try {
       let botResponse;
-      if (type === 'image') {
-        botResponse = await analyzeImage(apiKey, content);
+      if (type === 'file') {
+        botResponse = await analyzeDocument(apiKey, content);
       } else if (type === 'audio') {
-        setIsBotRecording(true);
         const transcription = await transcribeAudio(apiKey, content);
         botResponse = await chatWithBot(apiKey, bot.assistantId, transcription);
         const audioUrl = await textToSpeech(apiKey, botResponse, bot.voice || 'alloy');
         botResponse = { text: botResponse, audioUrl, transcription };
-      } else if (type === 'generate-image') {
-        const imageUrl = await generateImage(apiKey, content);
-        botResponse = { text: 'Imagem gerada com sucesso:', imageUrl };
       } else {
         botResponse = await chatWithBot(apiKey, bot.assistantId, content);
       }
@@ -53,7 +48,7 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
       const botMessage = { 
         role: 'assistant', 
         content: botResponse, 
-        type: type === 'audio' ? 'audio' : type === 'generate-image' ? 'image' : 'text' 
+        type: type === 'audio' ? 'audio' : 'text' 
       };
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
@@ -63,18 +58,13 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
     } finally {
       setIsLoading(false);
       setIsBotTyping(false);
-      setIsBotRecording(false);
     }
   };
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      if (file.type.startsWith('image/')) {
-        handleSendMessage(file, 'image');
-      } else {
-        console.log('Document uploaded:', file.name);
-      }
+      handleSendMessage(file, 'file');
     }
   };
 
@@ -91,12 +81,8 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
       .then(stream => {
         mediaRecorderRef.current = new MediaRecorder(stream);
         mediaRecorderRef.current.ondataavailable = (event) => {
-          audioChunksRef.current.push(event.data);
-        };
-        mediaRecorderRef.current.onstop = () => {
-          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+          const audioBlob = new Blob([event.data], { type: 'audio/wav' });
           handleSendMessage(audioBlob, 'audio');
-          audioChunksRef.current = [];
         };
         mediaRecorderRef.current.start();
         setIsRecording(true);
@@ -128,13 +114,11 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
                     {message.role === 'user' && message.content.transcription && (
                       <p className="mb-2">{message.content.transcription}</p>
                     )}
-                    <audio src={message.content.audioUrl} controls />
+                    <audio src={message.content.audioUrl} controls ref={audioRef} />
                     {message.role === 'assistant' && message.content.text && (
                       <p className="mt-2">{message.content.text}</p>
                     )}
                   </div>
-                ) : message.type === 'image' ? (
-                  <img src={message.content.imageUrl} alt="Generated" className="max-w-full h-auto" />
                 ) : (
                   message.content
                 )}
@@ -143,11 +127,6 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
             {isBotTyping && (
               <div className="mb-2 p-2 rounded bg-gray-100">
                 <p>Digitando...</p>
-              </div>
-            )}
-            {isBotRecording && (
-              <div className="mb-2 p-2 rounded bg-gray-100">
-                <p>Gravando áudio...</p>
               </div>
             )}
           </ScrollArea>
@@ -174,7 +153,7 @@ const BotChatDialog = ({ isOpen, onOpenChange, bot, apiKey }) => {
               ref={fileInputRef}
               style={{ display: 'none' }}
               onChange={handleFileUpload}
-              accept="image/*,.pdf,.doc,.docx"
+              accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv"
             />
             <Button onClick={() => fileInputRef.current.click()} className="ml-2" disabled={isLoading}>
               <Paperclip size={20} />

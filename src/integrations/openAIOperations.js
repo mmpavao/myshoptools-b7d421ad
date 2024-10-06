@@ -40,24 +40,30 @@ export const chatWithBot = async (apiKey, assistantId, message) => {
   }
 };
 
-export const analyzeImage = async (apiKey, file) => {
+export const analyzeDocument = async (apiKey, file) => {
   try {
     const openai = createOpenAIClient(apiKey);
-    const response = await openai.chat.completions.create({
-      model: "gpt-4-vision-preview",
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "text", text: "What's in this image?" },
-            { type: "image_url", image_url: { url: URL.createObjectURL(file) } }
-          ],
-        },
-      ],
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('model', 'gpt-4-vision-preview');
+    formData.append('prompt', 'Analyze this document and provide a brief summary. What specific information might the user be interested in?');
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: formData,
     });
-    return response.choices[0].message.content;
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
   } catch (error) {
-    handleOpenAIError(error, 'analyze image');
+    handleOpenAIError(error, 'analyze document');
   }
 };
 
