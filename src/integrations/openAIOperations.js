@@ -2,6 +2,10 @@ import { db } from '../firebase/config';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
 import { createOpenAIClient, handleOpenAIError } from '../utils/openAIUtils';
 
+import { db } from '../firebase/config';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
+import { createOpenAIClient, handleOpenAIError } from '../utils/openAIUtils';
+
 export const testOpenAIConnection = async (apiKey) => {
   try {
     const openai = createOpenAIClient(apiKey);
@@ -67,32 +71,48 @@ export const analyzeDocument = async (apiKey, file) => {
   }
 };
 
+
 export const analyzeImage = async (apiKey, imageFile) => {
   try {
     const openai = createOpenAIClient(apiKey);
     const formData = new FormData();
-    formData.append('image', imageFile);
+    formData.append('file', imageFile);
     formData.append('model', 'gpt-4-vision-preview');
     formData.append('prompt', 'Analyze this image and provide a brief description.');
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: formData,
+    const response = await openai.chat.completions.create({
+      model: "gpt-4-vision-preview",
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: "Analyze this image and provide a brief description." },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:image/jpeg;base64,${await imageFileToBase64(imageFile)}`,
+              },
+            },
+          ],
+        },
+      ],
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
+    return response.choices[0].message.content;
   } catch (error) {
     handleOpenAIError(error, 'analyze image');
   }
 };
+
+const imageFileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = error => reject(error);
+  });
+};
+
 
 export const generateImage = async (apiKey, prompt) => {
   try {
@@ -233,3 +253,4 @@ export const getBots = async (apiKey) => {
     handleOpenAIError(error, 'get bots');
   }
 };
+
