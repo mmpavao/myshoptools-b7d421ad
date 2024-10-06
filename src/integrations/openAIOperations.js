@@ -268,7 +268,13 @@ export const getBots = async (apiKey) => {
 
     const mergedBots = await Promise.all(assistants.data.map(async (assistant) => {
       const firestoreBot = firestoreBots.find(bot => bot.assistantId === assistant.id);
-      const botDetails = await getBotDetails(apiKey, assistant.id);
+      let botDetails;
+      try {
+        botDetails = await getBotDetails(apiKey, assistant.id);
+      } catch (error) {
+        console.error(`Error fetching details for assistant ${assistant.id}:`, error);
+        botDetails = getDefaultBotDetails();
+      }
       return {
         id: firestoreBot?.id || assistant.id,
         ...botDetails,
@@ -280,6 +286,16 @@ export const getBots = async (apiKey) => {
       };
     }));
 
+    // Handle bots that exist in Firestore but not in OpenAI
+    const orphanedBots = firestoreBots.filter(
+      firestoreBot => !assistants.data.some(assistant => assistant.id === firestoreBot.assistantId)
+    );
+
+    for (const orphanedBot of orphanedBots) {
+      console.warn(`Bot ${orphanedBot.id} exists in Firestore but not in OpenAI. Removing from Firestore.`);
+      await deleteDoc(doc(db, 'bots', orphanedBot.id));
+    }
+
     await syncBotsWithFirestore(mergedBots);
     return mergedBots;
   } catch (error) {
@@ -290,21 +306,8 @@ export const getBots = async (apiKey) => {
 };
 
 const syncBotsWithFirestore = async (mergedBots) => {
-  const querySnapshot = await getDocs(collection(db, 'bots'));
-  const firestoreBots = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
   for (const bot of mergedBots) {
     const botRef = doc(db, 'bots', bot.id);
     await setDoc(botRef, bot, { merge: true });
   }
-
-  const botsToRemove = firestoreBots.filter(
-    firestoreBot => !mergedBots.some(bot => bot.assistantId === firestoreBot.assistantId)
-  );
-
-  for (const botToRemove of botsToRemove) {
-    await deleteDoc(doc(db, 'bots', botToRemove.id));
-  }
 };
-
-// Export other functions as needed
