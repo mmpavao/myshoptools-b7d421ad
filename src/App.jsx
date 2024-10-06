@@ -70,12 +70,12 @@ const AppRoutes = () => (
     <Route path="/estoque" element={<RoleBasedRoute element={Estoque} allowedRoles={['Fornecedor', 'Admin', 'Master']} />} />
     <Route path="/pedidos-fornecedor" element={<RoleBasedRoute element={PedidosFornecedor} allowedRoles={['Fornecedor', 'Admin', 'Master']} />} />
     <Route path="/lista-produtos" element={<RoleBasedRoute element={ListaProdutos} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
-    <Route path="/integracoes" element={<RoleBasedRoute element={() => <PlaceholderComponent title="Integrações" />} allowedRoles={['Admin', 'Master']} />} />
+    <Route path="/integracoes" element={<RoleBasedRoute element={() => <div>Integrações</div>} allowedRoles={['Admin', 'Master']} />} />
     <Route path="/logs" element={<RoleBasedRoute element={LogsPage} allowedRoles={['Admin', 'Master']} />} />
     <Route path="/profile" element={<RoleBasedRoute element={UserProfile} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
     <Route path="/documentation" element={<RoleBasedRoute element={DocumentationPage} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
     <Route path="/apis" element={<RoleBasedRoute element={APIPage} allowedRoles={['Admin', 'Master']} />} />
-    <Route path="/suporte" element={<RoleBasedRoute element={() => <PlaceholderComponent title="Suporte" />} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
+    <Route path="/suporte" element={<RoleBasedRoute element={() => <div>Suporte</div>} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
     <Route path="/produto/:id" element={<RoleBasedRoute element={DetalheProduto} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />} />
     <Route path="/admin/users" element={<RoleBasedRoute element={AdminUserList} allowedRoles={['Admin', 'Master']} />} />
     <Route path="/admin/settings" element={<RoleBasedRoute element={SettingsPage} allowedRoles={['Admin', 'Master']} />} />
@@ -102,3 +102,5 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
 );
+
+export default App;
