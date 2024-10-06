@@ -19,7 +19,7 @@ const countries = [
 ];
 
 const UserProfile = () => {
-  const { user } = useAuth();
+  const { user, updateUserContext } = useAuth();
   const [profileImage, setProfileImage] = useState(user?.photoURL || "/placeholder.svg");
   const [name, setName] = useState(user?.displayName || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -38,6 +38,12 @@ const UserProfile = () => {
       try {
         const downloadURL = await uploadProfileImage(file, user.uid);
         setProfileImage(downloadURL);
+        
+        // Atualiza o contexto do usuário com a nova imagem
+        updateUserContext({
+          photoURL: downloadURL,
+        });
+
         toast({
           title: "Imagem de Perfil Atualizada",
           description: "Sua foto de perfil foi atualizada com sucesso.",
@@ -62,6 +68,13 @@ const UserProfile = () => {
         address,
         country: country.code,
       });
+      
+      // Atualiza o contexto do usuário com as novas informações
+      updateUserContext({
+        displayName: name,
+        photoURL: profileImage,
+      });
+
       toast({
         title: "Perfil Atualizado",
         description: "Suas informações foram atualizadas com sucesso.",
