@@ -35,7 +35,6 @@ const LogsPage = () => {
   };
 
   const fetchUsers = async () => {
-    // This is a placeholder. You'll need to implement this function in firebaseOperations
     const fetchedUsers = await firebaseOperations.getAllUsers();
     setUsers(fetchedUsers);
   };
@@ -132,7 +131,6 @@ const LogsPage = () => {
       </div>
     </div>
   );
-};
 };
 
 export default LogsPage;
