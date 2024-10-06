@@ -23,17 +23,7 @@ export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : nul
 
 export const safeLogError = (error) => {
   console.error("Error occurred:", error);
-  try {
-    const safeError = {
-      message: error.message,
-      name: error.name,
-      stack: error.stack,
-    };
-    const serializedError = JSON.stringify(safeError);
-    // Implement logic to send the serialized error to a logging service if needed
-  } catch (serializationError) {
-    console.error("Error during error serialization:", serializationError);
-  }
+  // Implement logic to send the error to a logging service if needed
 };
 
 export const handleStream = async (streamGetter) => {
@@ -67,13 +57,12 @@ export const handleStream = async (streamGetter) => {
   }
 };
 
-const createCloneableObject = (obj) => {
+const createSimplifiedObject = (obj) => {
   if (obj instanceof Request) {
     return {
       url: obj.url,
       method: obj.method,
       headers: Object.fromEntries(obj.headers.entries()),
-      // We don't include the body as it might not be clonable
     };
   }
   return obj;
@@ -81,15 +70,8 @@ const createCloneableObject = (obj) => {
 
 export const safePostMessage = (targetWindow, message, targetOrigin, transfer) => {
   try {
-    let clonedMessage = createCloneableObject(message);
-    
-    if (typeof structuredClone === 'function') {
-      clonedMessage = structuredClone(clonedMessage);
-    } else {
-      clonedMessage = JSON.parse(JSON.stringify(clonedMessage));
-    }
-    
-    targetWindow.postMessage(clonedMessage, targetOrigin, transfer);
+    let simplifiedMessage = createSimplifiedObject(message);
+    targetWindow.postMessage(simplifiedMessage, targetOrigin, transfer);
   } catch (error) {
     safeLogError(error);
     console.error("Failed to post message:", error);
