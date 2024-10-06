@@ -65,12 +65,20 @@ const createSimplifiedObject = (obj) => {
       headers: Object.fromEntries(obj.headers.entries()),
     };
   }
+  if (obj instanceof ReadableStream) {
+    return { type: 'ReadableStream' };
+  }
+  if (typeof obj === 'object' && obj !== null) {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, createSimplifiedObject(value)])
+    );
+  }
   return obj;
 };
 
 export const safePostMessage = (targetWindow, message, targetOrigin, transfer) => {
   try {
-    let simplifiedMessage = JSON.parse(JSON.stringify(createSimplifiedObject(message)));
+    let simplifiedMessage = createSimplifiedObject(message);
     targetWindow.postMessage(simplifiedMessage, targetOrigin, transfer);
   } catch (error) {
     safeLogError(error);
