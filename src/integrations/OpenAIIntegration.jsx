@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -8,10 +7,9 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { initializeOpenAI, createBot, updateBot, deleteBot, getBots, addKnowledgeBase, analyzeImage, generateImage, transcribeAudio, textToSpeech } from './openAIOperations';
+import { createBot, updateBot, deleteBot, getBots, addKnowledgeBase, analyzeImage, generateImage, transcribeAudio, textToSpeech } from './openAIOperations';
 
 const OpenAIIntegration = () => {
-  const [apiKey, setApiKey] = useState('');
   const [bots, setBots] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -37,20 +35,6 @@ const OpenAIIntegration = () => {
     } catch (error) {
       console.error('Error fetching bots:', error);
       toast.error('Failed to fetch bots');
-    }
-  };
-
-  const handleSaveApiKey = async () => {
-    setIsLoading(true);
-    try {
-      initializeOpenAI(apiKey);
-      toast.success('API key saved and tested successfully');
-      fetchBots();
-    } catch (error) {
-      console.error('Error saving or testing API key:', error);
-      toast.error('Failed to save or test API key');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -168,26 +152,6 @@ const OpenAIIntegration = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">OpenAI Integration</h1>
-      
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>API Key Configuration</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4">
-            <Input
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              type="password"
-              placeholder="Enter your OpenAI API key"
-              className="flex-grow"
-            />
-            <Button onClick={handleSaveApiKey} disabled={isLoading}>
-              {isLoading ? 'Saving...' : 'Save and Test'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       <Card className="mb-6">
         <CardHeader>

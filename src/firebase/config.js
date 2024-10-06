@@ -3,6 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
+import { collection, getDocs, query, limit, addDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -14,31 +15,30 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-Object.entries(firebaseConfig).forEach(([key, value]) => {
-  if (!value) {
-    console.warn(`Firebase configuration is missing for: ${key}`);
-  }
-});
+const openAIConfig = {
+  apiKey: "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"
+};
 
 const app = initializeApp(firebaseConfig);
-
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+export { openAIConfig };
 
-export const safeLogError = (error) => {
-  console.error("Error occurred:", error);
-};
-
-export const safePostMessage = (target, message, origin) => {
-  if (target && typeof target.postMessage === 'function') {
-    try {
-      target.postMessage(message, origin);
-    } catch (error) {
-      console.warn('Failed to post message:', error);
+const initializeCollections = async () => {
+  const collectionsToInitialize = ['bots', 'user_settings'];
+  
+  for (const collectionName of collectionsToInitialize) {
+    const collectionRef = collection(db, collectionName);
+    const q = query(collectionRef, limit(1));
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+      console.log(`Initializing collection: ${collectionName}`);
+      await addDoc(collectionRef, { initialized: true });
     }
-  } else {
-    console.warn('Target does not support postMessage');
   }
 };
+
+initializeCollections().catch(console.error);
