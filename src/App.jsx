@@ -22,7 +22,6 @@ import MeusProdutos from "./components/Produto/MeusProdutos";
 import AdminUserList from "./components/Admin/AdminUserList";
 import SettingsPage from "./components/Admin/SettingsPage";
 import ChatAdmin from "./components/Admin/ChatAdmin";
-import ChatWidget from "./components/Chat/ChatWidget";
 import { getUserRole } from "./firebase/userOperations";
 import OpenAIIntegration from "./integrations/OpenAIIntegration";
 import GoogleSheetsIntegration from "./integrations/GoogleSheetsIntegration";
@@ -91,7 +90,6 @@ const AppContent = () => {
   return (
     <AuthProvider>
       <AppRoutes />
-      <ChatWidget />
     </AuthProvider>
   );
 };
