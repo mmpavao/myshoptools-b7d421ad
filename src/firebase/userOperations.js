@@ -1,6 +1,6 @@
 import { db, auth, storage } from './config';
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
-import { updateProfile, deleteUser as deleteAuthUser } from 'firebase/auth';
+import { updateProfile, deleteUser as deleteAuthUser, sendPasswordResetEmail } from 'firebase/auth';
 import { ref, deleteObject } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
 import { safeFirestoreOperation } from '../utils/errorReporting';
@@ -184,6 +184,16 @@ const deleteUser = async (userId) => {
   }
 };
 
+const sendPasswordResetEmail = async (email) => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+    return true;
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    throw error;
+  }
+};
+
 export {
   createUser,
   updateUserProfile,
@@ -193,5 +203,6 @@ export {
   updateUserStatus,
   deleteUser,
   userRoles,
-  checkUserStatus
+  checkUserStatus,
+  sendPasswordResetEmail
 };
