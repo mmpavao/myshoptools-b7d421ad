@@ -25,7 +25,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const setupAuth = async () => {
       try {
+        // Configurar persistência local
         await setPersistence(auth, browserLocalPersistence);
+        
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
           if (user) {
             const isActive = await checkUserStatus(user.uid);
