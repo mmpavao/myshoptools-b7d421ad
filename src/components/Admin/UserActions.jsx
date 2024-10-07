@@ -19,10 +19,18 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   useEffect(() => {
+    if (!isDialogOpen) {
+      resetState();
+    }
+  }, [isDialogOpen, user]);
+
+  const resetState = () => {
     setNewRole(user.role);
     setIsActive(user.status === 'Active');
     setHasChanges(false);
-  }, [user, isDialogOpen]);
+    setIsSaving(false);
+    setIsResettingPassword(false);
+  };
 
   const handleRoleChange = (value) => {
     setNewRole(value);
@@ -64,7 +72,6 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
       
       onUserUpdate();
       setIsDialogOpen(false);
-      setHasChanges(false);
       toast({
         title: "Alterações Salvas",
         description: "As configurações do usuário foram atualizadas com sucesso.",
@@ -78,6 +85,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
       });
     } finally {
       setIsSaving(false);
+      setHasChanges(false);
     }
   };
 
