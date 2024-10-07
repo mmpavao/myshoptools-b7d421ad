@@ -49,14 +49,22 @@ const Login = () => {
   const onSubmit = async (data) => {
     setIsLoading(true);
     setError('');
+    console.log('Iniciando processo de login...');
     try {
+      console.log('Tentando autenticar com email:', data.email);
       const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+      console.log('Autenticação bem-sucedida para:', userCredential.user.email);
+
       if (data.email === MASTER_USER_EMAIL) {
+        console.log('Usuário Master identificado, prosseguindo com o login...');
         await login(data.rememberMe);
         navigate('/dashboard');
       } else {
+        console.log('Verificando status do usuário...');
         const isActive = await checkUserStatus(userCredential.user.uid);
+        console.log('Status do usuário:', isActive ? 'Ativo' : 'Inativo');
         if (!isActive) {
+          console.log('Conta inativa, fazendo logout...');
           await auth.signOut();
           toast({
             title: "Conta Inativa",
@@ -64,12 +72,13 @@ const Login = () => {
             variant: "destructive",
           });
         } else {
+          console.log('Conta ativa, prosseguindo com o login...');
           await login(data.rememberMe);
           navigate('/dashboard');
         }
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Erro durante o login:', error);
       if (error.code === 'auth/invalid-login-credentials') {
         setError("Credenciais inválidas. Por favor, verifique seu e-mail e senha.");
       } else if (error.code === 'auth/user-not-found') {
@@ -77,10 +86,11 @@ const Login = () => {
       } else if (error.code === 'auth/wrong-password') {
         setError("Senha incorreta. Por favor, tente novamente.");
       } else {
-        setError("Erro ao fazer login. Por favor, tente novamente mais tarde.");
+        setError(`Erro ao fazer login: ${error.message}`);
       }
     } finally {
       setIsLoading(false);
+      console.log('Processo de login finalizado.');
     }
   };
 
