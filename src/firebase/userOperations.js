@@ -4,6 +4,7 @@ import { updateProfile, deleteUser as deleteAuthUser } from 'firebase/auth';
 import { toast } from '@/components/ui/use-toast';
 
 const MASTER_USER_EMAIL = 'pavaosmart@gmail.com';
+const MASTER_USER_ID = 'n3WZCHKhQacnxchDwl3nCEW7mUB3';
 const ADMIN_USER_EMAIL = 'marcio@talkmaker.io';
 
 export const userRoles = {
@@ -16,7 +17,7 @@ export const userRoles = {
 const createUser = async (userData) => {
   try {
     let role = userRoles.VENDOR;
-    if (userData.email === MASTER_USER_EMAIL) {
+    if (userData.email === MASTER_USER_EMAIL || userData.uid === MASTER_USER_ID) {
       role = userRoles.MASTER;
     } else if (userData.email === ADMIN_USER_EMAIL) {
       role = userRoles.ADMIN;
@@ -36,6 +37,9 @@ const createUser = async (userData) => {
 
 const getUserRole = async (userId) => {
   try {
+    if (userId === MASTER_USER_ID) {
+      return userRoles.MASTER;
+    }
     const userDoc = await getDoc(doc(db, 'users', userId));
     if (userDoc.exists()) {
       const userData = userDoc.data();
@@ -56,7 +60,7 @@ const updateUserRole = async (userId, newRole, currentUserRole) => {
     }
     const userData = userDoc.data();
 
-    if (userData.email === MASTER_USER_EMAIL) {
+    if (userData.email === MASTER_USER_EMAIL || userId === MASTER_USER_ID) {
       throw new Error('Cannot change Master user role');
     }
 
@@ -83,7 +87,7 @@ const getAllUsers = async () => {
       name: doc.data().displayName || 'Unknown User',
       email: doc.data().email || 'No email',
       status: doc.data().status || 'Inactive',
-      role: doc.data().email === MASTER_USER_EMAIL ? userRoles.MASTER : (doc.data().role || userRoles.VENDOR),
+      role: doc.data().email === MASTER_USER_EMAIL || doc.id === MASTER_USER_ID ? userRoles.MASTER : (doc.data().role || userRoles.VENDOR),
       isOnline: false, // You might want to implement a proper online status check
     }));
   } catch (error) {
@@ -99,13 +103,9 @@ const getAllUsers = async () => {
 
 const updateUserStatus = async (userId, newStatus) => {
   try {
-    const userDoc = await getDoc(doc(db, 'users', userId));
-    const userData = userDoc.data();
-
-    if (userData.email === MASTER_USER_EMAIL) {
+    if (userId === MASTER_USER_ID) {
       throw new Error('Cannot change Master user status');
     }
-
     await updateDoc(doc(db, 'users', userId), { status: newStatus });
     return true;
   } catch (error) {
@@ -116,21 +116,11 @@ const updateUserStatus = async (userId, newStatus) => {
 
 const deleteUser = async (userId) => {
   try {
-    const userDoc = await getDoc(doc(db, 'users', userId));
-    const userData = userDoc.data();
-
-    if (userData.email === MASTER_USER_EMAIL) {
+    if (userId === MASTER_USER_ID) {
       throw new Error('Cannot delete Master user');
     }
-
     await deleteAuthUser(await auth.getUser(userId));
     await deleteDoc(doc(db, 'users', userId));
-
-    // Delete associated data (you might want to implement this based on your data structure)
-    // For example:
-    // await deleteAssociatedData('orders', 'userId', userId);
-    // await deleteAssociatedData('products', 'userId', userId);
-
     return true;
   } catch (error) {
     console.error('Error deleting user:', error);
@@ -140,12 +130,12 @@ const deleteUser = async (userId) => {
 
 const checkUserStatus = async (userId) => {
   try {
+    if (userId === MASTER_USER_ID) {
+      return true;
+    }
     const userDoc = await getDoc(doc(db, 'users', userId));
     if (userDoc.exists()) {
       const userData = userDoc.data();
-      if (userData.email === MASTER_USER_EMAIL) {
-        return true;
-      }
       return userData.status === 'Active';
     }
     return false;

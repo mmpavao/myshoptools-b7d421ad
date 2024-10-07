@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
@@ -20,6 +20,7 @@ import SettingsPage from "./components/Admin/SettingsPage";
 import ChatAdmin from "./components/Admin/ChatAdmin";
 import ChatWidget from "./components/Chat/ChatWidget";
 import { getUserRole, userRoles } from "./firebase/userOperations";
+import { updateMasterUser } from "./firebase/updateMasterUser";
 
 const queryClient = new QueryClient();
 
@@ -73,20 +74,26 @@ const AppRoutes = () => (
   </Routes>
 );
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
-        <Router>
-          <AuthProvider>
-            <Toaster position="top-right" />
-            <AppRoutes />
-            <ChatWidget />
-          </AuthProvider>
-        </Router>
-      </GoogleOAuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  useEffect(() => {
+    updateMasterUser();
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
+          <Router>
+            <AuthProvider>
+              <Toaster position="top-right" />
+              <AppRoutes />
+              <ChatWidget />
+            </AuthProvider>
+          </Router>
+        </GoogleOAuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
