@@ -129,6 +129,7 @@ const firebaseOperations = {
       throw error;
     }
   },
+
   updateUserProfile: async (userId, profileData) => {
     try {
       const userRef = doc(db, 'users', userId);
@@ -151,6 +152,7 @@ const firebaseOperations = {
       throw error;
     }
   },
+
   getUserRole: userOperations.getUserRole,
   getAllUsers: userOperations.getAllUsers,
   updateUserRole: userOperations.updateUserRole,

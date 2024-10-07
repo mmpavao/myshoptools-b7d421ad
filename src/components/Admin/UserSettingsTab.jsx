@@ -17,7 +17,7 @@ const UserSettingsTab = ({ userData, isMasterAdmin, onChange }) => (
           value={userData.role || 'Vendedor'}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue />
+            <SelectValue placeholder={userData.role || 'Selecione uma função'} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="Vendedor">Vendedor</SelectItem>
