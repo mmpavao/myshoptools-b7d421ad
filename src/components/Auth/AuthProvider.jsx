@@ -26,21 +26,26 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        const userProfile = await firebaseOperations.getUserProfile(currentUser.uid);
-        if (currentUser.email === MASTER_USER_EMAIL) {
-          setUser({ ...currentUser, ...userProfile, role: 'Master', status: 'Active' });
-        } else {
-          const isActive = await checkUserStatus(currentUser.uid);
-          if (isActive) {
-            setUser({ ...currentUser, ...userProfile });
+        try {
+          const userProfile = await firebaseOperations.getUserProfile(currentUser.uid);
+          if (currentUser.email === MASTER_USER_EMAIL) {
+            setUser({ ...currentUser, ...userProfile, role: 'Master', status: 'Active' });
           } else {
-            await logout();
-            toast({
-              title: "Conta Inativa",
-              description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
-              variant: "destructive",
-            });
+            const isActive = await checkUserStatus(currentUser.uid);
+            if (isActive) {
+              setUser({ ...currentUser, ...userProfile });
+            } else {
+              await logout();
+              toast({
+                title: "Conta Inativa",
+                description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
+                variant: "destructive",
+              });
+            }
           }
+        } catch (error) {
+          console.error("Erro ao verificar o status do usuário:", error);
+          setUser(null);
         }
       } else {
         setUser(null);

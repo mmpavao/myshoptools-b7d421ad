@@ -138,6 +138,7 @@ export const updateUserStatus = async (userId, newStatus) => {
   }
 };
 
+
 export const checkUserStatus = async (userId) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
@@ -149,12 +150,15 @@ export const checkUserStatus = async (userId) => {
       }
       return userData.status === 'Active';
     }
+    console.log('Usuário não encontrado no Firestore');
     return false;
   } catch (error) {
-    console.error('Error checking user status:', error);
-    return false;
+    console.error('Erro ao verificar o status do usuário:', error);
+    // Em caso de erro, permitimos o acesso para evitar bloqueios indevidos
+    return true;
   }
 };
+
 
 export const deleteUser = async (userId) => {
   try {
