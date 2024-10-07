@@ -6,6 +6,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../Auth/AuthProvider';
 import UserActions from './UserActions';
+import { userRoles } from '../../utils/userConstants';
 
 const getStatusColor = (status) => {
   const colors = { Active: 'bg-green-500', Inactive: 'bg-red-500' };
@@ -22,7 +23,7 @@ export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSi
     }
   }, [currentUser]);
 
-  const isMasterAdmin = currentUserRole === firebaseOperations.userRoles.MASTER;
+  const isMasterAdmin = currentUserRole === userRoles.MASTER;
 
   const totalPages = Math.ceil(totalUsers / pageSize);
 
