@@ -56,22 +56,24 @@ const RoleBasedRoute = ({ element: Element, allowedRoles }) => {
 };
 
 const AppRoutes = () => (
-  <Routes>
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
-    <Route path="/" element={<ProtectedRoute><Navigate to="/dashboard" /></ProtectedRoute>} />
-    <Route path="/dashboard" element={<ProtectedRoute><RoleBasedRoute element={Dashboard} allowedRoles={[userRoles.VENDOR, userRoles.PROVIDER, userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
-    <Route path="/vitrine" element={<ProtectedRoute><RoleBasedRoute element={Vitrine} allowedRoles={[userRoles.VENDOR, userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
-    <Route path="/meus-pedidos" element={<ProtectedRoute><RoleBasedRoute element={MeusPedidos} allowedRoles={[userRoles.VENDOR, userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
-    <Route path="/estoque" element={<ProtectedRoute><RoleBasedRoute element={Estoque} allowedRoles={[userRoles.PROVIDER, userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
-    <Route path="/pedidos-fornecedor" element={<ProtectedRoute><RoleBasedRoute element={PedidosFornecedor} allowedRoles={[userRoles.PROVIDER, userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
-    <Route path="/meus-produtos" element={<ProtectedRoute><RoleBasedRoute element={MeusProdutos} allowedRoles={[userRoles.VENDOR, userRoles.PROVIDER, userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
-    <Route path="/profile" element={<ProtectedRoute><RoleBasedRoute element={UserProfile} allowedRoles={[userRoles.VENDOR, userRoles.PROVIDER, userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
-    <Route path="/admin/users" element={<ProtectedRoute><RoleBasedRoute element={AdminUserList} allowedRoles={[userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
-    <Route path="/admin/settings" element={<ProtectedRoute><RoleBasedRoute element={SettingsPage} allowedRoles={[userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
-    <Route path="/admin/chat" element={<ProtectedRoute><RoleBasedRoute element={ChatAdmin} allowedRoles={[userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
-    <Route path="*" element={<ProtectedRoute><Navigate to="/dashboard" /></ProtectedRoute>} />
-  </Routes>
+  <AuthProvider>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/" element={<ProtectedRoute><Navigate to="/dashboard" /></ProtectedRoute>} />
+      <Route path="/dashboard" element={<ProtectedRoute><RoleBasedRoute element={Dashboard} allowedRoles={[userRoles.VENDOR, userRoles.PROVIDER, userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
+      <Route path="/vitrine" element={<ProtectedRoute><RoleBasedRoute element={Vitrine} allowedRoles={[userRoles.VENDOR, userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
+      <Route path="/meus-pedidos" element={<ProtectedRoute><RoleBasedRoute element={MeusPedidos} allowedRoles={[userRoles.VENDOR, userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
+      <Route path="/estoque" element={<ProtectedRoute><RoleBasedRoute element={Estoque} allowedRoles={[userRoles.PROVIDER, userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
+      <Route path="/pedidos-fornecedor" element={<ProtectedRoute><RoleBasedRoute element={PedidosFornecedor} allowedRoles={[userRoles.PROVIDER, userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
+      <Route path="/meus-produtos" element={<ProtectedRoute><RoleBasedRoute element={MeusProdutos} allowedRoles={[userRoles.VENDOR, userRoles.PROVIDER, userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><RoleBasedRoute element={UserProfile} allowedRoles={[userRoles.VENDOR, userRoles.PROVIDER, userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
+      <Route path="/admin/users" element={<ProtectedRoute><RoleBasedRoute element={AdminUserList} allowedRoles={[userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
+      <Route path="/admin/settings" element={<ProtectedRoute><RoleBasedRoute element={SettingsPage} allowedRoles={[userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
+      <Route path="/admin/chat" element={<ProtectedRoute><RoleBasedRoute element={ChatAdmin} allowedRoles={[userRoles.ADMIN, userRoles.MASTER]} /></ProtectedRoute>} />
+      <Route path="*" element={<ProtectedRoute><Navigate to="/dashboard" /></ProtectedRoute>} />
+    </Routes>
+  </AuthProvider>
 );
 
 const App = () => {
@@ -84,11 +86,9 @@ const App = () => {
       <TooltipProvider>
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
           <Router>
-            <AuthProvider>
-              <Toaster position="top-right" />
-              <AppRoutes />
-              <ChatWidget />
-            </AuthProvider>
+            <Toaster position="top-right" />
+            <AppRoutes />
+            <ChatWidget />
           </Router>
         </GoogleOAuthProvider>
       </TooltipProvider>
