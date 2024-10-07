@@ -35,7 +35,6 @@ export const AuthProvider = ({ children }) => {
           });
           navigate('/login');
         } else {
-          // Use getUserById instead of getUserProfile
           const userProfile = await firebaseOperations.getUserById(currentUser.uid);
           setUser({ ...currentUser, ...userProfile });
         }

@@ -95,6 +95,7 @@ const userOperations = {
     }
   },
 
+
   checkUserStatus: async (userId) => {
     try {
       const userDoc = await getDoc(doc(db, 'users', userId));
@@ -168,5 +169,5 @@ const userOperations = {
   },
 };
 
-export const { getUserRole, getAllUsers } = userOperations;
+export const { getUserRole, getAllUsers, checkUserStatus } = userOperations;
 export default userOperations;
