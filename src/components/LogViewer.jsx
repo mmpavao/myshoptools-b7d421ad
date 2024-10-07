@@ -23,7 +23,7 @@ const LogViewer = () => {
   const toggleOpen = () => setIsOpen(!isOpen);
 
   return (
-    <div className={`fixed right-0 top-1/2 transform -translate-y-1/2 transition-all duration-300 ${isOpen ? 'w-64' : 'w-10'}`}>
+    <div className={`fixed right-0 top-1/2 transform -translate-y-1/2 transition-all duration-300 z-50 ${isOpen ? 'w-64' : 'w-10'}`}>
       <Button
         variant="outline"
         size="icon"

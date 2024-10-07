@@ -2,16 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Edit, RefreshCw } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Edit } from 'lucide-react';
 import { toast } from "@/components/ui/use-toast";
-import { Switch } from "@/components/ui/switch";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import UserInfoTab from './UserInfoTab';
 import UserSettingsTab from './UserSettingsTab';
 import UserSecurityTab from './UserSecurityTab';
+import { logEvent } from '../../utils/logger';
 
 const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -36,6 +34,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
     if (!hasChanges) return;
 
     setIsSaving(true);
+    logEvent('Iniciando salvamento das alterações do usuário');
     try {
       await firebaseOperations.updateUserRole(user.id, userData.role);
       await firebaseOperations.updateUserStatus(user.id, userData.status);
@@ -46,6 +45,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
         title: "Alterações Salvas",
         description: "As configurações do usuário foram atualizadas com sucesso.",
       });
+      logEvent('Alterações do usuário salvas com sucesso');
     } catch (error) {
       console.error('Erro ao atualizar configurações do usuário:', error);
       toast({
@@ -53,6 +53,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
         description: "Falha ao atualizar as configurações do usuário. Por favor, tente novamente.",
         variant: "destructive"
       });
+      logEvent('Erro ao salvar alterações do usuário', 'error');
     } finally {
       setIsSaving(false);
       setHasChanges(false);
@@ -68,7 +69,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
           <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Perfil do Usuário</DialogTitle>
         </DialogHeader>
