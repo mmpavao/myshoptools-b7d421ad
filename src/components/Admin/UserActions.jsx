@@ -15,12 +15,14 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
   const [newRole, setNewRole] = useState(user.role);
   const [isActive, setIsActive] = useState(user.status === 'Active');
   const [hasChanges, setHasChanges] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   useEffect(() => {
     setNewRole(user.role);
     setIsActive(user.status === 'Active');
-  }, [user]);
+    setHasChanges(false);
+  }, [user, isDialogOpen]);
 
   const handleRoleChange = (value) => {
     setNewRole(value);
@@ -33,7 +35,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
   };
 
   const handlePasswordReset = async () => {
-    setIsLoading(true);
+    setIsResettingPassword(true);
     try {
       await firebaseOperations.sendPasswordResetEmail(user.email);
       toast({
@@ -48,14 +50,14 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
         variant: "destructive"
       });
     } finally {
-      setIsLoading(false);
+      setIsResettingPassword(false);
     }
   };
 
   const handleSaveChanges = async () => {
     if (!hasChanges) return;
 
-    setIsLoading(true);
+    setIsSaving(true);
     try {
       await firebaseOperations.updateUserRole(user.id, newRole);
       await firebaseOperations.updateUserStatus(user.id, isActive ? 'Active' : 'Inactive');
@@ -75,14 +77,20 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
         variant: "destructive"
       });
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
+  };
+
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+    setHasChanges(false);
+    setIsSaving(false);
   };
 
   if (user.role === 'Master') return null;
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
           <Edit className="h-4 w-4" />
@@ -102,6 +110,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
             <p className="text-sm text-gray-500">{user.email}</p>
           </div>
         </div>
+
         <Tabs defaultValue="info">
           <TabsList>
             <TabsTrigger value="info">Informações</TabsTrigger>
@@ -162,17 +171,22 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
                 <CardDescription>Opções de segurança do usuário</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" onClick={handlePasswordReset} disabled={isLoading} className="w-full">
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  {isLoading ? 'Enviando...' : 'Redefinir Senha'}
+                <Button 
+                  variant="outline" 
+                  onClick={handlePasswordReset} 
+                  disabled={isResettingPassword} 
+                  className="w-full"
+                >
+                  <RefreshCw className={`mr-2 h-4 w-4 ${isResettingPassword ? 'animate-spin' : ''}`} />
+                  {isResettingPassword ? 'Enviando...' : 'Redefinir Senha'}
                 </Button>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
         <div className="mt-4 flex justify-end">
-          <Button onClick={handleSaveChanges} disabled={!hasChanges || isLoading}>
-            {isLoading ? 'Salvando...' : 'Salvar Alterações'}
+          <Button onClick={handleSaveChanges} disabled={!hasChanges || isSaving}>
+            {isSaving ? 'Salvando...' : 'Salvar Alterações'}
           </Button>
         </div>
       </DialogContent>
