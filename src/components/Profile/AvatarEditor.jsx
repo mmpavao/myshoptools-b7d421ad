@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Cropper from 'react-easy-crop';
@@ -13,6 +13,12 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (currentAvatar && currentAvatar !== "/placeholder.svg") {
+      setImage(currentAvatar);
+    }
+  }, [currentAvatar]);
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -74,7 +80,7 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
             htmlFor="avatar-upload"
             className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
           >
-            Escolher arquivo
+            {image ? 'Trocar imagem' : 'Escolher arquivo'}
           </label>
           {!image && <span className="text-sm text-gray-500">Nenhum arquivo escolhido</span>}
         </div>
@@ -101,7 +107,7 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
             className="mt-4"
           />
         )}
-        <Button onClick={handleSave} className="mt-4" disabled={isSaving}>
+        <Button onClick={handleSave} className="mt-4" disabled={isSaving || !image}>
           {isSaving ? (
             <>
               <SpinnerDefault className="mr-2 h-4 w-4 animate-spin" />
