@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Switch } from "@/components/ui/switch";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../Auth/AuthProvider';
 import { toast } from "@/components/ui/use-toast";
@@ -127,13 +128,19 @@ export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSi
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
-                <UserActions
-                  user={user}
-                  isMasterAdmin={isMasterAdmin}
-                  onEdit={onUserUpdate}
-                  onToggleStatus={handleToggleUserStatus}
-                  onDelete={handleDeleteUser}
-                />
+                <div className="flex items-center justify-end space-x-2">
+                  <Switch
+                    checked={user.status === 'Active'}
+                    onCheckedChange={() => handleToggleUserStatus(user.id, user.status)}
+                    disabled={user.role === firebaseOperations.userRoles.MASTER}
+                  />
+                  <UserActions
+                    user={user}
+                    isMasterAdmin={isMasterAdmin}
+                    onEdit={onUserUpdate}
+                    onDelete={handleDeleteUser}
+                  />
+                </div>
               </TableCell>
             </TableRow>
           ))}

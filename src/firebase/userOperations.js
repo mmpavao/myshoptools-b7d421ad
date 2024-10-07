@@ -1,7 +1,6 @@
-import { db, auth, storage } from './config';
-import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
+import { db, auth } from './config';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { updateProfile, deleteUser as deleteAuthUser } from 'firebase/auth';
-import { ref, deleteObject } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
 import { safeFirestoreOperation } from '../utils/errorReporting';
 
@@ -80,7 +79,7 @@ const updateUserRole = async (userId, newRole, currentUserRole) => {
 
     await updateDoc(doc(db, 'users', userId), { role: newRole });
     
-    // Atualizar claims do usuário no Firebase Auth
+    // Update user claims in Firebase Auth
     const user = await auth.getUser(userId);
     await auth.setCustomUserClaims(user.uid, { role: newRole });
 
@@ -101,22 +100,6 @@ const updateUserRole = async (userId, newRole, currentUserRole) => {
   }
 };
 
-const getUserRole = async (userId) => {
-  try {
-    const userDoc = await getDoc(doc(db, 'users', userId));
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-      if (userData.email === MASTER_USER_EMAIL) return userRoles.MASTER;
-      if (userData.email === ADMIN_USER_EMAIL) return userRoles.ADMIN;
-      return userData.role || userRoles.VENDOR;
-    }
-    return userRoles.VENDOR;
-  } catch (error) {
-    console.error('Error getting user role:', error);
-    return userRoles.VENDOR;
-  }
-};
-
 const updateUserStatus = async (userId, newStatus) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
@@ -128,7 +111,7 @@ const updateUserStatus = async (userId, newStatus) => {
 
     await updateDoc(doc(db, 'users', userId), { status: newStatus });
 
-    // Atualizar claims do usuário no Firebase Auth
+    // Update user claims in Firebase Auth
     const user = await auth.getUser(userId);
     await auth.setCustomUserClaims(user.uid, { ...user.customClaims, status: newStatus });
 
