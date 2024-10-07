@@ -254,13 +254,14 @@ const clearAllData = async () => {
 const firebaseOperations = {
   ...crudOperations,
   ...userOperations,
+  // Explicitly include getAllUsers from userOperations
+  getAllUsers: userOperations.getAllUsers,
   ...productOperations,
   ...fileOperations,
   ...meusProdutosOperations,
   ...userProfileOperations,
   testFirebaseOperations,
   clearAllData,
-  getAllUsers: userOperations.getAllUsers, // Ensure this line is present
 };
 
 export default firebaseOperations;

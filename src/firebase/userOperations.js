@@ -168,5 +168,5 @@ const userOperations = {
   },
 };
 
-export const { checkUserStatus, getUserRole } = userOperations;
+export const { checkUserStatus, getUserRole, getAllUsers } = userOperations;
 export default userOperations;
