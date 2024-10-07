@@ -3,7 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
-const LogViewer = () => {
+const LogViewer = ({ isMasterUser }) => {
   const [logs, setLogs] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -21,6 +21,8 @@ const LogViewer = () => {
   }, []);
 
   const toggleExpand = () => setIsExpanded(!isExpanded);
+
+  if (!isMasterUser) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-gray-100 border-t border-gray-300 p-2">

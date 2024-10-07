@@ -2,8 +2,12 @@ import React from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import LogViewer from '../LogViewer';
+import { useAuth } from '../Auth/AuthProvider';
 
 const Layout = ({ children }) => {
+  const { user } = useAuth();
+  const isMasterUser = user?.role === 'Master';
+
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
@@ -12,7 +16,7 @@ const Layout = ({ children }) => {
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
           {children}
         </main>
-        <LogViewer />
+        <LogViewer isMasterUser={isMasterUser} />
       </div>
     </div>
   );
