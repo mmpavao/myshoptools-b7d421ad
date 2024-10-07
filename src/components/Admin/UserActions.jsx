@@ -102,12 +102,13 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
             <p className="text-sm text-gray-500">{user.email}</p>
           </div>
         </div>
-        <Tabs defaultValue="personal">
+        <Tabs defaultValue="info">
           <TabsList>
-            <TabsTrigger value="personal">Informações Pessoais</TabsTrigger>
+            <TabsTrigger value="info">Informações</TabsTrigger>
             <TabsTrigger value="settings">Configurações</TabsTrigger>
+            <TabsTrigger value="security">Segurança</TabsTrigger>
           </TabsList>
-          <TabsContent value="personal">
+          <TabsContent value="info">
             <Card>
               <CardHeader>
                 <CardTitle>Informações Pessoais</CardTitle>
@@ -151,6 +152,16 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
                     onCheckedChange={handleToggleUserStatus}
                   />
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="security">
+            <Card>
+              <CardHeader>
+                <CardTitle>Segurança da Conta</CardTitle>
+                <CardDescription>Opções de segurança do usuário</CardDescription>
+              </CardHeader>
+              <CardContent>
                 <Button variant="outline" onClick={handlePasswordReset} disabled={isLoading} className="w-full">
                   <RefreshCw className="mr-2 h-4 w-4" />
                   {isLoading ? 'Enviando...' : 'Redefinir Senha'}
