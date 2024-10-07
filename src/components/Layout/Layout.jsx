@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import LogViewer from '../LogViewer';
 
 const Layout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -23,6 +24,7 @@ const Layout = ({ children }) => {
           {children}
         </main>
       </div>
+      <LogViewer />
     </div>
   );
 };
