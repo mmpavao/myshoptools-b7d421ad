@@ -111,7 +111,16 @@ const firebaseOperations = {
     try {
       const userDoc = await getDoc(doc(db, 'users', userId));
       if (userDoc.exists()) {
-        return { id: userDoc.id, ...userDoc.data() };
+        const userData = userDoc.data();
+        return { 
+          id: userDoc.id, 
+          ...userData,
+          name: userData.displayName || 'Nome não disponível',
+          email: userData.email || 'Email não disponível',
+          avatar: userData.photoURL || 'https://example.com/placeholder-avatar.jpg',
+          role: userData.role || 'Usuário',
+          status: userData.status || 'Inativo'
+        };
       } else {
         throw new Error('Usuário não encontrado');
       }
@@ -120,10 +129,6 @@ const firebaseOperations = {
       throw error;
     }
   },
-  getUserRole: userOperations.getUserRole,
-  getAllUsers: userOperations.getAllUsers,
-  updateUserRole: userOperations.updateUserRole,
-  updateUserStatus: userOperations.updateUserStatus,
   updateUserProfile: async (userId, profileData) => {
     try {
       const userRef = doc(db, 'users', userId);
@@ -135,16 +140,21 @@ const firebaseOperations = {
         if (profileData.photoURL) updateData.photoURL = profileData.photoURL;
         
         if (Object.keys(updateData).length > 0) {
-          await updateProfile(auth.currentUser, updateData);
+          await auth.currentUser.updateProfile(updateData);
         }
       }
       
+      console.log('Perfil do usuário atualizado com sucesso:', profileData);
       return true;
     } catch (error) {
-      console.error('Error updating user profile:', error);
+      console.error('Erro ao atualizar perfil do usuário:', error);
       throw error;
     }
   },
+  getUserRole: userOperations.getUserRole,
+  getAllUsers: userOperations.getAllUsers,
+  updateUserRole: userOperations.updateUserRole,
+  updateUserStatus: userOperations.updateUserStatus,
 };
 
 export default firebaseOperations;

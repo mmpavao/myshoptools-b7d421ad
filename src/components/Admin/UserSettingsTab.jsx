@@ -12,7 +12,10 @@ const UserSettingsTab = ({ userData, isMasterAdmin, onChange }) => (
     <CardContent className="space-y-4">
       <div className="flex items-center justify-between">
         <span>Função do Usuário</span>
-        <Select onValueChange={(value) => onChange('role', value)} value={userData.role}>
+        <Select 
+          onValueChange={(value) => onChange('role', value)} 
+          value={userData.role || 'Vendedor'}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue />
           </SelectTrigger>

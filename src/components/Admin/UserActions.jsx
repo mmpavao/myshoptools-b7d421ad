@@ -18,12 +18,28 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (!isDialogOpen) {
+    if (isDialogOpen) {
+      fetchUserData();
+    } else {
       setUserData({ ...user });
       setHasChanges(false);
       setIsSaving(false);
     }
   }, [isDialogOpen, user]);
+
+  const fetchUserData = async () => {
+    try {
+      const fetchedUser = await firebaseOperations.getUserById(user.id);
+      setUserData(fetchedUser);
+    } catch (error) {
+      console.error('Erro ao buscar dados do usuário:', error);
+      toast({
+        title: "Erro",
+        description: "Falha ao carregar dados do usuário.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleChange = useCallback((field, value) => {
     setUserData(prev => {
@@ -45,13 +61,11 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
     logEvent('Iniciando salvamento das alterações do usuário');
     
     try {
-      // Atualizando papel e status do usuário
       await firebaseOperations.updateUserProfile(user.id, {
         role: userData.role,
         status: userData.status
       });
       
-      // Verificação adicional para confirmar se as alterações foram aplicadas
       const updatedUser = await firebaseOperations.getUserById(user.id);
       logEvent(`Usuário atualizado: ${JSON.stringify(updatedUser)}`);
       
@@ -96,11 +110,11 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
         <div className="flex items-center space-x-4 mb-4">
           <Avatar className="h-16 w-16">
             <AvatarImage src={userData.avatar} alt={userData.name} />
-            <AvatarFallback>{userData.name[0]}</AvatarFallback>
+            <AvatarFallback>{userData.name ? userData.name[0] : 'U'}</AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="font-semibold">{userData.name}</h3>
-            <p className="text-sm text-gray-500">{userData.email}</p>
+            <h3 className="font-semibold">{userData.name || 'Nome não disponível'}</h3>
+            <p className="text-sm text-gray-500">{userData.email || 'Email não disponível'}</p>
           </div>
         </div>
 
