@@ -33,28 +33,9 @@ export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSi
       toast({ title: "Role Updated", description: `User role has been updated to ${newRole}.`, variant: "success" });
     } catch (error) {
       console.error('Error updating user role:', error);
-      toast({ title: "Error", description: "Failed to update user role. Please try again.", variant: "destructive" });
+      toast({ title: "Error", description: error.message || "Failed to update user role. Please try again.", variant: "destructive" });
     }
   };
-
-  const handleToggleUserStatus = async (userId, currentStatus) => {
-    const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
-    await firebaseOperations.updateUserStatus(userId, newStatus);
-    onUserUpdate();
-  };
-
-  const handleDeleteUser = async (userId) => {
-    try {
-      await firebaseOperations.deleteUser(userId);
-      toast({ title: "User Deleted", description: "The user has been completely removed from the system.", variant: "success" });
-      onUserUpdate();
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      toast({ title: "Error", description: "Failed to delete user. Please try again.", variant: "destructive" });
-    }
-  };
-
-  const totalPages = Math.ceil(totalUsers / pageSize);
 
   return (
     <>

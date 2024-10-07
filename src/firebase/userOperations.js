@@ -68,6 +68,9 @@ const getAllUsers = async () => {
 const updateUserRole = async (userId, newRole, currentUserRole) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
+    if (!userDoc.exists()) {
+      throw new Error('User not found');
+    }
     const userData = userDoc.data();
 
     if (userData.email === MASTER_USER_EMAIL) {
@@ -79,19 +82,10 @@ const updateUserRole = async (userId, newRole, currentUserRole) => {
     }
 
     await updateDoc(doc(db, 'users', userId), { role: newRole });
-    toast({
-      title: "Role Updated",
-      description: `User role has been updated to ${newRole}.`,
-      variant: "success",
-    });
+    console.log(`User role updated successfully to ${newRole}`);
     return true;
   } catch (error) {
     console.error('Error updating user role:', error);
-    toast({
-      title: "Error",
-      description: "Failed to update user role. Please try again.",
-      variant: "destructive",
-    });
     throw error;
   }
 };
