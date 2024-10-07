@@ -27,6 +27,8 @@ const schema = z.object({
   rememberMe: z.boolean().optional(),
 });
 
+const MASTER_USER_EMAIL = 'pavaosmart@gmail.com';
+
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -45,17 +47,22 @@ const Login = () => {
   const onSubmit = async (data) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
-      const isActive = await checkUserStatus(userCredential.user.uid);
-      if (!isActive) {
-        await auth.signOut();
-        toast({
-          title: "Conta Inativa",
-          description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
-          variant: "destructive",
-        });
-      } else {
+      if (data.email === MASTER_USER_EMAIL) {
         await login(data.rememberMe);
         navigate('/dashboard');
+      } else {
+        const isActive = await checkUserStatus(userCredential.user.uid);
+        if (!isActive) {
+          await auth.signOut();
+          toast({
+            title: "Conta Inativa",
+            description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
+            variant: "destructive",
+          });
+        } else {
+          await login(data.rememberMe);
+          navigate('/dashboard');
+        }
       }
     } catch (error) {
       console.error('Login error:', error);

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth, safeLogError } from '../../firebase/config';
 import { onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Spinner } from '../ui/spinner';
 import { checkUserStatus } from '../../firebase/userOperations';
 import { toast } from '@/components/ui/use-toast';
@@ -26,21 +26,20 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
+        const userProfile = await firebaseOperations.getUserProfile(currentUser.uid);
         if (currentUser.email === MASTER_USER_EMAIL) {
-          const userProfile = await firebaseOperations.getUserProfile(currentUser.uid);
           setUser({ ...currentUser, ...userProfile, role: 'Master', status: 'Active' });
         } else {
           const isActive = await checkUserStatus(currentUser.uid);
-          if (!isActive) {
+          if (isActive) {
+            setUser({ ...currentUser, ...userProfile });
+          } else {
             await logout();
             toast({
               title: "Conta Inativa",
               description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
               variant: "destructive",
             });
-          } else {
-            const userProfile = await firebaseOperations.getUserProfile(currentUser.uid);
-            setUser({ ...currentUser, ...userProfile });
           }
         }
       } else {
@@ -94,30 +93,14 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const ProtectedRoute = ({ children }) => {
-  const { user, loading, logout } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      if (!loading) {
-        if (!user) {
-          navigate('/login');
-        } else if (user.email !== MASTER_USER_EMAIL) {
-          const isActive = await checkUserStatus(user.uid);
-          if (!isActive) {
-            await logout();
-            toast({
-              title: "Conta Inativa",
-              description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
-              variant: "destructive",
-            });
-            navigate('/login');
-          }
-        }
-      }
-    };
-    checkAuth();
-  }, [user, loading, navigate, logout]);
+    if (!loading && !user) {
+      navigate('/login');
+    }
+  }, [user, loading, navigate]);
 
   if (loading) {
     return <Spinner />;
