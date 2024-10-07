@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import Cropper from 'react-easy-crop';
 import { Slider } from "@/components/ui/slider";
 import { toast } from "@/components/ui/use-toast";
+import { Spinner } from "@/components/ui/spinners";
 
 const AvatarEditor = ({ onSave, currentAvatar }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,6 +12,7 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (currentAvatar) {
@@ -35,9 +37,10 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
 
   const handleSave = useCallback(async () => {
     if (croppedAreaPixels) {
+      setIsSaving(true);
       try {
         const croppedImage = await getCroppedImg(image, croppedAreaPixels);
-        onSave(croppedImage);
+        await onSave(croppedImage);
         setIsOpen(false);
         toast({
           title: "Avatar Atualizado",
@@ -50,6 +53,8 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
           description: "Não foi possível processar a imagem. Tente novamente.",
           variant: "destructive",
         });
+      } finally {
+        setIsSaving(false);
       }
     }
   }, [croppedAreaPixels, image, onSave]);
@@ -64,9 +69,24 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
           <DialogTitle>Editar Avatar</DialogTitle>
         </DialogHeader>
         <div className="mt-4">
-          <input type="file" accept="image/*" onChange={handleFileChange} className="mb-4" />
+          <div className="flex items-center space-x-2">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+              id="avatar-upload"
+            />
+            <label
+              htmlFor="avatar-upload"
+              className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+            >
+              Escolher arquivo
+            </label>
+            {!image && <span className="text-sm text-gray-500">Nenhum arquivo escolhido</span>}
+          </div>
           {image && (
-            <div className="relative h-64 w-full">
+            <div className="relative h-64 w-full mt-4">
               <Cropper
                 image={image}
                 crop={crop}
@@ -78,15 +98,26 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
               />
             </div>
           )}
-          <Slider
-            value={[zoom]}
-            min={1}
-            max={3}
-            step={0.1}
-            onValueChange={(value) => setZoom(value[0])}
-            className="mt-4"
-          />
-          <Button onClick={handleSave} className="mt-4">Salvar Avatar</Button>
+          {image && (
+            <Slider
+              value={[zoom]}
+              min={1}
+              max={3}
+              step={0.1}
+              onValueChange={(value) => setZoom(value[0])}
+              className="mt-4"
+            />
+          )}
+          <Button onClick={handleSave} className="mt-4" disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <Spinner className="mr-2 h-4 w-4 animate-spin" />
+                Salvando...
+              </>
+            ) : (
+              'Salvar Avatar'
+            )}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
