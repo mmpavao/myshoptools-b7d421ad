@@ -41,7 +41,7 @@ export const wrapFetch = () => {
         const requestInfo = {
           url: args[0],
           method: args[1]?.method || 'GET',
-          headers: args[1]?.headers,
+          headers: args[1]?.headers ? Object.fromEntries(args[1].headers) : {},
         };
         reportHTTPError(new Error(`HTTP error! status: ${response.status}`), requestInfo);
       }
@@ -61,7 +61,7 @@ export const wrapFetch = () => {
       const requestInfo = {
         url: args[0],
         method: args[1]?.method || 'GET',
-        headers: args[1]?.headers,
+        headers: args[1]?.headers ? Object.fromEntries(args[1].headers) : {},
       };
       reportHTTPError(error, requestInfo);
       throw error;
