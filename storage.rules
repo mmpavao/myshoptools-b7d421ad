@@ -1,19 +1,42 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow read access to all files for any request
+    // Permitir solicitações OPTIONS pré-voo para todos os caminhos
     match /{allPaths=**} {
-      allow read: if true;
+      allow read, options: if true;
     }
 
-    // Allow write access to all files for authenticated users
-    match /{allPaths=**} {
+    // Regra para avatares de usuários
+    match /avatars/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Regra para imagens de produtos
+    match /products/{productId}/{allPaths=**} {
+      allow read: if true;
       allow write: if request.auth != null;
     }
     
-    // Test folder for Firebase operations tests
+    // Regra para arquivos de pedidos
+    match /orders/{orderId}/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Regra para uploads gerais
+    match /uploads/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Regra temporária para testes
     match /test/{allPaths=**} {
       allow read, write: if request.auth != null;
+    }
+    
+    // Regra padrão: negar acesso a todos os outros arquivos
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }
