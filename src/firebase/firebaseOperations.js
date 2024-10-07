@@ -6,7 +6,7 @@ import crudOperations from './crudOperations';
 import * as userOperations from './userOperations';
 import { safeFirestoreOperation } from '../utils/errorReporting';
 
-const productOperations = {
+const firebaseOperations = {
   createProduct: async (productData) => {
     const docRef = await addDoc(collection(db, 'products'), productData);
     return docRef.id;
@@ -107,177 +107,16 @@ const productOperations = {
     const docSnap = await getDoc(userProductRef);
     return docSnap.exists();
   },
-};
-
-const meusProdutosOperations = {
-  getMeusProdutos: async (userId) => {
-    try {
-      const produtosImportadosRef = collection(db, 'users', userId, 'produtosImportados');
-      const snapshot = await getDocs(produtosImportadosRef);
-      const produtosImportados = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-      // Buscar detalhes completos dos produtos
-      const produtosCompletos = await Promise.all(produtosImportados.map(async (produto) => {
-        const produtoCompleto = await productOperations.getProduct(produto.id);
-        return {
-          ...produtoCompleto,
-          dataImportacao: produto.dataImportacao || new Date().toISOString(),
-          status: produto.status || 'ativo'
-        };
-      }));
-
-      return produtosCompletos;
-    } catch (error) {
-      console.error('Erro ao buscar meus produtos:', error);
-      throw error;
-    }
-  },
-};
-
-const userProfileOperations = {
-  getUserProfile: async (userId) => {
+  getUserById: async (userId) => {
     try {
       const userDoc = await getDoc(doc(db, 'users', userId));
       if (userDoc.exists()) {
-        return userDoc.data();
+        return { id: userDoc.id, ...userDoc.data() };
+      } else {
+        throw new Error('Usuário não encontrado');
       }
-      return null;
     } catch (error) {
-      console.error('Error fetching user profile:', error);
-      throw error;
-    }
-  },
-  updateUserProfile: async (userId, profileData) => {
-    try {
-      await setDoc(doc(db, 'users', userId), profileData, { merge: true });
-      return true;
-    } catch (error) {
-      console.error('Error updating user profile:', error);
-      throw error;
-    }
-  },
-};
-
-const fileOperations = {
-  uploadFile: (file, path, onProgress) => {
-    const storageRef = ref(storage, path);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    return new Promise((resolve, reject) => {
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          if (onProgress) onProgress(progress);
-        },
-        reject,
-        async () => {
-          try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve(downloadURL);
-          } catch (error) {
-            reject(error);
-          }
-        }
-      );
-    });
-  },
-  deleteFile: (path) => deleteObject(ref(storage, path)),
-  listStorageFiles: async () => {
-    const folders = ['uploads', 'avatars'];
-    let allFiles = [];
-
-    for (const folder of folders) {
-      try {
-        const res = await listAll(ref(storage, folder));
-        const folderFiles = await Promise.all(res.items.map(async (itemRef) => {
-          try {
-            const url = await getDownloadURL(itemRef);
-            return { name: itemRef.name, url, folder };
-          } catch (error) {
-            console.error(`Error getting URL for ${itemRef.name}:`, error);
-            return null;
-          }
-        }));
-        allFiles = [...allFiles, ...folderFiles.filter(Boolean)];
-      } catch (error) {
-        console.error(`Error listing files in ${folder}:`, error);
-        toast({
-          title: "Listing Error",
-          description: `Couldn't list files in ${folder}. Error: ${error.message}`,
-          variant: "destructive",
-        });
-      }
-    }
-
-    return allFiles;
-  },
-  uploadProfileImage: async (file, userId) => {
-    const path = `avatars/${userId}/${Date.now()}_${file.name}`;
-    return await fileOperations.uploadFile(file, path);
-  }
-};
-
-const testFirebaseOperations = async (logCallback) => {
-  try {
-    logCallback({ step: 'Starting Firebase test', status: 'info' });
-    
-    // Test product creation
-    const testProduct = { title: 'Test Product', price: 9.99 };
-    const productId = await productOperations.createProduct(testProduct);
-    logCallback({ step: 'Product created', status: 'success' });
-    
-    // Test product retrieval
-    const retrievedProduct = await productOperations.getProduct(productId);
-    logCallback({ step: 'Product retrieved', status: 'success' });
-    
-    // Test product update
-    await productOperations.updateProduct(productId, { price: 19.99 });
-    logCallback({ step: 'Product updated', status: 'success' });
-    
-    // Test product deletion
-    await productOperations.deleteProduct(productId);
-    logCallback({ step: 'Product deleted', status: 'success' });
-    
-    logCallback({ step: 'All Firebase operations completed successfully', status: 'success' });
-  } catch (error) {
-    logCallback({ step: 'Error during Firebase test', status: 'error', message: error.message });
-    throw error;
-  }
-};
-
-const clearAllData = async () => {
-  // Implementation for clearing all data
-  // This is a placeholder and should be implemented with caution
-  console.warn('clearAllData function is not implemented');
-};
-
-const firebaseOperations = {
-  ...crudOperations,
-  ...userOperations,
-  getAllUsers: userOperations.getAllUsers,
-  ...productOperations,
-  ...fileOperations,
-  ...meusProdutosOperations,
-  ...userProfileOperations,
-  testFirebaseOperations,
-  clearAllData,
-  updateUserRole: async (userId, newRole) => {
-    try {
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, { role: newRole });
-      return true;
-    } catch (error) {
-      console.error('Error updating user role:', error);
-      throw error;
-    }
-  },
-  updateUserStatus: async (userId, newStatus) => {
-    try {
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, { status: newStatus });
-      return true;
-    } catch (error) {
-      console.error('Error updating user status:', error);
+      console.error('Erro ao buscar usuário:', error);
       throw error;
     }
   },

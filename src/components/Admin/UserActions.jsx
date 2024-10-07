@@ -30,7 +30,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
       const newData = { ...prev, [field]: value };
       const changed = JSON.stringify(newData) !== JSON.stringify(user);
       setHasChanges(changed);
-      logEvent(`Campo alterado: ${field}. Há mudanças: ${changed}`);
+      logEvent(`Campo alterado: ${field}. Valor: ${value}. Há mudanças: ${changed}`);
       return newData;
     });
   }, [user]);
@@ -50,6 +50,14 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
       
       logEvent(`Atualizando status do usuário para: ${userData.status}`);
       await firebaseOperations.updateUserStatus(user.id, userData.status);
+      
+      // Verificação adicional para confirmar se as alterações foram aplicadas
+      const updatedUser = await firebaseOperations.getUserById(user.id);
+      logEvent(`Usuário atualizado: ${JSON.stringify(updatedUser)}`);
+      
+      if (updatedUser.role !== userData.role || updatedUser.status !== userData.status) {
+        throw new Error('As alterações não foram aplicadas corretamente');
+      }
       
       onUserUpdate();
       setIsDialogOpen(false);
