@@ -28,6 +28,11 @@ export const AuthProvider = ({ children }) => {
         const isActive = await checkUserStatus(currentUser.uid);
         if (!isActive) {
           await logout();
+          toast({
+            title: "Conta Inativa",
+            description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
+            variant: "destructive",
+          });
         } else {
           const userProfile = await firebaseOperations.getUserProfile(currentUser.uid);
           setUser({ ...currentUser, ...userProfile });
@@ -53,8 +58,8 @@ export const AuthProvider = ({ children }) => {
     try {
       await signOut(auth);
       setUser(null);
-      localStorage.removeItem('authToken'); // Remove qualquer token armazenado localmente
-      sessionStorage.removeItem('authToken'); // Remove qualquer token armazenado na sessão
+      localStorage.removeItem('authToken');
+      sessionStorage.removeItem('authToken');
       console.log("Desconectado com sucesso");
       navigate('/login');
     } catch (error) {
@@ -95,6 +100,12 @@ export const ProtectedRoute = ({ children }) => {
           const isActive = await checkUserStatus(user.uid);
           if (!isActive) {
             await logout();
+            toast({
+              title: "Conta Inativa",
+              description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
+              variant: "destructive",
+            });
+            navigate('/login');
           }
         }
       }

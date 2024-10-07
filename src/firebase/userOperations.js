@@ -79,6 +79,11 @@ const updateUserRole = async (userId, newRole, currentUserRole) => {
     }
 
     await updateDoc(doc(db, 'users', userId), { role: newRole });
+    
+    // Atualizar claims do usuário no Firebase Auth
+    const user = await auth.getUser(userId);
+    await auth.setCustomUserClaims(user.uid, { role: newRole });
+
     toast({
       title: "Role Updated",
       description: `User role has been updated to ${newRole}.`,
@@ -122,9 +127,24 @@ const updateUserStatus = async (userId, newStatus) => {
     }
 
     await updateDoc(doc(db, 'users', userId), { status: newStatus });
+
+    // Atualizar claims do usuário no Firebase Auth
+    const user = await auth.getUser(userId);
+    await auth.setCustomUserClaims(user.uid, { ...user.customClaims, status: newStatus });
+
+    toast({
+      title: "Status Updated",
+      description: `User status has been updated to ${newStatus}.`,
+      variant: "success",
+    });
     return true;
   } catch (error) {
     console.error('Error updating user status:', error);
+    toast({
+      title: "Error",
+      description: "Failed to update user status. Please try again.",
+      variant: "destructive",
+    });
     throw error;
   }
 };
