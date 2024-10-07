@@ -181,6 +181,17 @@ const sendPasswordResetEmail = async (email) => {
   }
 };
 
+const updateUserSettings = async (userId, settings) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, settings);
+    return true;
+  } catch (error) {
+    console.error('Error updating user settings:', error);
+    throw error;
+  }
+};
+
 export {
   createUser,
   updateUserProfile,
@@ -190,5 +201,6 @@ export {
   updateUserStatus,
   deleteUser,
   checkUserStatus,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  updateUserSettings
 };
