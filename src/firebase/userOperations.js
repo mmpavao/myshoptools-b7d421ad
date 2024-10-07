@@ -168,4 +168,5 @@ const userOperations = {
   },
 };
 
+export const { checkUserStatus } = userOperations;
 export default userOperations;
