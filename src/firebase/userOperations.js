@@ -1,27 +1,28 @@
-import { db, auth } from './config';
-import { doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { db, auth, storage } from './config';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { updateProfile, deleteUser as deleteAuthUser } from 'firebase/auth';
+import { ref, deleteObject } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
 import { safeFirestoreOperation } from '../utils/errorReporting';
 
 const MASTER_USER_EMAIL = 'pavaosmart@gmail.com';
 const ADMIN_USER_EMAIL = 'marcio@talkmaker.io';
 
-const userRoles = {
+export const userRoles = {
   MASTER: 'Master',
   ADMIN: 'Admin',
   VENDOR: 'Vendedor',
   PROVIDER: 'Fornecedor'
 };
 
-const createUser = (userData) => 
+export const createUser = (userData) => 
   safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), {
     ...userData,
     role: userData.email === MASTER_USER_EMAIL ? userRoles.MASTER : (userData.email === ADMIN_USER_EMAIL ? userRoles.ADMIN : userRoles.VENDOR),
     status: 'Active',
   }));
 
-const updateUserProfile = async (userId, profileData) => {
+export const updateUserProfile = async (userId, profileData) => {
   try {
     await setDoc(doc(db, 'users', userId), profileData, { merge: true });
     if (auth.currentUser) {
@@ -37,7 +38,7 @@ const updateUserProfile = async (userId, profileData) => {
   }
 };
 
-const getAllUsers = async () => {
+export const getAllUsers = async () => {
   try {
     const usersSnapshot = await getDocs(collection(db, 'users'));
     const currentUser = auth.currentUser;
@@ -64,7 +65,7 @@ const getAllUsers = async () => {
   }
 };
 
-const updateUserRole = async (userId, newRole, currentUserRole) => {
+export const updateUserRole = async (userId, newRole, currentUserRole) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
     const userData = userDoc.data();
@@ -100,7 +101,12 @@ const updateUserRole = async (userId, newRole, currentUserRole) => {
   }
 };
 
-const updateUserStatus = async (userId, newStatus) => {
+export const getUserRole = async (userId) => {
+  const userDoc = await getDoc(doc(db, 'users', userId));
+  return userDoc.exists() ? userDoc.data().role : null;
+};
+
+export const updateUserStatus = async (userId, newStatus) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
     const userData = userDoc.data();
@@ -132,7 +138,7 @@ const updateUserStatus = async (userId, newStatus) => {
   }
 };
 
-const checkUserStatus = async (userId) => {
+export const checkUserStatus = async (userId) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
     if (userDoc.exists()) {
@@ -150,7 +156,7 @@ const checkUserStatus = async (userId) => {
   }
 };
 
-const deleteUser = async (userId) => {
+export const deleteUser = async (userId) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
     const userData = userDoc.data();
@@ -185,16 +191,4 @@ const deleteUser = async (userId) => {
     console.error('Error deleting user and associated data:', error);
     throw error;
   }
-};
-
-export {
-  createUser,
-  updateUserProfile,
-  getAllUsers,
-  updateUserRole,
-  getUserRole,
-  updateUserStatus,
-  deleteUser,
-  userRoles,
-  checkUserStatus
 };

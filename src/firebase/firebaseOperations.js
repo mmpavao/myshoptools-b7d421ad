@@ -2,9 +2,10 @@ import { db, storage, auth } from './config';
 import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
-import crudOperations from './crudOperations';
-import * as userOperations from './userOperations';
 import { safeFirestoreOperation } from '../utils/errorReporting';
+
+// Import specific functions instead of the whole module
+import { createUser, updateUserProfile, getAllUsers, updateUserRole, getUserRole, updateUserStatus, deleteUser, userRoles, checkUserStatus } from './userOperations';
 
 const productOperations = {
   createProduct: async (productData) => {
@@ -252,12 +253,19 @@ const clearAllData = async () => {
 };
 
 const firebaseOperations = {
-  ...crudOperations,
-  ...userOperations,
+  createUser,
+  updateUserProfile,
+  getAllUsers,
+  updateUserRole,
+  getUserRole,
+  updateUserStatus,
+  deleteUser,
+  userRoles,
+  checkUserStatus,
   ...productOperations,
-  ...fileOperations,
   ...meusProdutosOperations,
   ...userProfileOperations,
+  ...fileOperations,
   testFirebaseOperations,
   clearAllData
 };
