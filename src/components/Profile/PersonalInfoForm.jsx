@@ -106,6 +106,7 @@ export const PersonalInfoForm = () => {
         phoneNumber: formatPhoneNumber(formData.phone, formData.country),
         address: formData.address,
         country: formData.country.code,
+        photoURL: formData.profileImage,
       };
       await firebaseOperations.updateUserProfile(user.uid, updatedUserData);
       updateUserContext(updatedUserData);

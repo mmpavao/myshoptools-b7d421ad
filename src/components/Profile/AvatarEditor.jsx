@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Cropper from 'react-easy-crop';
@@ -13,12 +13,6 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    if (currentAvatar) {
-      setImage(currentAvatar);
-    }
-  }, [currentAvatar]);
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -68,7 +62,6 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
         <DialogHeader>
           <DialogTitle>Editar Avatar</DialogTitle>
         </DialogHeader>
-        <div className="mt-4">
           <div className="flex items-center space-x-2">
             <input
               type="file"
@@ -108,17 +101,16 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
               className="mt-4"
             />
           )}
-          <Button onClick={handleSave} className="mt-4" disabled={isSaving}>
-            {isSaving ? (
-              <>
-                <SpinnerDefault className="mr-2 h-4 w-4 animate-spin" />
-                Salvando...
-              </>
-            ) : (
-              'Salvar Avatar'
-            )}
-          </Button>
-        </div>
+        <Button onClick={handleSave} className="mt-4" disabled={isSaving}>
+          {isSaving ? (
+            <>
+              <SpinnerDefault className="mr-2 h-4 w-4 animate-spin" />
+              Salvando...
+            </>
+          ) : (
+            'Salvar Avatar'
+          )}
+        </Button>
       </DialogContent>
     </Dialog>
   );
@@ -126,7 +118,6 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
 
 export default AvatarEditor;
 
-// Helper function to crop the image
 const createImage = (url) =>
   new Promise((resolve, reject) => {
     const image = new Image();
