@@ -10,6 +10,7 @@ import { useAuth } from '../Auth/AuthProvider';
 import AvatarEditor from './AvatarEditor';
 
 const countries = [
+const countries = [
   { code: 'BR', flag: '🇧🇷', ddi: '+55' },
   { code: 'US', flag: '🇺🇸', ddi: '+1' },
   { code: 'CN', flag: '🇨🇳', ddi: '+86' },
@@ -19,17 +20,24 @@ const countries = [
   { code: 'AU', flag: '🇦🇺', ddi: '+61' },
   { code: 'ID', flag: '🇮🇩', ddi: '+62' },
 ];
+];
 
 export const PersonalInfoForm = () => {
   const { user, updateUserContext } = useAuth();
   const [formData, setFormData] = useState({
-    name: '', email: '', phone: '', address: '', country: countries[0],
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    country: countries[0],
   });
   const [profileImage, setProfileImage] = useState("/placeholder.svg");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (user?.uid) loadUserProfile(user.uid);
+    if (user && user.uid) {
+      loadUserProfile(user.uid);
+    }
   }, [user]);
 
   const loadUserProfile = async (userId) => {
@@ -59,10 +67,12 @@ export const PersonalInfoForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'phone' ? value.replace(/\D/g, '') : value
-    }));
+    if (name === 'phone') {
+      const numericValue = value.replace(/\D/g, '');
+      setFormData(prev => ({ ...prev, [name]: numericValue }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleCountryChange = (value) => {
@@ -120,9 +130,13 @@ export const PersonalInfoForm = () => {
 
   const formatPhoneNumber = (phoneNumber, country) => {
     const cleaned = phoneNumber.replace(/\D/g, '');
-    return country.code === 'US' && cleaned.match(/^(\d{3})(\d{3})(\d{4})$/)
-      ? `${country.ddi} (${RegExp.$1}) ${RegExp.$2}-${RegExp.$3}`
-      : `${country.ddi} ${cleaned}`;
+    if (country.code === 'US') {
+      const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+      if (match) {
+        return `${country.ddi} (${match[1]}) ${match[2]}-${match[3]}`;
+      }
+    }
+    return `${country.ddi} ${cleaned}`;
   };
 
   const getPhoneInputValue = () => {
@@ -131,7 +145,8 @@ export const PersonalInfoForm = () => {
       const match = cleaned.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/);
       if (match) {
         const parts = [match[1], match[2], match[3]].filter(Boolean);
-        return parts.length === 0 ? '' : `(${parts[0]})${parts[1] ? ' ' + parts[1] : ''}${parts[2] ? '-' + parts[2] : ''}`;
+        if (parts.length === 0) return '';
+        return `(${parts[0]})${parts[1] ? ' ' + parts[1] : ''}${parts[2] ? '-' + parts[2] : ''}`;
       }
     }
     return formData.phone;
@@ -148,18 +163,14 @@ export const PersonalInfoForm = () => {
           <AvatarEditor onSave={handleAvatarSave} currentAvatar={profileImage} />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          {['name', 'email'].map(field => (
-            <div key={field} className="space-y-2">
-              <Label htmlFor={field}>{field === 'name' ? 'Nome' : 'E-mail'}</Label>
-              <Input
-                id={field}
-                name={field}
-                type={field === 'email' ? 'email' : 'text'}
-                value={formData[field]}
-                onChange={handleChange}
-              />
-            </div>
-          ))}
+          <div className="space-y-2">
+            <Label htmlFor="name">Nome</Label>
+            <Input id="name" name="name" value={formData.name} onChange={handleChange} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">E-mail</Label>
+            <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Telefone</Label>
             <div className="flex">
