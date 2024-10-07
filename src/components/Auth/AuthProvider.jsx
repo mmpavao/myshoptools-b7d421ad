@@ -25,12 +25,11 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const setupAuth = async () => {
       try {
-        // Configurar persistência local
         await setPersistence(auth, browserLocalPersistence);
         
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-          if (user) {
-            const isActive = await checkUserStatus(user.uid);
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+          if (currentUser) {
+            const isActive = await checkUserStatus(currentUser.uid);
             if (!isActive) {
               await signOut(auth);
               toast({
@@ -40,17 +39,13 @@ export const AuthProvider = ({ children }) => {
               });
               navigate('/login');
             } else {
-              const userProfile = await firebaseOperations.getUserProfile(user.uid);
-              setUser({ ...user, ...userProfile });
+              const userProfile = await firebaseOperations.getUserProfile(currentUser.uid);
+              setUser({ ...currentUser, ...userProfile });
             }
           } else {
             setUser(null);
           }
           setLoading(false);
-        }, (error) => {
-          safeLogError(error);
-          setLoading(false);
-          console.error("Erro de Autenticação:", error);
         });
 
         return () => unsubscribe();
@@ -93,14 +88,17 @@ export const AuthProvider = ({ children }) => {
 
 export const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/login');
+    }
+  }, [user, loading, navigate]);
 
   if (loading) {
     return <Spinner />;
   }
 
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-
-  return children;
+  return user ? children : null;
 };
