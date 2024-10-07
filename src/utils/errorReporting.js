@@ -16,32 +16,9 @@ const safePostMessage = (target, message, origin) => {
   }
 };
 
-const createSafeRequestInfo = (request) => {
-  if (request instanceof Request) {
-    return {
-      url: request.url,
-      method: request.method,
-      headers: Object.fromEntries(request.headers || []),
-    };
-  }
-  if (typeof request === 'string') {
-    return { url: request };
-  }
-  // For other types, only include safe, serializable properties
-  const safeRequest = {};
-  for (const key in request) {
-    if (Object.prototype.hasOwnProperty.call(request, key) && 
-        ['string', 'number', 'boolean'].includes(typeof request[key])) {
-      safeRequest[key] = request[key];
-    }
-  }
-  return safeRequest;
-};
-
-export const reportHTTPError = (error, requestInfo) => {
+export const reportHTTPError = (error) => {
   const errorData = {
     error: createSafeErrorObject(error),
-    requestInfo: createSafeRequestInfo(requestInfo),
   };
 
   safePostMessage(window.parent, {
@@ -56,8 +33,7 @@ export const wrapFetch = () => {
     try {
       const response = await originalFetch(...args);
       if (!response.ok) {
-        const requestInfo = createSafeRequestInfo(args[0]);
-        reportHTTPError(new Error(`HTTP error! status: ${response.status}`), requestInfo);
+        reportHTTPError(new Error(`HTTP error! status: ${response.status}`));
       }
       return response;
     } catch (error) {
@@ -72,8 +48,7 @@ export const wrapFetch = () => {
           json: async () => ({}),
         };
       }
-      const requestInfo = createSafeRequestInfo(args[0]);
-      reportHTTPError(error, requestInfo);
+      reportHTTPError(error);
       throw error;
     }
   };
@@ -84,11 +59,6 @@ export const safeFirestoreOperation = async (operation) => {
     return await operation();
   } catch (error) {
     console.error("Firestore operation error:", error);
-    // If the error is related to ReadableStream, we'll handle it gracefully
-    if (error.message.includes('ReadableStream')) {
-      console.warn("ReadableStream error encountered. Returning empty result.");
-      return null;
-    }
     throw error;
   }
 };

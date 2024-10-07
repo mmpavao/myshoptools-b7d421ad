@@ -3,7 +3,7 @@ import { auth, safeLogError } from '../../firebase/config';
 import { onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Spinner } from '../ui/spinner';
-import { checkUserStatus, updateUserOnlineStatus } from '../../firebase/userOperations';
+import { checkUserStatus } from '../../firebase/userOperations';
 import { toast } from '@/components/ui/use-toast';
 import firebaseOperations from '../../firebase/firebaseOperations';
 
@@ -36,8 +36,7 @@ export const AuthProvider = ({ children }) => {
           navigate('/login');
         } else {
           const userProfile = await firebaseOperations.getUserProfile(currentUser.uid);
-          await updateUserOnlineStatus(currentUser.uid, true);
-          setUser({ ...currentUser, ...userProfile, isOnline: true });
+          setUser({ ...currentUser, ...userProfile });
         }
       } else {
         setUser(null);
@@ -45,13 +44,8 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     });
 
-    return () => {
-      unsubscribe();
-      if (user) {
-        updateUserOnlineStatus(user.uid, false);
-      }
-    };
-  }, [navigate, user]);
+    return () => unsubscribe();
+  }, [navigate]);
 
   const login = async (rememberMe) => {
     try {
@@ -63,9 +57,6 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      if (user) {
-        await updateUserOnlineStatus(user.uid, false);
-      }
       await signOut(auth);
       console.log("Desconectado com sucesso");
     } catch (error) {
