@@ -124,6 +124,27 @@ const firebaseOperations = {
   getAllUsers: userOperations.getAllUsers,
   updateUserRole: userOperations.updateUserRole,
   updateUserStatus: userOperations.updateUserStatus,
+  updateUserProfile: async (userId, profileData) => {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, profileData);
+      
+      if (auth.currentUser && auth.currentUser.uid === userId) {
+        const updateData = {};
+        if (profileData.displayName) updateData.displayName = profileData.displayName;
+        if (profileData.photoURL) updateData.photoURL = profileData.photoURL;
+        
+        if (Object.keys(updateData).length > 0) {
+          await updateProfile(auth.currentUser, updateData);
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
+  },
 };
 
 export default firebaseOperations;

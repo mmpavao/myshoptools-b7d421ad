@@ -16,13 +16,19 @@ const userOperations = {
 
   updateUserProfile: async (userId, profileData) => {
     try {
-      await setDoc(doc(db, 'users', userId), profileData, { merge: true });
-      if (auth.currentUser) {
-        await updateProfile(auth.currentUser, {
-          displayName: profileData.displayName,
-          photoURL: profileData.photoURL,
-        });
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, profileData);
+      
+      if (auth.currentUser && auth.currentUser.uid === userId) {
+        const updateData = {};
+        if (profileData.displayName) updateData.displayName = profileData.displayName;
+        if (profileData.photoURL) updateData.photoURL = profileData.photoURL;
+        
+        if (Object.keys(updateData).length > 0) {
+          await updateProfile(auth.currentUser, updateData);
+        }
       }
+      
       return true;
     } catch (error) {
       console.error('Error updating user profile:', error);
@@ -121,7 +127,6 @@ const userOperations = {
       await deleteAuthUser(await auth.getUser(userId));
       await deleteDoc(doc(db, 'users', userId));
 
-      // Delete associated data
       const deleteAssociatedData = async (collectionName, field) => {
         const queryRef = query(collection(db, collectionName), where(field, '==', userId));
         const snapshot = await getDocs(queryRef);
@@ -131,7 +136,6 @@ const userOperations = {
       await deleteAssociatedData('users/' + userId + '/produtosImportados', 'userId');
       await deleteAssociatedData('orders', 'userId');
 
-      // Delete profile image
       try {
         await deleteObject(ref(storage, `avatars/${userId}`));
       } catch (error) {
@@ -166,7 +170,21 @@ const userOperations = {
       throw error;
     }
   },
+
+  getUserById: async (userId) => {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', userId));
+      if (userDoc.exists()) {
+        return { id: userDoc.id, ...userDoc.data() };
+      } else {
+        throw new Error('Usuário não encontrado');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar usuário:', error);
+      throw error;
+    }
+  },
 };
 
-export const { getUserRole, getAllUsers, checkUserStatus, updateUserRole, updateUserStatus } = userOperations;
+export const { getUserRole, getAllUsers, checkUserStatus, updateUserRole, updateUserStatus, getUserById } = userOperations;
 export default userOperations;

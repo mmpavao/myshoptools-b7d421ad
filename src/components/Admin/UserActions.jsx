@@ -45,11 +45,11 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
     logEvent('Iniciando salvamento das alterações do usuário');
     
     try {
-      logEvent(`Atualizando papel do usuário para: ${userData.role}`);
-      await firebaseOperations.updateUserRole(user.id, userData.role);
-      
-      logEvent(`Atualizando status do usuário para: ${userData.status}`);
-      await firebaseOperations.updateUserStatus(user.id, userData.status);
+      // Atualizando papel e status do usuário
+      await firebaseOperations.updateUserProfile(user.id, {
+        role: userData.role,
+        status: userData.status
+      });
       
       // Verificação adicional para confirmar se as alterações foram aplicadas
       const updatedUser = await firebaseOperations.getUserById(user.id);
