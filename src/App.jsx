@@ -29,14 +29,6 @@ import GoogleSheetsIntegration from "./integrations/GoogleSheetsIntegration";
 
 const queryClient = new QueryClient();
 
-const LogoutRoute = () => {
-  const { logout } = useAuth();
-  React.useEffect(() => {
-    logout();
-  }, [logout]);
-  return <Navigate to="/login" />;
-};
-
 const RoleBasedRoute = ({ element: Element, allowedRoles }) => {
   const { user } = useAuth();
   const [userRole, setUserRole] = React.useState(null);
@@ -72,7 +64,6 @@ const AppRoutes = () => (
   <Routes>
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
-    <Route path="/logout" element={<LogoutRoute />} />
     <Route path="/" element={<ProtectedRoute><Navigate to="/dashboard" /></ProtectedRoute>} />
     <Route path="/dashboard" element={<ProtectedRoute><RoleBasedRoute element={Dashboard} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} /></ProtectedRoute>} />
     <Route path="/vitrine" element={<ProtectedRoute><RoleBasedRoute element={Vitrine} allowedRoles={['Vendedor', 'Admin', 'Master']} /></ProtectedRoute>} />
@@ -98,12 +89,10 @@ const AppRoutes = () => (
 
 const AppContent = () => {
   return (
-    <Router>
-      <AuthProvider>
-        <AppRoutes />
-        <ChatWidget />
-      </AuthProvider>
-    </Router>
+    <AuthProvider>
+      <AppRoutes />
+      <ChatWidget />
+    </AuthProvider>
   );
 };
 
@@ -111,8 +100,10 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
-        <Toaster position="top-right" />
-        <AppContent />
+        <Router>
+          <Toaster position="top-right" />
+          <AppContent />
+        </Router>
       </GoogleOAuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

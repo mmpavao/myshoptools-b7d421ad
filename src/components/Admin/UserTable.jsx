@@ -4,7 +4,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Switch } from "@/components/ui/switch";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../Auth/AuthProvider';
 import { toast } from "@/components/ui/use-toast";
@@ -31,6 +30,7 @@ export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSi
     try {
       await firebaseOperations.updateUserRole(userId, newRole, currentUserRole);
       onUserUpdate();
+      toast({ title: "Role Updated", description: `User role has been updated to ${newRole}.`, variant: "success" });
     } catch (error) {
       console.error('Error updating user role:', error);
       toast({ title: "Error", description: "Failed to update user role. Please try again.", variant: "destructive" });
@@ -39,18 +39,8 @@ export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSi
 
   const handleToggleUserStatus = async (userId, currentStatus) => {
     const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
-    try {
-      await firebaseOperations.updateUserStatus(userId, newStatus);
-      onUserUpdate();
-      toast({ 
-        title: "Status Updated", 
-        description: `User status has been updated to ${newStatus}.`, 
-        variant: "success" 
-      });
-    } catch (error) {
-      console.error('Error updating user status:', error);
-      toast({ title: "Error", description: "Failed to update user status. Please try again.", variant: "destructive" });
-    }
+    await firebaseOperations.updateUserStatus(userId, newStatus);
+    onUserUpdate();
   };
 
   const handleDeleteUser = async (userId) => {
@@ -128,19 +118,13 @@ export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSi
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
-                <div className="flex items-center justify-end space-x-2">
-                  <Switch
-                    checked={user.status === 'Active'}
-                    onCheckedChange={() => handleToggleUserStatus(user.id, user.status)}
-                    disabled={user.role === firebaseOperations.userRoles.MASTER}
-                  />
-                  <UserActions
-                    user={user}
-                    isMasterAdmin={isMasterAdmin}
-                    onEdit={onUserUpdate}
-                    onDelete={handleDeleteUser}
-                  />
-                </div>
+                <UserActions
+                  user={user}
+                  isMasterAdmin={isMasterAdmin}
+                  onEdit={onUserUpdate}
+                  onToggleStatus={handleToggleUserStatus}
+                  onDelete={handleDeleteUser}
+                />
               </TableCell>
             </TableRow>
           ))}

@@ -1,5 +1,5 @@
 import { db, auth, storage } from './config';
-import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
 import { updateProfile, deleteUser as deleteAuthUser } from 'firebase/auth';
 import { ref, deleteObject } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
@@ -8,21 +8,21 @@ import { safeFirestoreOperation } from '../utils/errorReporting';
 const MASTER_USER_EMAIL = 'pavaosmart@gmail.com';
 const ADMIN_USER_EMAIL = 'marcio@talkmaker.io';
 
-export const userRoles = {
+const userRoles = {
   MASTER: 'Master',
   ADMIN: 'Admin',
   VENDOR: 'Vendedor',
   PROVIDER: 'Fornecedor'
 };
 
-export const createUser = (userData) => 
+const createUser = (userData) => 
   safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), {
     ...userData,
     role: userData.email === MASTER_USER_EMAIL ? userRoles.MASTER : (userData.email === ADMIN_USER_EMAIL ? userRoles.ADMIN : userRoles.VENDOR),
     status: 'Active',
   }));
 
-export const updateUserProfile = async (userId, profileData) => {
+const updateUserProfile = async (userId, profileData) => {
   try {
     await setDoc(doc(db, 'users', userId), profileData, { merge: true });
     if (auth.currentUser) {
@@ -38,7 +38,7 @@ export const updateUserProfile = async (userId, profileData) => {
   }
 };
 
-export const getAllUsers = async () => {
+const getAllUsers = async () => {
   try {
     const usersSnapshot = await getDocs(collection(db, 'users'));
     const currentUser = auth.currentUser;
@@ -65,7 +65,7 @@ export const getAllUsers = async () => {
   }
 };
 
-export const updateUserRole = async (userId, newRole, currentUserRole) => {
+const updateUserRole = async (userId, newRole, currentUserRole) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
     const userData = userDoc.data();
@@ -79,11 +79,6 @@ export const updateUserRole = async (userId, newRole, currentUserRole) => {
     }
 
     await updateDoc(doc(db, 'users', userId), { role: newRole });
-    
-    // Update user claims in Firebase Auth
-    const user = await auth.getUser(userId);
-    await auth.setCustomUserClaims(user.uid, { role: newRole });
-
     toast({
       title: "Role Updated",
       description: `User role has been updated to ${newRole}.`,
@@ -101,12 +96,23 @@ export const updateUserRole = async (userId, newRole, currentUserRole) => {
   }
 };
 
-export const getUserRole = async (userId) => {
-  const userDoc = await getDoc(doc(db, 'users', userId));
-  return userDoc.exists() ? userDoc.data().role : null;
+const getUserRole = async (userId) => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      if (userData.email === MASTER_USER_EMAIL) return userRoles.MASTER;
+      if (userData.email === ADMIN_USER_EMAIL) return userRoles.ADMIN;
+      return userData.role || userRoles.VENDOR;
+    }
+    return userRoles.VENDOR;
+  } catch (error) {
+    console.error('Error getting user role:', error);
+    return userRoles.VENDOR;
+  }
 };
 
-export const updateUserStatus = async (userId, newStatus) => {
+const updateUserStatus = async (userId, newStatus) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
     const userData = userDoc.data();
@@ -116,30 +122,14 @@ export const updateUserStatus = async (userId, newStatus) => {
     }
 
     await updateDoc(doc(db, 'users', userId), { status: newStatus });
-
-    // Update user claims in Firebase Auth
-    const user = await auth.getUser(userId);
-    await auth.setCustomUserClaims(user.uid, { ...user.customClaims, status: newStatus });
-
-    toast({
-      title: "Status Updated",
-      description: `User status has been updated to ${newStatus}.`,
-      variant: "success",
-    });
     return true;
   } catch (error) {
     console.error('Error updating user status:', error);
-    toast({
-      title: "Error",
-      description: "Failed to update user status. Please try again.",
-      variant: "destructive",
-    });
     throw error;
   }
 };
 
-
-export const checkUserStatus = async (userId) => {
+const checkUserStatus = async (userId) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
     if (userDoc.exists()) {
@@ -150,17 +140,14 @@ export const checkUserStatus = async (userId) => {
       }
       return userData.status === 'Active';
     }
-    console.log('Usuário não encontrado no Firestore');
     return false;
   } catch (error) {
-    console.error('Erro ao verificar o status do usuário:', error);
-    // Em caso de erro, permitimos o acesso para evitar bloqueios indevidos
-    return true;
+    console.error('Error checking user status:', error);
+    return false;
   }
 };
 
-
-export const deleteUser = async (userId) => {
+const deleteUser = async (userId) => {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
     const userData = userDoc.data();
@@ -195,4 +182,16 @@ export const deleteUser = async (userId) => {
     console.error('Error deleting user and associated data:', error);
     throw error;
   }
+};
+
+export {
+  createUser,
+  updateUserProfile,
+  getAllUsers,
+  updateUserRole,
+  getUserRole,
+  updateUserStatus,
+  deleteUser,
+  userRoles,
+  checkUserStatus
 };

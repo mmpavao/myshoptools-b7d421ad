@@ -20,7 +20,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from '@/components/ui/use-toast';
 import { checkUserStatus } from '../../firebase/userOperations';
 import { useAuth } from './AuthProvider';
-import { Spinner } from '../ui/spinner';
 
 const schema = z.object({
   email: z.string().email({ message: "Endereço de e-mail inválido" }),
@@ -28,12 +27,9 @@ const schema = z.object({
   rememberMe: z.boolean().optional(),
 });
 
-const MASTER_USER_EMAIL = 'pavaosmart@gmail.com';
-
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -47,38 +43,22 @@ const Login = () => {
   });
 
   const onSubmit = async (data) => {
-    setIsLoading(true);
-    setError('');
-    console.log('Iniciando processo de login...');
     try {
-      console.log('Tentando autenticar com email:', data.email);
       const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
-      console.log('Autenticação bem-sucedida para:', userCredential.user.email);
-
-      if (data.email === MASTER_USER_EMAIL) {
-        console.log('Usuário Master identificado, prosseguindo com o login...');
+      const isActive = await checkUserStatus(userCredential.user.uid);
+      if (!isActive) {
+        await auth.signOut();
+        toast({
+          title: "Conta Inativa",
+          description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
+          variant: "destructive",
+        });
+      } else {
         await login(data.rememberMe);
         navigate('/dashboard');
-      } else {
-        console.log('Verificando status do usuário...');
-        const isActive = await checkUserStatus(userCredential.user.uid);
-        console.log('Status do usuário:', isActive ? 'Ativo' : 'Inativo');
-        if (!isActive) {
-          console.log('Conta inativa, fazendo logout...');
-          await auth.signOut();
-          toast({
-            title: "Conta Inativa",
-            description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
-            variant: "destructive",
-          });
-        } else {
-          console.log('Conta ativa, prosseguindo com o login...');
-          await login(data.rememberMe);
-          navigate('/dashboard');
-        }
       }
     } catch (error) {
-      console.error('Erro durante o login:', error);
+      console.error('Login error:', error);
       if (error.code === 'auth/invalid-login-credentials') {
         setError("Credenciais inválidas. Por favor, verifique seu e-mail e senha.");
       } else if (error.code === 'auth/user-not-found') {
@@ -86,11 +66,8 @@ const Login = () => {
       } else if (error.code === 'auth/wrong-password') {
         setError("Senha incorreta. Por favor, tente novamente.");
       } else {
-        setError(`Erro ao fazer login: ${error.message}`);
+        setError("Erro ao fazer login. Por favor, tente novamente mais tarde.");
       }
-    } finally {
-      setIsLoading(false);
-      console.log('Processo de login finalizado.');
     }
   };
 
@@ -108,7 +85,7 @@ const Login = () => {
                 <FormItem>
                   <FormLabel>E-mail</FormLabel>
                   <FormControl>
-                    <Input type="email" {...field} disabled={isLoading} />
+                    <Input type="email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -125,13 +102,11 @@ const Login = () => {
                       <Input
                         type={showPassword ? "text" : "password"}
                         {...field}
-                        disabled={isLoading}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                        disabled={isLoading}
                       >
                         {showPassword ? (
                           <EyeOffIcon className="h-5 w-5 text-gray-500" />
@@ -154,7 +129,6 @@ const Login = () => {
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      disabled={isLoading}
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
@@ -165,9 +139,8 @@ const Login = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? <Spinner className="mr-2 h-4 w-4" /> : null}
-              {isLoading ? 'Entrando...' : 'Entrar'}
+            <Button type="submit" className="w-full">
+              Entrar
             </Button>
           </form>
         </Form>
