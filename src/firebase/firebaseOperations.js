@@ -259,7 +259,8 @@ const firebaseOperations = {
   ...meusProdutosOperations,
   ...userProfileOperations,
   testFirebaseOperations,
-  clearAllData
+  clearAllData,
+  getAllUsers: userOperations.getAllUsers, // Add this line to explicitly include getAllUsers
 };
 
 export default firebaseOperations;
