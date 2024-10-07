@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import Cropper from 'react-easy-crop';
 import { Slider } from "@/components/ui/slider";
 import { toast } from "@/components/ui/use-toast";
-import { Spinner } from "@/components/ui/spinners";
+import { SpinnerDefault } from "@/components/ui/spinners";
 
 const AvatarEditor = ({ onSave, currentAvatar }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -111,7 +111,7 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
           <Button onClick={handleSave} className="mt-4" disabled={isSaving}>
             {isSaving ? (
               <>
-                <Spinner className="mr-2 h-4 w-4 animate-spin" />
+                <SpinnerDefault className="mr-2 h-4 w-4 animate-spin" />
                 Salvando...
               </>
             ) : (
