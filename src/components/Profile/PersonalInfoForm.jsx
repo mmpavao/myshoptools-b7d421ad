@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from '../Auth/AuthProvider';
 
 const countries = [
   { code: 'BR', flag: '🇧🇷', ddi: '+55' },
@@ -18,7 +19,8 @@ const countries = [
   { code: 'ID', flag: '🇮🇩', ddi: '+62' },
 ];
 
-export const PersonalInfoForm = ({ user, updateUserContext }) => {
+export const PersonalInfoForm = () => {
+  const { user, updateUserContext } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -125,6 +127,7 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
         description: "Suas informações foram atualizadas com sucesso.",
       });
     } catch (error) {
+      console.error('Erro ao atualizar perfil:', error);
       toast({
         title: "Erro",
         description: "Não foi possível atualizar o perfil. Tente novamente.",
@@ -215,3 +218,5 @@ export const PersonalInfoForm = ({ user, updateUserContext }) => {
     </form>
   );
 };
+
+export default PersonalInfoForm;
