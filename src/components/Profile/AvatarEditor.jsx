@@ -1,14 +1,22 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Cropper from 'react-easy-crop';
 import { Slider } from "@/components/ui/slider";
+import { toast } from "@/components/ui/use-toast";
 
-const AvatarEditor = ({ onSave }) => {
+const AvatarEditor = ({ onSave, currentAvatar }) => {
+  const [isOpen, setIsOpen] = useState(false);
   const [image, setImage] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+
+  useEffect(() => {
+    if (currentAvatar) {
+      setImage(currentAvatar);
+    }
+  }, [currentAvatar]);
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -26,11 +34,16 @@ const AvatarEditor = ({ onSave }) => {
     if (croppedAreaPixels) {
       const croppedImage = await getCroppedImg(image, croppedAreaPixels);
       onSave(croppedImage);
+      setIsOpen(false);
+      toast({
+        title: "Avatar Atualizado",
+        description: "Seu avatar foi atualizado com sucesso.",
+      });
     }
   }, [croppedAreaPixels, image, onSave]);
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Editar Avatar</Button>
       </DialogTrigger>

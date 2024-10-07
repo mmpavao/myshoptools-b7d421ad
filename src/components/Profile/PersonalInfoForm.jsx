@@ -82,6 +82,7 @@ export const PersonalInfoForm = () => {
     try {
       const downloadURL = await firebaseOperations.uploadProfileImage(blob, user.uid);
       setFormData(prev => ({ ...prev, profileImage: downloadURL }));
+      updateUserContext({ photoURL: downloadURL });
       toast({
         title: "Avatar Atualizado",
         description: "Seu avatar foi atualizado com sucesso.",
@@ -93,17 +94,6 @@ export const PersonalInfoForm = () => {
         variant: "destructive",
       });
     }
-  };
-
-  const formatPhoneNumber = (phoneNumber, country) => {
-    const cleaned = phoneNumber.replace(/\D/g, '');
-    if (country.code === 'US') {
-      const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
-      if (match) {
-        return `${country.ddi} (${match[1]}) ${match[2]}-${match[3]}`;
-      }
-    }
-    return `${country.ddi} ${cleaned}`;
   };
 
   const handleSubmit = async (e) => {
@@ -136,6 +126,17 @@ export const PersonalInfoForm = () => {
     }
   };
 
+  const formatPhoneNumber = (phoneNumber, country) => {
+    const cleaned = phoneNumber.replace(/\D/g, '');
+    if (country.code === 'US') {
+      const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+      if (match) {
+        return `${country.ddi} (${match[1]}) ${match[2]}-${match[3]}`;
+      }
+    }
+    return `${country.ddi} ${cleaned}`;
+  };
+
   const getPhoneInputValue = () => {
     if (formData.country.code === 'US') {
       const cleaned = formData.phone.replace(/\D/g, '');
@@ -157,7 +158,7 @@ export const PersonalInfoForm = () => {
             <AvatarImage src={formData.profileImage} alt="Profile" />
             <AvatarFallback>{formData.name[0] || 'U'}</AvatarFallback>
           </Avatar>
-          <AvatarEditor onSave={handleAvatarSave} />
+          <AvatarEditor onSave={handleAvatarSave} currentAvatar={formData.profileImage} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
