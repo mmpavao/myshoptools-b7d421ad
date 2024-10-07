@@ -26,17 +26,29 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
   }, [isDialogOpen, user]);
 
   const handleChange = useCallback((field, value) => {
-    setUserData(prev => ({ ...prev, [field]: value }));
-    setHasChanges(true);
-  }, []);
+    setUserData(prev => {
+      const newData = { ...prev, [field]: value };
+      const changed = JSON.stringify(newData) !== JSON.stringify(user);
+      setHasChanges(changed);
+      logEvent(`Campo alterado: ${field}. Há mudanças: ${changed}`);
+      return newData;
+    });
+  }, [user]);
 
   const handleSaveChanges = async () => {
-    if (!hasChanges) return;
+    if (!hasChanges) {
+      logEvent('Tentativa de salvar sem mudanças');
+      return;
+    }
 
     setIsSaving(true);
     logEvent('Iniciando salvamento das alterações do usuário');
+    
     try {
+      logEvent(`Atualizando papel do usuário para: ${userData.role}`);
       await firebaseOperations.updateUserRole(user.id, userData.role);
+      
+      logEvent(`Atualizando status do usuário para: ${userData.status}`);
       await firebaseOperations.updateUserStatus(user.id, userData.status);
       
       onUserUpdate();
@@ -48,12 +60,12 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
       logEvent('Alterações do usuário salvas com sucesso');
     } catch (error) {
       console.error('Erro ao atualizar configurações do usuário:', error);
+      logEvent(`Erro ao salvar alterações do usuário: ${error.message}`, 'error');
       toast({
         title: "Erro",
         description: "Falha ao atualizar as configurações do usuário. Por favor, tente novamente.",
         variant: "destructive"
       });
-      logEvent('Erro ao salvar alterações do usuário', 'error');
     } finally {
       setIsSaving(false);
       setHasChanges(false);

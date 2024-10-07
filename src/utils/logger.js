@@ -3,4 +3,5 @@ export const logEvent = (message, type = 'info') => {
     detail: { message, type }
   });
   window.dispatchEvent(event);
+  console.log(`[${type.toUpperCase()}] ${message}`); // Adiciona log no console para depuração
 };
