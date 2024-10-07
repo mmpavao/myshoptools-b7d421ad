@@ -24,7 +24,7 @@ const createSafeRequestInfo = (request) => {
       headers: Object.fromEntries(request.headers || []),
     };
   }
-  return request;
+  return typeof request === 'string' ? { url: request } : request;
 };
 
 export const reportHTTPError = (error, requestInfo) => {
@@ -73,6 +73,11 @@ export const safeFirestoreOperation = async (operation) => {
     return await operation();
   } catch (error) {
     console.error("Firestore operation error:", error);
+    // If the error is related to ReadableStream, we'll handle it gracefully
+    if (error.message.includes('ReadableStream')) {
+      console.warn("ReadableStream error encountered. Returning empty result.");
+      return null;
+    }
     throw error;
   }
 };
