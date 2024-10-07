@@ -3,7 +3,7 @@ import { auth, safeLogError } from '../../firebase/config';
 import { onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Spinner } from '../ui/spinner';
-import { checkUserStatus, getUserRole } from '../../firebase/userOperations';
+import { checkUserStatus } from '../../firebase/userOperations';
 import { toast } from '@/components/ui/use-toast';
 import firebaseOperations from '../../firebase/firebaseOperations';
 
@@ -36,8 +36,7 @@ export const AuthProvider = ({ children }) => {
           navigate('/login');
         } else {
           const userProfile = await firebaseOperations.getUserProfile(currentUser.uid);
-          const userRole = await getUserRole(currentUser.uid);
-          setUser({ ...currentUser, ...userProfile, role: userRole });
+          setUser({ ...currentUser, ...userProfile });
         }
       } else {
         setUser(null);
