@@ -62,45 +62,45 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
         <DialogHeader>
           <DialogTitle>Editar Avatar</DialogTitle>
         </DialogHeader>
-          <div className="flex items-center space-x-2">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-              id="avatar-upload"
+        <div className="flex items-center space-x-2">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+            id="avatar-upload"
+          />
+          <label
+            htmlFor="avatar-upload"
+            className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+          >
+            Escolher arquivo
+          </label>
+          {!image && <span className="text-sm text-gray-500">Nenhum arquivo escolhido</span>}
+        </div>
+        {image && (
+          <div className="relative h-64 w-full mt-4">
+            <Cropper
+              image={image}
+              crop={crop}
+              zoom={zoom}
+              aspect={1}
+              onCropChange={setCrop}
+              onCropComplete={onCropComplete}
+              onZoomChange={setZoom}
             />
-            <label
-              htmlFor="avatar-upload"
-              className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-            >
-              Escolher arquivo
-            </label>
-            {!image && <span className="text-sm text-gray-500">Nenhum arquivo escolhido</span>}
           </div>
-          {image && (
-            <div className="relative h-64 w-full mt-4">
-              <Cropper
-                image={image}
-                crop={crop}
-                zoom={zoom}
-                aspect={1}
-                onCropChange={setCrop}
-                onCropComplete={onCropComplete}
-                onZoomChange={setZoom}
-              />
-            </div>
-          )}
-          {image && (
-            <Slider
-              value={[zoom]}
-              min={1}
-              max={3}
-              step={0.1}
-              onValueChange={(value) => setZoom(value[0])}
-              className="mt-4"
-            />
-          )}
+        )}
+        {image && (
+          <Slider
+            value={[zoom]}
+            min={1}
+            max={3}
+            step={0.1}
+            onValueChange={(value) => setZoom(value[0])}
+            className="mt-4"
+          />
+        )}
         <Button onClick={handleSave} className="mt-4" disabled={isSaving}>
           {isSaving ? (
             <>

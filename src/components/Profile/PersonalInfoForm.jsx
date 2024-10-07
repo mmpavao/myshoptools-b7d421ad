@@ -82,12 +82,14 @@ export const PersonalInfoForm = () => {
     try {
       const downloadURL = await firebaseOperations.uploadProfileImage(blob, user.uid);
       setFormData(prev => ({ ...prev, profileImage: downloadURL }));
+      await firebaseOperations.updateUserProfile(user.uid, { photoURL: downloadURL });
       updateUserContext({ photoURL: downloadURL });
       toast({
         title: "Avatar Atualizado",
         description: "Seu avatar foi atualizado com sucesso.",
       });
     } catch (error) {
+      console.error('Erro ao atualizar avatar:', error);
       toast({
         title: "Erro",
         description: "Não foi possível atualizar o avatar.",
