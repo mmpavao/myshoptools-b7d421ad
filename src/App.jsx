@@ -98,12 +98,12 @@ const AppRoutes = () => (
 
 const AppContent = () => {
   return (
-    <Router>
-      <AuthProvider>
+    <AuthProvider>
+      <Router>
         <AppRoutes />
         <ChatWidget />
-      </AuthProvider>
-    </Router>
+      </Router>
+    </AuthProvider>
   );
 };
 
