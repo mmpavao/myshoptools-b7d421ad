@@ -89,10 +89,10 @@ const AppRoutes = () => (
 
 const AppContent = () => {
   return (
-    <>
+    <AuthProvider>
       <AppRoutes />
       <ChatWidget />
-    </>
+    </AuthProvider>
   );
 };
 
@@ -101,10 +101,8 @@ const App = () => (
     <TooltipProvider>
       <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
         <Router>
-          <AuthProvider>
-            <Toaster position="top-right" />
-            <AppContent />
-          </AuthProvider>
+          <Toaster position="top-right" />
+          <AppContent />
         </Router>
       </GoogleOAuthProvider>
     </TooltipProvider>
