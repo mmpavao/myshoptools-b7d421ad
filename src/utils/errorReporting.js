@@ -24,7 +24,18 @@ const createSafeRequestInfo = (request) => {
       headers: Object.fromEntries(request.headers || []),
     };
   }
-  return typeof request === 'string' ? { url: request } : { ...request };
+  if (typeof request === 'string') {
+    return { url: request };
+  }
+  // For other types, only include safe, serializable properties
+  const safeRequest = {};
+  for (const key in request) {
+    if (Object.prototype.hasOwnProperty.call(request, key) && 
+        ['string', 'number', 'boolean'].includes(typeof request[key])) {
+      safeRequest[key] = request[key];
+    }
+  }
+  return safeRequest;
 };
 
 export const reportHTTPError = (error, requestInfo) => {
