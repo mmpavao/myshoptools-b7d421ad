@@ -37,6 +37,31 @@ export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSi
     }
   };
 
+  const handleToggleUserStatus = async (userId, currentStatus) => {
+    try {
+      const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
+      await firebaseOperations.updateUserStatus(userId, newStatus);
+      onUserUpdate();
+      toast({ title: "Status Updated", description: `User status has been updated to ${newStatus}.`, variant: "success" });
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      toast({ title: "Error", description: "Failed to update user status. Please try again.", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    try {
+      await firebaseOperations.deleteUser(userId);
+      onUserUpdate();
+      toast({ title: "User Deleted", description: "User has been successfully deleted.", variant: "success" });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({ title: "Error", description: "Failed to delete user. Please try again.", variant: "destructive" });
+    }
+  };
+
+  const totalPages = Math.ceil(totalUsers / pageSize);
+
   return (
     <>
       <Table>
