@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Edit, Power, RefreshCw } from 'lucide-react';
+import { Edit, RefreshCw } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { Switch } from "@/components/ui/switch";
@@ -30,39 +30,40 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
     try {
       await firebaseOperations.sendPasswordResetEmail(user.email);
       toast({
-        title: "Password Reset",
-        description: `Instructions sent to ${user.email}`,
+        title: "Redefinição de Senha",
+        description: `Instruções enviadas para ${user.email}`,
         variant: "success"
       });
     } catch (error) {
-      console.error('Error sending password reset email:', error);
+      console.error('Erro ao enviar e-mail de redefinição de senha:', error);
       toast({
-        title: "Error",
-        description: "Failed to send password reset email. Please try again.",
+        title: "Erro",
+        description: "Falha ao enviar e-mail de redefinição de senha. Por favor, tente novamente.",
         variant: "destructive"
       });
     }
   };
 
   const handleSaveChanges = async () => {
+    if (!hasChanges) return;
+
     try {
-      await firebaseOperations.updateUserSettings(user.id, {
-        role: newRole,
-        status: isActive ? 'Active' : 'Inactive'
-      });
+      await firebaseOperations.updateUserRole(user.id, newRole);
+      await firebaseOperations.updateUserStatus(user.id, isActive ? 'Active' : 'Inactive');
+      
       onUserUpdate();
       setIsDialogOpen(false);
       setHasChanges(false);
       toast({
-        title: "Changes Saved",
-        description: "User settings have been updated successfully.",
+        title: "Alterações Salvas",
+        description: "As configurações do usuário foram atualizadas com sucesso.",
         variant: "success"
       });
     } catch (error) {
-      console.error('Error updating user settings:', error);
+      console.error('Erro ao atualizar configurações do usuário:', error);
       toast({
-        title: "Error",
-        description: "Failed to update user settings. Please try again.",
+        title: "Erro",
+        description: "Falha ao atualizar as configurações do usuário. Por favor, tente novamente.",
         variant: "destructive"
       });
     }
@@ -79,7 +80,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>User Profile</DialogTitle>
+          <DialogTitle>Perfil do Usuário</DialogTitle>
         </DialogHeader>
         <div className="flex items-center space-x-4 mb-4">
           <Avatar className="h-16 w-16">
@@ -93,21 +94,21 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
         </div>
         <Tabs defaultValue="personal">
           <TabsList>
-            <TabsTrigger value="personal">Personal Info</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="personal">Informações Pessoais</TabsTrigger>
+            <TabsTrigger value="settings">Configurações</TabsTrigger>
           </TabsList>
           <TabsContent value="personal">
             <Card>
               <CardHeader>
-                <CardTitle>Personal Information</CardTitle>
-                <CardDescription>User's personal details</CardDescription>
+                <CardTitle>Informações Pessoais</CardTitle>
+                <CardDescription>Detalhes pessoais do usuário</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div><strong>Name:</strong> {user.name}</div>
-                  <div><strong>Email:</strong> {user.email}</div>
-                  <div><strong>Phone:</strong> {user.phone || 'Not provided'}</div>
-                  <div><strong>Address:</strong> {user.address || 'Not provided'}</div>
+                  <div><strong>Nome:</strong> {user.name}</div>
+                  <div><strong>E-mail:</strong> {user.email}</div>
+                  <div><strong>Telefone:</strong> {user.phone || 'Não fornecido'}</div>
+                  <div><strong>Endereço:</strong> {user.address || 'Não fornecido'}</div>
                 </div>
               </CardContent>
             </Card>
@@ -115,12 +116,12 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
           <TabsContent value="settings">
             <Card>
               <CardHeader>
-                <CardTitle>User Settings</CardTitle>
-                <CardDescription>Manage user role and status</CardDescription>
+                <CardTitle>Configurações do Usuário</CardTitle>
+                <CardDescription>Gerenciar função e status do usuário</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span>User Role</span>
+                  <span>Função do Usuário</span>
                   <Select onValueChange={handleRoleChange} defaultValue={user.role}>
                     <SelectTrigger className="w-[180px]">
                       <SelectValue />
@@ -134,7 +135,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
                   </Select>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span>Account Status</span>
+                  <span>Status da Conta</span>
                   <Switch
                     checked={isActive}
                     onCheckedChange={handleToggleUserStatus}
@@ -143,7 +144,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
                 </div>
                 <Button variant="outline" onClick={handlePasswordReset} className="w-full">
                   <RefreshCw className="mr-2 h-4 w-4" />
-                  Reset Password
+                  Redefinir Senha
                 </Button>
               </CardContent>
             </Card>
@@ -151,7 +152,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
         </Tabs>
         <div className="mt-4 flex justify-end">
           <Button onClick={handleSaveChanges} disabled={!hasChanges}>
-            Save Changes
+            Salvar Alterações
           </Button>
         </div>
       </DialogContent>

@@ -56,33 +56,24 @@ const getAllUsers = async () => {
   }
 };
 
-const updateUserRole = async (userId, newRole, currentUserRole) => {
+const updateUserRole = async (userId, newRole) => {
   try {
-    const userDoc = await getDoc(doc(db, 'users', userId));
-    const userData = userDoc.data();
-
-    if (userData.email === MASTER_USER_EMAIL) {
-      throw new Error('Cannot change Master user role');
-    }
-
-    if (currentUserRole !== userRoles.MASTER && (userData.role === userRoles.ADMIN || newRole === userRoles.MASTER)) {
-      throw new Error('Only Master can change Admin role or assign Master role');
-    }
-
-    await updateDoc(doc(db, 'users', userId), { role: newRole });
-    toast({
-      title: "Role Updated",
-      description: `User role has been updated to ${newRole}.`,
-      variant: "success",
-    });
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, { role: newRole });
     return true;
   } catch (error) {
     console.error('Error updating user role:', error);
-    toast({
-      title: "Error",
-      description: "Failed to update user role. Please try again.",
-      variant: "destructive",
-    });
+    throw error;
+  }
+};
+
+const updateUserStatus = async (userId, newStatus) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, { status: newStatus });
+    return true;
+  } catch (error) {
+    console.error('Error updating user status:', error);
     throw error;
   }
 };
@@ -105,14 +96,8 @@ const getUserRole = async (userId) => {
 
 const updateUserStatus = async (userId, newStatus) => {
   try {
-    const userDoc = await getDoc(doc(db, 'users', userId));
-    const userData = userDoc.data();
-
-    if (userData.email === MASTER_USER_EMAIL) {
-      throw new Error('Cannot change Master user status');
-    }
-
-    await updateDoc(doc(db, 'users', userId), { status: newStatus });
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, { status: newStatus });
     return true;
   } catch (error) {
     console.error('Error updating user status:', error);
