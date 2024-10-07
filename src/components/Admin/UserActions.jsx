@@ -81,18 +81,12 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
     }
   };
 
-  const handleDialogClose = () => {
-    setIsDialogOpen(false);
-    setHasChanges(false);
-    setIsSaving(false);
-  };
-
   if (user.role === 'Master') return null;
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" onClick={() => setIsDialogOpen(true)}>
           <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
