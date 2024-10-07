@@ -7,6 +7,7 @@ import { toast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from '../Auth/AuthProvider';
+import AvatarEditor from './AvatarEditor';
 
 const countries = [
   { code: 'BR', flag: '🇧🇷', ddi: '+55' },
@@ -77,23 +78,20 @@ export const PersonalInfoForm = () => {
     setFormData(prev => ({ ...prev, country: selectedCountry, phone: '' }));
   };
 
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      try {
-        const downloadURL = await firebaseOperations.uploadProfileImage(file, user.uid);
-        setFormData(prev => ({ ...prev, profileImage: downloadURL }));
-        toast({
-          title: "Imagem de Perfil Atualizada",
-          description: "Sua foto de perfil foi atualizada com sucesso.",
-        });
-      } catch (error) {
-        toast({
-          title: "Erro",
-          description: "Não foi possível atualizar a imagem de perfil.",
-          variant: "destructive",
-        });
-      }
+  const handleAvatarSave = async (blob) => {
+    try {
+      const downloadURL = await firebaseOperations.uploadProfileImage(blob, user.uid);
+      setFormData(prev => ({ ...prev, profileImage: downloadURL }));
+      toast({
+        title: "Avatar Atualizado",
+        description: "Seu avatar foi atualizado com sucesso.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o avatar.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -159,12 +157,7 @@ export const PersonalInfoForm = () => {
             <AvatarImage src={formData.profileImage} alt="Profile" />
             <AvatarFallback>{formData.name[0] || 'U'}</AvatarFallback>
           </Avatar>
-          <div>
-            <Label htmlFor="picture" className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-500">
-              Alterar foto
-            </Label>
-            <Input id="picture" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-          </div>
+          <AvatarEditor onSave={handleAvatarSave} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -211,6 +204,7 @@ export const PersonalInfoForm = () => {
             <Input id="address" name="address" value={formData.address} onChange={handleChange} />
           </div>
         </div>
+      </div>
       </div>
       <Button type="submit" className="mt-6" disabled={isSubmitting}>
         {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
