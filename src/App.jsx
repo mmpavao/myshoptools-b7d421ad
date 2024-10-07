@@ -87,22 +87,16 @@ const AppRoutes = () => (
   </Routes>
 );
 
-const AppContent = () => {
-  return (
-    <AuthProvider>
-      <AppRoutes />
-      <ChatWidget />
-    </AuthProvider>
-  );
-};
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
         <Router>
-          <Toaster position="top-right" />
-          <AppContent />
+          <AuthProvider>
+            <Toaster position="top-right" />
+            <AppRoutes />
+            <ChatWidget />
+          </AuthProvider>
         </Router>
       </GoogleOAuthProvider>
     </TooltipProvider>
