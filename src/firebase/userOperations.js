@@ -1,19 +1,10 @@
 import { db, auth, storage } from './config';
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
-import { updateProfile, deleteUser as deleteAuthUser, sendPasswordResetEmail } from 'firebase/auth';
+import { updateProfile, deleteUser as deleteAuthUser, sendPasswordResetEmail as firebaseSendPasswordResetEmail } from 'firebase/auth';
 import { ref, deleteObject } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
 import { safeFirestoreOperation } from '../utils/errorReporting';
-
-const MASTER_USER_EMAIL = 'pavaosmart@gmail.com';
-const ADMIN_USER_EMAIL = 'marcio@talkmaker.io';
-
-const userRoles = {
-  MASTER: 'Master',
-  ADMIN: 'Admin',
-  VENDOR: 'Vendedor',
-  PROVIDER: 'Fornecedor'
-};
+import { MASTER_USER_EMAIL, ADMIN_USER_EMAIL, userRoles } from '../utils/userConstants';
 
 const createUser = (userData) => 
   safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), {
@@ -134,11 +125,7 @@ const checkUserStatus = async (userId) => {
     const userDoc = await getDoc(doc(db, 'users', userId));
     if (userDoc.exists()) {
       const userData = userDoc.data();
-      // Always allow access for the master user
-      if (userData.email === MASTER_USER_EMAIL) {
-        return true;
-      }
-      return userData.status === 'Active';
+      return userData.email === MASTER_USER_EMAIL || userData.status === 'Active';
     }
     return false;
   } catch (error) {
@@ -186,7 +173,7 @@ const deleteUser = async (userId) => {
 
 const sendPasswordResetEmail = async (email) => {
   try {
-    await sendPasswordResetEmail(auth, email);
+    await firebaseSendPasswordResetEmail(auth, email);
     return true;
   } catch (error) {
     console.error('Error sending password reset email:', error);
@@ -202,7 +189,6 @@ export {
   getUserRole,
   updateUserStatus,
   deleteUser,
-  userRoles,
   checkUserStatus,
   sendPasswordResetEmail
 };
