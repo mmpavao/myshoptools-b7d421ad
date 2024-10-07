@@ -166,7 +166,7 @@ const PersonalInfoForm = () => {
                   id="phone"
                   name="phone"
                   type="tel"
-                  value={getPhoneInputValue()}
+                  value={getPhoneInputValue(formData.phone, formData.country)}
                   onChange={handleChange}
                   className="pl-10"
                   placeholder="Número de telefone"

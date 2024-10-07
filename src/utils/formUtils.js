@@ -11,17 +11,17 @@ export const countries = [
 
 export const formatPhoneNumber = (phoneNumber, country) => {
   const cleaned = phoneNumber.replace(/\D/g, '');
-  if (country.code === 'US') {
+  if (country && country.code === 'US') {
     const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
     if (match) {
       return `${country.ddi} (${match[1]}) ${match[2]}-${match[3]}`;
     }
   }
-  return `${country.ddi} ${cleaned}`;
+  return country ? `${country.ddi} ${cleaned}` : cleaned;
 };
 
 export const getPhoneInputValue = (phone, country) => {
-  if (country.code === 'US') {
+  if (country && country.code === 'US') {
     const cleaned = phone.replace(/\D/g, '');
     const match = cleaned.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/);
     if (match) {
