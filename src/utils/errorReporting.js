@@ -16,14 +16,21 @@ const safePostMessage = (target, message, origin) => {
   }
 };
 
+const createSafeRequestInfo = (request) => {
+  if (request instanceof Request) {
+    return {
+      url: request.url,
+      method: request.method,
+      headers: Object.fromEntries(request.headers || []),
+    };
+  }
+  return request;
+};
+
 export const reportHTTPError = (error, requestInfo) => {
   const errorData = {
     error: createSafeErrorObject(error),
-    requestInfo: {
-      url: requestInfo.url,
-      method: requestInfo.method,
-      headers: Object.fromEntries(requestInfo.headers || []),
-    },
+    requestInfo: createSafeRequestInfo(requestInfo),
   };
 
   safePostMessage(window.parent, {
@@ -38,11 +45,7 @@ export const wrapFetch = () => {
     try {
       const response = await originalFetch(...args);
       if (!response.ok) {
-        const requestInfo = {
-          url: args[0],
-          method: args[1]?.method || 'GET',
-          headers: args[1]?.headers ? Object.fromEntries(args[1].headers) : {},
-        };
+        const requestInfo = createSafeRequestInfo(args[0]);
         reportHTTPError(new Error(`HTTP error! status: ${response.status}`), requestInfo);
       }
       return response;
@@ -58,11 +61,7 @@ export const wrapFetch = () => {
           json: async () => ({}),
         };
       }
-      const requestInfo = {
-        url: args[0],
-        method: args[1]?.method || 'GET',
-        headers: args[1]?.headers ? Object.fromEntries(args[1].headers) : {},
-      };
+      const requestInfo = createSafeRequestInfo(args[0]);
       reportHTTPError(error, requestInfo);
       throw error;
     }
