@@ -20,7 +20,7 @@ const countries = [
   { code: 'ID', flag: '🇮🇩', ddi: '+62' },
 ];
 
-export const PersonalInfoForm = () => {
+const PersonalInfoForm = () => {
   const { user, updateUserContext } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
@@ -31,37 +31,41 @@ export const PersonalInfoForm = () => {
     profileImage: "/placeholder.svg"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (user && user.uid) {
-      loadUserProfile(user.uid);
-    }
-  }, [user]);
-
-  const loadUserProfile = async (userId) => {
-    try {
-      const userProfile = await firebaseOperations.getUserProfile(userId);
-      if (userProfile) {
-        const phoneNumber = userProfile.phoneNumber || '';
-        const country = countries.find(c => phoneNumber.startsWith(c.ddi)) || countries[0];
-        setFormData({
-          name: userProfile.displayName || '',
-          email: userProfile.email || '',
-          phone: phoneNumber.slice(country.ddi.length).replace(/\D/g, ''),
-          address: userProfile.address || '',
-          profileImage: userProfile.photoURL || "/placeholder.svg",
-          country: country,
-        });
+    const loadUserProfile = async () => {
+      if (user && user.uid) {
+        try {
+          setIsLoading(true);
+          const userProfile = await firebaseOperations.getUserProfile(user.uid);
+          if (userProfile) {
+            const phoneNumber = userProfile.phoneNumber || '';
+            const country = countries.find(c => phoneNumber.startsWith(c.ddi)) || countries[0];
+            setFormData({
+              name: userProfile.displayName || '',
+              email: userProfile.email || '',
+              phone: phoneNumber.slice(country.ddi.length).replace(/\D/g, ''),
+              address: userProfile.address || '',
+              profileImage: userProfile.photoURL || "/placeholder.svg",
+              country: country,
+            });
+          }
+        } catch (error) {
+          console.error('Erro ao carregar perfil do usuário:', error);
+          toast({
+            title: "Erro",
+            description: "Não foi possível carregar os dados do perfil.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsLoading(false);
+        }
       }
-    } catch (error) {
-      console.error('Erro ao carregar perfil do usuário:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar os dados do perfil.",
-        variant: "destructive",
-      });
-    }
-  };
+    };
+
+    loadUserProfile();
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -151,6 +155,10 @@ export const PersonalInfoForm = () => {
     }
     return formData.phone;
   };
+
+  if (isLoading) {
+    return <div>Carregando dados do perfil...</div>;
+  }
 
   return (
     <form onSubmit={handleSubmit}>
