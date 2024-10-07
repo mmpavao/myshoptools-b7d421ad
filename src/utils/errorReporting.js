@@ -16,9 +16,14 @@ const safePostMessage = (target, message, origin) => {
   }
 };
 
-export const reportHTTPError = (error) => {
+export const reportHTTPError = (error, requestInfo) => {
   const errorData = {
     error: createSafeErrorObject(error),
+    requestInfo: {
+      url: requestInfo.url,
+      method: requestInfo.method,
+      headers: Object.fromEntries(requestInfo.headers || []),
+    },
   };
 
   safePostMessage(window.parent, {
@@ -33,7 +38,12 @@ export const wrapFetch = () => {
     try {
       const response = await originalFetch(...args);
       if (!response.ok) {
-        reportHTTPError(new Error(`HTTP error! status: ${response.status}`));
+        const requestInfo = {
+          url: args[0],
+          method: args[1]?.method || 'GET',
+          headers: args[1]?.headers,
+        };
+        reportHTTPError(new Error(`HTTP error! status: ${response.status}`), requestInfo);
       }
       return response;
     } catch (error) {
@@ -48,7 +58,12 @@ export const wrapFetch = () => {
           json: async () => ({}),
         };
       }
-      reportHTTPError(error);
+      const requestInfo = {
+        url: args[0],
+        method: args[1]?.method || 'GET',
+        headers: args[1]?.headers,
+      };
+      reportHTTPError(error, requestInfo);
       throw error;
     }
   };
