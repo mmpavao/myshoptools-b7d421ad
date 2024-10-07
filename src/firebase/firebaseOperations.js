@@ -254,7 +254,6 @@ const clearAllData = async () => {
 const firebaseOperations = {
   ...crudOperations,
   ...userOperations,
-  // Explicitly include getAllUsers from userOperations
   getAllUsers: userOperations.getAllUsers,
   ...productOperations,
   ...fileOperations,
@@ -262,6 +261,26 @@ const firebaseOperations = {
   ...userProfileOperations,
   testFirebaseOperations,
   clearAllData,
+  updateUserRole: async (userId, newRole) => {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, { role: newRole });
+      return true;
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      throw error;
+    }
+  },
+  updateUserStatus: async (userId, newStatus) => {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, { status: newStatus });
+      return true;
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      throw error;
+    }
+  },
 };
 
 export default firebaseOperations;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -15,6 +15,12 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
   const [newRole, setNewRole] = useState(user.role);
   const [isActive, setIsActive] = useState(user.status === 'Active');
   const [hasChanges, setHasChanges] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setNewRole(user.role);
+    setIsActive(user.status === 'Active');
+  }, [user]);
 
   const handleRoleChange = (value) => {
     setNewRole(value);
@@ -27,12 +33,12 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
   };
 
   const handlePasswordReset = async () => {
+    setIsLoading(true);
     try {
       await firebaseOperations.sendPasswordResetEmail(user.email);
       toast({
         title: "Redefinição de Senha",
         description: `Instruções enviadas para ${user.email}`,
-        variant: "success"
       });
     } catch (error) {
       console.error('Erro ao enviar e-mail de redefinição de senha:', error);
@@ -41,12 +47,15 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
         description: "Falha ao enviar e-mail de redefinição de senha. Por favor, tente novamente.",
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSaveChanges = async () => {
     if (!hasChanges) return;
 
+    setIsLoading(true);
     try {
       await firebaseOperations.updateUserRole(user.id, newRole);
       await firebaseOperations.updateUserStatus(user.id, isActive ? 'Active' : 'Inactive');
@@ -57,7 +66,6 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
       toast({
         title: "Alterações Salvas",
         description: "As configurações do usuário foram atualizadas com sucesso.",
-        variant: "success"
       });
     } catch (error) {
       console.error('Erro ao atualizar configurações do usuário:', error);
@@ -66,6 +74,8 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
         description: "Falha ao atualizar as configurações do usuário. Por favor, tente novamente.",
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -122,7 +132,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span>Função do Usuário</span>
-                  <Select onValueChange={handleRoleChange} defaultValue={user.role}>
+                  <Select onValueChange={handleRoleChange} value={newRole}>
                     <SelectTrigger className="w-[180px]">
                       <SelectValue />
                     </SelectTrigger>
@@ -139,20 +149,19 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
                   <Switch
                     checked={isActive}
                     onCheckedChange={handleToggleUserStatus}
-                    className={isActive ? "bg-green-500" : "bg-gray-200"}
                   />
                 </div>
-                <Button variant="outline" onClick={handlePasswordReset} className="w-full">
+                <Button variant="outline" onClick={handlePasswordReset} disabled={isLoading} className="w-full">
                   <RefreshCw className="mr-2 h-4 w-4" />
-                  Redefinir Senha
+                  {isLoading ? 'Enviando...' : 'Redefinir Senha'}
                 </Button>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
         <div className="mt-4 flex justify-end">
-          <Button onClick={handleSaveChanges} disabled={!hasChanges}>
-            Salvar Alterações
+          <Button onClick={handleSaveChanges} disabled={!hasChanges || isLoading}>
+            {isLoading ? 'Salvando...' : 'Salvar Alterações'}
           </Button>
         </div>
       </DialogContent>
