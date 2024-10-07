@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,66 +9,36 @@ import { Switch } from "@/components/ui/switch";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import UserInfoTab from './UserInfoTab';
+import UserSettingsTab from './UserSettingsTab';
+import UserSecurityTab from './UserSecurityTab';
 
 const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newRole, setNewRole] = useState(user.role);
-  const [isActive, setIsActive] = useState(user.status === 'Active');
+  const [userData, setUserData] = useState({ ...user });
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   useEffect(() => {
     if (!isDialogOpen) {
-      resetState();
+      setUserData({ ...user });
+      setHasChanges(false);
+      setIsSaving(false);
     }
   }, [isDialogOpen, user]);
 
-  const resetState = () => {
-    setNewRole(user.role);
-    setIsActive(user.status === 'Active');
-    setHasChanges(false);
-    setIsSaving(false);
-    setIsResettingPassword(false);
-  };
-
-  const handleRoleChange = (value) => {
-    setNewRole(value);
+  const handleChange = useCallback((field, value) => {
+    setUserData(prev => ({ ...prev, [field]: value }));
     setHasChanges(true);
-  };
-
-  const handleToggleUserStatus = () => {
-    setIsActive(!isActive);
-    setHasChanges(true);
-  };
-
-  const handlePasswordReset = async () => {
-    setIsResettingPassword(true);
-    try {
-      await firebaseOperations.sendPasswordResetEmail(user.email);
-      toast({
-        title: "Redefinição de Senha",
-        description: `Instruções enviadas para ${user.email}`,
-      });
-    } catch (error) {
-      console.error('Erro ao enviar e-mail de redefinição de senha:', error);
-      toast({
-        title: "Erro",
-        description: "Falha ao enviar e-mail de redefinição de senha. Por favor, tente novamente.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsResettingPassword(false);
-    }
-  };
+  }, []);
 
   const handleSaveChanges = async () => {
     if (!hasChanges) return;
 
     setIsSaving(true);
     try {
-      await firebaseOperations.updateUserRole(user.id, newRole);
-      await firebaseOperations.updateUserStatus(user.id, isActive ? 'Active' : 'Inactive');
+      await firebaseOperations.updateUserRole(user.id, userData.role);
+      await firebaseOperations.updateUserStatus(user.id, userData.status);
       
       onUserUpdate();
       setIsDialogOpen(false);
@@ -104,12 +74,12 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
         </DialogHeader>
         <div className="flex items-center space-x-4 mb-4">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={user.avatar} alt={user.name} />
-            <AvatarFallback>{user.name[0]}</AvatarFallback>
+            <AvatarImage src={userData.avatar} alt={userData.name} />
+            <AvatarFallback>{userData.name[0]}</AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="font-semibold">{user.name}</h3>
-            <p className="text-sm text-gray-500">{user.email}</p>
+            <h3 className="font-semibold">{userData.name}</h3>
+            <p className="text-sm text-gray-500">{userData.email}</p>
           </div>
         </div>
 
@@ -120,70 +90,17 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
             <TabsTrigger value="security">Segurança</TabsTrigger>
           </TabsList>
           <TabsContent value="info">
-            <Card>
-              <CardHeader>
-                <CardTitle>Informações Pessoais</CardTitle>
-                <CardDescription>Detalhes pessoais do usuário</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div><strong>Nome:</strong> {user.name}</div>
-                  <div><strong>E-mail:</strong> {user.email}</div>
-                  <div><strong>Telefone:</strong> {user.phone || 'Não fornecido'}</div>
-                  <div><strong>Endereço:</strong> {user.address || 'Não fornecido'}</div>
-                </div>
-              </CardContent>
-            </Card>
+            <UserInfoTab userData={userData} />
           </TabsContent>
           <TabsContent value="settings">
-            <Card>
-              <CardHeader>
-                <CardTitle>Configurações do Usuário</CardTitle>
-                <CardDescription>Gerenciar função e status do usuário</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span>Função do Usuário</span>
-                  <Select onValueChange={handleRoleChange} value={newRole}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Vendedor">Vendedor</SelectItem>
-                      <SelectItem value="Fornecedor">Fornecedor</SelectItem>
-                      <SelectItem value="Admin">Admin</SelectItem>
-                      {isMasterAdmin && <SelectItem value="Master">Master</SelectItem>}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Status da Conta</span>
-                  <Switch
-                    checked={isActive}
-                    onCheckedChange={handleToggleUserStatus}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            <UserSettingsTab
+              userData={userData}
+              isMasterAdmin={isMasterAdmin}
+              onChange={handleChange}
+            />
           </TabsContent>
           <TabsContent value="security">
-            <Card>
-              <CardHeader>
-                <CardTitle>Segurança da Conta</CardTitle>
-                <CardDescription>Opções de segurança do usuário</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  variant="outline" 
-                  onClick={handlePasswordReset} 
-                  disabled={isResettingPassword} 
-                  className="w-full"
-                >
-                  <RefreshCw className={`mr-2 h-4 w-4 ${isResettingPassword ? 'animate-spin' : ''}`} />
-                  {isResettingPassword ? 'Enviando...' : 'Redefinir Senha'}
-                </Button>
-              </CardContent>
-            </Card>
+            <UserSecurityTab userId={user.id} userEmail={user.email} />
           </TabsContent>
         </Tabs>
         <div className="mt-4 flex justify-end">
