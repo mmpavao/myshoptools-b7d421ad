@@ -16,24 +16,29 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from '@/components/ui/use-toast';
 import { checkUserStatus } from '../../firebase/userOperations';
+import { useAuth } from './AuthProvider';
 
 const schema = z.object({
   email: z.string().email({ message: "Endereço de e-mail inválido" }),
   password: z.string().min(6, { message: "A senha deve ter pelo menos 6 caracteres" }),
+  rememberMe: z.boolean().optional(),
 });
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       email: '',
       password: '',
+      rememberMe: false,
     },
   });
 
@@ -49,6 +54,7 @@ const Login = () => {
           variant: "destructive",
         });
       } else {
+        await login(data.rememberMe);
         navigate('/dashboard');
       }
     } catch (error) {
@@ -111,6 +117,25 @@ const Login = () => {
                     </div>
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="rememberMe"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>
+                      Permanecer conectado
+                    </FormLabel>
+                  </div>
                 </FormItem>
               )}
             />

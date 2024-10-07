@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth, safeLogError } from '../../firebase/config';
-import { onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Spinner } from '../ui/spinner';
 import { checkUserStatus } from '../../firebase/userOperations';
@@ -23,40 +23,37 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const setupAuth = async () => {
-      try {
-        await setPersistence(auth, browserLocalPersistence);
-        
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-          if (currentUser) {
-            const isActive = await checkUserStatus(currentUser.uid);
-            if (!isActive) {
-              await signOut(auth);
-              toast({
-                title: "Conta Inativa",
-                description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
-                variant: "destructive",
-              });
-              navigate('/login');
-            } else {
-              const userProfile = await firebaseOperations.getUserProfile(currentUser.uid);
-              setUser({ ...currentUser, ...userProfile });
-            }
-          } else {
-            setUser(null);
-          }
-          setLoading(false);
-        });
-
-        return () => unsubscribe();
-      } catch (error) {
-        console.error("Erro ao configurar autenticação:", error);
-        setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        const isActive = await checkUserStatus(currentUser.uid);
+        if (!isActive) {
+          await signOut(auth);
+          toast({
+            title: "Conta Inativa",
+            description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
+            variant: "destructive",
+          });
+          navigate('/login');
+        } else {
+          const userProfile = await firebaseOperations.getUserProfile(currentUser.uid);
+          setUser({ ...currentUser, ...userProfile });
+        }
+      } else {
+        setUser(null);
       }
-    };
+      setLoading(false);
+    });
 
-    setupAuth();
+    return () => unsubscribe();
   }, [navigate]);
+
+  const login = async (rememberMe) => {
+    try {
+      await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+    } catch (error) {
+      console.error("Erro ao configurar persistência:", error);
+    }
+  };
 
   const logout = async () => {
     try {
@@ -79,6 +76,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     loading,
+    login,
     logout,
     updateUserContext,
   };
