@@ -24,21 +24,33 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
       const reader = new FileReader();
-      reader.addEventListener('load', () => setImage(reader.result));
-      reader.readAsDataURL(e.target.files[0]);
+      reader.onload = (event) => {
+        setImage(event.target.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleSave = useCallback(async () => {
     if (croppedAreaPixels) {
-      const croppedImage = await getCroppedImg(image, croppedAreaPixels);
-      onSave(croppedImage);
-      setIsOpen(false);
-      toast({
-        title: "Avatar Atualizado",
-        description: "Seu avatar foi atualizado com sucesso.",
-      });
+      try {
+        const croppedImage = await getCroppedImg(image, croppedAreaPixels);
+        onSave(croppedImage);
+        setIsOpen(false);
+        toast({
+          title: "Avatar Atualizado",
+          description: "Seu avatar foi atualizado com sucesso.",
+        });
+      } catch (error) {
+        console.error('Error cropping image:', error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível processar a imagem. Tente novamente.",
+          variant: "destructive",
+        });
+      }
     }
   }, [croppedAreaPixels, image, onSave]);
 
@@ -83,12 +95,13 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
 
 export default AvatarEditor;
 
-// Função auxiliar para recortar a imagem
+// Helper function to crop the image
 const createImage = (url) =>
   new Promise((resolve, reject) => {
     const image = new Image();
     image.addEventListener('load', () => resolve(image));
     image.addEventListener('error', (error) => reject(error));
+    image.setAttribute('crossOrigin', 'anonymous'); // This line is crucial
     image.src = url;
   });
 
