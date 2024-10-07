@@ -59,6 +59,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await signOut(auth);
       console.log("Desconectado com sucesso");
+      navigate('/login');
     } catch (error) {
       safeLogError(error);
       console.error("Erro ao Sair:", error);
