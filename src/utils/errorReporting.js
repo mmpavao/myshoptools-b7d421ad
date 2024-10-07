@@ -24,7 +24,7 @@ const createSafeRequestInfo = (request) => {
       headers: Object.fromEntries(request.headers || []),
     };
   }
-  return typeof request === 'string' ? { url: request } : request;
+  return typeof request === 'string' ? { url: request } : { ...request };
 };
 
 export const reportHTTPError = (error, requestInfo) => {
