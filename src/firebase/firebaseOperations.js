@@ -120,6 +120,8 @@ const firebaseOperations = {
       throw error;
     }
   },
+  getUserRole: userOperations.getUserRole,
+  getAllUsers: userOperations.getAllUsers,
 };
 
 export default firebaseOperations;
