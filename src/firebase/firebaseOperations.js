@@ -122,6 +122,8 @@ const firebaseOperations = {
   },
   getUserRole: userOperations.getUserRole,
   getAllUsers: userOperations.getAllUsers,
+  updateUserRole: userOperations.updateUserRole,
+  updateUserStatus: userOperations.updateUserStatus,
 };
 
 export default firebaseOperations;
