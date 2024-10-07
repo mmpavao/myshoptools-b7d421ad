@@ -153,6 +153,20 @@ const firebaseOperations = {
     }
   },
 
+  getUserProfile: async (userId) => {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', userId));
+      if (userDoc.exists()) {
+        return userDoc.data();
+      } else {
+        throw new Error('Usuário não encontrado');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar perfil do usuário:', error);
+      throw error;
+    }
+  },
+
   getUserRole: userOperations.getUserRole,
   getAllUsers: userOperations.getAllUsers,
   updateUserRole: userOperations.updateUserRole,

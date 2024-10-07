@@ -4,21 +4,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
-import firebaseOperations from '../../firebase/firebaseOperations';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from '../Auth/AuthProvider';
 import AvatarEditor from './AvatarEditor';
-
-const countries = [
-  { code: 'BR', flag: '🇧🇷', ddi: '+55' },
-  { code: 'US', flag: '🇺🇸', ddi: '+1' },
-  { code: 'CN', flag: '🇨🇳', ddi: '+86' },
-  { code: 'MX', flag: '🇲🇽', ddi: '+52' },
-  { code: 'CO', flag: '🇨🇴', ddi: '+57' },
-  { code: 'CA', flag: '🇨🇦', ddi: '+1' },
-  { code: 'AU', flag: '🇦🇺', ddi: '+61' },
-  { code: 'ID', flag: '🇮🇩', ddi: '+62' },
-];
+import firebaseOperations from '../../firebase/firebaseOperations';
+import { countries, formatPhoneNumber, getPhoneInputValue } from '../../utils/formUtils';
 
 const PersonalInfoForm = () => {
   const { user, updateUserContext } = useAuth();
@@ -69,12 +59,10 @@ const PersonalInfoForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'phone') {
-      const numericValue = value.replace(/\D/g, '');
-      setFormData(prev => ({ ...prev, [name]: numericValue }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'phone' ? value.replace(/\D/g, '') : value
+    }));
   };
 
   const handleCountryChange = (value) => {
@@ -130,30 +118,6 @@ const PersonalInfoForm = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const formatPhoneNumber = (phoneNumber, country) => {
-    const cleaned = phoneNumber.replace(/\D/g, '');
-    if (country.code === 'US') {
-      const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
-      if (match) {
-        return `${country.ddi} (${match[1]}) ${match[2]}-${match[3]}`;
-      }
-    }
-    return `${country.ddi} ${cleaned}`;
-  };
-
-  const getPhoneInputValue = () => {
-    if (formData.country.code === 'US') {
-      const cleaned = formData.phone.replace(/\D/g, '');
-      const match = cleaned.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/);
-      if (match) {
-        const parts = [match[1], match[2], match[3]].filter(Boolean);
-        if (parts.length === 0) return '';
-        return `(${parts[0]})${parts[1] ? ' ' + parts[1] : ''}${parts[2] ? '-' + parts[2] : ''}`;
-      }
-    }
-    return formData.phone;
   };
 
   if (isLoading) {
