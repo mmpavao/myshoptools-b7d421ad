@@ -18,7 +18,6 @@ import MeusProdutos from "./components/Produto/MeusProdutos";
 import AdminUserList from "./components/Admin/AdminUserList";
 import SettingsPage from "./components/Admin/SettingsPage";
 import ChatAdmin from "./components/Admin/ChatAdmin";
-import ChatWidget from "./components/Chat/ChatWidget";
 import { getUserRole, userRoles } from "./firebase/userOperations";
 import { updateMasterUser } from "./firebase/updateMasterUser";
 
@@ -87,7 +86,6 @@ const App = () => {
             <AuthProvider>
               <Toaster position="top-right" />
               <AppRoutes />
-              <ChatWidget />
             </AuthProvider>
           </Router>
         </GoogleOAuthProvider>
