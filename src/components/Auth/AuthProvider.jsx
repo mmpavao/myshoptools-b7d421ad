@@ -8,6 +8,7 @@ import { toast } from '@/components/ui/use-toast';
 import firebaseOperations from '../../firebase/firebaseOperations';
 
 const AuthContext = createContext();
+const MASTER_USER_EMAIL = 'pavaosmart@gmail.com';
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -25,17 +26,22 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        const isActive = await checkUserStatus(currentUser.uid);
-        if (!isActive) {
-          await logout();
-          toast({
-            title: "Conta Inativa",
-            description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
-            variant: "destructive",
-          });
-        } else {
+        if (currentUser.email === MASTER_USER_EMAIL) {
           const userProfile = await firebaseOperations.getUserProfile(currentUser.uid);
-          setUser({ ...currentUser, ...userProfile });
+          setUser({ ...currentUser, ...userProfile, role: 'Master', status: 'Active' });
+        } else {
+          const isActive = await checkUserStatus(currentUser.uid);
+          if (!isActive) {
+            await logout();
+            toast({
+              title: "Conta Inativa",
+              description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
+              variant: "destructive",
+            });
+          } else {
+            const userProfile = await firebaseOperations.getUserProfile(currentUser.uid);
+            setUser({ ...currentUser, ...userProfile });
+          }
         }
       } else {
         setUser(null);
@@ -96,7 +102,7 @@ export const ProtectedRoute = ({ children }) => {
       if (!loading) {
         if (!user) {
           navigate('/login');
-        } else {
+        } else if (user.email !== MASTER_USER_EMAIL) {
           const isActive = await checkUserStatus(user.uid);
           if (!isActive) {
             await logout();
