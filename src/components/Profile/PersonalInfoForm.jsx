@@ -10,7 +10,6 @@ import { useAuth } from '../Auth/AuthProvider';
 import AvatarEditor from './AvatarEditor';
 
 const countries = [
-const countries = [
   { code: 'BR', flag: '🇧🇷', ddi: '+55' },
   { code: 'US', flag: '🇺🇸', ddi: '+1' },
   { code: 'CN', flag: '🇨🇳', ddi: '+86' },
@@ -19,7 +18,6 @@ const countries = [
   { code: 'CA', flag: '🇨🇦', ddi: '+1' },
   { code: 'AU', flag: '🇦🇺', ddi: '+61' },
   { code: 'ID', flag: '🇮🇩', ddi: '+62' },
-];
 ];
 
 export const PersonalInfoForm = () => {
@@ -30,8 +28,8 @@ export const PersonalInfoForm = () => {
     phone: '',
     address: '',
     country: countries[0],
+    profileImage: "/placeholder.svg"
   });
-  const [profileImage, setProfileImage] = useState("/placeholder.svg");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -51,9 +49,9 @@ export const PersonalInfoForm = () => {
           email: userProfile.email || '',
           phone: phoneNumber.slice(country.ddi.length).replace(/\D/g, ''),
           address: userProfile.address || '',
+          profileImage: userProfile.photoURL || "/placeholder.svg",
           country: country,
         });
-        setProfileImage(userProfile.photoURL || "/placeholder.svg");
       }
     } catch (error) {
       console.error('Erro ao carregar perfil do usuário:', error);
@@ -83,7 +81,7 @@ export const PersonalInfoForm = () => {
   const handleAvatarSave = async (blob) => {
     try {
       const downloadURL = await firebaseOperations.uploadProfileImage(blob, user.uid);
-      setProfileImage(downloadURL);
+      setFormData(prev => ({ ...prev, profileImage: downloadURL }));
       updateUserContext({ photoURL: downloadURL });
       toast({
         title: "Avatar Atualizado",
@@ -108,7 +106,6 @@ export const PersonalInfoForm = () => {
         phoneNumber: formatPhoneNumber(formData.phone, formData.country),
         address: formData.address,
         country: formData.country.code,
-        photoURL: profileImage,
       };
       await firebaseOperations.updateUserProfile(user.uid, updatedUserData);
       updateUserContext(updatedUserData);
@@ -157,10 +154,10 @@ export const PersonalInfoForm = () => {
       <div className="space-y-4">
         <div className="flex items-center space-x-4 mb-4">
           <Avatar className="w-24 h-24">
-            <AvatarImage src={profileImage} alt="Profile" />
+            <AvatarImage src={formData.profileImage} alt="Profile" />
             <AvatarFallback>{formData.name[0] || 'U'}</AvatarFallback>
           </Avatar>
-          <AvatarEditor onSave={handleAvatarSave} currentAvatar={profileImage} />
+          <AvatarEditor onSave={handleAvatarSave} currentAvatar={formData.profileImage} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
