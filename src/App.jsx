@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider, ProtectedRoute } from "./components/Auth/AuthProvider";
+import { AuthProvider, ProtectedRoute, useAuth } from "./components/Auth/AuthProvider";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
