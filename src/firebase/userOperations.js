@@ -77,6 +77,17 @@ const updateUserRole = async (userId, newRole, currentUserRole) => {
   }
 };
 
+
+const updateUserOnlineStatus = async (userId, isOnline) => {
+  try {
+    await updateDoc(doc(db, 'users', userId), { isOnline });
+    return true;
+  } catch (error) {
+    console.error('Error updating user online status:', error);
+    return false;
+  }
+};
+
 const getAllUsers = async () => {
   try {
     const usersSnapshot = await getDocs(collection(db, 'users'));
@@ -88,7 +99,7 @@ const getAllUsers = async () => {
       email: doc.data().email || 'No email',
       status: doc.data().status || 'Inactive',
       role: doc.data().email === MASTER_USER_EMAIL || doc.id === MASTER_USER_ID ? userRoles.MASTER : (doc.data().role || userRoles.VENDOR),
-      isOnline: false, // You might want to implement a proper online status check
+      isOnline: doc.data().isOnline || false,
     }));
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -153,4 +164,5 @@ export {
   updateUserStatus,
   deleteUser,
   checkUserStatus,
+  updateUserOnlineStatus,
 };

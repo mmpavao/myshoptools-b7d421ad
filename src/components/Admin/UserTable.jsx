@@ -8,21 +8,33 @@ import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../Auth/AuthProvider';
 import { toast } from "@/components/ui/use-toast";
 import UserActions from './UserActions';
+import { db } from '../../firebase/config';
+import { onSnapshot, doc } from 'firebase/firestore';
 
 const getStatusColor = (status) => {
   const colors = { Active: 'bg-green-500', Inactive: 'bg-red-500' };
   return colors[status] || 'bg-gray-500';
 };
 
-export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSize, onPageChange }) => {
+export const UserTable = ({ users: initialUsers, onUserUpdate, totalUsers, currentPage, pageSize, onPageChange }) => {
   const [currentUserRole, setCurrentUserRole] = useState(null);
   const { user: currentUser } = useAuth();
+  const [users, setUsers] = useState(initialUsers);
 
   useEffect(() => {
     if (currentUser) {
       firebaseOperations.getUserRole(currentUser.uid).then(setCurrentUserRole);
     }
-  }, [currentUser]);
+
+    const unsubscribes = initialUsers.map(user => 
+      onSnapshot(doc(db, 'users', user.id), (doc) => {
+        const updatedUser = { ...user, ...doc.data() };
+        setUsers(prevUsers => prevUsers.map(u => u.id === user.id ? updatedUser : u));
+      })
+    );
+
+    return () => unsubscribes.forEach(unsubscribe => unsubscribe());
+  }, [currentUser, initialUsers]);
 
   const isMasterAdmin = currentUserRole === firebaseOperations.userRoles.MASTER;
 
