@@ -1,5 +1,5 @@
 import { db, auth } from './config';
-import { doc, getDoc, setDoc, updateDoc, deleteDoc, getDocs, collection, query, where } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, getDocs, collection } from 'firebase/firestore';
 import { updateProfile, deleteUser as deleteAuthUser } from 'firebase/auth';
 import { toast } from '@/components/ui/use-toast';
 
@@ -83,7 +83,7 @@ const getAllUsers = async () => {
       name: doc.data().displayName || 'Unknown User',
       email: doc.data().email || 'No email',
       status: doc.data().status || 'Inactive',
-      role: doc.data().role || userRoles.VENDOR,
+      role: doc.data().email === MASTER_USER_EMAIL ? userRoles.MASTER : (doc.data().role || userRoles.VENDOR),
       isOnline: false, // You might want to implement a proper online status check
     }));
   } catch (error) {
