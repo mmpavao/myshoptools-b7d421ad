@@ -20,6 +20,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from '@/components/ui/use-toast';
 import { checkUserStatus } from '../../firebase/userOperations';
 import { useAuth } from './AuthProvider';
+import { Spinner } from '../ui/spinner';
 
 const schema = z.object({
   email: z.string().email({ message: "Endereço de e-mail inválido" }),
@@ -32,6 +33,7 @@ const MASTER_USER_EMAIL = 'pavaosmart@gmail.com';
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -45,6 +47,8 @@ const Login = () => {
   });
 
   const onSubmit = async (data) => {
+    setIsLoading(true);
+    setError('');
     try {
       const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
       if (data.email === MASTER_USER_EMAIL) {
@@ -75,6 +79,8 @@ const Login = () => {
       } else {
         setError("Erro ao fazer login. Por favor, tente novamente mais tarde.");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -92,7 +98,7 @@ const Login = () => {
                 <FormItem>
                   <FormLabel>E-mail</FormLabel>
                   <FormControl>
-                    <Input type="email" {...field} />
+                    <Input type="email" {...field} disabled={isLoading} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -109,11 +115,13 @@ const Login = () => {
                       <Input
                         type={showPassword ? "text" : "password"}
                         {...field}
+                        disabled={isLoading}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        disabled={isLoading}
                       >
                         {showPassword ? (
                           <EyeOffIcon className="h-5 w-5 text-gray-500" />
@@ -136,6 +144,7 @@ const Login = () => {
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      disabled={isLoading}
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
@@ -146,8 +155,9 @@ const Login = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">
-              Entrar
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? <Spinner className="mr-2 h-4 w-4" /> : null}
+              {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
         </Form>
