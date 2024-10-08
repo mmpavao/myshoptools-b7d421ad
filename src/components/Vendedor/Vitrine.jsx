@@ -3,20 +3,17 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../components/Auth/AuthProvider';
 import ProdutoCard from './ProdutoCard';
 
 const Vitrine = () => {
   const [produtos, setProdutos] = useState([]);
-  const [avaliacaoAtual, setAvaliacaoAtual] = useState({ produtoId: null, nota: 0, comentario: '' });
   const [filtro, setFiltro] = useState('');
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
     fetchProdutos();
-  }, [user]);
+  }, []);
 
   const fetchProdutos = async () => {
     try {
@@ -34,33 +31,6 @@ const Vitrine = () => {
 
   const handleDetalhes = (produtoId) => {
     navigate(`/produto/${produtoId}`);
-  };
-
-  const handleAvaliar = (produtoId) => {
-    setAvaliacaoAtual({ produtoId, nota: 0, comentario: '' });
-  };
-
-  const handleSubmitAvaliacao = async () => {
-    try {
-      await firebaseOperations.adicionarAvaliacao(
-        avaliacaoAtual.produtoId,
-        user.uid,
-        avaliacaoAtual.nota,
-        avaliacaoAtual.comentario
-      );
-      toast({
-        title: "Sucesso",
-        description: "Avaliação enviada com sucesso!",
-      });
-      fetchProdutos();
-    } catch (error) {
-      console.error("Erro ao enviar avaliação:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível enviar a avaliação.",
-        variant: "destructive",
-      });
-    }
   };
 
   const produtosFiltrados = produtos.filter(produto =>
@@ -82,16 +52,11 @@ const Vitrine = () => {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {produtosFiltrados.map((produto) => (
-            <div key={produto.id} className="aspect-square">
-              <ProdutoCard
-                produto={produto}
-                onDetalhes={handleDetalhes}
-                onAvaliar={handleAvaliar}
-                avaliacaoAtual={avaliacaoAtual}
-                setAvaliacaoAtual={setAvaliacaoAtual}
-                handleSubmitAvaliacao={handleSubmitAvaliacao}
-              />
-            </div>
+            <ProdutoCard
+              key={produto.id}
+              produto={produto}
+              onDetalhes={handleDetalhes}
+            />
           ))}
         </div>
       )}
