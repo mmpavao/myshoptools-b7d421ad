@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Menu, User, FileText, Book, Code, LogOut, ChevronDown } from 'lucide-react';
+import { Bell, User, FileText, Book, Code, LogOut, ChevronDown, ChevronUp, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -22,18 +22,23 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   };
 
   return (
-    <header className="bg-transparent h-14">
-      <div className="flex items-center justify-between h-full px-3">
+    <header className="bg-transparent h-16">
+      <div className="flex items-center justify-between h-full px-4">
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
-            className="p-1 rounded-full hover:bg-gray-200 focus:outline-none"
+            className="p-2 rounded-full hover:bg-gray-200 focus:outline-none"
           >
-            <Menu size={20} />
+            {isSidebarOpen ? (
+              <PanelLeftClose size={28} />
+            ) : (
+              <PanelLeftOpen size={28} />
+            )}
           </button>
           <DropdownMenu>
-            <DropdownMenuTrigger className="ml-3 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
+            <DropdownMenuTrigger className="ml-4 text-lg font-medium text-gray-700 hover:text-gray-900 focus:outline-none flex items-center">
               {companyName || 'Selecione uma empresa'}
+              <ChevronDown className="ml-1 h-5 w-5" />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuLabel>Empresas</DropdownMenuLabel>
