@@ -165,27 +165,27 @@ const firebaseOperations = {
     }
   },
 
-  uploadProfileImage: async (userId, blob) => {
-    const path = `avatars/${userId}/${Date.now()}_profile.jpg`;
+  uploadProfileImage: async (userId, blob, fileName) => {
+    const path = `avatars/${userId}/${fileName}`;
     const storageRef = ref(storage, path);
     const uploadTask = uploadBytesResumable(storageRef, blob);
 
     return new Promise((resolve, reject) => {
       uploadTask.on('state_changed',
         (snapshot) => {
-          // Progresso do upload
+          // Progress handling if needed
         },
         (error) => {
-          console.error('Erro no upload:', error);
-          reject(error);
+          console.error('Error in upload:', error);
+          reject(new Error(`Upload failed: ${error.message}`));
         },
         async () => {
           try {
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
             resolve(downloadURL);
           } catch (error) {
-            console.error('Erro ao obter URL de download:', error);
-            reject(error);
+            console.error('Error getting download URL:', error);
+            reject(new Error(`Failed to get download URL: ${error.message}`));
           }
         }
       );

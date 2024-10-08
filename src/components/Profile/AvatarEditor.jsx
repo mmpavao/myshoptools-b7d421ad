@@ -48,8 +48,13 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
     try {
       const croppedImage = await getCroppedImg(image, croppedAreaPixels);
       const blob = await fetch(croppedImage).then(r => r.blob());
-      const downloadURL = await firebaseOperations.uploadProfileImage(user.uid, blob);
+      const fileName = `avatar_${Date.now()}.jpg`;
+      const downloadURL = await firebaseOperations.uploadProfileImage(user.uid, blob, fileName);
       
+      if (!downloadURL) {
+        throw new Error("Failed to get download URL");
+      }
+
       await firebaseOperations.updateUserProfile(user.uid, { photoURL: downloadURL });
       updateUserContext({ photoURL: downloadURL });
       
@@ -60,7 +65,7 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
       console.error('Error updating avatar:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível atualizar o avatar. Tente novamente.",
+        description: `Não foi possível atualizar o avatar: ${error.message}`,
         variant: "destructive",
       });
     } finally {
