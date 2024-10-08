@@ -2,9 +2,8 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { StarIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const ProductDetails = ({ produto, isImportado, handleImportar }) => {
+const ProductDetails = ({ produto, activeMarketplace }) => {
   const renderStars = (rating) => {
     return [...Array(5)].map((_, index) => (
       <StarIcon key={index} className={`w-5 h-5 ${index < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'}`} />
@@ -15,41 +14,50 @@ const ProductDetails = ({ produto, isImportado, handleImportar }) => {
     return typeof price === 'number' ? price.toFixed(2) : '0.00';
   };
 
-  const marketplaces = [
-    'MyShop', 'Mercado Livre', 'Shopee', 'Amazon', 'Shopify', 'WooCommerce'
-  ];
+  const renderMarketplaceSpecificContent = () => {
+    switch (activeMarketplace) {
+      case 'Fornecedor':
+        return (
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Informações do Fornecedor</h3>
+            <p>SKU do Fornecedor: {produto.skuFornecedor || 'N/A'}</p>
+            <p>Preço de Custo: R$ {formatPrice(produto.precoCusto)}</p>
+          </div>
+        );
+      case 'MyShop':
+        return (
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Configurações MyShop</h3>
+            <p>Preço de Venda: R$ {formatPrice(produto.precoVenda)}</p>
+            <p>Estoque Disponível: {produto.estoqueDisponivel || 0}</p>
+          </div>
+        );
+      // Adicione casos para outros marketplaces conforme necessário
+      default:
+        return (
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Configurações para {activeMarketplace}</h3>
+            <p>Configure as opções específicas para {activeMarketplace} aqui.</p>
+          </div>
+        );
+    }
+  };
 
   return (
     <div className="md:w-1/2">
       <h1 className="text-3xl font-bold mb-2">{produto.titulo}</h1>
       <h2 className="text-xl text-gray-600 mb-4">{produto.sku}</h2>
       
-      <Tabs defaultValue="MyShop" className="w-full mb-6">
-        <TabsList className="grid grid-cols-3 gap-2 mb-4">
-          {marketplaces.map((marketplace) => (
-            <TabsTrigger key={marketplace} value={marketplace} className="text-xs">
-              {marketplace}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        
-        {marketplaces.map((marketplace) => (
-          <TabsContent key={marketplace} value={marketplace} className="mt-2">
-            <Card>
-              <CardContent className="pt-4">
-                <h3 className="text-lg font-semibold mb-2">Configurações para {marketplace}</h3>
-                <p className="text-sm text-gray-600">Aqui você pode adicionar configurações específicas para {marketplace}.</p>
-                {/* Adicione campos de configuração específicos para cada marketplace aqui */}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        ))}
-      </Tabs>
-      
       <div className="flex items-center mb-4">
         {renderStars(produto.avaliacao || 0)}
         <span className="ml-2 text-gray-600">({produto.numeroAvaliacoes || 0} avaliações)</span>
       </div>
+
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          {renderMarketplaceSpecificContent()}
+        </CardContent>
+      </Card>
 
       <div className="mb-4">
         <span className="text-3xl font-bold text-primary">R$ {formatPrice(produto.preco)}</span>
@@ -75,12 +83,8 @@ const ProductDetails = ({ produto, isImportado, handleImportar }) => {
       ))}
 
       <div className="mb-6">
-        <Button 
-          className="w-full" 
-          onClick={handleImportar}
-          disabled={isImportado}
-        >
-          {isImportado ? 'Adicionado' : 'Adicionar'}
+        <Button className="w-full">
+          {activeMarketplace === 'Fornecedor' ? 'Atualizar Estoque' : `Publicar no ${activeMarketplace}`}
         </Button>
       </div>
     </div>
