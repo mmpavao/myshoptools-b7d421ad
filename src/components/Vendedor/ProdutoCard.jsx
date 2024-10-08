@@ -26,32 +26,32 @@ const ProdutoCard = ({ produto, onDetalhes, onAvaliar, avaliacaoAtual, setAvalia
 
   return (
     <Card className="flex flex-col w-[110%] h-[85%]"> {/* Aumentamos a largura em 10% e diminuímos a altura em 15% */}
-      <CardHeader className="p-4">
+      <CardHeader className="p-3"> {/* Reduzimos o padding */}
         <CardTitle className="text-lg line-clamp-2">{produto.titulo}</CardTitle>
       </CardHeader>
-      <CardContent className="p-4 flex-grow">
+      <CardContent className="p-3 flex-grow"> {/* Reduzimos o padding */}
         {renderProductImage(produto.fotos && produto.fotos[0])}
-        <div className="mt-4 space-y-2">
+        <div className="mt-2 space-y-1"> {/* Reduzimos o espaçamento */}
           <div className="flex items-center justify-between">
-            <p className="text-xl font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
+            <p className="text-lg font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
             {produto.desconto > 0 && (
-              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">-{produto.desconto}%</span>
+              <span className="bg-red-500 text-white text-xs px-1 py-0.5 rounded-full">-{produto.desconto}%</span>
             )}
           </div>
           {produto.desconto > 0 && (
-            <p className="text-sm text-gray-500 line-through">
+            <p className="text-xs text-gray-500 line-through">
               R$ {formatPrice(produto.preco / (1 - produto.desconto / 100))}
             </p>
           )}
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               {renderStars(produto.avaliacao || 0)}
-              <span className="ml-2 text-sm text-gray-600">({produto.numeroAvaliacoes || 0})</span>
+              <span className="ml-1 text-xs text-gray-600">({produto.numeroAvaliacoes || 0})</span>
             </div>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-4 flex justify-between">
+      <CardFooter className="p-3 flex justify-between"> {/* Reduzimos o padding */}
         <Button variant="outline" size="sm" onClick={() => onDetalhes(produto.id)}>Detalhes</Button>
         <Dialog>
           <DialogTrigger asChild>
