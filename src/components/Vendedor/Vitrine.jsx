@@ -82,15 +82,16 @@ const Vitrine = () => {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {produtosFiltrados.map((produto) => (
-            <ProdutoCard
-              key={produto.id}
-              produto={produto}
-              onDetalhes={handleDetalhes}
-              onAvaliar={handleAvaliar}
-              avaliacaoAtual={avaliacaoAtual}
-              setAvaliacaoAtual={setAvaliacaoAtual}
-              handleSubmitAvaliacao={handleSubmitAvaliacao}
-            />
+            <div key={produto.id} className="aspect-square">
+              <ProdutoCard
+                produto={produto}
+                onDetalhes={handleDetalhes}
+                onAvaliar={handleAvaliar}
+                avaliacaoAtual={avaliacaoAtual}
+                setAvaliacaoAtual={setAvaliacaoAtual}
+                handleSubmitAvaliacao={handleSubmitAvaliacao}
+              />
+            </div>
           ))}
         </div>
       )}

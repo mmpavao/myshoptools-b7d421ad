@@ -7,7 +7,7 @@ import RatingForm from '../Produto/RatingForm';
 
 const ProdutoCard = ({ produto, onDetalhes, onAvaliar, avaliacaoAtual, setAvaliacaoAtual, handleSubmitAvaliacao }) => {
   const renderProductImage = (foto) => (
-    <div className="w-full aspect-square relative overflow-hidden rounded-lg">
+    <div className="w-full pb-[100%] relative overflow-hidden rounded-lg">
       <img 
         src={foto && foto.startsWith('http') ? foto : "/placeholder.svg"}
         alt="Produto" 
@@ -25,7 +25,7 @@ const ProdutoCard = ({ produto, onDetalhes, onAvaliar, avaliacaoAtual, setAvalia
   const formatPrice = (price) => (typeof price === 'number' ? price.toFixed(2) : '0.00');
 
   return (
-    <Card className="w-full aspect-square flex flex-col">
+    <Card className="w-full h-full flex flex-col">
       <CardHeader className="p-2 flex-shrink-0">
         <CardTitle className="text-sm line-clamp-1">{produto.titulo}</CardTitle>
       </CardHeader>
