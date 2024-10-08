@@ -70,8 +70,9 @@ const DetalheProduto = () => {
         produto={produto} 
         activeTab={activeTab} 
         setActiveTab={setActiveTab}
+        activeMarketplace={activeMarketplace}
       />
-      {activeTab === 'avaliacoes' && (
+      {activeMarketplace === 'Fornecedor' && activeTab === 'avaliacoes' && (
         <RatingForm 
           avaliacaoAtual={avaliacaoAtual} 
           setAvaliacaoAtual={setAvaliacaoAtual} 
