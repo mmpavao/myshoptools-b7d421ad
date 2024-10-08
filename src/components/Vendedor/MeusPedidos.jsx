@@ -10,6 +10,7 @@ import { useAuth } from '../Auth/AuthProvider';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { formatCurrency } from '../../utils/currencyUtils';
 import { useToast } from "@/components/ui/use-toast";
+import StatCard from '../Dashboard/StatCard'; // Add this import
 
 const MeusPedidos = () => {
   const [filtro, setFiltro] = useState('');
