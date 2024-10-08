@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { toast } from "sonner";
+import React from 'react';
 import { createBot, updateBot, deleteBot, getBots, testOpenAIConnection } from './openAIOperations';
 import BotList from './components/BotList';
 import BotDialog from './components/BotDialog';
 import BotChatDialog from './components/BotChatDialog';
-import IntegrationLogs from './components/IntegrationLogs';
 import APIKeyManager from './components/APIKeyManager';
 import { useOpenAIIntegration } from './hooks/useOpenAIIntegration';
 
@@ -17,7 +15,6 @@ const OpenAIIntegration = () => {
     isEditing,
     apiKey,
     connectionStatus,
-    logs,
     handleApiKeyChange,
     testConnection,
     handleOpenDialog,
@@ -65,8 +62,6 @@ const OpenAIIntegration = () => {
           />
         </>
       )}
-
-      <IntegrationLogs logs={logs} />
     </div>
   );
 };

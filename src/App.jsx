@@ -7,7 +7,6 @@ import { AuthProvider, ProtectedRoute } from "./components/Auth/AuthProvider";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Dashboard from "./components/Dashboard/Dashboard";
-import LogsPage from "./components/Logs/LogsPage";
 import Layout from "./components/Layout/Layout";
 import UserProfile from "./components/Profile/UserProfile";
 import DocumentationPage from "./components/Documentation/DocumentationPage";
@@ -39,7 +38,6 @@ const AppRoutes = () => {
         <Route path="/pedidos-fornecedor" element={<ProtectedRoute><Layout><PedidosFornecedor /></Layout></ProtectedRoute>} />
         <Route path="/meus-produtos" element={<ProtectedRoute><Layout><MeusProdutos /></Layout></ProtectedRoute>} />
         <Route path="/integracoes" element={<ProtectedRoute><Layout><div>Integrações</div></Layout></ProtectedRoute>} />
-        <Route path="/logs" element={<ProtectedRoute><Layout><LogsPage /></Layout></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Layout><UserProfile /></Layout></ProtectedRoute>} />
         <Route path="/documentation" element={<ProtectedRoute><Layout><DocumentationPage /></Layout></ProtectedRoute>} />
         <Route path="/apis" element={<ProtectedRoute><Layout><APIPage /></Layout></ProtectedRoute>} />

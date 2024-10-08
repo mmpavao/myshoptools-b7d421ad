@@ -3,9 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SystemSettings from './SystemSettings';
 import Integrations from './Integrations';
-import Logs from './Logs';
 import Billing from './Billing';
-import ChatSettings from './ChatSettings'; // Novo import
+import ChatSettings from './ChatSettings';
 
 const SettingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,7 +29,6 @@ const SettingsPage = () => {
           <TabsTrigger value="system">System</TabsTrigger>
           <TabsTrigger value="chat">Chat de Suporte</TabsTrigger>
           <TabsTrigger value="integrations">Integrações</TabsTrigger>
-          <TabsTrigger value="logs">Logs de Integrações</TabsTrigger>
           <TabsTrigger value="billing">Billing</TabsTrigger>
         </TabsList>
         
@@ -44,10 +42,6 @@ const SettingsPage = () => {
         
         <TabsContent value="integrations">
           <Integrations />
-        </TabsContent>
-        
-        <TabsContent value="logs">
-          <Logs />
         </TabsContent>
         
         <TabsContent value="billing">
