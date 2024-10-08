@@ -43,10 +43,10 @@ const dashboardOperations = {
           { descricao: 'Atualizar documentação', concluida: true, dataConclusao: '2023-03-10' },
         ],
         checkTable: [
-          { nome: 'Marketplace', progresso: 75.5, quantidade: 2458, data: 'Apr 26, 2022' },
-          { nome: 'Venus DB PRO', progresso: 35.4, quantidade: 1485, data: 'Jul 20, 2022' },
-          { nome: 'Venus DS', progresso: 25, quantidade: 1024, data: 'Sep 30, 2022' },
-          { nome: 'Venus 3D Asset', progresso: 100, quantidade: 858, data: 'Oct 24, 2022' },
+          { nome: 'Mercado Livre', progresso: 75.5, quantidade: 2458, data: 'Apr 26, 2023' },
+          { nome: 'MyShop', progresso: 60.4, quantidade: 1985, data: 'Jul 20, 2023' },
+          { nome: 'Shopee', progresso: 45.2, quantidade: 1524, data: 'Sep 30, 2023' },
+          { nome: 'Amazon', progresso: 35.8, quantidade: 1158, data: 'Oct 24, 2023' },
         ],
         distribuicaoVendas: [
           { name: 'Produto A', value: 400 },
