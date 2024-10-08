@@ -7,30 +7,21 @@ const Breadcrumb = () => {
   const pathnames = location.pathname.split('/').filter((x) => x);
 
   return (
-    <nav className="flex" aria-label="Breadcrumb">
-      <ol className="inline-flex items-center space-x-1 md:space-x-3">
-        <li className="inline-flex items-center">
-          <Link to="/" className="text-sm font-medium text-gray-700 hover:text-blue-600">
-            Pages
-          </Link>
-        </li>
+    <nav aria-label="Breadcrumb" className="text-sm text-gray-500">
+      <ol className="inline-flex items-center">
         {pathnames.map((name, index) => {
           const routeTo = `/${pathnames.slice(0, index + 1).join('/')}`;
           const isLast = index === pathnames.length - 1;
           return (
-            <li key={name}>
-              <div className="flex items-center">
-                <ChevronRight className="w-4 h-4 text-gray-400" />
-                <Link
-                  to={routeTo}
-                  className={`ml-1 text-sm font-medium ${
-                    isLast ? 'text-gray-500' : 'text-gray-700 hover:text-blue-600'
-                  }`}
-                  aria-current={isLast ? 'page' : undefined}
-                >
-                  {name.charAt(0).toUpperCase() + name.slice(1)}
-                </Link>
-              </div>
+            <li key={name} className="flex items-center">
+              {index > 0 && <ChevronRight className="w-3 h-3 mx-1" />}
+              <Link
+                to={routeTo}
+                className={`${isLast ? 'font-semibold text-gray-900' : 'hover:text-gray-700'}`}
+                aria-current={isLast ? 'page' : undefined}
+              >
+                {name.charAt(0).toUpperCase() + name.slice(1)}
+              </Link>
             </li>
           );
         })}

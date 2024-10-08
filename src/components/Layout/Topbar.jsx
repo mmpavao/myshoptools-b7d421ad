@@ -1,6 +1,6 @@
 import React from 'react';
 import { Bell, User, FileText, Book, Code, LogOut, ChevronDown, PanelLeftClose, PanelLeftOpen, Search } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -16,10 +16,16 @@ import Breadcrumb from '../ui/breadcrumb';
 const Topbar = ({ companyName, toggleSidebar, isSidebarOpen, isMobile }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
+  };
+
+  const getPageTitle = () => {
+    const path = location.pathname.split('/').pop();
+    return path.charAt(0).toUpperCase() + path.slice(1);
   };
 
   return (
@@ -118,7 +124,8 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen, isMobile }) => {
             )}
           </div>
         </div>
-        <div className="mt-2">
+        <div className="mt-2 flex items-center">
+          <h1 className="text-2xl font-semibold text-gray-800 mr-2">{getPageTitle()}</h1>
           <Breadcrumb />
         </div>
       </div>
