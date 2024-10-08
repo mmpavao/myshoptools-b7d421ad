@@ -28,6 +28,11 @@ const MockCheckout = ({ isOpen, onClose, plan }) => {
     onClose();
   };
 
+  // If plan is null or undefined, show a message or return null
+  if (!plan) {
+    return null; // Or you could return a message like "No plan selected"
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
