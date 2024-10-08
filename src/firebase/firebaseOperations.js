@@ -208,133 +208,27 @@ const fileOperations = {
   }
 };
 
-const testFirebaseOperations = async (logCallback) => {
-  try {
-    logCallback({ step: 'Starting Firebase test', status: 'info' });
-    
-    // Test product creation
-    const testProduct = { title: 'Test Product', price: 9.99 };
-    const productId = await productOperations.createProduct(testProduct);
-    logCallback({ step: 'Product created', status: 'success' });
-    
-    // Test product retrieval
-    const retrievedProduct = await productOperations.getProduct(productId);
-    logCallback({ step: 'Product retrieved', status: 'success' });
-    
-    // Test product update
-    await productOperations.updateProduct(productId, { price: 19.99 });
-    logCallback({ step: 'Product updated', status: 'success' });
-    
-    // Test product deletion
-    await productOperations.deleteProduct(productId);
-    logCallback({ step: 'Product deleted', status: 'success' });
-    
-    logCallback({ step: 'All Firebase operations completed successfully', status: 'success' });
-  } catch (error) {
-    logCallback({ step: 'Error during Firebase test', status: 'error', message: error.message });
-    throw error;
-  }
-};
-
-const clearAllData = async () => {
-  // Implementation for clearing all data
-  // This is a placeholder and should be implemented with caution
-  console.warn('clearAllData function is not implemented');
-};
-
-const myShopOperations = {
-  getMyShopProducts: async (userId) => {
+const dashboardOperations = {
+  getDashboardData: async (userId) => {
     try {
-      const userProductsRef = collection(db, 'users', userId, 'myShopProducts');
-      const snapshot = await getDocs(userProductsRef);
-      const productIds = snapshot.docs.map(doc => doc.id);
-      
-      const products = await Promise.all(productIds.map(async (id) => {
-        const productDoc = await getDoc(doc(db, 'products', id));
-        return { id, ...productDoc.data() };
-      }));
-      
-      return products;
+      // Simulating data fetch from Firestore
+      // In a real scenario, you would query Firestore collections
+      return {
+        totalVendas: 150,
+        produtosVendidos: 300,
+        faturamento: 15000.00,
+        crescimento: 5.7,
+        vendasPorMes: [
+          { mes: 'Jan', vendas: 65 },
+          { mes: 'Fev', vendas: 59 },
+          { mes: 'Mar', vendas: 80 },
+          { mes: 'Abr', vendas: 81 },
+          { mes: 'Mai', vendas: 56 },
+          { mes: 'Jun', vendas: 55 },
+        ]
+      };
     } catch (error) {
-      console.error('Error getting MyShop products:', error);
-      throw error;
-    }
-  },
-
-  addProductToMyShop: async (userId, productId) => {
-    try {
-      const userProductRef = doc(db, 'users', userId, 'myShopProducts', productId);
-      await setDoc(userProductRef, { addedAt: new Date() });
-    } catch (error) {
-      console.error('Error adding product to MyShop:', error);
-      throw error;
-    }
-  },
-};
-
-const pedidosOperations = {
-  adicionarPedidoVendedor: async (userId, pedido) => {
-    try {
-      const pedidoRef = await addDoc(collection(db, 'users', userId, 'pedidos'), pedido);
-      return pedidoRef.id;
-    } catch (error) {
-      console.error('Erro ao adicionar pedido do vendedor:', error);
-      throw error;
-    }
-  },
-
-  adicionarPedidoFornecedor: async (produtoId, pedido) => {
-    try {
-      const pedidoRef = await addDoc(collection(db, 'pedidosFornecedor'), {
-        ...pedido,
-        produtoId,
-        statusLogistica: 'Aguardando'
-      });
-      return pedidoRef.id;
-    } catch (error) {
-      console.error('Erro ao adicionar pedido do fornecedor:', error);
-      throw error;
-    }
-  },
-
-  getPedidosVendedor: async (userId) => {
-    try {
-      const pedidosRef = collection(db, 'users', userId, 'pedidos');
-      const snapshot = await getDocs(pedidosRef);
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    } catch (error) {
-      console.error('Erro ao buscar pedidos do vendedor:', error);
-      throw error;
-    }
-  },
-
-  getPedidosFornecedor: async () => {
-    try {
-      const pedidosRef = collection(db, 'pedidosFornecedor');
-      const snapshot = await getDocs(pedidosRef);
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    } catch (error) {
-      console.error('Erro ao buscar pedidos do fornecedor:', error);
-      throw error;
-    }
-  },
-
-  atualizarStatusPedidoFornecedor: async (pedidoId, novoStatus) => {
-    try {
-      const pedidoRef = doc(db, 'pedidosFornecedor', pedidoId);
-      await updateDoc(pedidoRef, { statusLogistica: novoStatus });
-    } catch (error) {
-      console.error('Erro ao atualizar status do pedido do fornecedor:', error);
-      throw error;
-    }
-  },
-
-  atualizarEstoque: async (produtoId, novaQuantidade) => {
-    try {
-      const produtoRef = doc(db, 'products', produtoId);
-      await updateDoc(produtoRef, { estoque: novaQuantidade });
-    } catch (error) {
-      console.error('Erro ao atualizar estoque:', error);
+      console.error("Erro ao buscar dados do dashboard:", error);
       throw error;
     }
   },
@@ -347,11 +241,7 @@ const firebaseOperations = {
   ...fileOperations,
   ...meusProdutosOperations,
   ...userProfileOperations,
-  ...myShopOperations,
-  ...pedidosOperations,
-  testFirebaseOperations,
-  clearAllData,
-  uploadAvatar: fileOperations.uploadAvatar,
+  ...dashboardOperations,
 };
 
 export default firebaseOperations;
