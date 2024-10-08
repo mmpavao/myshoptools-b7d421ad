@@ -24,7 +24,7 @@ const Layout = ({ children }) => {
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar isOpen={isSidebarOpen} />
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? 'ml-[88px]' : 'ml-[44px]'}`}>
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
         <Topbar 
           companyName={companyName} 
           toggleSidebar={toggleSidebar} 
