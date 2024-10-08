@@ -34,7 +34,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
 
   return (
     <header className="bg-transparent">
-      <div className="flex items-center justify-between h-14 px-4">
+      <div className="flex items-center justify-between h-16 px-4"> {/* Increased height to h-16 */}
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
@@ -48,13 +48,13 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           </button>
           <span className="ml-3 text-base font-medium text-gray-700">{companyName}</span>
         </div>
-        <div className="flex items-center space-x-3 bg-white bg-opacity-80 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] px-2 py-1">
+        <div className="flex items-center space-x-3 bg-white bg-opacity-80 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] px-2 py-1.5"> {/* Increased vertical padding */}
           <div className="relative flex items-center">
             <Search className="absolute left-2 h-4 w-4 text-gray-400" />
             <Input
               type="search"
               placeholder="Pesquisar..."
-              className="w-56 bg-gray-100 border-none focus:ring-0 text-sm focus:outline-none pl-8 rounded-full"
+              className="w-56 bg-gray-100 border-none focus:ring-0 text-sm focus:outline-none pl-8 rounded-full h-9" {/* Increased height to h-9 */}
             />
           </div>
           <button className="text-gray-500 hover:text-gray-700 focus:outline-none">
