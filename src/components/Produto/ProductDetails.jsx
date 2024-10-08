@@ -20,8 +20,9 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
         return (
           <div>
             <h3 className="text-lg font-semibold mb-2">Informações do Fornecedor</h3>
-            <p>SKU do Fornecedor: {produto.skuFornecedor || 'N/A'}</p>
-            <p>Preço de Custo: R$ {formatPrice(produto.precoCusto)}</p>
+            <p>SKU do Fornecedor: {produto.sku || 'N/A'}</p>
+            <p>Preço de Custo: R$ {formatPrice(produto.preco)}</p>
+            <p>Estoque Disponível: {produto.estoque || 0}</p>
           </div>
         );
       case 'MyShop':
@@ -59,28 +60,32 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
         </CardContent>
       </Card>
 
-      <div className="mb-4">
-        <span className="text-3xl font-bold text-primary">R$ {formatPrice(produto.preco)}</span>
-        {produto.desconto > 0 && (
-          <>
-            <span className="ml-2 text-gray-500 line-through">
-              R$ {formatPrice(produto.preco / (1 - produto.desconto / 100))}
-            </span>
-            <span className="ml-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm">-{produto.desconto}%</span>
-          </>
-        )}
-      </div>
-
-      {produto.variacoes && Object.entries(produto.variacoes).map(([tipo, opcoes]) => opcoes.length > 0 && (
-        <div key={tipo} className="mb-4">
-          <h3 className="text-lg font-semibold mb-2 capitalize">{tipo}:</h3>
-          <div className="flex gap-2">
-            {opcoes.map((opcao) => (
-              <Button key={opcao} variant="outline">{opcao}</Button>
-            ))}
+      {activeMarketplace !== 'Fornecedor' && (
+        <>
+          <div className="mb-4">
+            <span className="text-3xl font-bold text-primary">R$ {formatPrice(produto.preco)}</span>
+            {produto.desconto > 0 && (
+              <>
+                <span className="ml-2 text-gray-500 line-through">
+                  R$ {formatPrice(produto.preco / (1 - produto.desconto / 100))}
+                </span>
+                <span className="ml-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm">-{produto.desconto}%</span>
+              </>
+            )}
           </div>
-        </div>
-      ))}
+
+          {produto.variacoes && Object.entries(produto.variacoes).map(([tipo, opcoes]) => opcoes.length > 0 && (
+            <div key={tipo} className="mb-4">
+              <h3 className="text-lg font-semibold mb-2 capitalize">{tipo}:</h3>
+              <div className="flex gap-2">
+                {opcoes.map((opcao) => (
+                  <Button key={opcao} variant="outline">{opcao}</Button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
 
       <div className="mb-6">
         <Button className="w-full">
