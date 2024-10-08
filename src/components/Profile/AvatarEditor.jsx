@@ -33,7 +33,8 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
     try {
       const croppedImage = await getCroppedImg(image, croppedAreaPixels);
       const blob = await fetch(croppedImage).then(r => r.blob());
-      await onSave(blob);
+      const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
+      await onSave(file);
       setIsOpen(false);
       toast({
         title: "Avatar Updated",

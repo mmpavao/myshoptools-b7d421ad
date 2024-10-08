@@ -221,7 +221,12 @@ const fileOperations = {
     }
     const fileExtension = file.name.split('.').pop();
     const path = `avatars/${userId}/${Date.now()}.${fileExtension}`;
-    return await fileOperations.uploadFile(file, path);
+    const downloadURL = await fileOperations.uploadFile(file, path);
+    
+    // Update user profile with new avatar URL
+    await userOperations.updateUserProfile(userId, { photoURL: downloadURL });
+    
+    return downloadURL;
   }
 };
 
