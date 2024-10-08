@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,12 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserInfoTab from './UserInfoTab';
 import UserSettingsTab from './UserSettingsTab';
 import UserSecurityTab from './UserSecurityTab';
-import { logEvent } from '../../utils/logger';
 
 const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [userData, setUserData] = useState({ ...user });
-  const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -22,8 +20,6 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
       fetchUserData();
     } else {
       setUserData({ ...user });
-      setHasChanges(false);
-      setIsSaving(false);
     }
   }, [isDialogOpen, user]);
 
@@ -41,37 +37,17 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
     }
   };
 
-  const handleChange = useCallback((field, value) => {
-    setUserData(prev => {
-      const newData = { ...prev, [field]: value };
-      const changed = JSON.stringify(newData) !== JSON.stringify(user);
-      setHasChanges(changed);
-      logEvent(`Campo alterado: ${field}. Valor: ${value}. Há mudanças: ${changed}`);
-      return newData;
-    });
-  }, [user]);
+  const handleChange = (field, value) => {
+    setUserData(prev => ({ ...prev, [field]: value }));
+  };
 
   const handleSaveChanges = async () => {
-    if (!hasChanges) {
-      logEvent('Tentativa de salvar sem mudanças');
-      return;
-    }
-
     setIsSaving(true);
-    logEvent('Iniciando salvamento das alterações do usuário');
-    
     try {
       await firebaseOperations.updateUserProfile(user.id, {
         role: userData.role,
         status: userData.status
       });
-      
-      const updatedUser = await firebaseOperations.getUserById(user.id);
-      logEvent(`Usuário atualizado: ${JSON.stringify(updatedUser)}`);
-      
-      if (updatedUser.role !== userData.role || updatedUser.status !== userData.status) {
-        throw new Error('As alterações não foram aplicadas corretamente');
-      }
       
       onUserUpdate();
       setIsDialogOpen(false);
@@ -79,10 +55,8 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
         title: "Alterações Salvas",
         description: "As configurações do usuário foram atualizadas com sucesso.",
       });
-      logEvent('Alterações do usuário salvas com sucesso');
     } catch (error) {
       console.error('Erro ao atualizar configurações do usuário:', error);
-      logEvent(`Erro ao salvar alterações do usuário: ${error.message}`, 'error');
       toast({
         title: "Erro",
         description: "Falha ao atualizar as configurações do usuário. Por favor, tente novamente.",
@@ -102,7 +76,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
           <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]" onPointerDownOutside={(e) => e.preventDefault()}>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Perfil do Usuário</DialogTitle>
         </DialogHeader>
@@ -138,7 +112,7 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
           </TabsContent>
         </Tabs>
         <div className="mt-4 flex justify-end">
-          <Button onClick={handleSaveChanges} disabled={!hasChanges || isSaving}>
+          <Button onClick={handleSaveChanges} disabled={isSaving}>
             {isSaving ? 'Salvando...' : 'Salvar Alterações'}
           </Button>
         </div>

@@ -141,11 +141,10 @@ const firebaseOperations = {
         if (profileData.photoURL) updateData.photoURL = profileData.photoURL;
         
         if (Object.keys(updateData).length > 0) {
-          await auth.currentUser.updateProfile(updateData);
+          await updateProfile(auth.currentUser, updateData);
         }
       }
       
-      // Update user role and status
       if (profileData.role) {
         await userOperations.updateUserRole(userId, profileData.role);
       }
