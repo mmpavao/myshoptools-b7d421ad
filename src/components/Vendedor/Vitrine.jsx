@@ -94,6 +94,7 @@ const Vitrine = () => {
               onDetalhes={handleDetalhes}
               onImportar={handleImportar}
               isImportado={produtosImportados[produto.id]}
+              showExcluirButton={false}
             />
           ))}
         </div>

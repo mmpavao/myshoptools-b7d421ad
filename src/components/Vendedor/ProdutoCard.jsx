@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StarIcon, Heart } from "lucide-react";
 
-const ProdutoCard = ({ produto, onDetalhes, onImportar, isImportado, onExcluir }) => {
+const ProdutoCard = ({ produto, onDetalhes, onImportar, isImportado, onExcluir, showExcluirButton = false }) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const renderProductImage = (foto) => (
@@ -72,7 +72,7 @@ const ProdutoCard = ({ produto, onDetalhes, onImportar, isImportado, onExcluir }
         >
           Detalhes
         </Button>
-        {isImportado ? (
+        {showExcluirButton && isImportado ? (
           <Button 
             variant="destructive" 
             size="sm" 
@@ -87,8 +87,9 @@ const ProdutoCard = ({ produto, onDetalhes, onImportar, isImportado, onExcluir }
             size="sm" 
             className="text-xs flex-grow bg-primary hover:bg-primary/90"
             onClick={() => onImportar(produto.id)}
+            disabled={isImportado}
           >
-            Importar
+            {isImportado ? 'Importado' : 'Importar'}
           </Button>
         )}
       </CardFooter>
