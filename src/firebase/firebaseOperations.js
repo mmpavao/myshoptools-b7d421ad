@@ -116,7 +116,7 @@ const firebaseOperations = {
           ...userData,
           displayName: userData.displayName || 'Nome não disponível',
           email: userData.email || 'Email não disponível',
-          photoURL: userData.photoURL || 'https://example.com/placeholder-avatar.jpg',
+          photoURL: userData.photoURL || '/placeholder.svg', // Use a local placeholder
           role: userData.role || 'Usuário',
           status: userData.status || 'Inativo',
           phoneNumber: userData.phoneNumber || '',
@@ -129,6 +129,34 @@ const firebaseOperations = {
       console.error('Erro ao buscar usuário:', error);
       throw error;
     }
+  },
+
+  uploadProfileImage: async (userId, blob, fileName) => {
+    const path = `avatars/${userId}/${Date.now()}_${fileName}`;
+    const storageRef = ref(storage, path);
+    const uploadTask = uploadBytesResumable(storageRef, blob);
+
+    return new Promise((resolve, reject) => {
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload is ' + progress + '% done');
+        },
+        (error) => {
+          console.error('Error in upload:', error);
+          reject(new Error(`Upload failed: ${error.message}`));
+        },
+        async () => {
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadURL);
+          } catch (error) {
+            console.error('Error getting download URL:', error);
+            reject(new Error(`Failed to get download URL: ${error.message}`));
+          }
+        }
+      );
+    });
   },
 
   // Add these two new functions
@@ -163,39 +191,6 @@ const firebaseOperations = {
       console.error('Erro ao atualizar perfil do usuário:', error);
       throw error;
     }
-  },
-
-  uploadProfileImage: async (userId, blob, fileName) => {
-    const path = `avatars/${userId}/${fileName}`;
-    const storageRef = ref(storage, path);
-    const uploadTask = uploadBytesResumable(storageRef, blob);
-
-    return new Promise((resolve, reject) => {
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          // Progress handling if needed
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log('Upload is ' + progress + '% done');
-        },
-        (error) => {
-          console.error('Error in upload:', error);
-          if (error.code === 'storage/unauthorized') {
-            reject(new Error('Permission denied. Check Firebase Storage rules.'));
-          } else {
-            reject(new Error(`Upload failed: ${error.message}`));
-          }
-        },
-        async () => {
-          try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve(downloadURL);
-          } catch (error) {
-            console.error('Error getting download URL:', error);
-            reject(new Error(`Failed to get download URL: ${error.message}`));
-          }
-        }
-      );
-    });
   },
 };
 

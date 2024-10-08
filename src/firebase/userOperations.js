@@ -43,7 +43,7 @@ const userOperations = {
       return usersSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        avatar: doc.data().photoURL || 'https://i.pravatar.cc/150',
+        avatar: doc.data().photoURL || '/placeholder.svg', // Use a local placeholder
         name: doc.data().displayName || 'Unknown User',
         email: doc.data().email || 'No email',
         title: doc.data().title || 'No title',
