@@ -27,19 +27,19 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
     : produto.preco;
 
   return (
-    <Card className="w-full h-full flex flex-col">
+    <Card className="w-full h-full flex flex-col max-h-[400px] min-h-[300px]">
       <CardContent className="p-3 flex-grow flex flex-col justify-between">
         {renderProductImage(produto.fotos && produto.fotos[0])}
         <div className="mt-3 space-y-2">
           <h3 className="font-semibold text-sm line-clamp-2">{produto.titulo}</h3>
           <div className="flex items-center space-x-2 flex-wrap">
-            <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
             {produto.desconto > 0 && (
               <>
-                <p className="text-xs text-gray-500 line-through">R$ {formatPrice(originalPrice)}</p>
-                <span className="bg-red-500 text-white text-xs px-1 py-0.5 rounded-full">-{produto.desconto}%</span>
+                <span className="text-xs text-gray-500 line-through">R$ {formatPrice(originalPrice)}</span>
+                <span className="text-xs text-red-600 font-bold">-{produto.desconto}%</span>
               </>
             )}
+            <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
           </div>
           <div className="flex items-center">
             {renderStars(produto.avaliacao || 0)}
