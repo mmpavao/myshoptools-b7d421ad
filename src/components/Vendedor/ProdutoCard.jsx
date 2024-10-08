@@ -2,14 +2,15 @@ import React from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StarIcon } from "lucide-react";
+import { formatCurrency } from '@/utils/currencyUtils';
 
 const ProdutoCard = ({ produto, onDetalhes }) => {
   const renderProductImage = (foto) => (
-    <div className="w-full aspect-square relative overflow-hidden rounded-lg">
+    <div className="w-full aspect-square relative overflow-hidden rounded-t-lg">
       <img 
         src={foto && foto.startsWith('http') ? foto : "/placeholder.svg"}
         alt={produto.titulo} 
-        className="absolute top-0 left-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover"
       />
     </div>
   );
@@ -20,34 +21,34 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
     ))
   );
 
-  const formatPrice = (price) => (typeof price === 'number' ? price.toFixed(2) : '0.00');
-
   const originalPrice = produto.desconto > 0
     ? produto.preco / (1 - produto.desconto / 100)
     : produto.preco;
 
   return (
-    <Card className="w-full h-full flex flex-col max-h-[300px] min-h-[250px]">
-      <CardContent className="p-3 flex-grow flex flex-col justify-between">
+    <Card className="w-full flex flex-col aspect-square overflow-hidden">
+      <CardContent className="p-0 flex-grow flex flex-col">
         {renderProductImage(produto.fotos && produto.fotos[0])}
-        <div className="mt-3 space-y-2">
-          <h3 className="font-semibold text-sm line-clamp-2">{produto.titulo}</h3>
-          <div className="flex items-center space-x-2 flex-wrap">
-            {produto.desconto > 0 && (
-              <>
-                <span className="text-xs text-gray-500 line-through">R$ {formatPrice(originalPrice)}</span>
-                <span className="text-xs text-red-600 font-bold">-{produto.desconto}%</span>
-              </>
-            )}
-            <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
-          </div>
-          <div className="flex items-center">
-            {renderStars(produto.avaliacao || 0)}
-            <span className="ml-1 text-xs text-gray-600">({produto.numeroAvaliacoes || 0})</span>
+        <div className="p-3 flex-grow flex flex-col justify-between">
+          <h3 className="font-semibold text-sm line-clamp-2 mb-1">{produto.titulo}</h3>
+          <div className="mt-auto">
+            <div className="flex items-center space-x-1 text-xs mb-1">
+              {renderStars(produto.avaliacao || 0)}
+              <span className="text-gray-600">({produto.numeroAvaliacoes || 0})</span>
+            </div>
+            <div className="flex items-center space-x-2 flex-wrap">
+              {produto.desconto > 0 && (
+                <>
+                  <span className="text-xs text-gray-500 line-through">{formatCurrency(originalPrice)}</span>
+                  <span className="text-xs bg-red-500 text-white px-1 py-0.5 rounded">-{produto.desconto}%</span>
+                </>
+              )}
+              <span className="text-sm font-bold text-primary">{formatCurrency(produto.preco)}</span>
+            </div>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-3">
+      <CardFooter className="p-2">
         <Button 
           variant="outline" 
           size="sm" 
