@@ -48,7 +48,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           </button>
           <span className="ml-3 text-base font-medium text-gray-700">{companyName}</span>
         </div>
-        <div className="flex items-center space-x-3 bg-transparent rounded-full shadow-sm px-2 py-1">
+        <div className="flex items-center space-x-3 bg-white bg-opacity-80 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] px-2 py-1">
           <Input
             type="search"
             placeholder="Pesquisar..."
