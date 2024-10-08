@@ -139,7 +139,7 @@ const Wallet = () => {
   );
 };
 
-const WalletBalance = ({ balance, amount, setAmount, handleAddFunds, handleWithdraw, handleTransfer }) => (
+const WalletBalance = ({ balance, amount, handleAmountChange, handleAddFunds, handleWithdraw, handleTransfer }) => (
   <Card>
     <CardHeader>
       <CardTitle>Minha Carteira</CardTitle>
@@ -147,7 +147,7 @@ const WalletBalance = ({ balance, amount, setAmount, handleAddFunds, handleWithd
     <CardContent>
       <p className="text-2xl font-bold mb-4">Saldo: {formatCurrency(balance)}</p>
       <div className="flex space-x-2 mb-4">
-        <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Valor" />
+        <Input type="text" value={amount} onChange={handleAmountChange} placeholder="Valor" />
         <Button onClick={handleAddFunds}>Adicionar Fundos</Button>
         <Button onClick={handleWithdraw} variant="outline">Sacar</Button>
         <Button onClick={handleTransfer} variant="secondary">Transferir</Button>
