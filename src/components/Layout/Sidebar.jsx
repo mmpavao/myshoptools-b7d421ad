@@ -1,195 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
-import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  Store,
-  Package,
-  ClipboardList,
-  LifeBuoy,
-  ShoppingCart,
-  Users,
-  Settings,
-  MessageSquare,
-  ChevronDown,
-  ChevronRight,
-  Boxes
-} from 'lucide-react';
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import { ShoppingCart, Package, Truck, BarChart2, Settings, HelpCircle, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 import { useAuth } from '../Auth/AuthProvider';
-import { getUserRole } from '../../firebase/userOperations';
-import { Separator } from "@/components/ui/separator";
 
-const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
-  {
-    label: 'Vendedor',
-    roles: ['Vendedor', 'Admin', 'Master'],
-    children: [
-      { icon: Store, label: 'Vitrine', to: '/vitrine' },
-      { icon: Boxes, label: 'Meus Produtos', to: '/meus-produtos' },
-      { icon: ClipboardList, label: 'Meus Pedidos', to: '/meus-pedidos' },
-    ],
-  },
-  {
-    label: 'Fornecedor',
-    roles: ['Fornecedor', 'Admin', 'Master'],
-    children: [
-      { icon: Package, label: 'Estoque', to: '/estoque' },
-      { icon: ShoppingCart, label: 'Pedidos', to: '/pedidos-fornecedor' },
-    ],
-  },
-  {
-    label: 'Admin',
-    roles: ['Admin', 'Master'],
-    children: [
-      { icon: Users, label: 'Usuários', to: '/admin/users' },
-      { icon: MessageSquare, label: 'Chat Admin', to: '/admin/chat' },
-      { icon: Settings, label: 'Configurações', to: '/admin/settings' },
-    ],
-  },
-];
-
-const NavItem = ({ item, isOpen, userRole, isCollapsible, activeSection }) => {
-  const [isExpanded, setIsExpanded] = useState(activeSection === item.label);
-  const hasAccess = item.roles ? item.roles.includes(userRole) : true;
-  const location = useLocation();
-
-  if (!hasAccess) return null;
-
-  const isActive = item.to === location.pathname || 
-    (item.children && item.children.some(child => child.to === location.pathname));
-
-  if (item.children) {
-    return (
-      <li>
-        <div
-          className={cn(
-            "flex items-center w-full p-2 text-base font-semibold rounded-lg text-white",
-            isOpen && "hover:bg-gray-800",
-            !isOpen && "justify-center",
-            isActive && "bg-gray-800"
-          )}
-          onClick={() => isCollapsible && setIsExpanded(!isExpanded)}
-        >
-          {isOpen && (
-            <>
-              <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>
-              {isCollapsible && (isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />)}
-            </>
-          )}
-          {!isOpen && <span className="text-xs">{item.label[0]}</span>}
-        </div>
-        {(isExpanded || !isCollapsible) && isOpen && (
-          <ul className="py-2 space-y-2 pl-4">
-            {item.children.map((child) => (
-              <NavItem key={child.to} item={child} isOpen={isOpen} userRole={userRole} isCollapsible={false} activeSection={activeSection} />
-            ))}
-          </ul>
-        )}
-      </li>
-    );
-  }
-
-  return (
-    <li>
-      <NavLink
-        to={item.to}
-        className={({ isActive }) =>
-          cn(
-            "flex items-center p-2 text-base font-normal rounded-lg",
-            isActive
-              ? "bg-gray-800 text-white"
-              : "text-gray-300 hover:bg-gray-800 hover:text-white",
-            !isOpen && "justify-center"
-          )
-        }
-      >
-        {item.icon && <item.icon className={cn("w-6 h-6", !isOpen && "mx-auto")} />}
-        {isOpen && <span className="ml-3">{item.label}</span>}
-      </NavLink>
-    </li>
-  );
-};
-
-const Sidebar = ({ isOpen }) => {
+const Sidebar = ({ isOpen, toggleSidebar }) => {
   const { user } = useAuth();
-  const [userRole, setUserRole] = useState('Vendedor');
-  const [isCollapsible, setIsCollapsible] = useState(false);
-  const [activeSection, setActiveSection] = useState('');
-  const location = useLocation();
 
-  useEffect(() => {
-    const fetchUserRole = async () => {
-      if (user) {
-        const role = await getUserRole(user.uid);
-        setUserRole(role);
-      }
-    };
-    fetchUserRole();
+  const sidebarItems = [
+    { name: 'Dashboard', icon: <BarChart2 />, path: '/dashboard' },
+    { name: 'Vitrine', icon: <Package />, path: '/vitrine' },
+    { name: 'Meus Produtos', icon: <ShoppingCart />, path: '/meus-produtos' },
+    { name: 'Meus Pedidos', icon: <Truck />, path: '/meus-pedidos' },
+    { name: 'Configurações', icon: <Settings />, path: '/configuracoes' },
+    { name: 'Suporte', icon: <HelpCircle />, path: '/suporte' },
+  ];
 
-    const handleResize = () => {
-      const sidebarHeight = document.querySelector('aside').clientHeight;
-      const totalItemsHeight = navItems.reduce((acc, item) => {
-        return acc + (item.children ? (item.children.length + 1) * 40 : 40);
-      }, 0);
-      setIsCollapsible(totalItemsHeight > sidebarHeight - 300); // Increased threshold to 300px
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, [user]);
-
-  useEffect(() => {
-    const currentSection = navItems.find(item => 
-      item.to === location.pathname || 
-      (item.children && item.children.some(child => child.to === location.pathname))
-    );
-    setActiveSection(currentSection ? currentSection.label : '');
-  }, [location]);
+  const marketplaces = [
+    { name: 'MyShop', isActive: true },
+    { name: 'Mercado Livre', isActive: false },
+    { name: 'Shopee', isActive: true },
+    { name: 'Amazon', isActive: false },
+  ];
 
   return (
-    <aside className={cn(
-      "fixed left-0 top-0 z-50 h-[calc(100vh-1.5rem)] m-3 rounded-xl transition-all duration-300",
-      isOpen ? "w-60" : "w-20",
-      "bg-gray-900 text-white shadow-md"
-    )}>
-      <div className="h-full overflow-y-auto py-3 px-1.5">
-        <div className={cn(
-          "text-xl font-bold mb-3 text-center",
-          !isOpen && "text-sm"
-        )}>
-          {isOpen ? "MyShopTools" : "MST"}
-        </div>
-        <ul className="space-y-1">
-          {navItems.map((item, index) => (
-            <React.Fragment key={index}>
-              <NavItem 
-                item={item} 
-                isOpen={isOpen} 
-                userRole={userRole} 
-                isCollapsible={isCollapsible} 
-                activeSection={activeSection}
-              />
-              {isOpen && index < navItems.length - 1 && <Separator className="my-1 bg-gray-700" />}
-            </React.Fragment>
+    <div className={`bg-gray-800 text-white h-screen fixed top-0 left-0 transition-all duration-300 ${isOpen ? 'w-64' : 'w-20'} overflow-hidden`}>
+      <div className="flex justify-between items-center p-4">
+        <h2 className={`font-bold text-xl ${isOpen ? 'block' : 'hidden'}`}>MyShopTools</h2>
+        <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+          {isOpen ? <ChevronLeft /> : <ChevronRight />}
+        </Button>
+      </div>
+      <nav>
+        <ul>
+          {sidebarItems.map((item) => (
+            <li key={item.name}>
+              <NavLink
+                to={item.path}
+                className={({ isActive }) =>
+                  `flex items-center p-4 hover:bg-gray-700 transition-colors ${
+                    isActive ? 'bg-gray-700' : ''
+                  }`
+                }
+              >
+                {item.icon}
+                <span className={`ml-4 ${isOpen ? 'block' : 'hidden'}`}>{item.name}</span>
+              </NavLink>
+            </li>
           ))}
         </ul>
-        <div className="absolute bottom-3 left-1.5 right-1.5">
-          <NavLink
-            to="/suporte"
-            className={cn(
-              "flex items-center p-2 text-base font-normal rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white",
-              !isOpen && "justify-center"
-            )}
-          >
-            <LifeBuoy className={cn("w-6 h-6", !isOpen && "mx-auto")} />
-            {isOpen && <span className="ml-3">Suporte</span>}
-          </NavLink>
+      </nav>
+      {isOpen && (
+        <div className="mt-8 p-4">
+          <h3 className="font-semibold mb-2">Canais de Venda</h3>
+          <ul>
+            {marketplaces.map((marketplace) => (
+              <li key={marketplace.name} className="flex items-center mb-2">
+                <span className={`w-2 h-2 rounded-full mr-2 ${marketplace.isActive ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                {marketplace.name}
+                {marketplace.isActive && <ShoppingCart className="ml-2 w-4 h-4 text-green-500" />}
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
-    </aside>
+      )}
+    </div>
   );
 };
 

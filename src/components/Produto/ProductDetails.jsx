@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { StarIcon } from "lucide-react";
+import { StarIcon, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { renderStars, formatPrice, calculateOldPrice } from './productUtils';
 import firebaseOperations from '../../firebase/firebaseOperations';
@@ -9,14 +9,16 @@ import { useAuth } from '../Auth/AuthProvider';
 
 const ProductDetails = ({ produto, activeMarketplace }) => {
   const [myShopUrl, setMyShopUrl] = useState('');
+  const [isSellingOnMyShop, setIsSellingOnMyShop] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
   useEffect(() => {
     if (user && activeMarketplace === 'MyShop') {
       fetchMyShopUrl();
+      checkIfSellingOnMyShop();
     }
-  }, [user, activeMarketplace]);
+  }, [user, activeMarketplace, produto.id]);
 
   const fetchMyShopUrl = async () => {
     try {
@@ -24,6 +26,15 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
       setMyShopUrl(url);
     } catch (error) {
       console.error("Erro ao buscar URL da loja MyShop:", error);
+    }
+  };
+
+  const checkIfSellingOnMyShop = async () => {
+    try {
+      const isSellingOnMyShop = await firebaseOperations.isProductOnMyShop(user.uid, produto.id);
+      setIsSellingOnMyShop(isSellingOnMyShop);
+    } catch (error) {
+      console.error("Erro ao verificar se o produto está sendo vendido no MyShop:", error);
     }
   };
 
@@ -37,16 +48,26 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
 
   const handleVenderEmMyShop = async () => {
     try {
-      await firebaseOperations.addProductToMyShop(user.uid, produto.id);
-      toast({
-        title: "Sucesso",
-        description: "Produto adicionado à sua loja MyShop.",
-      });
+      if (isSellingOnMyShop) {
+        await firebaseOperations.removeProductFromMyShop(user.uid, produto.id);
+        setIsSellingOnMyShop(false);
+        toast({
+          title: "Produto Removido",
+          description: "Produto removido da sua loja MyShop.",
+        });
+      } else {
+        await firebaseOperations.addProductToMyShop(user.uid, produto.id);
+        setIsSellingOnMyShop(true);
+        toast({
+          title: "Sucesso",
+          description: "Produto adicionado à sua loja MyShop.",
+        });
+      }
     } catch (error) {
-      console.error("Erro ao adicionar produto à loja MyShop:", error);
+      console.error("Erro ao gerenciar produto na loja MyShop:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível adicionar o produto à loja MyShop.",
+        description: "Não foi possível gerenciar o produto na loja MyShop.",
         variant: "destructive",
       });
     }
@@ -106,7 +127,19 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
       <p>Preço de Venda: R$ {formatPrice(produto.precoVenda)}</p>
       <p>Estoque Disponível: {produto.estoqueDisponivel || 0}</p>
       <div className="mt-4 space-y-2">
-        <Button onClick={handleVenderEmMyShop} className="w-full">Vender em MyShop</Button>
+        <Button 
+          onClick={handleVenderEmMyShop} 
+          className={`w-full ${isSellingOnMyShop ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'}`}
+        >
+          {isSellingOnMyShop ? (
+            <>
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              Vendendo no MyShop
+            </>
+          ) : (
+            'Vender em MyShop'
+          )}
+        </Button>
         {myShopUrl && (
           <Button variant="outline" onClick={copyMyShopUrl} className="w-full">
             Copiar URL da Loja
