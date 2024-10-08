@@ -10,7 +10,15 @@ import Register from "./components/Auth/Register";
 import Layout from "./components/Layout/Layout";
 import { getUserRole } from "./firebase/userOperations";
 import Dashboard from "./components/Dashboard/Dashboard";
-import { auth } from "./firebase/config";
+import Vitrine from "./components/Vendedor/Vitrine";
+import MeusPedidos from "./components/Vendedor/MeusPedidos";
+import MeusProdutos from "./components/Produto/MeusProdutos";
+import Estoque from "./components/Fornecedor/Estoque";
+import PedidosFornecedor from "./components/Fornecedor/PedidosFornecedor";
+import AdminUserList from "./components/Admin/AdminUserList";
+import ChatAdmin from "./components/Admin/ChatAdmin";
+import SettingsPage from "./components/Admin/SettingsPage";
+import Suporte from "./components/Suporte/Suporte";
 
 const queryClient = new QueryClient();
 
@@ -31,7 +39,7 @@ const RoleBasedRoute = ({ element: Element, allowedRoles }) => {
   }, [user]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Carregando...</div>;
   }
 
   if (!allowedRoles.includes(userRole)) {
@@ -55,50 +63,49 @@ const AppRoutes = () => (
         <RoleBasedRoute element={Dashboard} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />
       </ProtectedRoute>
     } />
-    {/* Add other routes here */}
     <Route path="/vitrine" element={
       <ProtectedRoute>
-        <RoleBasedRoute element={() => <div>Vitrine</div>} allowedRoles={['Vendedor', 'Admin', 'Master']} />
+        <RoleBasedRoute element={Vitrine} allowedRoles={['Vendedor', 'Admin', 'Master']} />
       </ProtectedRoute>
     } />
     <Route path="/meus-pedidos" element={
       <ProtectedRoute>
-        <RoleBasedRoute element={() => <div>Meus Pedidos</div>} allowedRoles={['Vendedor', 'Admin', 'Master']} />
+        <RoleBasedRoute element={MeusPedidos} allowedRoles={['Vendedor', 'Admin', 'Master']} />
       </ProtectedRoute>
     } />
     <Route path="/meus-produtos" element={
       <ProtectedRoute>
-        <RoleBasedRoute element={() => <div>Meus Produtos</div>} allowedRoles={['Vendedor', 'Admin', 'Master']} />
+        <RoleBasedRoute element={MeusProdutos} allowedRoles={['Vendedor', 'Admin', 'Master']} />
       </ProtectedRoute>
     } />
     <Route path="/estoque" element={
       <ProtectedRoute>
-        <RoleBasedRoute element={() => <div>Estoque</div>} allowedRoles={['Fornecedor', 'Admin', 'Master']} />
+        <RoleBasedRoute element={Estoque} allowedRoles={['Fornecedor', 'Admin', 'Master']} />
       </ProtectedRoute>
     } />
     <Route path="/pedidos-fornecedor" element={
       <ProtectedRoute>
-        <RoleBasedRoute element={() => <div>Pedidos Fornecedor</div>} allowedRoles={['Fornecedor', 'Admin', 'Master']} />
+        <RoleBasedRoute element={PedidosFornecedor} allowedRoles={['Fornecedor', 'Admin', 'Master']} />
       </ProtectedRoute>
     } />
     <Route path="/admin/users" element={
       <ProtectedRoute>
-        <RoleBasedRoute element={() => <div>Usuários</div>} allowedRoles={['Admin', 'Master']} />
+        <RoleBasedRoute element={AdminUserList} allowedRoles={['Admin', 'Master']} />
       </ProtectedRoute>
     } />
     <Route path="/admin/chat" element={
       <ProtectedRoute>
-        <RoleBasedRoute element={() => <div>Chat Admin</div>} allowedRoles={['Admin', 'Master']} />
+        <RoleBasedRoute element={ChatAdmin} allowedRoles={['Admin', 'Master']} />
       </ProtectedRoute>
     } />
     <Route path="/admin/settings" element={
       <ProtectedRoute>
-        <RoleBasedRoute element={() => <div>Configurações</div>} allowedRoles={['Admin', 'Master']} />
+        <RoleBasedRoute element={SettingsPage} allowedRoles={['Admin', 'Master']} />
       </ProtectedRoute>
     } />
     <Route path="/suporte" element={
       <ProtectedRoute>
-        <RoleBasedRoute element={() => <div>Suporte</div>} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />
+        <RoleBasedRoute element={Suporte} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />
       </ProtectedRoute>
     } />
     <Route path="*" element={<Navigate to="/dashboard" />} />
