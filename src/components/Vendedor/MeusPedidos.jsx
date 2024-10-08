@@ -5,31 +5,25 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, CreditCard, Package, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Package, Clock, CheckCircle } from 'lucide-react';
 import { useAuth } from '../Auth/AuthProvider';
-import firebaseOperations from '../../firebase/firebaseOperations';
 import { formatCurrency } from '../../utils/currencyUtils';
-import { Badge } from "@/components/ui/badge";
+
+// Componente StatCard refatorado para um arquivo separado
+import StatCard from './StatCard';
 
 const MeusPedidos = () => {
   const [filtro, setFiltro] = useState('');
   const [pedidos, setPedidos] = useState([]);
-  const [stats, setStats] = useState({
-    total: 0,
-    novos: 0,
-    processando: 0,
-    enviados: 0
-  });
+  const [stats, setStats] = useState({ total: 0, novos: 0, processando: 0, enviados: 0 });
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user) {
-      fetchPedidos();
-    }
+    if (user) fetchPedidos();
   }, [user]);
 
   const fetchPedidos = async () => {
-    // Pedidos fictícios com status de pagamento adicionado
+    // Simulação de pedidos (substitua por chamada real à API/Firebase)
     const pedidosFicticios = [
       { id: 'PED001', sku: 'SKU001', titulo: 'Smartphone XYZ', preco: 1299.99, dataCompra: '2024-03-15T10:30:00', statusVendedor: 'Novo', statusPagamento: 'Pendente' },
       { id: 'PED002', sku: 'SKU002', titulo: 'Notebook ABC', preco: 3499.99, dataCompra: '2024-03-14T14:45:00', statusVendedor: 'Processando', statusPagamento: 'Pago' },
@@ -48,32 +42,17 @@ const MeusPedidos = () => {
   };
 
   const calculateStats = (pedidosData) => {
-    const newStats = {
+    setStats({
       total: pedidosData.length,
       novos: pedidosData.filter(p => p.statusVendedor === 'Novo').length,
       processando: pedidosData.filter(p => p.statusVendedor === 'Processando').length,
       enviados: pedidosData.filter(p => p.statusVendedor === 'Enviado').length
-    };
-    setStats(newStats);
+    });
   };
 
   const pedidosFiltrados = pedidos.filter(pedido =>
     pedido.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
     pedido.sku.toLowerCase().includes(filtro.toLowerCase())
-  );
-
-  const StatCard = ({ title, value, icon: Icon }) => (
-    <Card>
-      <CardContent className="flex flex-row items-center justify-between p-6">
-        <div className="flex flex-col space-y-1">
-          <span className="text-sm font-medium text-muted-foreground">{title}</span>
-          <span className="text-2xl font-bold">{value}</span>
-        </div>
-        <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-          <Icon className="h-6 w-6 text-primary" />
-        </div>
-      </CardContent>
-    </Card>
   );
 
   return (
@@ -89,14 +68,12 @@ const MeusPedidos = () => {
       
       <Card>
         <CardContent className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <Input
-              placeholder="Filtrar por produto ou SKU"
-              value={filtro}
-              onChange={(e) => setFiltro(e.target.value)}
-              className="max-w-sm"
-            />
-          </div>
+          <Input
+            placeholder="Filtrar por produto ou SKU"
+            value={filtro}
+            onChange={(e) => setFiltro(e.target.value)}
+            className="max-w-sm mb-6"
+          />
 
           <Tabs defaultValue="todos">
             <TabsList className="mb-4">
@@ -104,7 +81,6 @@ const MeusPedidos = () => {
               <TabsTrigger value="novos">Novos Pedidos</TabsTrigger>
               <TabsTrigger value="processando">Em Processamento</TabsTrigger>
               <TabsTrigger value="enviados">Enviados</TabsTrigger>
-              <TabsTrigger value="pendentes">Pagamento Pendente</TabsTrigger>
             </TabsList>
             <TabsContent value="todos">
               <PedidosTable pedidos={pedidosFiltrados} />
@@ -118,9 +94,6 @@ const MeusPedidos = () => {
             <TabsContent value="enviados">
               <PedidosTable pedidos={pedidosFiltrados.filter(p => p.statusVendedor === 'Enviado')} />
             </TabsContent>
-            <TabsContent value="pendentes">
-              <PedidosTable pedidos={pedidosFiltrados.filter(p => p.statusPagamento === 'Pendente')} />
-            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
@@ -131,7 +104,7 @@ const MeusPedidos = () => {
 const PedidosTable = ({ pedidos }) => {
   const handlePay = (pedidoId) => {
     console.log(`Iniciando pagamento para o pedido ${pedidoId}`);
-    // Aqui você implementaria a lógica de pagamento
+    // Implementar lógica de pagamento aqui
   };
 
   return (
@@ -145,8 +118,7 @@ const PedidosTable = ({ pedidos }) => {
           <TableHead>Preço de Venda</TableHead>
           <TableHead>Data da Compra</TableHead>
           <TableHead>Status do Pedido</TableHead>
-          <TableHead>Status do Pagamento</TableHead>
-          <TableHead>Ações</TableHead>
+          <TableHead>Pagamento</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -160,18 +132,13 @@ const PedidosTable = ({ pedidos }) => {
             <TableCell>{new Date(pedido.dataCompra).toLocaleString()}</TableCell>
             <TableCell>{pedido.statusVendedor}</TableCell>
             <TableCell>
-              <Badge 
-                variant={pedido.statusPagamento === 'Pago' ? 'success' : 'warning'}
-              >
-                {pedido.statusPagamento}
-              </Badge>
-            </TableCell>
-            <TableCell className="space-x-2">
-              <Button variant="outline" size="icon"><Eye className="h-4 w-4" /></Button>
-              {pedido.statusPagamento === 'Pendente' && (
+              {pedido.statusPagamento === 'Pendente' ? (
                 <Button variant="default" size="sm" onClick={() => handlePay(pedido.id)}>
-                  <CreditCard className="h-4 w-4 mr-2" />
                   Pagar
+                </Button>
+              ) : (
+                <Button variant="outline" size="sm" disabled>
+                  Pago
                 </Button>
               )}
             </TableCell>
