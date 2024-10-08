@@ -77,6 +77,46 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
     }
   }, [croppedAreaPixels, image, onSave, user, updateUserContext]);
 
+  const renderImageUpload = () => (
+    <>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="hidden"
+        id="avatar-upload"
+      />
+      <label htmlFor="avatar-upload" className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+        {image ? 'Trocar imagem' : 'Adicionar imagem'}
+      </label>
+    </>
+  );
+
+  const renderCropper = () => (
+    image && (
+      <>
+        <div className="relative h-64 w-full">
+          <Cropper
+            image={image}
+            crop={crop}
+            zoom={zoom}
+            aspect={1}
+            onCropChange={setCrop}
+            onCropComplete={onCropComplete}
+            onZoomChange={setZoom}
+          />
+        </div>
+        <Slider
+          value={[zoom]}
+          min={1}
+          max={3}
+          step={0.1}
+          onValueChange={(value) => setZoom(value[0])}
+        />
+      </>
+    )
+  );
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -87,38 +127,8 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
           <DialogTitle>Editar Avatar</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col space-y-4">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-            id="avatar-upload"
-          />
-          <label htmlFor="avatar-upload" className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
-            {image ? 'Trocar imagem' : 'Escolher arquivo'}
-          </label>
-          {image && (
-            <>
-              <div className="relative h-64 w-full">
-                <Cropper
-                  image={image}
-                  crop={crop}
-                  zoom={zoom}
-                  aspect={1}
-                  onCropChange={setCrop}
-                  onCropComplete={onCropComplete}
-                  onZoomChange={setZoom}
-                />
-              </div>
-              <Slider
-                value={[zoom]}
-                min={1}
-                max={3}
-                step={0.1}
-                onValueChange={(value) => setZoom(value[0])}
-              />
-            </>
-          )}
+          {renderImageUpload()}
+          {renderCropper()}
           <Button onClick={handleSave} disabled={isSaving || !image}>
             {isSaving ? (
               <>
