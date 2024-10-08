@@ -14,6 +14,7 @@ const firebaseOperations = {
   ...meusProdutosOperations,
   ...userProfileOperations,
   ...dashboardOperations,
+  updateUserAvatar: userProfileOperations.updateUserAvatar,
 };
 
 export default firebaseOperations;

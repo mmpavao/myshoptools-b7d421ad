@@ -1,5 +1,5 @@
 import { db, auth } from './config';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
 const userProfileOperations = {
   getUserProfile: async (userId) => {
@@ -17,7 +17,7 @@ const userProfileOperations = {
   updateUserProfile: async (userId, profileData) => {
     try {
       await setDoc(doc(db, 'users', userId), profileData, { merge: true });
-      if (profileData.displayName || profileData.photoURL) {
+      if (auth.currentUser && auth.currentUser.uid === userId) {
         await auth.currentUser.updateProfile({
           displayName: profileData.displayName,
           photoURL: profileData.photoURL
@@ -26,6 +26,18 @@ const userProfileOperations = {
       return true;
     } catch (error) {
       console.error('Error updating user profile:', error);
+      throw error;
+    }
+  },
+  updateUserAvatar: async (userId, avatarUrl) => {
+    try {
+      await updateDoc(doc(db, 'users', userId), { photoURL: avatarUrl });
+      if (auth.currentUser && auth.currentUser.uid === userId) {
+        await auth.currentUser.updateProfile({ photoURL: avatarUrl });
+      }
+      return true;
+    } catch (error) {
+      console.error('Error updating user avatar:', error);
       throw error;
     }
   },
