@@ -82,7 +82,7 @@ const DetalheProduto = () => {
         setActiveTab={setActiveTab}
         activeMarketplace={isMyProduct ? activeMarketplace : 'Fornecedor'}
       />
-      {(!isMyProduct || activeMarketplace === 'Fornecedor') && activeTab === 'avaliacoes' && (
+      {!isMyProduct && activeTab === 'avaliacoes' && (
         <RatingForm 
           avaliacaoAtual={avaliacaoAtual} 
           setAvaliacaoAtual={setAvaliacaoAtual} 
