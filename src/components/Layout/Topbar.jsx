@@ -46,14 +46,13 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-
         <div className="flex items-center space-x-4">
           <button className="text-gray-500 hover:text-gray-700 focus:outline-none">
             <Bell size={24} />
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none flex items-center">
-              <Avatar>
+              <Avatar className="ring-1 ring-gray-300">
                 <AvatarImage src={user?.photoURL} alt="User avatar" />
                 <AvatarFallback className="font-bold text-lg">
                   {user?.photoURL ? (
@@ -67,7 +66,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
               <div className="flex items-center p-2">
-                <Avatar className="w-10 h-10 mr-2">
+                <Avatar className="w-10 h-10 mr-2 ring-1 ring-gray-300">
                   <AvatarImage src={user?.photoURL || "/placeholder.svg"} alt="User avatar" />
                   <AvatarFallback>{user?.displayName?.[0] || 'U'}</AvatarFallback>
                 </Avatar>
