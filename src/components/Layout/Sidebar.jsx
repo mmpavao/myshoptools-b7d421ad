@@ -151,7 +151,7 @@ const Sidebar = ({ isOpen }) => {
     <aside className={cn(
       "fixed left-0 top-0 z-50 h-[calc(100vh-3rem)] m-6 rounded-xl transition-all duration-300",
       isOpen ? "w-60" : "w-20",
-      "bg-gray-900 text-white shadow-md"
+      "bg-card text-card-foreground shadow-md"
     )}>
       <div className="h-full overflow-y-auto py-6 px-3">
         <div className={cn(
@@ -170,7 +170,7 @@ const Sidebar = ({ isOpen }) => {
                 isCollapsible={isCollapsible} 
                 activeSection={activeSection}
               />
-              {isOpen && index < navItems.length - 1 && <Separator className="my-2 bg-gray-700" />}
+              {isOpen && index < navItems.length - 1 && <Separator className="my-2 bg-border" />}
             </React.Fragment>
           ))}
         </ul>
@@ -178,7 +178,7 @@ const Sidebar = ({ isOpen }) => {
           <NavLink
             to="/suporte"
             className={cn(
-              "flex items-center p-2 text-base font-normal rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white",
+              "flex items-center p-2 text-base font-normal rounded-lg text-foreground/80 hover:bg-accent hover:text-foreground",
               !isOpen && "justify-center"
             )}
           >

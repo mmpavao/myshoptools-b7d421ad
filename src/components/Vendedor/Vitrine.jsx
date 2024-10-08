@@ -76,7 +76,7 @@ const Vitrine = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Vitrine</h1>
+      <h1 className="text-2xl font-bold text-foreground">Vitrine</h1>
       <Input
         placeholder="Filtrar por título ou SKU"
         value={filtro}
@@ -84,7 +84,7 @@ const Vitrine = () => {
         className="max-w-sm mb-4"
       />
       {produtos.length === 0 ? (
-        <p>Carregando produtos...</p>
+        <p className="text-foreground">Carregando produtos...</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {produtosFiltrados.map((produto) => (
@@ -100,18 +100,18 @@ const Vitrine = () => {
                 <p className="text-2xl font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
                 {produto.desconto > 0 && (
                   <div>
-                    <span className="text-gray-500 line-through mr-2">
+                    <span className="text-muted-foreground line-through mr-2">
                       R$ {formatPrice(produto.preco / (1 - produto.desconto / 100))}
                     </span>
-                    <span className="bg-red-500 text-white px-2 py-1 rounded-full text-sm">-{produto.desconto}%</span>
+                    <span className="bg-destructive text-destructive-foreground px-2 py-1 rounded-full text-sm">-{produto.desconto}%</span>
                   </div>
                 )}
-                <p>Estoque: {produto.estoque}</p>
-                <p>Venda Sugerida: R$ {formatPrice(produto.vendaSugerida)}</p>
+                <p className="text-foreground">Estoque: {produto.estoque}</p>
+                <p className="text-foreground">Venda Sugerida: R$ {formatPrice(produto.vendaSugerida)}</p>
                 <div className="flex items-center justify-between mt-2">
                   <div className="flex items-center">
                     {renderStars(produto.avaliacao || 0)}
-                    <span className="ml-2 text-sm text-gray-600">({produto.numeroAvaliacoes || 0})</span>
+                    <span className="ml-2 text-sm text-muted-foreground">({produto.numeroAvaliacoes || 0})</span>
                   </div>
                   <Dialog>
                     <DialogTrigger asChild>
@@ -126,7 +126,7 @@ const Vitrine = () => {
                           {[1, 2, 3, 4, 5].map((star) => (
                             <StarIcon
                               key={star}
-                              className={`w-8 h-8 cursor-pointer ${star <= avaliacaoAtual.nota ? 'text-yellow-400' : 'text-gray-300'}`}
+                              className={`w-8 h-8 cursor-pointer ${star <= avaliacaoAtual.nota ? 'text-yellow-400' : 'text-muted-foreground'}`}
                               onClick={() => setAvaliacaoAtual(prev => ({ ...prev, nota: star }))}
                             />
                           ))}
