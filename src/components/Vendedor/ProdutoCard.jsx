@@ -25,7 +25,7 @@ const ProdutoCard = ({ produto, onDetalhes, onAvaliar, avaliacaoAtual, setAvalia
   const formatPrice = (price) => (typeof price === 'number' ? price.toFixed(2) : '0.00');
 
   return (
-    <Card className="flex flex-col w-[105%]"> {/* Aumentamos a largura em 5% */}
+    <Card className="flex flex-col w-[110%] h-[85%]"> {/* Aumentamos a largura em 10% e diminuímos a altura em 15% */}
       <CardHeader className="p-4">
         <CardTitle className="text-lg line-clamp-2">{produto.titulo}</CardTitle>
       </CardHeader>
