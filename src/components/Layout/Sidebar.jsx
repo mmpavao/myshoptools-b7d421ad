@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -47,11 +47,15 @@ const navItems = [
   },
 ];
 
-const NavItem = ({ item, isOpen, userRole, isCollapsible }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+const NavItem = ({ item, isOpen, userRole, isCollapsible, activeSection }) => {
+  const [isExpanded, setIsExpanded] = useState(activeSection === item.label);
   const hasAccess = item.roles ? item.roles.includes(userRole) : true;
+  const location = useLocation();
 
   if (!hasAccess) return null;
+
+  const isActive = item.to === location.pathname || 
+    (item.children && item.children.some(child => child.to === location.pathname));
 
   if (item.children) {
     return (
@@ -60,7 +64,8 @@ const NavItem = ({ item, isOpen, userRole, isCollapsible }) => {
           className={cn(
             "flex items-center w-full p-2 text-base font-semibold rounded-lg text-gray-900",
             isOpen && "hover:bg-gray-100",
-            !isOpen && "justify-center"
+            !isOpen && "justify-center",
+            isActive && "bg-gray-100"
           )}
           onClick={() => isCollapsible && setIsExpanded(!isExpanded)}
         >
@@ -75,7 +80,7 @@ const NavItem = ({ item, isOpen, userRole, isCollapsible }) => {
         {(isExpanded || !isCollapsible) && isOpen && (
           <ul className="py-2 space-y-2 pl-4">
             {item.children.map((child) => (
-              <NavItem key={child.to} item={child} isOpen={isOpen} userRole={userRole} isCollapsible={false} />
+              <NavItem key={child.to} item={child} isOpen={isOpen} userRole={userRole} isCollapsible={false} activeSection={activeSection} />
             ))}
           </ul>
         )}
@@ -108,6 +113,8 @@ const Sidebar = ({ isOpen }) => {
   const { user } = useAuth();
   const [userRole, setUserRole] = useState('Vendedor');
   const [isCollapsible, setIsCollapsible] = useState(false);
+  const [activeSection, setActiveSection] = useState('');
+  const location = useLocation();
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -123,7 +130,7 @@ const Sidebar = ({ isOpen }) => {
       const totalItemsHeight = navItems.reduce((acc, item) => {
         return acc + (item.children ? (item.children.length + 1) * 40 : 40);
       }, 0);
-      setIsCollapsible(totalItemsHeight > sidebarHeight - 200); // 200px for padding and other elements
+      setIsCollapsible(totalItemsHeight > sidebarHeight - 300); // Increased threshold to 300px
     };
 
     window.addEventListener('resize', handleResize);
@@ -131,6 +138,14 @@ const Sidebar = ({ isOpen }) => {
 
     return () => window.removeEventListener('resize', handleResize);
   }, [user]);
+
+  useEffect(() => {
+    const currentSection = navItems.find(item => 
+      item.to === location.pathname || 
+      (item.children && item.children.some(child => child.to === location.pathname))
+    );
+    setActiveSection(currentSection ? currentSection.label : '');
+  }, [location]);
 
   return (
     <aside className={cn(
@@ -148,7 +163,13 @@ const Sidebar = ({ isOpen }) => {
         <ul className="space-y-2">
           {navItems.map((item, index) => (
             <React.Fragment key={index}>
-              <NavItem item={item} isOpen={isOpen} userRole={userRole} isCollapsible={isCollapsible} />
+              <NavItem 
+                item={item} 
+                isOpen={isOpen} 
+                userRole={userRole} 
+                isCollapsible={isCollapsible} 
+                activeSection={activeSection}
+              />
               {isOpen && index < navItems.length - 1 && <Separator className="my-2" />}
             </React.Fragment>
           ))}
