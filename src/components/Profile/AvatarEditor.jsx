@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Cropper from 'react-easy-crop';
-import { getCroppedImg } from '../../utils/imageUtils';
+import { getCroppedImg } from "../../utils/imageUtils";
 import { toast } from "@/components/ui/use-toast";
 
 const AvatarEditor = ({ onSave, currentAvatar }) => {
