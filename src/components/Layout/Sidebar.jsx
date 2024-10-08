@@ -22,6 +22,7 @@ import { Separator } from "@/components/ui/separator";
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
   {
+    icon: Store,
     label: 'Vendedor',
     roles: ['Vendedor', 'Admin', 'Master'],
     children: [
@@ -31,6 +32,7 @@ const navItems = [
     ],
   },
   {
+    icon: Package,
     label: 'Fornecedor',
     roles: ['Fornecedor', 'Admin', 'Master'],
     children: [
@@ -39,6 +41,7 @@ const navItems = [
     ],
   },
   {
+    icon: Users,
     label: 'Admin',
     roles: ['Admin', 'Master'],
     children: [
@@ -71,13 +74,13 @@ const NavItem = ({ item, isOpen, userRole, isCollapsible, activeSection }) => {
           )}
           onClick={() => isCollapsible && setIsExpanded(!isExpanded)}
         >
+          {item.icon && <item.icon className={cn("w-6 h-6", !isOpen && "mx-auto")} />}
           {isOpen && (
             <>
-              <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>
+              <span className="flex-1 ml-3 text-left whitespace-nowrap">{item.label}</span>
               {isCollapsible && (isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />)}
             </>
           )}
-          {!isOpen && <span className="text-xs">{item.label[0]}</span>}
         </div>
         {(isExpanded || !isCollapsible) && isOpen && (
           <ul className="py-2 space-y-2 pl-4">
@@ -132,7 +135,7 @@ const Sidebar = ({ isOpen }) => {
       const totalItemsHeight = navItems.reduce((acc, item) => {
         return acc + (item.children ? (item.children.length + 1) * 40 : 40);
       }, 0);
-      setIsCollapsible(totalItemsHeight > sidebarHeight - 300); // Increased threshold to 300px
+      setIsCollapsible(totalItemsHeight > sidebarHeight - 300);
     };
 
     window.addEventListener('resize', handleResize);
