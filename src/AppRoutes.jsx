@@ -19,6 +19,7 @@ import SettingsPage from "./components/Admin/SettingsPage";
 import ChatAdmin from "./components/Admin/ChatAdmin";
 import OpenAIIntegration from "./integrations/OpenAIIntegration";
 import LandingPage from "./pages/LandingPage";
+import Wallet from "./components/Wallet/Wallet";
 
 const AppRoutes = () => {
   return (
@@ -48,6 +49,7 @@ const AppRoutes = () => {
       <Route path="/admin/settings" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
       <Route path="/admin/chat" element={<ProtectedRoute><Layout><ChatAdmin /></Layout></ProtectedRoute>} />
       <Route path="/admin/integrations/openai" element={<ProtectedRoute><Layout><OpenAIIntegration /></Layout></ProtectedRoute>} />
+      <Route path="/wallet" element={<ProtectedRoute><Layout><Wallet /></Layout></ProtectedRoute>} />
     </Routes>
   );
 };

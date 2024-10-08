@@ -8,9 +8,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Package, Clock, CheckCircle } from 'lucide-react';
 import { useAuth } from '../Auth/AuthProvider';
 import { formatCurrency } from '../../utils/currencyUtils';
-
-// Componente StatCard refatorado para um arquivo separado
 import StatCard from './StatCard';
+import walletOperations from '../../firebase/walletOperations';
+import { toast } from "@/components/ui/use-toast";
 
 const MeusPedidos = () => {
   const [filtro, setFiltro] = useState('');
@@ -21,6 +21,24 @@ const MeusPedidos = () => {
   useEffect(() => {
     if (user) fetchPedidos();
   }, [user]);
+
+  const handlePay = async (pedido) => {
+    try {
+      await walletOperations.payToSupplier(user.uid, pedido.fornecedorId, pedido.preco, pedido.id);
+      toast({
+        title: "Pagamento realizado",
+        description: `Pagamento de ${formatCurrency(pedido.preco)} para o pedido ${pedido.id} foi realizado com sucesso.`,
+      });
+      fetchPedidos(); // Atualiza a lista de pedidos
+    } catch (error) {
+      console.error("Erro ao realizar pagamento:", error);
+      toast({
+        title: "Erro no pagamento",
+        description: "Não foi possível realizar o pagamento. Verifique seu saldo e tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const fetchPedidos = async () => {
     // Simulação de pedidos (substitua por chamada real à API/Firebase)
@@ -102,9 +120,21 @@ const MeusPedidos = () => {
 };
 
 const PedidosTable = ({ pedidos }) => {
-  const handlePay = (pedidoId) => {
-    console.log(`Iniciando pagamento para o pedido ${pedidoId}`);
-    // Implementar lógica de pagamento aqui
+  const handlePay = async (pedido) => {
+    try {
+      await walletOperations.payToSupplier(pedido.userId, pedido.fornecedorId, pedido.preco, pedido.id);
+      toast({
+        title: "Pagamento realizado",
+        description: `Pagamento de ${formatCurrency(pedido.preco)} para o pedido ${pedido.id} foi realizado com sucesso.`,
+      });
+    } catch (error) {
+      console.error("Erro ao realizar pagamento:", error);
+      toast({
+        title: "Erro no pagamento",
+        description: "Não foi possível realizar o pagamento. Verifique seu saldo e tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -133,7 +163,7 @@ const PedidosTable = ({ pedidos }) => {
             <TableCell>{pedido.statusVendedor}</TableCell>
             <TableCell>
               {pedido.statusPagamento === 'Pendente' ? (
-                <Button variant="default" size="sm" onClick={() => handlePay(pedido.id)}>
+                <Button variant="default" size="sm" onClick={() => handlePay(pedido)}>
                   Pagar
                 </Button>
               ) : (
