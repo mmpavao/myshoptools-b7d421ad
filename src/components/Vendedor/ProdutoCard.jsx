@@ -7,7 +7,7 @@ import RatingForm from '../Produto/RatingForm';
 
 const ProdutoCard = ({ produto, onDetalhes, onAvaliar, avaliacaoAtual, setAvaliacaoAtual, handleSubmitAvaliacao }) => {
   const renderProductImage = (foto) => (
-    <div className="w-full pb-[100%] relative overflow-hidden rounded-lg">
+    <div className="w-full aspect-square relative overflow-hidden rounded-lg">
       <img 
         src={foto && foto.startsWith('http') ? foto : "/placeholder.svg"}
         alt="Produto" 
