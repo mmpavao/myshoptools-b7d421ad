@@ -3,58 +3,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "@/components/ui/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from '../Auth/AuthProvider';
 import AvatarEditor from './AvatarEditor';
-import firebaseOperations from '../../firebase/firebaseOperations';
-import { countries, formatPhoneNumber, getPhoneInputValue } from '../../utils/formUtils';
+import { countries, getPhoneInputValue } from '../../utils/formUtils';
+import { loadUserProfile, handleAvatarSave, updateUserProfile } from '../../utils/profileUtils';
 
 const PersonalInfoForm = () => {
   const { user, updateUserContext } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    country: countries[0],
-    profileImage: "/placeholder.svg"
+    name: '', email: '', phone: '', address: '',
+    country: countries[0], profileImage: "/placeholder.svg"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadUserProfile = async () => {
+    const fetchUserProfile = async () => {
       if (user && user.uid) {
-        try {
-          setIsLoading(true);
-          const userProfile = await firebaseOperations.getUserProfile(user.uid);
-          if (userProfile) {
-            const phoneNumber = userProfile.phoneNumber || '';
-            const country = countries.find(c => phoneNumber.startsWith(c.ddi)) || countries[0];
-            setFormData({
-              name: userProfile.displayName || '',
-              email: userProfile.email || '',
-              phone: phoneNumber.slice(country.ddi.length).replace(/\D/g, ''),
-              address: userProfile.address || '',
-              profileImage: userProfile.photoURL || "/placeholder.svg",
-              country: country,
-            });
-          }
-        } catch (error) {
-          console.error('Erro ao carregar perfil do usuário:', error);
-          toast({
-            title: "Erro",
-            description: "Não foi possível carregar os dados do perfil.",
-            variant: "destructive",
-          });
-        } finally {
-          setIsLoading(false);
-        }
+        setIsLoading(true);
+        const profile = await loadUserProfile(user.uid);
+        if (profile) setFormData(profile);
+        setIsLoading(false);
       }
     };
-
-    loadUserProfile();
+    fetchUserProfile();
   }, [user]);
 
   const handleChange = (e) => {
@@ -70,82 +43,29 @@ const PersonalInfoForm = () => {
     setFormData(prev => ({ ...prev, country: selectedCountry, phone: '' }));
   };
 
-  const handleAvatarSave = async (blob) => {
-    try {
-      const downloadURL = await firebaseOperations.uploadProfileImage(user.uid, blob);
-      setFormData(prev => ({ ...prev, profileImage: downloadURL }));
-      await firebaseOperations.updateUserProfile(user.uid, { photoURL: downloadURL });
-      updateUserContext({ photoURL: downloadURL });
-      toast({
-        title: "Avatar Atualizado",
-        description: "Seu avatar foi atualizado com sucesso.",
-      });
-    } catch (error) {
-      console.error('Erro ao atualizar avatar:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o avatar.",
-        variant: "destructive",
-      });
-    }
+  const onAvatarSave = async (blob) => {
+    const newAvatarUrl = await handleAvatarSave(user.uid, blob, updateUserContext);
+    if (newAvatarUrl) setFormData(prev => ({ ...prev, profileImage: newAvatarUrl }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    try {
-      const updatedUserData = {
-        displayName: formData.name,
-        email: formData.email,
-        phoneNumber: formatPhoneNumber(formData.phone, formData.country),
-        address: formData.address,
-        country: formData.country.code,
-        photoURL: formData.profileImage,
-      };
-      await firebaseOperations.updateUserProfile(user.uid, updatedUserData);
-      updateUserContext(updatedUserData);
-      toast({
-        title: "Perfil Atualizado",
-        description: "Suas informações foram atualizadas com sucesso.",
-      });
-    } catch (error) {
-      console.error('Erro ao atualizar perfil:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o perfil. Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    await updateUserProfile(user.uid, formData, updateUserContext);
+    setIsSubmitting(false);
   };
 
-  const handleAvatarError = () => {
-    setFormData(prev => ({ ...prev, profileImage: "/placeholder.svg" }));
-    toast({
-      title: "Aviso",
-      description: "Não foi possível carregar a imagem do perfil. Usando imagem padrão.",
-      variant: "warning",
-    });
-  };
-
-  if (isLoading) {
-    return <div>Carregando dados do perfil...</div>;
-  }
+  if (isLoading) return <div>Carregando dados do perfil...</div>;
 
   return (
     <form onSubmit={handleSubmit}>
       <div className="space-y-4">
         <div className="flex items-center space-x-4 mb-4">
           <Avatar className="w-24 h-24">
-            <AvatarImage 
-              src={formData.profileImage} 
-              alt="Profile" 
-              onError={handleAvatarError}
-            />
+            <AvatarImage src={formData.profileImage} alt="Profile" />
             <AvatarFallback>{formData.name[0] || 'U'}</AvatarFallback>
           </Avatar>
-          <AvatarEditor onSave={handleAvatarSave} currentAvatar={formData.profileImage} />
+          <AvatarEditor onSave={onAvatarSave} currentAvatar={formData.profileImage} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -165,9 +85,7 @@ const PersonalInfoForm = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((c) => (
-                    <SelectItem key={c.code} value={c.code}>
-                      {c.flag}
-                    </SelectItem>
+                    <SelectItem key={c.code} value={c.code}>{c.flag}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -176,12 +94,9 @@ const PersonalInfoForm = () => {
                   {formData.country.ddi}
                 </span>
                 <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
+                  id="phone" name="phone" type="tel"
                   value={getPhoneInputValue(formData.phone, formData.country)}
-                  onChange={handleChange}
-                  className="pl-10"
+                  onChange={handleChange} className="pl-10"
                   placeholder="Número de telefone"
                 />
               </div>
