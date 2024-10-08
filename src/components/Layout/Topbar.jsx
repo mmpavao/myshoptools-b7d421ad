@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, User, Search, Moon, Sun } from 'lucide-react';
+import { Bell, User, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
