@@ -1,6 +1,6 @@
 import React from 'react';
 import { Bell, User, FileText, Book, Code, LogOut, ChevronDown, PanelLeftClose, PanelLeftOpen, Search } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -15,21 +15,10 @@ import { Input } from "@/components/ui/input";
 const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
-  };
-
-  const getBreadcrumbs = () => {
-    const paths = location.pathname.split('/').filter(Boolean);
-    return paths.map((path, index) => (
-      <React.Fragment key={index}>
-        {index > 0 && <span className="mx-2 text-gray-400">/</span>}
-        <span className="capitalize">{path}</span>
-      </React.Fragment>
-    ));
   };
 
   return (
@@ -38,15 +27,27 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
-            className="p-1.5 rounded-full hover:bg-gray-200 focus:outline-none"
+            className="p-2 rounded-full hover:bg-gray-200 focus:outline-none mr-3"
           >
             {isSidebarOpen ? (
-              <PanelLeftClose size={24} />
+              <PanelLeftClose size={28} className="text-gray-700" />
             ) : (
-              <PanelLeftOpen size={24} />
+              <PanelLeftOpen size={28} className="text-gray-700" />
             )}
           </button>
-          <span className="ml-3 text-base font-medium text-gray-700">{companyName}</span>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="focus:outline-none">
+              <div className="flex items-center">
+                <span className="text-lg font-semibold text-gray-800">{companyName}</span>
+                <ChevronDown className="ml-1 h-4 w-4 text-gray-600" />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>Empresa 1</DropdownMenuItem>
+              <DropdownMenuItem>Empresa 2</DropdownMenuItem>
+              <DropdownMenuItem>Empresa 3</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="flex items-center space-x-3 bg-white bg-opacity-80 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] px-2 py-1.5">
           <div className="relative flex items-center">
@@ -62,17 +63,17 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none flex items-center">
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-10 w-10">
                 <AvatarImage src={user?.photoURL} alt="User avatar" />
-                <AvatarFallback className="font-bold text-xs">
+                <AvatarFallback className="font-bold text-sm">
                   {user?.photoURL ? (
                     user.displayName?.[0] || 'U'
                   ) : (
-                    <User className="h-3 w-3" />
+                    <User className="h-5 w-5" />
                   )}
                 </AvatarFallback>
               </Avatar>
-              <ChevronDown className="ml-1 h-3 w-3 text-gray-500" />
+              <ChevronDown className="ml-1 h-4 w-4 text-gray-500" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
               <div className="flex items-center p-2">
@@ -110,9 +111,6 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </div>
-      <div className="px-4 py-2 bg-white bg-opacity-50 text-xs text-gray-600">
-        {getBreadcrumbs()}
       </div>
     </header>
   );

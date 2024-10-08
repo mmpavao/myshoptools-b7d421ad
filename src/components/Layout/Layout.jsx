@@ -30,7 +30,7 @@ const Layout = ({ children }) => {
           toggleSidebar={toggleSidebar} 
           isSidebarOpen={isSidebarOpen} 
         />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-3 mt-2">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-3">
           <div className="container mx-auto max-w-7xl">
             {children}
           </div>
