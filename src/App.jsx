@@ -9,8 +9,7 @@ import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Layout from "./components/Layout/Layout";
 import { getUserRole } from "./firebase/userOperations";
-
-// Import other components as needed
+import Dashboard from "./components/Dashboard/Dashboard"; // Add this import
 
 const queryClient = new QueryClient();
 
@@ -75,5 +74,6 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
 );
+
 
 export default App;
