@@ -38,14 +38,13 @@ export const wrapFetch = () => {
     } catch (error) {
       if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
         console.error('Network error when fetching resource:', args[0]);
-        // Retorna uma resposta simulada para evitar quebrar a aplicação
+        // Return a mock response to prevent app from crashing
         return {
           ok: true,
           status: 200,
-          url: args[0],
-          blob: async () => new Blob([''], { type: 'application/octet-stream' }),
-          text: async () => '',
           json: async () => ({}),
+          text: async () => '',
+          blob: async () => new Blob(),
         };
       }
       reportHTTPError(error);

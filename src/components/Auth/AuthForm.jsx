@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import firebaseOperations from '../../firebase/firebaseOperations';
+import { toast } from '@/components/ui/use-toast';
 
 const schema = z.object({
   email: z.string().email({ message: "Endereço de e-mail inválido" }),
@@ -59,7 +60,21 @@ const AuthForm = ({ isLogin }) => {
       }
       navigate('/dashboard');
     } catch (error) {
-      setError(error.message);
+      if (error.code === 'auth/email-already-in-use') {
+        setError('Este e-mail já está em uso. Por favor, tente outro ou faça login.');
+        toast({
+          title: "Erro no registro",
+          description: "Este e-mail já está em uso. Por favor, tente outro ou faça login.",
+          variant: "destructive",
+        });
+      } else {
+        setError(error.message);
+        toast({
+          title: "Erro",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     }
   };
 
