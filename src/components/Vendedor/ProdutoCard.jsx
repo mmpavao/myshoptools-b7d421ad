@@ -27,7 +27,7 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
     : produto.preco;
 
   return (
-    <Card className="w-full h-full flex flex-col max-h-[400px] min-h-[300px]">
+    <Card className="w-full h-full flex flex-col max-h-[300px] min-h-[250px]">
       <CardContent className="p-3 flex-grow flex flex-col justify-between">
         {renderProductImage(produto.fotos && produto.fotos[0])}
         <div className="mt-3 space-y-2">
