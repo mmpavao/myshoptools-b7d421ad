@@ -3,23 +3,24 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider, ProtectedRoute } from "./components/Auth/AuthProvider";
+import { AuthProvider, ProtectedRoute, useAuth } from "./components/Auth/AuthProvider";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Layout from "./components/Layout/Layout";
 import { getUserRole } from "./firebase/userOperations";
 import Dashboard from "./components/Dashboard/Dashboard";
+import { auth } from "./firebase/config"; // Import the auth object
 
 const queryClient = new QueryClient();
 
 const RoleBasedRoute = ({ element: Element, allowedRoles }) => {
   const [userRole, setUserRole] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
+  const { user } = useAuth(); // Use the useAuth hook to get the current user
 
   React.useEffect(() => {
     const fetchUserRole = async () => {
-      const user = auth.currentUser;
       if (user) {
         const role = await getUserRole(user.uid);
         setUserRole(role);
@@ -27,7 +28,7 @@ const RoleBasedRoute = ({ element: Element, allowedRoles }) => {
       setLoading(false);
     };
     fetchUserRole();
-  }, []);
+  }, [user]);
 
   if (loading) {
     return <div>Loading...</div>;
