@@ -37,12 +37,12 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   ];
 
   return (
-    <header className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} transition-colors duration-200`}>
+    <header className={`${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-gray-800'} transition-colors duration-200`}>
       <div className="flex items-center justify-between h-[4.2rem] px-4">
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
-            className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} focus:outline-none mr-3`}
+            className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-200'} focus:outline-none mr-3`}
           >
             {isSidebarOpen ? (
               <PanelLeftClose size={28} className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} />
@@ -64,13 +64,13 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className={`flex items-center space-x-3 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'} rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] px-2 py-1.5`}>
+        <div className={`flex items-center space-x-3 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'} rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] px-2 py-1.5`}>
           <div className="relative flex items-center">
             <Search className="absolute left-2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Pesquisar..."
-              className={`w-56 ${theme === 'dark' ? 'bg-gray-600 text-white' : 'bg-white text-gray-800'} border-none focus:ring-0 text-sm focus:outline-none pl-8 rounded-full h-9`}
+              className={`w-56 ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'} border-none focus:ring-0 text-sm focus:outline-none pl-8 rounded-full h-9`}
             />
           </div>
           <Button
