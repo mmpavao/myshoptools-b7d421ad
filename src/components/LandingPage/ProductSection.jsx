@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { StarIcon, Heart, ShoppingCart } from "lucide-react";
+import { StarIcon, Heart, ShoppingCart, CheckCircle } from "lucide-react";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../../components/Auth/AuthProvider';
 import MockCheckout from '../Checkout/MockCheckout';
@@ -10,6 +10,7 @@ const ProductSection = () => {
   const [produtos, setProdutos] = useState([]);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [cart, setCart] = useState([]);
+  const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -20,10 +21,10 @@ const ProductSection = () => {
     try {
       if (user) {
         const produtosData = await firebaseOperations.getMeusProdutos(user.uid);
-        setProdutos(produtosData.slice(0, 5)); // Limita a 5 produtos
+        setProdutos(produtosData.slice(0, 5));
       } else {
         const produtosData = await firebaseOperations.getProducts();
-        setProdutos(produtosData.slice(0, 5)); // Limita a 5 produtos
+        setProdutos(produtosData.slice(0, 5));
       }
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
@@ -32,11 +33,17 @@ const ProductSection = () => {
 
   const handleCloseCheckout = () => {
     setIsCheckoutOpen(false);
-    setCart([]); // Limpa o carrinho após fechar o checkout
+    if (isPurchaseComplete) {
+      setCart([]);
+    }
   };
 
   const handleAddToCart = (produto) => {
     setCart([...cart, produto]);
+  };
+
+  const handlePurchaseComplete = () => {
+    setIsPurchaseComplete(true);
   };
 
   const renderStars = (rating) => {
@@ -96,9 +103,26 @@ const ProductSection = () => {
           {produtos.map(renderProductCard)}
         </div>
         <div className="mt-12 text-center">
-          <Button onClick={() => setIsCheckoutOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg rounded-full">
-            <ShoppingCart className="w-6 h-6 mr-2" />
-            Finalizar Compra ({cart.length} itens)
+          <Button 
+            onClick={() => setIsCheckoutOpen(true)} 
+            className={`px-8 py-3 text-lg rounded-full ${
+              isPurchaseComplete 
+                ? 'bg-green-500 hover:bg-green-600' 
+                : 'bg-blue-600 hover:bg-blue-700'
+            } text-white`}
+            disabled={cart.length === 0 || isPurchaseComplete}
+          >
+            {isPurchaseComplete ? (
+              <>
+                <CheckCircle className="w-6 h-6 mr-2" />
+                Compra Realizada
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="w-6 h-6 mr-2" />
+                Finalizar Compra ({cart.length} itens)
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -106,6 +130,7 @@ const ProductSection = () => {
         isOpen={isCheckoutOpen}
         onClose={handleCloseCheckout}
         products={cart}
+        onPurchaseComplete={handlePurchaseComplete}
       />
     </section>
   );

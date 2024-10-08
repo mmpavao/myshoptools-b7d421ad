@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -8,7 +8,7 @@ import { Loader2, CheckCircle, ShoppingCart } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { formatCurrency } from '../../utils/currencyUtils';
 
-const MockCheckout = ({ isOpen, onClose, products = [] }) => {
+const MockCheckout = ({ isOpen, onClose, products = [], onPurchaseComplete }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
   const { toast } = useToast();
@@ -16,13 +16,20 @@ const MockCheckout = ({ isOpen, onClose, products = [] }) => {
 
   const totalAmount = products.reduce((total, product) => total + (product?.preco || 0), 0);
 
+  useEffect(() => {
+    if (isPurchaseComplete) {
+      const timer = setTimeout(() => {
+        handleConcluir();
+      }, 3000); // Fecha automaticamente após 3 segundos
+      return () => clearTimeout(timer);
+    }
+  }, [isPurchaseComplete]);
+
   const handleComprar = async () => {
     setIsProcessing(true);
     try {
-      // Simular processamento do pagamento
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Criar pedidos fictícios
       const pedidos = products.map(product => ({
         produtoId: product?.id,
         titulo: product?.titulo,
@@ -32,14 +39,12 @@ const MockCheckout = ({ isOpen, onClose, products = [] }) => {
         dataCompra: new Date().toISOString(),
       }));
 
-      // Adicionar pedidos aos meus pedidos do vendedor
       if (user) {
         await Promise.all(pedidos.map(pedido => 
           firebaseOperations.adicionarPedidoVendedor(user.uid, pedido)
         ));
       }
 
-      // Adicionar pedidos aos pedidos dos fornecedores
       await Promise.all(pedidos.map(pedido => 
         firebaseOperations.adicionarPedidoFornecedor(pedido.produtoId, pedido)
       ));
@@ -47,12 +52,13 @@ const MockCheckout = ({ isOpen, onClose, products = [] }) => {
       setIsProcessing(false);
       setIsPurchaseComplete(true);
       
-      // Dispara o efeito de confete
       confetti({
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 }
       });
+
+      onPurchaseComplete(); // Notifica o componente pai que a compra foi concluída
 
     } catch (error) {
       console.error("Erro ao processar compra:", error);
@@ -119,9 +125,7 @@ const MockCheckout = ({ isOpen, onClose, products = [] }) => {
               <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
               <h2 className="text-2xl font-bold text-green-700 mb-2">Parabéns!</h2>
               <p className="text-center text-green-600 mb-4">Sua compra foi aprovada com sucesso!</p>
-              <Button onClick={handleConcluir} className="w-full bg-green-500 hover:bg-green-600">
-                Concluir
-              </Button>
+              <p className="text-center text-green-600">Esta janela será fechada automaticamente.</p>
             </div>
           )}
         </div>
