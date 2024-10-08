@@ -22,6 +22,20 @@ const Vitrine = () => {
     fetchProdutos();
   }, [user]);
 
+  const fetchProdutos = async () => {
+    try {
+      const produtosData = await firebaseOperations.getProducts();
+      setProdutos(produtosData);
+    } catch (error) {
+      console.error("Erro ao buscar produtos:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os produtos.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const renderProductImage = (foto) => {
     if (typeof foto === 'string' && foto.startsWith('http')) {
       return (
@@ -57,11 +71,19 @@ const Vitrine = () => {
   const handleSubmitAvaliacao = async () => {
     try {
       await firebaseOperations.adicionarAvaliacao(avaliacaoAtual.produtoId, user.uid, avaliacaoAtual.nota, avaliacaoAtual.comentario);
-      console.log("Avaliação enviada com sucesso!");
+      toast({
+        title: "Sucesso",
+        description: "Avaliação enviada com sucesso!",
+      });
       setAvaliacaoAtual({ produtoId: null, nota: 0, comentario: '' });
       fetchProdutos();
     } catch (error) {
       console.error("Erro ao enviar avaliação:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível enviar a avaliação.",
+        variant: "destructive",
+      });
     }
   };
 
