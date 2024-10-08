@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth, safeLogError } from '../../firebase/config';
 import { onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
-import { Navigate, useNavigate } from 'react-router-dom';
 import { Spinner } from '../ui/spinner';
 import { checkUserStatus } from '../../firebase/userOperations';
 import { toast } from '@/components/ui/use-toast';
@@ -20,7 +19,6 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -33,7 +31,6 @@ export const AuthProvider = ({ children }) => {
             description: "Sua conta foi desativada. Entre em contato com o administrador para reativar sua conta.",
             variant: "destructive",
           });
-          navigate('/login');
         } else {
           const userProfile = await firebaseOperations.getUserProfile(currentUser.uid);
           setUser({ ...currentUser, ...userProfile });
@@ -45,7 +42,7 @@ export const AuthProvider = ({ children }) => {
     });
 
     return () => unsubscribe();
-  }, [navigate]);
+  }, []);
 
   const login = async (rememberMe) => {
     try {
@@ -86,13 +83,6 @@ export const AuthProvider = ({ children }) => {
 
 export const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/login');
-    }
-  }, [user, loading, navigate]);
 
   if (loading) {
     return <Spinner />;
