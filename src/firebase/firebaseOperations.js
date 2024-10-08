@@ -33,15 +33,7 @@ const landPageOperations = {
 
   uploadBannerImage: async (file) => {
     const path = `landpage/banner_${Date.now()}`;
-    try {
-      console.log("Iniciando upload do banner para o caminho:", path);
-      const downloadURL = await fileOperations.uploadFile(file, path);
-      console.log("Banner uploaded successfully. Download URL:", downloadURL);
-      return downloadURL;
-    } catch (error) {
-      console.error("Erro detalhado ao fazer upload do banner:", error);
-      throw new Error(`Falha ao fazer upload do banner: ${error.message}`);
-    }
+    return await fileOperations.uploadFile(file, path);
   },
 };
 
@@ -100,16 +92,15 @@ const fileOperations = {
         },
         (error) => {
           console.error('Error uploading file:', error);
-          reject(new Error(`Erro no upload: ${error.message}`));
+          reject(error);
         },
         async () => {
           try {
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            console.log("File uploaded successfully. Download URL:", downloadURL);
             resolve(downloadURL);
           } catch (error) {
             console.error('Error getting download URL:', error);
-            reject(new Error(`Erro ao obter URL de download: ${error.message}`));
+            reject(error);
           }
         }
       );
@@ -136,6 +127,7 @@ const userProfileOperations = {
   },
   // ... keep existing code (if any)
 };
+
 
 const myShopOperations = {
   // ... keep existing code (if any)

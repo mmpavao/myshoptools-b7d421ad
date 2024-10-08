@@ -53,14 +53,12 @@ const LandPageSettings = () => {
     const file = event.target.files[0];
     if (file) {
       try {
-        console.log("Iniciando upload do banner...");
         const uploadedUrl = await firebaseOperations.uploadBannerImage(file);
-        console.log("Banner uploaded successfully. URL:", uploadedUrl);
         setSettings(prev => ({ ...prev, bannerUrl: uploadedUrl }));
         toast.success("Banner atualizado com sucesso");
       } catch (error) {
-        console.error("Erro detalhado ao fazer upload do banner:", error);
-        toast.error(`Falha ao atualizar o banner: ${error.message}`);
+        console.error("Erro ao fazer upload do banner:", error);
+        toast.error("Falha ao atualizar o banner");
       }
     }
   };
