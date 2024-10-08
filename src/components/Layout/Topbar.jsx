@@ -23,7 +23,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   };
 
   return (
-    <header className="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-10 relative">
+    <header className="bg-white z-10 relative">
       <div className="flex items-center justify-between h-14 px-4">
         <div className="flex items-center">
           <Button
@@ -44,8 +44,8 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           <div className="relative">
             <Input
               type="search"
-              placeholder="Pesquisar..."
-              className="w-48 pl-8 pr-2 py-1 rounded-full bg-gray-100 text-gray-800 placeholder-gray-400 focus:bg-white transition-colors duration-200 text-sm border-none focus:outline-none"
+              placeholder="Search..."
+              className="w-64 pl-8 pr-2 py-1 rounded-full bg-gray-100 text-gray-800 placeholder-gray-400 focus:bg-white transition-colors duration-200 text-sm border-none focus:outline-none"
             />
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -59,11 +59,11 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-7 w-7 rounded-full p-0">
-                <Avatar className="h-7 w-7">
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
+                <Avatar className="h-8 w-8 shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
                   <AvatarImage src={user?.photoURL} alt="User avatar" />
                   <AvatarFallback>
-                    {user?.displayName?.[0] || <User className="h-3 w-3" />}
+                    {user?.displayName?.[0] || <User className="h-4 w-4" />}
                   </AvatarFallback>
                 </Avatar>
               </Button>
