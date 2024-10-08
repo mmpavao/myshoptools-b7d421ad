@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from '../Auth/AuthProvider';
 import AvatarEditor from './AvatarEditor';
 import { countries, getPhoneInputValue } from '../../utils/formUtils';
-import { loadUserProfile, handleAvatarSave, updateUserProfile } from '../../utils/profileUtils';
+import { loadUserProfile, updateUserProfile } from '../../utils/profileUtils';
 
 const PersonalInfoForm = () => {
   const { user, updateUserContext } = useAuth();
@@ -47,9 +47,8 @@ const PersonalInfoForm = () => {
     setFormData(prev => ({ ...prev, country: selectedCountry, phone: '' }));
   };
 
-  const onAvatarSave = async (blob) => {
-    const newAvatarUrl = await handleAvatarSave(user.uid, blob, updateUserContext);
-    if (newAvatarUrl) setFormData(prev => ({ ...prev, profileImage: newAvatarUrl }));
+  const onAvatarSave = (newAvatarUrl) => {
+    setFormData(prev => ({ ...prev, profileImage: newAvatarUrl }));
   };
 
   const handleSubmit = async (e) => {
@@ -111,6 +110,7 @@ const PersonalInfoForm = () => {
             <Input id="address" name="address" value={formData.address} onChange={handleChange} />
           </div>
         </div>
+      </div>
       </div>
       <Button type="submit" className="mt-6" disabled={isSubmitting}>
         {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}

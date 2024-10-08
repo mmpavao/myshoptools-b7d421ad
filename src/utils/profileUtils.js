@@ -1,4 +1,4 @@
-import { countries, formatPhoneNumber, getPhoneInputValue } from './formUtils';
+import { countries, formatPhoneNumber } from './formUtils';
 import firebaseOperations from '../firebase/firebaseOperations';
 import { toast } from "@/components/ui/use-toast";
 
@@ -24,27 +24,6 @@ export const loadUserProfile = async (userId) => {
     toast({
       title: "Erro",
       description: "Não foi possível carregar os dados do perfil.",
-      variant: "destructive",
-    });
-    return null;
-  }
-};
-
-export const handleAvatarSave = async (userId, blob, updateUserContext) => {
-  try {
-    const downloadURL = await firebaseOperations.uploadProfileImage(userId, blob);
-    await firebaseOperations.updateUserProfile(userId, { photoURL: downloadURL });
-    updateUserContext({ photoURL: downloadURL });
-    toast({
-      title: "Avatar Atualizado",
-      description: "Seu avatar foi atualizado com sucesso.",
-    });
-    return downloadURL;
-  } catch (error) {
-    console.error('Erro ao atualizar avatar:', error);
-    toast({
-      title: "Erro",
-      description: "Não foi possível atualizar o avatar.",
       variant: "destructive",
     });
     return null;

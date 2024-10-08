@@ -5,6 +5,8 @@ import Cropper from 'react-easy-crop';
 import { Slider } from "@/components/ui/slider";
 import { toast } from "@/components/ui/use-toast";
 import { SpinnerDefault } from "@/components/ui/spinners";
+import firebaseOperations from '../../firebase/firebaseOperations';
+import { useAuth } from '../Auth/AuthProvider';
 
 const AvatarEditor = ({ onSave, currentAvatar }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +15,7 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const { user, updateUserContext } = useAuth();
 
   useEffect(() => {
     if (currentAvatar && currentAvatar !== "/placeholder.svg") {
@@ -36,28 +39,70 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
   };
 
   const handleSave = useCallback(async () => {
-    if (croppedAreaPixels) {
+    if (croppedAreaPixels && user) {
       setIsSaving(true);
       try {
         const croppedImage = await getCroppedImg(image, croppedAreaPixels);
-        await onSave(croppedImage);
+        const blob = await fetch(croppedImage).then(r => r.blob());
+        const downloadURL = await firebaseOperations.uploadProfileImage(user.uid, blob);
+        
+        await firebaseOperations.updateUserProfile(user.uid, { photoURL: downloadURL });
+        updateUserContext({ photoURL: downloadURL });
+        
+        onSave(downloadURL);
         setIsOpen(false);
         toast({
           title: "Avatar Atualizado",
           description: "Seu avatar foi atualizado com sucesso.",
         });
       } catch (error) {
-        console.error('Error cropping image:', error);
+        console.error('Error updating avatar:', error);
         toast({
           title: "Erro",
-          description: "Não foi possível processar a imagem. Tente novamente.",
+          description: "Não foi possível atualizar o avatar. Tente novamente.",
           variant: "destructive",
         });
       } finally {
         setIsSaving(false);
       }
     }
-  }, [croppedAreaPixels, image, onSave]);
+  }, [croppedAreaPixels, image, onSave, user, updateUserContext]);
+
+const createImage = (url) =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener('load', () => resolve(image));
+    image.addEventListener('error', (error) => reject(error));
+    image.setAttribute('crossOrigin', 'anonymous');
+    image.src = url;
+  });
+
+const getCroppedImg = async (imageSrc, pixelCrop) => {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = pixelCrop.width;
+  canvas.height = pixelCrop.height;
+
+  ctx.drawImage(
+    image,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    pixelCrop.width,
+    pixelCrop.height
+  );
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      resolve(blob);
+    }, 'image/jpeg');
+  });
+};
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
