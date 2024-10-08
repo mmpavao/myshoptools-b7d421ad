@@ -4,8 +4,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import Cropper from 'react-easy-crop';
 import { getCroppedImg } from "../../utils/imageUtils";
 import { toast } from "@/components/ui/use-toast";
+import firebaseOperations from '../../firebase/firebaseOperations';
+import { useAuth } from '../Auth/AuthProvider';
 
 const AvatarEditor = ({ onSave, currentAvatar }) => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [image, setImage] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -37,7 +40,14 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
       const croppedImage = await getCroppedImg(image, croppedAreaPixels);
       const blob = await fetch(croppedImage).then(r => r.blob());
       const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
-      await onSave(file);
+      
+      // Use a nova função de upload de avatar
+      const downloadURL = await firebaseOperations.uploadAvatar(file, user.uid);
+      
+      // Atualiza o perfil do usuário com a nova URL do avatar
+      await firebaseOperations.updateUserProfile(user.uid, { photoURL: downloadURL });
+      
+      onSave(downloadURL);
       setIsOpen(false);
       setImage(null);
       toast({

@@ -1,5 +1,5 @@
 import { db, storage, auth } from './config';
-import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where, arrayUnion } from 'firebase/firestore';
+import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
 import crudOperations from './crudOperations';
@@ -188,18 +188,23 @@ const fileOperations = {
 
     return allFiles;
   },
-  uploadProfileImage: async (file, userId) => {
+  uploadAvatar: async (file, userId) => {
     if (!file || !userId) {
       throw new Error('Invalid file or user ID');
     }
     const fileExtension = file.name.split('.').pop();
-    const path = `avatars/${userId}/${Date.now()}.${fileExtension}`;
-    const downloadURL = await fileOperations.uploadFile(file, path);
+    const path = `avatars/${userId}_${Date.now()}.${fileExtension}`;
+    const storageRef = ref(storage, path);
     
-    // Update user profile with new avatar URL
-    await userOperations.updateUserProfile(userId, { photoURL: downloadURL });
-    
-    return downloadURL;
+    try {
+      const uploadTask = uploadBytesResumable(storageRef, file);
+      await uploadTask;
+      const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+      return downloadURL;
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      throw error;
+    }
   }
 };
 
@@ -266,7 +271,6 @@ const myShopOperations = {
     }
   },
 };
-
 
 const pedidosOperations = {
   adicionarPedidoVendedor: async (userId, pedido) => {
@@ -346,7 +350,8 @@ const firebaseOperations = {
   ...myShopOperations,
   ...pedidosOperations,
   testFirebaseOperations,
-  clearAllData
+  clearAllData,
+  uploadAvatar: fileOperations.uploadAvatar,
 };
 
 export default firebaseOperations;
