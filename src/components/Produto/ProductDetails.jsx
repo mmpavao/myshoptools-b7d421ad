@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { StarIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { renderStars, formatPrice, calculateOldPrice } from './productUtils';
+import MyShopLandingPage from '../Vendedor/MyShopLandingPage';
 
 const ProductDetails = ({ produto, activeMarketplace }) => {
   const renderFornecedorContent = () => (
@@ -58,6 +59,7 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
       <h3 className="text-lg font-semibold mb-2">Configurações MyShop</h3>
       <p>Preço de Venda: R$ {formatPrice(produto.precoVenda)}</p>
       <p>Estoque Disponível: {produto.estoqueDisponivel || 0}</p>
+      <MyShopLandingPage produtos={[produto]} />
     </div>
   );
 
