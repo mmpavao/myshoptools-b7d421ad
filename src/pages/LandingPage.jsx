@@ -5,11 +5,19 @@ import { Input } from "@/components/ui/input";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/Auth/AuthProvider';
 import firebaseOperations from '../firebase/firebaseOperations';
-import { Upload, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 const LandingPage = () => {
   const [myShopProducts, setMyShopProducts] = useState([]);
-  const [bannerImage, setBannerImage] = useState('/placeholder.svg');
+  const [settings, setSettings] = useState({
+    title: 'Revolucione seu E-commerce com MyShopTools',
+    subtitle: 'Potencialize suas vendas online com nossa plataforma all-in-one',
+    ctaText: 'Comece Grátis Agora',
+    bannerUrl: '/placeholder.svg',
+    contactEmail: '',
+    contactPhone: '',
+    footerText: '© 2024 MyShopTools. Todos os direitos reservados.',
+  });
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -20,11 +28,22 @@ const LandingPage = () => {
   });
 
   useEffect(() => {
+    fetchLandPageSettings();
     if (user) {
       fetchMyShopProducts();
-      fetchBannerImage();
     }
   }, [user]);
+
+  const fetchLandPageSettings = async () => {
+    try {
+      const landPageSettings = await firebaseOperations.getLandPageSettings();
+      if (landPageSettings) {
+        setSettings(prevSettings => ({ ...prevSettings, ...landPageSettings }));
+      }
+    } catch (error) {
+      console.error("Erro ao buscar configurações da LandPage:", error);
+    }
+  };
 
   const fetchMyShopProducts = async () => {
     try {
@@ -35,56 +54,26 @@ const LandingPage = () => {
     }
   };
 
-  const fetchBannerImage = async () => {
-    try {
-      const bannerUrl = await firebaseOperations.getBannerImage(user.uid);
-      if (bannerUrl) setBannerImage(bannerUrl);
-    } catch (error) {
-      console.error("Erro ao buscar imagem do banner:", error);
-    }
-  };
-
   const handleCTAClick = () => {
     navigate('/register');
-  };
-
-  const handleBannerUpload = async (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      try {
-        const uploadedUrl = await firebaseOperations.uploadBannerImage(user.uid, file);
-        setBannerImage(uploadedUrl);
-      } catch (error) {
-        console.error("Erro ao fazer upload do banner:", error);
-      }
-    }
   };
 
   return (
     <div className="bg-gradient-to-b from-purple-600 to-indigo-800 min-h-screen text-white">
       <header className="relative h-screen flex items-center justify-center overflow-hidden">
-        <img src={bannerImage} alt="Banner" className="absolute w-full h-full object-cover" />
+        <img src={settings.bannerUrl} alt="Banner" className="absolute w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         <animated.div style={fadeIn} className="relative z-10 text-center px-4">
-          <h1 className="text-6xl font-bold mb-6">Revolucione seu E-commerce com MyShopTools</h1>
-          <p className="text-2xl mb-8">Potencialize suas vendas online com nossa plataforma all-in-one</p>
+          <h1 className="text-6xl font-bold mb-6">{settings.title}</h1>
+          <p className="text-2xl mb-8">{settings.subtitle}</p>
           <div className="space-x-4">
             <Button size="lg" className="bg-yellow-400 text-purple-900 hover:bg-yellow-300 transition-all duration-300" onClick={handleCTAClick}>
-              Comece Grátis Agora
+              {settings.ctaText}
             </Button>
             <Button size="lg" className="bg-transparent border-2 border-white hover:bg-white hover:text-purple-900 transition-all duration-300" onClick={handleCTAClick}>
               Saiba Mais
             </Button>
           </div>
-          {user && (
-            <div className="mt-8">
-              <label htmlFor="banner-upload" className="cursor-pointer bg-white text-purple-900 py-2 px-4 rounded-full hover:bg-opacity-90 transition-all duration-300 flex items-center justify-center">
-                <Upload className="mr-2" size={20} />
-                Atualizar Banner
-              </label>
-              <Input id="banner-upload" type="file" accept="image/*" onChange={handleBannerUpload} className="hidden" />
-            </div>
-          )}
         </animated.div>
         <ChevronDown className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce" size={40} />
       </header>
@@ -151,9 +140,12 @@ const LandingPage = () => {
         </div>
       </section>
 
+
       <footer className="bg-gray-900 text-white py-8">
         <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2024 MyShopTools. Todos os direitos reservados.</p>
+          <p>{settings.footerText}</p>
+          {settings.contactEmail && <p>Email: {settings.contactEmail}</p>}
+          {settings.contactPhone && <p>Telefone: {settings.contactPhone}</p>}
         </div>
       </footer>
     </div>
