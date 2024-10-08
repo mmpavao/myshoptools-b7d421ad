@@ -149,18 +149,18 @@ const Sidebar = ({ isOpen }) => {
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 z-50 h-[calc(100vh-3rem)] m-6 rounded-xl transition-all duration-300",
+      "fixed left-0 top-0 z-50 h-[calc(100vh-1.5rem)] m-3 rounded-xl transition-all duration-300",
       isOpen ? "w-60" : "w-20",
       "bg-gray-900 text-white shadow-md"
     )}>
-      <div className="h-full overflow-y-auto py-6 px-3">
+      <div className="h-full overflow-y-auto py-3 px-1.5">
         <div className={cn(
-          "text-xl font-bold mb-6 text-center",
+          "text-xl font-bold mb-3 text-center",
           !isOpen && "text-sm"
         )}>
           {isOpen ? "MyShopTools" : "MST"}
         </div>
-        <ul className="space-y-2">
+        <ul className="space-y-1">
           {navItems.map((item, index) => (
             <React.Fragment key={index}>
               <NavItem 
@@ -170,11 +170,11 @@ const Sidebar = ({ isOpen }) => {
                 isCollapsible={isCollapsible} 
                 activeSection={activeSection}
               />
-              {isOpen && index < navItems.length - 1 && <Separator className="my-2 bg-gray-700" />}
+              {isOpen && index < navItems.length - 1 && <Separator className="my-1 bg-gray-700" />}
             </React.Fragment>
           ))}
         </ul>
-        <div className="absolute bottom-6 left-3 right-3">
+        <div className="absolute bottom-3 left-1.5 right-1.5">
           <NavLink
             to="/suporte"
             className={cn(
