@@ -28,7 +28,8 @@ const Estoque = () => {
     calcularMarkup,
     updateFotos,
     generateAIContent,
-    stats
+    stats,
+    isMasterUser
   } = useEstoque();
 
   const produtosFiltrados = produtos.filter(produto =>
@@ -65,7 +66,7 @@ const Estoque = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Estoque</h1>
+      <h1 className="text-2xl font-bold">Estoque {isMasterUser ? 'Global' : ''}</h1>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total de Produtos" value={stats.total} icon={Package} />
@@ -83,26 +84,28 @@ const Estoque = () => {
               onChange={(e) => setFiltro(e.target.value)}
               className="max-w-sm"
             />
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={() => { resetNovoProduto(); setIsDialogOpen(true); }}>Novo Produto</Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-4xl w-full">
-                <DialogHeader>
-                  <DialogTitle>{novoProduto.id ? 'Editar Produto' : 'Adicionar Novo Produto'}</DialogTitle>
-                </DialogHeader>
-                <EstoqueForm
-                  novoProduto={novoProduto}
-                  handleInputChange={handleInputChange}
-                  handleFileChange={handleFileChange}
-                  handleSubmit={handleSubmit}
-                  calcularMarkup={calcularMarkup}
-                  updateFotos={updateFotos}
-                  generateAIContent={generateAIContent}
-                  onDragEnd={onDragEnd}
-                />
-              </DialogContent>
-            </Dialog>
+            {!isMasterUser && (
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => { resetNovoProduto(); setIsDialogOpen(true); }}>Novo Produto</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl w-full">
+                  <DialogHeader>
+                    <DialogTitle>{novoProduto.id ? 'Editar Produto' : 'Adicionar Novo Produto'}</DialogTitle>
+                  </DialogHeader>
+                  <EstoqueForm
+                    novoProduto={novoProduto}
+                    handleInputChange={handleInputChange}
+                    handleFileChange={handleFileChange}
+                    handleSubmit={handleSubmit}
+                    calcularMarkup={calcularMarkup}
+                    updateFotos={updateFotos}
+                    generateAIContent={generateAIContent}
+                    onDragEnd={onDragEnd}
+                  />
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
 
           <Tabs defaultValue="todos">
@@ -117,6 +120,7 @@ const Estoque = () => {
                 onDelete={handleDeleteProduct} 
                 onDetalhes={(productId) => navigate(`/produto/${productId}`)}
                 onEdit={handleEditProduct}
+                isMasterUser={isMasterUser}
               />
             </TabsContent>
             <TabsContent value="ativos">
@@ -125,6 +129,7 @@ const Estoque = () => {
                 onDelete={handleDeleteProduct} 
                 onDetalhes={(productId) => navigate(`/produto/${productId}`)}
                 onEdit={handleEditProduct}
+                isMasterUser={isMasterUser}
               />
             </TabsContent>
             <TabsContent value="inativos">
@@ -133,6 +138,7 @@ const Estoque = () => {
                 onDelete={handleDeleteProduct} 
                 onDetalhes={(productId) => navigate(`/produto/${productId}`)}
                 onEdit={handleEditProduct}
+                isMasterUser={isMasterUser}
               />
             </TabsContent>
           </Tabs>

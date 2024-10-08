@@ -3,6 +3,7 @@ import firebaseOperations from '../../firebase/firebaseOperations';
 import { parseCurrency } from '../../utils/currencyUtils';
 import { chatWithBot } from '../../integrations/openAIOperations';
 import { useAuth } from '../Auth/AuthProvider';
+import { MASTER_USER_EMAIL } from '../../utils/userConstants';
 
 export const useEstoque = () => {
   const [produtos, setProdutos] = useState([]);
@@ -18,6 +19,7 @@ export const useEstoque = () => {
     worstSellers: 0
   });
   const { user } = useAuth();
+  const isMasterUser = user?.email === MASTER_USER_EMAIL;
 
   useEffect(() => {
     if (user) {
@@ -27,7 +29,12 @@ export const useEstoque = () => {
 
   const fetchProdutos = async () => {
     try {
-      const produtosData = await firebaseOperations.getProductsByUser(user.uid);
+      let produtosData;
+      if (isMasterUser) {
+        produtosData = await firebaseOperations.getAllProductsWithUsers();
+      } else {
+        produtosData = await firebaseOperations.getProductsByUser(user.uid);
+      }
       setProdutos(produtosData);
       calculateStats(produtosData);
     } catch (error) {
@@ -187,6 +194,7 @@ export const useEstoque = () => {
     isDialogOpen,
     filtro,
     stats,
+    isMasterUser,
     handleInputChange,
     handleFileChange,
     handleSubmit,

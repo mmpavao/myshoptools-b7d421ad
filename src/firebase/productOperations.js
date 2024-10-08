@@ -70,6 +70,21 @@ const productOperations = {
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
+  getAllProductsWithUsers: async () => {
+    const querySnapshot = await getDocs(collection(db, 'products'));
+    const products = [];
+    for (const doc of querySnapshot.docs) {
+      const productData = doc.data();
+      const userDoc = await getDoc(doc(db, 'users', productData.userId));
+      const userData = userDoc.data();
+      products.push({
+        id: doc.id,
+        ...productData,
+        userName: userData?.displayName || 'Usuário Desconhecido',
+      });
+    }
+    return products;
+  },
 };
 
 export default productOperations;
