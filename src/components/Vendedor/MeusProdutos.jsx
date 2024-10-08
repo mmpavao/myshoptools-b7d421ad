@@ -5,15 +5,10 @@ import { useToast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import ProdutoCard from './ProdutoCard';
 import { useAuth } from '../Auth/AuthProvider';
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 
 const MeusProdutos = () => {
   const [produtos, setProdutos] = useState([]);
   const [filtro, setFiltro] = useState('');
-  const [editingProduct, setEditingProduct] = useState(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -26,7 +21,7 @@ const MeusProdutos = () => {
 
   const fetchMeusProdutos = async () => {
     try {
-      const produtosData = await firebaseOperations.getMeusProdutos(user.uid);
+      const produtosData = await firebaseOperations.getProdutosImportados(user.uid);
       setProdutos(produtosData);
     } catch (error) {
       console.error("Erro ao buscar meus produtos:", error);
@@ -49,7 +44,7 @@ const MeusProdutos = () => {
         title: "Sucesso",
         description: "Produto removido com sucesso.",
       });
-      fetchMeusProdutos();
+      fetchMeusProdutos(); // Recarrega a lista de produtos após a exclusão
     } catch (error) {
       console.error("Erro ao excluir produto:", error);
       toast({
@@ -58,34 +53,6 @@ const MeusProdutos = () => {
         variant: "destructive",
       });
     }
-  };
-
-  const handleEdit = (produto) => {
-    setEditingProduct(produto);
-  };
-
-  const handleSaveEdit = async () => {
-    try {
-      await firebaseOperations.updateMeuProduto(user.uid, editingProduct.id, editingProduct);
-      toast({
-        title: "Sucesso",
-        description: "Produto atualizado com sucesso.",
-      });
-      setEditingProduct(null);
-      fetchMeusProdutos();
-    } catch (error) {
-      console.error("Erro ao atualizar produto:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o produto.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditingProduct(prev => ({ ...prev, [name]: value }));
   };
 
   const produtosFiltrados = produtos.filter(produto =>
@@ -112,38 +79,11 @@ const MeusProdutos = () => {
               produto={produto}
               onDetalhes={handleDetalhes}
               onExcluir={handleExcluir}
-              onEdit={() => handleEdit(produto)}
               showExcluirButton={true}
-              showEditButton={true}
             />
           ))}
         </div>
       )}
-
-      <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar Produto</DialogTitle>
-          </DialogHeader>
-          {editingProduct && (
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="titulo">Título</Label>
-                <Input id="titulo" name="titulo" value={editingProduct.titulo} onChange={handleInputChange} />
-              </div>
-              <div>
-                <Label htmlFor="descricao">Descrição</Label>
-                <Textarea id="descricao" name="descricao" value={editingProduct.descricao} onChange={handleInputChange} />
-              </div>
-              <div>
-                <Label htmlFor="precoVenda">Preço de Venda</Label>
-                <Input id="precoVenda" name="precoVenda" type="number" value={editingProduct.precoVenda} onChange={handleInputChange} />
-              </div>
-              <Button onClick={handleSaveEdit}>Salvar Alterações</Button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
