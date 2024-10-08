@@ -22,6 +22,7 @@ import { Separator } from "@/components/ui/separator";
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
   {
+    icon: Store,
     label: 'Vendedor',
     roles: ['Vendedor', 'Admin', 'Master'],
     children: [
@@ -31,6 +32,7 @@ const navItems = [
     ],
   },
   {
+    icon: Package,
     label: 'Fornecedor',
     roles: ['Fornecedor', 'Admin', 'Master'],
     children: [
@@ -39,6 +41,7 @@ const navItems = [
     ],
   },
   {
+    icon: Users,
     label: 'Admin',
     roles: ['Admin', 'Master'],
     children: [
@@ -49,7 +52,7 @@ const navItems = [
   },
 ];
 
-const NavItem = ({ item, isOpen, userRole, isCollapsible, activeSection }) => {
+const NavItem = ({ item, isOpen, userRole, isCollapsible, activeSection, isMobile }) => {
   const [isExpanded, setIsExpanded] = useState(activeSection === item.label);
   const hasAccess = item.roles ? item.roles.includes(userRole) : true;
   const location = useLocation();
@@ -71,18 +74,18 @@ const NavItem = ({ item, isOpen, userRole, isCollapsible, activeSection }) => {
           )}
           onClick={() => isCollapsible && setIsExpanded(!isExpanded)}
         >
-          {isOpen && (
+          {item.icon && <item.icon className={cn("w-6 h-6", !isOpen && "mx-auto")} />}
+          {(isOpen || isMobile) && (
             <>
-              <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>
+              <span className="flex-1 ml-3 text-left whitespace-nowrap">{item.label}</span>
               {isCollapsible && (isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />)}
             </>
           )}
-          {!isOpen && <span className="text-xs">{item.label[0]}</span>}
         </div>
-        {(isExpanded || !isCollapsible) && isOpen && (
+        {(isExpanded || !isCollapsible) && (isOpen || isMobile) && (
           <ul className="py-2 space-y-2 pl-4">
             {item.children.map((child) => (
-              <NavItem key={child.to} item={child} isOpen={isOpen} userRole={userRole} isCollapsible={false} activeSection={activeSection} />
+              <NavItem key={child.to} item={child} isOpen={isOpen} userRole={userRole} isCollapsible={false} activeSection={activeSection} isMobile={isMobile} />
             ))}
           </ul>
         )}
@@ -100,18 +103,18 @@ const NavItem = ({ item, isOpen, userRole, isCollapsible, activeSection }) => {
             isActive
               ? "bg-gray-800 text-white"
               : "text-gray-300 hover:bg-gray-800 hover:text-white",
-            !isOpen && "justify-center"
+            !isOpen && !isMobile && "justify-center"
           )
         }
       >
-        {item.icon && <item.icon className={cn("w-6 h-6", !isOpen && "mx-auto")} />}
-        {isOpen && <span className="ml-3">{item.label}</span>}
+        {item.icon && <item.icon className={cn("w-6 h-6", !isOpen && !isMobile && "mx-auto")} />}
+        {(isOpen || isMobile) && <span className="ml-3">{item.label}</span>}
       </NavLink>
     </li>
   );
 };
 
-const Sidebar = ({ isOpen }) => {
+const Sidebar = ({ isOpen, isMobile }) => {
   const { user } = useAuth();
   const [userRole, setUserRole] = useState('Vendedor');
   const [isCollapsible, setIsCollapsible] = useState(false);
@@ -128,11 +131,11 @@ const Sidebar = ({ isOpen }) => {
     fetchUserRole();
 
     const handleResize = () => {
-      const sidebarHeight = document.querySelector('aside').clientHeight;
+      const sidebarHeight = document.querySelector('aside')?.clientHeight;
       const totalItemsHeight = navItems.reduce((acc, item) => {
         return acc + (item.children ? (item.children.length + 1) * 40 : 40);
       }, 0);
-      setIsCollapsible(totalItemsHeight > sidebarHeight - 300); // Increased threshold to 300px
+      setIsCollapsible(totalItemsHeight > (sidebarHeight || 0) - 300);
     };
 
     window.addEventListener('resize', handleResize);
@@ -151,43 +154,42 @@ const Sidebar = ({ isOpen }) => {
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 z-50 h-[calc(100vh-1.5rem)] m-3 rounded-xl transition-all duration-300",
-      isOpen ? "w-60" : "w-20",
+      "h-full overflow-y-auto py-3 px-1.5",
+      isMobile ? "w-full" : (isOpen ? "w-60" : "w-20"),
       "bg-gray-900 text-white shadow-md"
     )}>
-      <div className="h-full overflow-y-auto py-3 px-1.5">
-        <div className={cn(
-          "text-xl font-bold mb-3 text-center",
-          !isOpen && "text-sm"
-        )}>
-          {isOpen ? "MyShopTools" : "MST"}
-        </div>
-        <ul className="space-y-1">
-          {navItems.map((item, index) => (
-            <React.Fragment key={index}>
-              <NavItem 
-                item={item} 
-                isOpen={isOpen} 
-                userRole={userRole} 
-                isCollapsible={isCollapsible} 
-                activeSection={activeSection}
-              />
-              {isOpen && index < navItems.length - 1 && <Separator className="my-1 bg-gray-700" />}
-            </React.Fragment>
-          ))}
-        </ul>
-        <div className="absolute bottom-3 left-1.5 right-1.5">
-          <NavLink
-            to="/suporte"
-            className={cn(
-              "flex items-center p-2 text-base font-normal rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white",
-              !isOpen && "justify-center"
-            )}
-          >
-            <LifeBuoy className={cn("w-6 h-6", !isOpen && "mx-auto")} />
-            {isOpen && <span className="ml-3">Suporte</span>}
-          </NavLink>
-        </div>
+      <div className={cn(
+        "text-xl font-bold mb-3 text-center",
+        !isOpen && !isMobile && "text-sm"
+      )}>
+        {isOpen || isMobile ? "MyShopTools" : "MST"}
+      </div>
+      <ul className="space-y-1">
+        {navItems.map((item, index) => (
+          <React.Fragment key={index}>
+            <NavItem 
+              item={item} 
+              isOpen={isOpen} 
+              userRole={userRole} 
+              isCollapsible={isCollapsible} 
+              activeSection={activeSection}
+              isMobile={isMobile}
+            />
+            {(isOpen || isMobile) && index < navItems.length - 1 && <Separator className="my-1 bg-gray-700" />}
+          </React.Fragment>
+        ))}
+      </ul>
+      <div className="mt-4">
+        <NavLink
+          to="/suporte"
+          className={cn(
+            "flex items-center p-2 text-base font-normal rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white",
+            !isOpen && !isMobile && "justify-center"
+          )}
+        >
+          <LifeBuoy className={cn("w-6 h-6", !isOpen && !isMobile && "mx-auto")} />
+          {(isOpen || isMobile) && <span className="ml-3">Suporte</span>}
+        </NavLink>
       </div>
     </aside>
   );

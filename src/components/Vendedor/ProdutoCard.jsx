@@ -43,18 +43,18 @@ const ProdutoCard = ({ produto, onDetalhes, onImportar, isImportado, onExcluir, 
   return (
     <Card className="w-full h-full flex flex-col">
       <CardContent className="p-2 flex-grow flex flex-col justify-between">
-        <h3 className="font-semibold text-sm line-clamp-2 mb-2">{produto.titulo}</h3>
         {renderProductImage(produto.fotos && produto.fotos[0])}
         <div className="mt-2 space-y-1">
+          <h3 className="font-semibold text-sm line-clamp-2">{produto.titulo}</h3>
           <div className="flex items-center justify-between flex-wrap">
             <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.precoVenda || produto.preco)}</p>
             {produto.desconto > 0 && (
-              <>
-                <span className="text-xs text-gray-500 line-through">
+              <div className="flex items-center">
+                <span className="text-xs text-gray-500 line-through mr-1">
                   R$ {formatPrice(calculateOldPrice(produto.precoVenda || produto.preco, produto.desconto))}
                 </span>
                 <span className="bg-red-500 text-white text-xs px-1 py-0.5 rounded-full">-{produto.desconto}%</span>
-              </>
+              </div>
             )}
           </div>
           <p className="text-xs text-gray-600">Venda sugerida: R$ {formatPrice(produto.vendaSugerida)}</p>
