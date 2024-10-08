@@ -79,6 +79,10 @@ const MockCheckout = ({ isOpen, onClose, products = [] }) => {
 
   if (!products || products.length === 0) return null;
 
+  const truncateTitle = (title, maxLength = 30) => {
+    return title.length > maxLength ? title.substring(0, maxLength) + '...' : title;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[400px]">
@@ -91,7 +95,9 @@ const MockCheckout = ({ isOpen, onClose, products = [] }) => {
               <div className="max-h-60 overflow-y-auto mb-4">
                 {products.map((product, index) => (
                   <div key={index} className="flex justify-between items-center mb-2">
-                    <span className="text-sm truncate">{product?.titulo}</span>
+                    <span className="text-sm truncate" title={product?.titulo}>
+                      {truncateTitle(product?.titulo || '')}
+                    </span>
                     <span className="font-bold">{formatCurrency(product?.preco)}</span>
                   </div>
                 ))}

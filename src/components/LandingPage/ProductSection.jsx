@@ -66,7 +66,9 @@ const ProductSection = () => {
             <p className="text-2xl font-bold text-blue-600">{formatCurrency(produto.preco)}</p>
             {produto.desconto > 0 && (
               <div className="flex items-center">
-                <span className="text-sm text-gray-500 line-through mr-1">{formatCurrency(produto.precoAntigo)}</span>
+                <span className="text-sm text-gray-500 line-through mr-1">
+                  {formatCurrency(produto.preco / (1 - produto.desconto / 100))}
+                </span>
                 <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">-{produto.desconto}%</span>
               </div>
             )}
