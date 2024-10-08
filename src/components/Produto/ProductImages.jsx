@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Download } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-const ProductImages = ({ fotos, titulo }) => {
+const ProductImages = ({ fotos, titulo, activeMarketplace }) => {
   const [fotoPrincipal, setFotoPrincipal] = useState(fotos[0] || "/placeholder.svg");
 
   const handleThumbnailClick = (foto) => {
     setFotoPrincipal(foto);
+  };
+
+  const handleDownload = (imageUrl) => {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `${titulo.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const renderImage = (img, index, isThumbnail = false) => (
@@ -20,6 +31,28 @@ const ProductImages = ({ fotos, titulo }) => {
         alt={`${titulo} ${index + 1}`} 
         className="absolute inset-0 w-full h-full object-cover border-l-[3px] border-r-[3px] border-primary"
       />
+      {activeMarketplace === 'Fornecedor' && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2 bg-white bg-opacity-70 hover:bg-opacity-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownload(img);
+                }}
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Baixar imagem</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
     </div>
   );
 

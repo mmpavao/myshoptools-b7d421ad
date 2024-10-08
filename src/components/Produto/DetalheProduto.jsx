@@ -60,7 +60,11 @@ const DetalheProduto = () => {
       </Tabs>
 
       <div className="flex flex-col md:flex-row gap-8">
-        <ProductImages fotos={produto.fotos} titulo={produto.titulo} />
+        <ProductImages 
+          fotos={produto.fotos} 
+          titulo={produto.titulo} 
+          activeMarketplace={activeMarketplace}
+        />
         <ProductDetails 
           produto={produto} 
           activeMarketplace={activeMarketplace}
