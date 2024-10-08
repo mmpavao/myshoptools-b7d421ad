@@ -14,6 +14,10 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
     return typeof price === 'number' ? price.toFixed(2) : '0.00';
   };
 
+  const calculateOldPrice = (currentPrice, discount) => {
+    return currentPrice / (1 - discount / 100);
+  };
+
   const renderMarketplaceSpecificContent = () => {
     switch (activeMarketplace) {
       case 'Fornecedor':
@@ -21,8 +25,30 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
           <div>
             <h3 className="text-lg font-semibold mb-2">Informações do Fornecedor</h3>
             <p>SKU do Fornecedor: {produto.sku || 'N/A'}</p>
-            <p>Preço de Custo: R$ {formatPrice(produto.preco)}</p>
-            <p>Estoque Disponível: {produto.estoque || 0}</p>
+            <div className="mt-4 space-y-2">
+              <div className="flex justify-between items-center">
+                <span>Preço de Custo:</span>
+                <span className="font-semibold">R$ {formatPrice(produto.preco)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Venda Sugerida:</span>
+                <span className="font-semibold">R$ {formatPrice(produto.vendaSugerida)}</span>
+              </div>
+              {produto.desconto > 0 && (
+                <div className="flex justify-between items-center">
+                  <span>Desconto:</span>
+                  <span className="font-semibold text-red-500">{produto.desconto}%</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center">
+                <span>Preço com Desconto:</span>
+                <span className="font-semibold">R$ {formatPrice(produto.vendaSugerida * (1 - produto.desconto / 100))}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Estoque Disponível:</span>
+                <span className="font-semibold">{produto.estoque || 0}</span>
+              </div>
+            </div>
           </div>
         );
       case 'MyShop':
@@ -67,7 +93,7 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
             {produto.desconto > 0 && (
               <>
                 <span className="ml-2 text-gray-500 line-through">
-                  R$ {formatPrice(produto.preco / (1 - produto.desconto / 100))}
+                  R$ {formatPrice(calculateOldPrice(produto.preco, produto.desconto))}
                 </span>
                 <span className="ml-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm">-{produto.desconto}%</span>
               </>
