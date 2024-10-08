@@ -1,11 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { StarIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { renderStars, formatPrice, calculateOldPrice } from './productUtils';
 import MyShopLandingPage from '../Vendedor/MyShopLandingPage';
+import firebaseOperations from '../../firebase/firebaseOperations';
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from '../Auth/AuthProvider';
 
 const ProductDetails = ({ produto, activeMarketplace }) => {
+  const [isLandingPageOpen, setIsLandingPageOpen] = useState(false);
+  const [myShopUrl, setMyShopUrl] = useState('');
+  const { toast } = useToast();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user && activeMarketplace === 'MyShop') {
+      fetchMyShopUrl();
+    }
+  }, [user, activeMarketplace]);
+
+  const fetchMyShopUrl = async () => {
+    try {
+      const url = await firebaseOperations.getMyShopUrl(user.uid);
+      setMyShopUrl(url);
+    } catch (error) {
+      console.error("Erro ao buscar URL da loja MyShop:", error);
+    }
+  };
+
+  const copyMyShopUrl = () => {
+    navigator.clipboard.writeText(myShopUrl);
+    toast({
+      title: "URL Copiada",
+      description: "A URL da sua loja MyShop foi copiada para a área de transferência.",
+    });
+  };
+
   const renderFornecedorContent = () => (
     <div>
       <div className="mb-4">
@@ -59,7 +90,24 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
       <h3 className="text-lg font-semibold mb-2">Configurações MyShop</h3>
       <p>Preço de Venda: R$ {formatPrice(produto.precoVenda)}</p>
       <p>Estoque Disponível: {produto.estoqueDisponivel || 0}</p>
-      <MyShopLandingPage produtos={[produto]} />
+      <div className="mt-4 space-y-2">
+        <Button onClick={() => setIsLandingPageOpen(true)} className="w-full">Vender em MyShop</Button>
+        {myShopUrl && (
+          <Button variant="outline" onClick={copyMyShopUrl} className="w-full">
+            Copiar URL da Loja
+          </Button>
+        )}
+        {myShopUrl && (
+          <Button variant="outline" onClick={() => window.open(myShopUrl, '_blank')} className="w-full">
+            Ver Loja
+          </Button>
+        )}
+      </div>
+      <MyShopLandingPage
+        isOpen={isLandingPageOpen}
+        onClose={() => setIsLandingPageOpen(false)}
+        produtos={[produto]}
+      />
     </div>
   );
 
