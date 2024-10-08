@@ -1,6 +1,8 @@
 import { db, auth } from './config';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { sendPasswordResetEmail as firebaseSendPasswordResetEmail } from 'firebase/auth';
+import { doc, getDoc, setDoc, updateDoc, getDocs, collection } from 'firebase/firestore';
+import { sendPasswordResetEmail as firebaseSendPasswordResetEmail, updateProfile } from 'firebase/auth';
+import { toast } from '@/components/ui/use-toast';
+import { MASTER_USER_EMAIL, userRoles } from '../utils/userConstants';
 
 const firebaseOperations = {
   createUser: async (userData) => {
@@ -66,6 +68,19 @@ const firebaseOperations = {
       return true;
     } catch (error) {
       console.error('Erro ao enviar e-mail de redefinição de senha:', error);
+      throw error;
+    }
+  },
+
+  getUserProfile: async (userId) => {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', userId));
+      if (userDoc.exists()) {
+        return userDoc.data();
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
       throw error;
     }
   },
