@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from '../Auth/AuthProvider';
 import AvatarEditor from './AvatarEditor';
 import { countries, formatPhoneNumber } from '../../utils/formUtils';
+import { updateSpecificUserAvatar } from '../../utils/updateSpecificUserAvatar';
 
 export const PersonalInfoForm = () => {
   const { user, updateUserContext } = useAuth();
@@ -26,6 +27,22 @@ export const PersonalInfoForm = () => {
     if (user && user.uid) {
       loadUserProfile(user.uid);
     }
+  }, [user]);
+
+  useEffect(() => {
+    // Atualizar avatar para o usuário específico (marcio@talkmaker.io)
+    const updateAvatar = async () => {
+      if (user && user.email === 'marcio@talkmaker.io') {
+        const avatarUrl = 'https://firebasestorage.googleapis.com/v0/b/myshoptools-84ff5.appspot.com/o/avatars%2FDALL%C2%B7E%202024-09-15%2023.22.44%20-%20An%20illustration%20of%20a%20character%20named%20\'Mr.%20Shop\'%2C%20representing%20an%20experienced%20and%20friendly%20e-commerce%20mentor.%20He%20is%20a%2040-year-old%20man%20wearing%20a%20blue%20dr.webp?alt=media&token=bfd7b3b3-d352-47eb-869d-7a7b49c1295c';
+        try {
+          await updateSpecificUserAvatar(user.email, avatarUrl);
+          setFormData(prev => ({ ...prev, profileImage: avatarUrl }));
+        } catch (error) {
+          console.error('Erro ao atualizar avatar específico:', error);
+        }
+      }
+    };
+    updateAvatar();
   }, [user]);
 
   const loadUserProfile = async (userId) => {
