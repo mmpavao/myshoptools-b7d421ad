@@ -23,8 +23,8 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   };
 
   return (
-    <header className="bg-transparent shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
-      <div className="flex items-center justify-between h-16 px-4">
+    <header className="bg-transparent shadow-sm">
+      <div className="flex items-center justify-between h-[5.25rem] px-4">
         <div className="flex items-center">
           <Button
             variant="ghost"
@@ -33,37 +33,37 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
             className="mr-4 text-gray-600 hover:text-gray-800"
           >
             {isSidebarOpen ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             )}
           </Button>
-          <span className="text-lg font-semibold text-gray-800">{companyName}</span>
+          <span className="text-xl font-semibold text-gray-800">{companyName}</span>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-4">
           <div className="relative">
             <Input
               type="search"
               placeholder="Pesquisar..."
-              className="w-48 pl-8 pr-2 py-1 rounded-full bg-gray-100 text-gray-800 placeholder-gray-400 focus:bg-white transition-colors duration-200 text-sm"
+              className="w-64 pl-10 pr-4 py-2 rounded-full bg-gray-100 text-gray-800 placeholder-gray-400 focus:bg-white transition-colors duration-200"
             />
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-800 w-8 h-8">
-            <Bell size={16} />
+          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-800">
+            <Bell size={20} />
           </Button>
-          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-800 w-8 h-8">
-            <Sun size={16} />
+          <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-800">
+            <Sun size={20} />
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-7 w-7 rounded-full">
-                <Avatar className="h-7 w-7">
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
                   <AvatarImage src={user?.photoURL} alt="User avatar" />
                   <AvatarFallback>
-                    {user?.displayName?.[0] || <User className="h-3 w-3" />}
+                    {user?.displayName?.[0] || <User className="h-4 w-4" />}
                   </AvatarFallback>
                 </Avatar>
               </Button>
