@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/Auth/AuthProvider';
 import firebaseOperations from '../firebase/firebaseOperations';
 
 const LandingPage = () => {
   const [myShopProducts, setMyShopProducts] = useState([]);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -22,12 +24,23 @@ const LandingPage = () => {
     }
   };
 
+  const handleCTAClick = () => {
+    navigate('/register');
+  };
+
   return (
     <div className="bg-gradient-to-b from-primary to-primary-foreground min-h-screen">
       <header className="container mx-auto py-16 text-center">
         <h1 className="text-5xl font-bold mb-4 text-white">Transforme seu Negócio com MyShopTools</h1>
         <p className="text-xl mb-8 text-white">A plataforma completa para impulsionar suas vendas online</p>
-        <Button size="lg" className="bg-white text-primary hover:bg-gray-100">Comece Agora Gratuitamente</Button>
+        <div className="space-x-4">
+          <Button size="lg" className="bg-white text-primary hover:bg-gray-100" onClick={handleCTAClick}>
+            Comece Agora Gratuitamente
+          </Button>
+          <Button size="lg" className="bg-secondary text-white hover:bg-secondary-dark" onClick={handleCTAClick}>
+            Acesse Grátis por 14 Dias
+          </Button>
+        </div>
       </header>
 
       <section className="bg-white py-16">
@@ -85,7 +98,9 @@ const LandingPage = () => {
       <section className="py-16">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold mb-8">Pronto para Impulsionar suas Vendas?</h2>
-          <Button size="lg" className="bg-primary text-white hover:bg-primary-dark">Comece seu Teste Gratuito</Button>
+          <Button size="lg" className="bg-primary text-white hover:bg-primary-dark" onClick={handleCTAClick}>
+            Comece seu Teste Gratuito
+          </Button>
         </div>
       </section>
 
