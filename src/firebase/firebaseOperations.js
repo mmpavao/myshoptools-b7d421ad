@@ -128,8 +128,26 @@ const userProfileOperations = {
   // ... keep existing code (if any)
 };
 
+
 const myShopOperations = {
   // ... keep existing code (if any)
+  addProductToMyShopAndHighlight: async (userId, productId) => {
+    try {
+      // Adiciona o produto à loja MyShop do usuário
+      await addDoc(collection(db, `users/${userId}/myShopProducts`), { productId });
+
+      // Adiciona o produto aos destaques da landing page
+      const landPageRef = doc(db, 'settings', 'landpage');
+      await updateDoc(landPageRef, {
+        highlightedProducts: arrayUnion(productId)
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error adding product to MyShop and highlights:', error);
+      throw error;
+    }
+  },
 };
 
 const firebaseOperations = {
