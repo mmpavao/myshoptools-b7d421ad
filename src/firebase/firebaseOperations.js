@@ -212,6 +212,22 @@ const landPageOperations = {
       throw error;
     }
   },
+  uploadMarketplaceLogo: async (file, marketplace) => {
+    if (!file) {
+      throw new Error('No file provided');
+    }
+    const path = `landpage/marketplace_logos/${marketplace}_${Date.now()}.${file.name.split('.').pop()}`;
+    const downloadURL = await fileOperations.uploadFile(file, path);
+    
+    // Update landpage settings with new logo URL
+    await landPageOperations.saveLandPageSettings({
+      marketplaceLogos: {
+        [marketplace]: downloadURL
+      }
+    });
+    
+    return downloadURL;
+  },
 };
 
 const firebaseOperations = {

@@ -22,6 +22,13 @@ const LandPageSettings = () => {
     readyToSellStore: '',
     inventoryManagement: '',
     secureTransactions: '',
+    marketplaceLogos: {
+      mercadoLivre: '',
+      shopify: '',
+      shopee: '',
+      amazon: '',
+      wooCommerce: '',
+    },
   });
 
   useEffect(() => {
@@ -47,6 +54,33 @@ const LandPageSettings = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setSettings(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleLogoUpload = async (event, marketplace) => {
+    const file = event.target.files[0];
+    if (file) {
+      try {
+        const uploadedUrl = await firebaseOperations.uploadMarketplaceLogo(file, marketplace);
+        setSettings(prev => ({
+          ...prev,
+          marketplaceLogos: {
+            ...prev.marketplaceLogos,
+            [marketplace]: uploadedUrl
+          }
+        }));
+        toast({
+          title: "Sucesso",
+          description: `Logo do ${marketplace} atualizado com sucesso`,
+        });
+      } catch (error) {
+        console.error(`Erro ao fazer upload do logo do ${marketplace}:`, error);
+        toast({
+          title: "Erro",
+          description: `Falha ao atualizar o logo do ${marketplace}`,
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   const handleSave = async () => {
@@ -145,10 +179,28 @@ const LandPageSettings = () => {
           <Label htmlFor="secureTransactions">Transações Seguras (Descrição)</Label>
           <Textarea id="secureTransactions" name="secureTransactions" value={settings.secureTransactions} onChange={handleInputChange} />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="footerText">Texto do Rodapé</Label>
-          <Textarea id="footerText" name="footerText" value={settings.footerText} onChange={handleInputChange} />
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Logos dos Marketplaces</h3>
+          {Object.keys(settings.marketplaceLogos).map((marketplace) => (
+            <div key={marketplace} className="space-y-2">
+              <Label htmlFor={`${marketplace}Logo`}>{marketplace} Logo</Label>
+              <Input
+                id={`${marketplace}Logo`}
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleLogoUpload(e, marketplace)}
+              />
+              {settings.marketplaceLogos[marketplace] && (
+                <img
+                  src={settings.marketplaceLogos[marketplace]}
+                  alt={`${marketplace} logo`}
+                  className="mt-2 max-w-xs rounded"
+                />
+              )}
+            </div>
+          ))}
         </div>
+        
         <Button onClick={handleSave}>Salvar e Publicar</Button>
       </CardContent>
     </Card>
