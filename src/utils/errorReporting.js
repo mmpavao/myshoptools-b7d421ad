@@ -38,14 +38,17 @@ export const wrapFetch = () => {
     } catch (error) {
       if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
         console.error('Network error when fetching resource:', args[0]);
-        return {
-          ok: true,
-          status: 200,
-          url: '/placeholder.svg',
-          blob: async () => new Blob([''], { type: 'image/svg+xml' }),
-          text: async () => '',
-          json: async () => ({}),
-        };
+        if (args[0].includes('firebasestorage.googleapis.com')) {
+          console.warn('Firebase Storage resource unavailable:', args[0]);
+          return {
+            ok: false,
+            status: 404,
+            url: args[0],
+            blob: async () => new Blob([''], { type: 'image/svg+xml' }),
+            text: async () => '',
+            json: async () => ({}),
+          };
+        }
       }
       reportHTTPError(error);
       throw error;
