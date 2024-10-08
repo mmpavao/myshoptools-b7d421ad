@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider, ProtectedRoute, useAuth } from "./components/Auth/AuthProvider";
+import { AuthProvider, ProtectedRoute } from "./components/Auth/AuthProvider";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
@@ -22,78 +22,38 @@ import MeusProdutos from "./components/Produto/MeusProdutos";
 import AdminUserList from "./components/Admin/AdminUserList";
 import SettingsPage from "./components/Admin/SettingsPage";
 import ChatAdmin from "./components/Admin/ChatAdmin";
-import { getUserRole } from "./firebase/userOperations";
 import OpenAIIntegration from "./integrations/OpenAIIntegration";
 import GoogleSheetsIntegration from "./integrations/GoogleSheetsIntegration";
 
 const queryClient = new QueryClient();
 
-const RoleBasedRoute = ({ element: Element, allowedRoles }) => {
-  const { user } = useAuth();
-  const [userRole, setUserRole] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    const fetchUserRole = async () => {
-      if (user) {
-        const role = await getUserRole(user.uid);
-        setUserRole(role);
-      }
-      setLoading(false);
-    };
-    fetchUserRole();
-  }, [user]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user || !allowedRoles.includes(userRole)) {
-    return <Navigate to="/login" />;
-  }
-
-  return (
-    <Layout>
-      <Element />
-    </Layout>
-  );
-};
-
 const AppRoutes = () => {
-  const { user } = useAuth();
-
-  return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
-      <Route path="/dashboard" element={<ProtectedRoute><RoleBasedRoute element={Dashboard} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/vitrine" element={<ProtectedRoute><RoleBasedRoute element={Vitrine} allowedRoles={['Vendedor', 'Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/meus-pedidos" element={<ProtectedRoute><RoleBasedRoute element={MeusPedidos} allowedRoles={['Vendedor', 'Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/estoque" element={<ProtectedRoute><RoleBasedRoute element={Estoque} allowedRoles={['Fornecedor', 'Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/pedidos-fornecedor" element={<ProtectedRoute><RoleBasedRoute element={PedidosFornecedor} allowedRoles={['Fornecedor', 'Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/meus-produtos" element={<ProtectedRoute><RoleBasedRoute element={MeusProdutos} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/integracoes" element={<ProtectedRoute><RoleBasedRoute element={() => <div>Integrações</div>} allowedRoles={['Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/logs" element={<ProtectedRoute><RoleBasedRoute element={LogsPage} allowedRoles={['Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/profile" element={<ProtectedRoute><RoleBasedRoute element={UserProfile} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/documentation" element={<ProtectedRoute><RoleBasedRoute element={DocumentationPage} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/apis" element={<ProtectedRoute><RoleBasedRoute element={APIPage} allowedRoles={['Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/suporte" element={<ProtectedRoute><RoleBasedRoute element={() => <div>Suporte</div>} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/produto/:id" element={<ProtectedRoute><RoleBasedRoute element={DetalheProduto} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/admin/users" element={<ProtectedRoute><RoleBasedRoute element={AdminUserList} allowedRoles={['Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/admin/settings" element={<ProtectedRoute><RoleBasedRoute element={SettingsPage} allowedRoles={['Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/admin/chat" element={<ProtectedRoute><RoleBasedRoute element={ChatAdmin} allowedRoles={['Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/admin/integrations/openai" element={<ProtectedRoute><RoleBasedRoute element={OpenAIIntegration} allowedRoles={['Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="/admin/integrations/google-sheets" element={<ProtectedRoute><RoleBasedRoute element={GoogleSheetsIntegration} allowedRoles={['Admin', 'Master']} /></ProtectedRoute>} />
-      <Route path="*" element={<Navigate to="/dashboard" />} />
-    </Routes>
-  );
-};
-
-const AppContent = () => {
   return (
     <AuthProvider>
-      <AppRoutes />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<ProtectedRoute><Navigate to="/dashboard" /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+        <Route path="/vitrine" element={<ProtectedRoute><Layout><Vitrine /></Layout></ProtectedRoute>} />
+        <Route path="/meus-pedidos" element={<ProtectedRoute><Layout><MeusPedidos /></Layout></ProtectedRoute>} />
+        <Route path="/estoque" element={<ProtectedRoute><Layout><Estoque /></Layout></ProtectedRoute>} />
+        <Route path="/pedidos-fornecedor" element={<ProtectedRoute><Layout><PedidosFornecedor /></Layout></ProtectedRoute>} />
+        <Route path="/meus-produtos" element={<ProtectedRoute><Layout><MeusProdutos /></Layout></ProtectedRoute>} />
+        <Route path="/integracoes" element={<ProtectedRoute><Layout><div>Integrações</div></Layout></ProtectedRoute>} />
+        <Route path="/logs" element={<ProtectedRoute><Layout><LogsPage /></Layout></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Layout><UserProfile /></Layout></ProtectedRoute>} />
+        <Route path="/documentation" element={<ProtectedRoute><Layout><DocumentationPage /></Layout></ProtectedRoute>} />
+        <Route path="/apis" element={<ProtectedRoute><Layout><APIPage /></Layout></ProtectedRoute>} />
+        <Route path="/suporte" element={<ProtectedRoute><Layout><div>Suporte</div></Layout></ProtectedRoute>} />
+        <Route path="/produto/:id" element={<ProtectedRoute><Layout><DetalheProduto /></Layout></ProtectedRoute>} />
+        <Route path="/admin/users" element={<ProtectedRoute><Layout><AdminUserList /></Layout></ProtectedRoute>} />
+        <Route path="/admin/settings" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
+        <Route path="/admin/chat" element={<ProtectedRoute><Layout><ChatAdmin /></Layout></ProtectedRoute>} />
+        <Route path="/admin/integrations/openai" element={<ProtectedRoute><Layout><OpenAIIntegration /></Layout></ProtectedRoute>} />
+        <Route path="/admin/integrations/google-sheets" element={<ProtectedRoute><Layout><GoogleSheetsIntegration /></Layout></ProtectedRoute>} />
+        <Route path="*" element={<Navigate to="/dashboard" />} />
+      </Routes>
     </AuthProvider>
   );
 };
@@ -104,7 +64,7 @@ const App = () => (
       <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
         <Router>
           <Toaster position="top-right" />
-          <AppContent />
+          <AppRoutes />
         </Router>
       </GoogleOAuthProvider>
     </TooltipProvider>
