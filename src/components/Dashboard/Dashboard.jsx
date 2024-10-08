@@ -13,6 +13,7 @@ import SalesDistribution from './SalesDistribution';
 import UserInfo from './UserInfo';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { formatCurrency } from '../../utils/currencyUtils';
+import { toast } from '@/components/ui/use-toast';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -28,15 +29,29 @@ const Dashboard = () => {
     checkTable: [],
     distribuicaoVendas: []
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       if (user) {
         try {
+          setLoading(true);
+          setError(null);
+          console.log("Fetching dashboard data for user:", user.uid);
           const data = await firebaseOperations.getDashboardData(user.uid);
+          console.log("Received dashboard data:", data);
           setDashboardData(prevData => ({ ...prevData, ...data }));
         } catch (error) {
           console.error("Erro ao buscar dados do dashboard:", error);
+          setError("Falha ao carregar os dados do dashboard. Por favor, tente novamente.");
+          toast({
+            title: "Erro",
+            description: "Não foi possível carregar os dados do dashboard.",
+            variant: "destructive",
+          });
+        } finally {
+          setLoading(false);
         }
       }
     };
@@ -48,8 +63,16 @@ const Dashboard = () => {
     await logout();
   };
 
+  if (loading) {
+    return <div>Carregando dados do dashboard...</div>;
+  }
+
+  if (error) {
+    return <div>Erro: {error}</div>;
+  }
+
   if (!user) {
-    return <div>Carregando...</div>;
+    return <div>Usuário não autenticado. Por favor, faça login.</div>;
   }
 
   return (
