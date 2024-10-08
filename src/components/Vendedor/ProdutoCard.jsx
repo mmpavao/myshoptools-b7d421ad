@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { StarIcon } from "lucide-react";
+import { StarIcon, Heart } from "lucide-react";
 
 const ProdutoCard = ({ produto, onDetalhes }) => {
+  const [isFavorite, setIsFavorite] = useState(false);
+
   const renderProductImage = (foto) => (
     <div className="w-full pb-[100%] relative overflow-hidden rounded-lg">
       <img 
@@ -11,6 +13,17 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
         alt={produto.titulo} 
         className="absolute top-0 left-0 w-full h-full object-cover"
       />
+      <button
+        className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-md"
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsFavorite(!isFavorite);
+        }}
+      >
+        <Heart
+          className={`w-5 h-5 ${isFavorite ? 'text-red-500 fill-red-500' : 'text-gray-400'}`}
+        />
+      </button>
     </div>
   );
 
