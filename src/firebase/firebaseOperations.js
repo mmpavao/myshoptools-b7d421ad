@@ -279,12 +279,58 @@ const pedidosOperations = {
     }
   },
 
-  adicionarPedidoFornecedor: async (fornecedorId, pedido) => {
+  adicionarPedidoFornecedor: async (produtoId, pedido) => {
     try {
-      const pedidoRef = await addDoc(collection(db, 'fornecedores', fornecedorId, 'pedidos'), pedido);
+      const pedidoRef = await addDoc(collection(db, 'pedidosFornecedor'), {
+        ...pedido,
+        produtoId,
+        statusLogistica: 'Aguardando'
+      });
       return pedidoRef.id;
     } catch (error) {
       console.error('Erro ao adicionar pedido do fornecedor:', error);
+      throw error;
+    }
+  },
+
+  getPedidosVendedor: async (userId) => {
+    try {
+      const pedidosRef = collection(db, 'users', userId, 'pedidos');
+      const snapshot = await getDocs(pedidosRef);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      console.error('Erro ao buscar pedidos do vendedor:', error);
+      throw error;
+    }
+  },
+
+  getPedidosFornecedor: async () => {
+    try {
+      const pedidosRef = collection(db, 'pedidosFornecedor');
+      const snapshot = await getDocs(pedidosRef);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      console.error('Erro ao buscar pedidos do fornecedor:', error);
+      throw error;
+    }
+  },
+
+  atualizarStatusPedidoFornecedor: async (pedidoId, novoStatus) => {
+    try {
+      const pedidoRef = doc(db, 'pedidosFornecedor', pedidoId);
+      await updateDoc(pedidoRef, { statusLogistica: novoStatus });
+    } catch (error) {
+      console.error('Erro ao atualizar status do pedido do fornecedor:', error);
+      throw error;
+    }
+  },
+
+  atualizarEstoque: async (produtoId, novaQuantidade) => {
+    try {
+      const produtoRef = doc(db, 'products', produtoId);
+      await updateDoc(produtoRef, { estoque: novaQuantidade });
+    } catch (error) {
+      console.error('Erro ao atualizar estoque:', error);
       throw error;
     }
   },

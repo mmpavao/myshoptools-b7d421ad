@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,19 +6,32 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, CreditCard } from 'lucide-react';
+import { useAuth } from '../Auth/AuthProvider';
+import firebaseOperations from '../../firebase/firebaseOperations';
 
 const MeusPedidos = () => {
   const [filtro, setFiltro] = useState('');
-  // Simulação de pedidos
-  const pedidos = [
-    { id: 1, plataforma: 'Mercado Livre', produto: 'Produto 1', precoVenda: 150, precoFornecedor: 100, status: 'Pendente' },
-    { id: 2, plataforma: 'Amazon', produto: 'Produto 2', precoVenda: 300, precoFornecedor: 200, status: 'Pago' },
-    // Adicione mais pedidos conforme necessário
-  ];
+  const [pedidos, setPedidos] = useState([]);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      fetchPedidos();
+    }
+  }, [user]);
+
+  const fetchPedidos = async () => {
+    try {
+      const pedidosData = await firebaseOperations.getPedidosVendedor(user.uid);
+      setPedidos(pedidosData);
+    } catch (error) {
+      console.error("Erro ao buscar pedidos:", error);
+    }
+  };
 
   const pedidosFiltrados = pedidos.filter(pedido =>
-    pedido.produto.toLowerCase().includes(filtro.toLowerCase()) ||
-    pedido.plataforma.toLowerCase().includes(filtro.toLowerCase())
+    pedido.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
+    pedido.sku.toLowerCase().includes(filtro.toLowerCase())
   );
 
   return (
@@ -65,10 +78,10 @@ const PedidosTable = ({ pedidos }) => (
       <TableRow>
         <TableHead className="w-[50px]"><Checkbox /></TableHead>
         <TableHead>ID</TableHead>
-        <TableHead>Plataforma</TableHead>
+        <TableHead>SKU</TableHead>
         <TableHead>Produto</TableHead>
         <TableHead>Preço de Venda</TableHead>
-        <TableHead>Preço Fornecedor</TableHead>
+        <TableHead>Data da Compra</TableHead>
         <TableHead>Status</TableHead>
         <TableHead>Ações</TableHead>
       </TableRow>
@@ -78,10 +91,10 @@ const PedidosTable = ({ pedidos }) => (
         <TableRow key={pedido.id}>
           <TableCell><Checkbox /></TableCell>
           <TableCell>{pedido.id}</TableCell>
-          <TableCell>{pedido.plataforma}</TableCell>
-          <TableCell>{pedido.produto}</TableCell>
-          <TableCell>R$ {pedido.precoVenda}</TableCell>
-          <TableCell>R$ {pedido.precoFornecedor}</TableCell>
+          <TableCell>{pedido.sku}</TableCell>
+          <TableCell>{pedido.titulo}</TableCell>
+          <TableCell>R$ {pedido.preco}</TableCell>
+          <TableCell>{new Date(pedido.dataCompra).toLocaleDateString()}</TableCell>
           <TableCell>{pedido.status}</TableCell>
           <TableCell className="space-x-2">
             <Button variant="outline" size="icon"><Eye className="h-4 w-4" /></Button>

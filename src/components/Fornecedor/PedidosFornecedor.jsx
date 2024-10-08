@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,19 +7,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, Truck } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import firebaseOperations from '../../firebase/firebaseOperations';
 
 const PedidosFornecedor = () => {
   const [filtro, setFiltro] = useState('');
-  // Simulação de pedidos do fornecedor
-  const pedidos = [
-    { id: 1, produto: 'Produto 1', quantidade: 2, valorTotal: 200, statusPagamento: 'Pago', statusLogistica: 'Preparando' },
-    { id: 2, produto: 'Produto 2', quantidade: 1, valorTotal: 300, statusPagamento: 'Pendente', statusLogistica: 'Aguardando' },
-    // Adicione mais pedidos conforme necessário
-  ];
+  const [pedidos, setPedidos] = useState([]);
+
+  useEffect(() => {
+    fetchPedidos();
+  }, []);
+
+  const fetchPedidos = async () => {
+    try {
+      const pedidosData = await firebaseOperations.getPedidosFornecedor();
+      setPedidos(pedidosData);
+    } catch (error) {
+      console.error("Erro ao buscar pedidos do fornecedor:", error);
+    }
+  };
 
   const pedidosFiltrados = pedidos.filter(pedido =>
-    pedido.produto.toLowerCase().includes(filtro.toLowerCase()) ||
-    pedido.statusLogistica.toLowerCase().includes(filtro.toLowerCase())
+    pedido.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
+    pedido.sku.toLowerCase().includes(filtro.toLowerCase())
   );
 
   return (
@@ -65,16 +74,27 @@ const PedidosTable = ({ pedidos }) => {
     'Aguardando', 'Preparando', 'Pronto para envio', 'Enviado', 'Entregue', 'Cancelado'
   ];
 
+  const handleStatusChange = async (pedidoId, novoStatus) => {
+    try {
+      await firebaseOperations.atualizarStatusPedidoFornecedor(pedidoId, novoStatus);
+      // Atualizar a lista de pedidos após a mudança de status
+      // Você pode implementar uma função para atualizar apenas o pedido específico, se preferir
+    } catch (error) {
+      console.error("Erro ao atualizar status do pedido:", error);
+    }
+  };
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead className="w-[50px]"><Checkbox /></TableHead>
           <TableHead>ID</TableHead>
+          <TableHead>SKU</TableHead>
           <TableHead>Produto</TableHead>
           <TableHead>Quantidade</TableHead>
           <TableHead>Valor Total</TableHead>
-          <TableHead>Status Pagamento</TableHead>
+          <TableHead>Data da Compra</TableHead>
           <TableHead>Status Logística</TableHead>
           <TableHead>Ações</TableHead>
         </TableRow>
@@ -84,12 +104,16 @@ const PedidosTable = ({ pedidos }) => {
           <TableRow key={pedido.id}>
             <TableCell><Checkbox /></TableCell>
             <TableCell>{pedido.id}</TableCell>
-            <TableCell>{pedido.produto}</TableCell>
+            <TableCell>{pedido.sku}</TableCell>
+            <TableCell>{pedido.titulo}</TableCell>
             <TableCell>{pedido.quantidade}</TableCell>
-            <TableCell>R$ {pedido.valorTotal}</TableCell>
-            <TableCell>{pedido.statusPagamento}</TableCell>
+            <TableCell>R$ {pedido.preco}</TableCell>
+            <TableCell>{new Date(pedido.dataCompra).toLocaleDateString()}</TableCell>
             <TableCell>
-              <Select defaultValue={pedido.statusLogistica}>
+              <Select 
+                defaultValue={pedido.statusLogistica} 
+                onValueChange={(value) => handleStatusChange(pedido.id, value)}
+              >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Status Logística" />
                 </SelectTrigger>

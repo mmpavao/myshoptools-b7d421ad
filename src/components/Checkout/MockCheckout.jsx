@@ -31,12 +31,13 @@ const MockCheckout = ({ isOpen, onClose, products = [], onPurchaseComplete }) =>
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       const pedidos = products.map(product => ({
-        produtoId: product?.id,
-        titulo: product?.titulo,
-        preco: product?.preco,
+        produtoId: product.id,
+        titulo: product.titulo,
+        preco: product.preco,
         quantidade: 1,
         status: 'Pago',
         dataCompra: new Date().toISOString(),
+        sku: product.sku,
       }));
 
       if (user) {
@@ -49,6 +50,11 @@ const MockCheckout = ({ isOpen, onClose, products = [], onPurchaseComplete }) =>
         firebaseOperations.adicionarPedidoFornecedor(pedido.produtoId, pedido)
       ));
 
+      // Atualizar o estoque
+      await Promise.all(products.map(product =>
+        firebaseOperations.atualizarEstoque(product.id, product.estoque - 1)
+      ));
+
       setIsProcessing(false);
       setIsPurchaseComplete(true);
       
@@ -58,7 +64,7 @@ const MockCheckout = ({ isOpen, onClose, products = [], onPurchaseComplete }) =>
         origin: { y: 0.6 }
       });
 
-      onPurchaseComplete(); // Notifica o componente pai que a compra foi concluída
+      onPurchaseComplete();
 
     } catch (error) {
       console.error("Erro ao processar compra:", error);
