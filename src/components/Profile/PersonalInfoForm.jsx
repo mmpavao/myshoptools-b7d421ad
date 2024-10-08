@@ -49,6 +49,7 @@ const PersonalInfoForm = () => {
 
   const onAvatarSave = (newAvatarUrl) => {
     setFormData(prev => ({ ...prev, profileImage: newAvatarUrl }));
+    updateUserContext({ photoURL: newAvatarUrl });
   };
 
   const handleSubmit = async (e) => {

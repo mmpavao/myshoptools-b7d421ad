@@ -23,86 +23,43 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
     }
   }, [currentAvatar]);
 
-  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+  const onCropComplete = useCallback((_, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
       const reader = new FileReader();
-      reader.onload = (event) => {
-        setImage(event.target.result);
-      };
-      reader.readAsDataURL(file);
+      reader.onload = (event) => setImage(event.target.result);
+      reader.readAsDataURL(e.target.files[0]);
     }
   };
 
   const handleSave = useCallback(async () => {
-    if (croppedAreaPixels && user) {
-      setIsSaving(true);
-      try {
-        const croppedImage = await getCroppedImg(image, croppedAreaPixels);
-        const blob = await fetch(croppedImage).then(r => r.blob());
-        const downloadURL = await firebaseOperations.uploadProfileImage(user.uid, blob);
-        
-        await firebaseOperations.updateUserProfile(user.uid, { photoURL: downloadURL });
-        updateUserContext({ photoURL: downloadURL });
-        
-        onSave(downloadURL);
-        setIsOpen(false);
-        toast({
-          title: "Avatar Atualizado",
-          description: "Seu avatar foi atualizado com sucesso.",
-        });
-      } catch (error) {
-        console.error('Error updating avatar:', error);
-        toast({
-          title: "Erro",
-          description: "Não foi possível atualizar o avatar. Tente novamente.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsSaving(false);
-      }
+    if (!croppedAreaPixels || !user) return;
+    setIsSaving(true);
+    try {
+      const croppedImage = await getCroppedImg(image, croppedAreaPixels);
+      const blob = await fetch(croppedImage).then(r => r.blob());
+      const downloadURL = await firebaseOperations.uploadProfileImage(user.uid, blob);
+      
+      await firebaseOperations.updateUserProfile(user.uid, { photoURL: downloadURL });
+      updateUserContext({ photoURL: downloadURL });
+      
+      onSave(downloadURL);
+      setIsOpen(false);
+      toast({ title: "Avatar Atualizado", description: "Seu avatar foi atualizado com sucesso." });
+    } catch (error) {
+      console.error('Error updating avatar:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o avatar. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
     }
   }, [croppedAreaPixels, image, onSave, user, updateUserContext]);
-
-const createImage = (url) =>
-  new Promise((resolve, reject) => {
-    const image = new Image();
-    image.addEventListener('load', () => resolve(image));
-    image.addEventListener('error', (error) => reject(error));
-    image.setAttribute('crossOrigin', 'anonymous');
-    image.src = url;
-  });
-
-const getCroppedImg = async (imageSrc, pixelCrop) => {
-  const image = await createImage(imageSrc);
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
-
-  ctx.drawImage(
-    image,
-    pixelCrop.x,
-    pixelCrop.y,
-    pixelCrop.width,
-    pixelCrop.height,
-    0,
-    0,
-    pixelCrop.width,
-    pixelCrop.height
-  );
-
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      resolve(blob);
-    }, 'image/jpeg');
-  });
-};
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -121,36 +78,33 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
             className="hidden"
             id="avatar-upload"
           />
-          <label
-            htmlFor="avatar-upload"
-            className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-          >
+          <label htmlFor="avatar-upload" className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
             {image ? 'Trocar imagem' : 'Escolher arquivo'}
           </label>
           {!image && <span className="text-sm text-gray-500">Nenhum arquivo escolhido</span>}
         </div>
         {image && (
-          <div className="relative h-64 w-full mt-4">
-            <Cropper
-              image={image}
-              crop={crop}
-              zoom={zoom}
-              aspect={1}
-              onCropChange={setCrop}
-              onCropComplete={onCropComplete}
-              onZoomChange={setZoom}
+          <>
+            <div className="relative h-64 w-full mt-4">
+              <Cropper
+                image={image}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                onCropChange={setCrop}
+                onCropComplete={onCropComplete}
+                onZoomChange={setZoom}
+              />
+            </div>
+            <Slider
+              value={[zoom]}
+              min={1}
+              max={3}
+              step={0.1}
+              onValueChange={(value) => setZoom(value[0])}
+              className="mt-4"
             />
-          </div>
-        )}
-        {image && (
-          <Slider
-            value={[zoom]}
-            min={1}
-            max={3}
-            step={0.1}
-            onValueChange={(value) => setZoom(value[0])}
-            className="mt-4"
-          />
+          </>
         )}
         <Button onClick={handleSave} className="mt-4" disabled={isSaving || !image}>
           {isSaving ? (
@@ -200,7 +154,7 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => {
-      resolve(blob);
+      resolve(URL.createObjectURL(blob));
     }, 'image/jpeg');
   });
 };
