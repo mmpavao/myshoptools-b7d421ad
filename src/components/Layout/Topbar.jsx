@@ -21,9 +21,17 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
     navigate('/login');
   };
 
+  const companies = [
+    "Vissa Ecommerce",
+    "Online Sales",
+    "Colorfions",
+    "My Perfum",
+    "D&V Commerce"
+  ];
+
   return (
     <header className="bg-transparent">
-      <div className="flex items-center justify-between h-[4.2rem] px-4"> {/* Increased height by 5% */}
+      <div className="flex items-center justify-between h-[4.2rem] px-4">
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
@@ -43,9 +51,9 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>Empresa 1</DropdownMenuItem>
-              <DropdownMenuItem>Empresa 2</DropdownMenuItem>
-              <DropdownMenuItem>Empresa 3</DropdownMenuItem>
+              {companies.map((company, index) => (
+                <DropdownMenuItem key={index}>{company}</DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
