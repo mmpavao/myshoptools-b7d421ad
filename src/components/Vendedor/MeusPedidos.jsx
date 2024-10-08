@@ -15,9 +15,9 @@ const MeusPedidos = () => {
   const [pedidos, setPedidos] = useState([]);
   const [stats, setStats] = useState({
     total: 0,
-    pendentes: 0,
-    pagos: 0,
-    cancelados: 0
+    novos: 0,
+    processando: 0,
+    enviados: 0
   });
   const { user } = useAuth();
 
@@ -40,9 +40,9 @@ const MeusPedidos = () => {
   const calculateStats = (pedidosData) => {
     const newStats = {
       total: pedidosData.length,
-      pendentes: pedidosData.filter(p => p.status === 'Pendente').length,
-      pagos: pedidosData.filter(p => p.status === 'Pago').length,
-      cancelados: pedidosData.filter(p => p.status === 'Cancelado').length
+      novos: pedidosData.filter(p => p.statusVendedor === 'Novo').length,
+      processando: pedidosData.filter(p => p.statusVendedor === 'Processando').length,
+      enviados: pedidosData.filter(p => p.statusVendedor === 'Enviado').length
     };
     setStats(newStats);
   };
@@ -72,9 +72,9 @@ const MeusPedidos = () => {
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total de Pedidos" value={stats.total} icon={Package} />
-        <StatCard title="Pedidos Pendentes" value={stats.pendentes} icon={Clock} />
-        <StatCard title="Pedidos Pagos" value={stats.pagos} icon={CheckCircle} />
-        <StatCard title="Pedidos Cancelados" value={stats.cancelados} icon={XCircle} />
+        <StatCard title="Novos Pedidos" value={stats.novos} icon={Clock} />
+        <StatCard title="Pedidos em Processamento" value={stats.processando} icon={Package} />
+        <StatCard title="Pedidos Enviados" value={stats.enviados} icon={CheckCircle} />
       </div>
       
       <Card>
@@ -91,17 +91,21 @@ const MeusPedidos = () => {
           <Tabs defaultValue="todos">
             <TabsList className="mb-4">
               <TabsTrigger value="todos">Todos os Pedidos</TabsTrigger>
-              <TabsTrigger value="pendentes">Pedidos Pendentes</TabsTrigger>
-              <TabsTrigger value="pagos">Pedidos Pagos</TabsTrigger>
+              <TabsTrigger value="novos">Novos Pedidos</TabsTrigger>
+              <TabsTrigger value="processando">Em Processamento</TabsTrigger>
+              <TabsTrigger value="enviados">Enviados</TabsTrigger>
             </TabsList>
             <TabsContent value="todos">
               <PedidosTable pedidos={pedidosFiltrados} />
             </TabsContent>
-            <TabsContent value="pendentes">
-              <PedidosTable pedidos={pedidosFiltrados.filter(p => p.status === 'Pendente')} />
+            <TabsContent value="novos">
+              <PedidosTable pedidos={pedidosFiltrados.filter(p => p.statusVendedor === 'Novo')} />
             </TabsContent>
-            <TabsContent value="pagos">
-              <PedidosTable pedidos={pedidosFiltrados.filter(p => p.status === 'Pago')} />
+            <TabsContent value="processando">
+              <PedidosTable pedidos={pedidosFiltrados.filter(p => p.statusVendedor === 'Processando')} />
+            </TabsContent>
+            <TabsContent value="enviados">
+              <PedidosTable pedidos={pedidosFiltrados.filter(p => p.statusVendedor === 'Enviado')} />
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -133,16 +137,9 @@ const PedidosTable = ({ pedidos }) => (
           <TableCell>{pedido.titulo}</TableCell>
           <TableCell>{formatCurrency(pedido.preco)}</TableCell>
           <TableCell>{new Date(pedido.dataCompra).toLocaleString()}</TableCell>
-          <TableCell>{pedido.status}</TableCell>
+          <TableCell>{pedido.statusVendedor}</TableCell>
           <TableCell className="space-x-2">
             <Button variant="outline" size="icon"><Eye className="h-4 w-4" /></Button>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              disabled={pedido.status === 'Pago'}
-            >
-              <CreditCard className="h-4 w-4" />
-            </Button>
           </TableCell>
         </TableRow>
       ))}

@@ -20,7 +20,7 @@ const MockCheckout = ({ isOpen, onClose, products = [], onPurchaseComplete }) =>
     if (isPurchaseComplete) {
       const timer = setTimeout(() => {
         handleConcluir();
-      }, 3000);
+      }, 5000); // Aumentado para 5 segundos para dar mais tempo para o usuário ler a mensagem
       return () => clearTimeout(timer);
     }
   }, [isPurchaseComplete]);
@@ -39,6 +39,7 @@ const MockCheckout = ({ isOpen, onClose, products = [], onPurchaseComplete }) =>
         status: 'Pago',
         dataCompra: new Date().toISOString(),
         sku: product.sku,
+        fornecedorId: product.fornecedorId, // Assumindo que temos essa informação no produto
       }));
 
       // Registra os pedidos para o vendedor e o fornecedor
@@ -49,7 +50,7 @@ const MockCheckout = ({ isOpen, onClose, products = [], onPurchaseComplete }) =>
       }
 
       await Promise.all(pedidos.map(pedido => 
-        firebaseOperations.adicionarPedidoFornecedor(pedido.produtoId, pedido)
+        firebaseOperations.adicionarPedidoFornecedor(pedido.fornecedorId, pedido)
       ));
 
       // Atualiza o estoque
@@ -137,9 +138,9 @@ const MockCheckout = ({ isOpen, onClose, products = [], onPurchaseComplete }) =>
           ) : (
             <div className="flex flex-col items-center bg-green-100 p-6 rounded-lg">
               <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-              <h2 className="text-2xl font-bold text-green-700 mb-2">Parabéns!</h2>
+              <h2 className="text-2xl font-bold text-green-700 mb-2">Obrigado!</h2>
               <p className="text-center text-green-600 mb-4">Sua compra foi aprovada com sucesso!</p>
-              <p className="text-center text-green-600">Esta janela será fechada automaticamente.</p>
+              <p className="text-center text-green-600">Esta janela será fechada automaticamente em 5 segundos.</p>
             </div>
           )}
         </div>

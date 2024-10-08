@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, Truck, Package, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from '../Auth/AuthProvider';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { formatCurrency } from '../../utils/currencyUtils';
 
@@ -19,14 +20,17 @@ const PedidosFornecedor = () => {
     preparando: 0,
     enviados: 0
   });
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetchPedidos();
-  }, []);
+    if (user) {
+      fetchPedidos();
+    }
+  }, [user]);
 
   const fetchPedidos = async () => {
     try {
-      const pedidosData = await firebaseOperations.getPedidosFornecedor();
+      const pedidosData = await firebaseOperations.getPedidosFornecedor(user.uid);
       setPedidos(pedidosData);
       calculateStats(pedidosData);
     } catch (error) {
@@ -88,13 +92,13 @@ const PedidosFornecedor = () => {
           <Tabs defaultValue="todos">
             <TabsList className="mb-4">
               <TabsTrigger value="todos">Todos os Pedidos</TabsTrigger>
-              <TabsTrigger value="pendentes">Pedidos Pendentes</TabsTrigger>
+              <TabsTrigger value="aguardando">Pedidos Aguardando</TabsTrigger>
               <TabsTrigger value="preparando">Pedidos em Preparação</TabsTrigger>
             </TabsList>
             <TabsContent value="todos">
               <PedidosTable pedidos={pedidosFiltrados} />
             </TabsContent>
-            <TabsContent value="pendentes">
+            <TabsContent value="aguardando">
               <PedidosTable pedidos={pedidosFiltrados.filter(p => p.statusLogistica === 'Aguardando')} />
             </TabsContent>
             <TabsContent value="preparando">
