@@ -6,12 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatCurrency } from '../../utils/currencyUtils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2 } from 'lucide-react';
 
 const Wallet = () => {
   const { user } = useAuth();
   const [balance, setBalance] = useState(0);
   const [history, setHistory] = useState([]);
   const [amount, setAmount] = useState('');
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('credit');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [installments, setInstallments] = useState('1');
 
   useEffect(() => {
     if (user) {
@@ -30,14 +39,8 @@ const Wallet = () => {
     }
   };
 
-  const handleAddFunds = async () => {
-    try {
-      await walletOperations.addFunds(user.uid, parseFloat(amount), 'manual_add');
-      setAmount('');
-      fetchWalletData();
-    } catch (error) {
-      console.error('Error adding funds:', error);
-    }
+  const handleAddFunds = () => {
+    setIsCheckoutOpen(true);
   };
 
   const handleWithdraw = async () => {
@@ -47,6 +50,35 @@ const Wallet = () => {
       fetchWalletData();
     } catch (error) {
       console.error('Error withdrawing funds:', error);
+    }
+  };
+
+  const handleTransfer = () => {
+    // Implement transfer logic here
+    console.log('Transfer functionality to be implemented');
+  };
+
+  const handleCheckoutClose = () => {
+    setIsCheckoutOpen(false);
+    setPaymentMethod('credit');
+    setInstallments('1');
+    setIsProcessing(false);
+  };
+
+  const handlePaymentSubmit = async (e) => {
+    e.preventDefault();
+    setIsProcessing(true);
+    try {
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      await walletOperations.addFunds(user.uid, parseFloat(amount), paymentMethod);
+      setAmount('');
+      fetchWalletData();
+      handleCheckoutClose();
+    } catch (error) {
+      console.error('Error processing payment:', error);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -67,6 +99,7 @@ const Wallet = () => {
             />
             <Button onClick={handleAddFunds}>Adicionar Fundos</Button>
             <Button onClick={handleWithdraw} variant="outline">Sacar</Button>
+            <Button onClick={handleTransfer} variant="secondary">Transferir</Button>
           </div>
         </CardContent>
       </Card>
@@ -100,6 +133,87 @@ const Wallet = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <Dialog open={isCheckoutOpen} onOpenChange={handleCheckoutClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar Fundos</DialogTitle>
+          </DialogHeader>
+          <Tabs value={paymentMethod} onValueChange={setPaymentMethod}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="credit">Cartão de Crédito</TabsTrigger>
+              <TabsTrigger value="pix">PIX</TabsTrigger>
+            </TabsList>
+            <TabsContent value="credit">
+              <form onSubmit={handlePaymentSubmit}>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="cardNumber">Número do Cartão</Label>
+                    <Input id="cardNumber" placeholder="1234 5678 9012 3456" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="expiry">Data de Expiração</Label>
+                      <Input id="expiry" placeholder="MM/AA" />
+                    </div>
+                    <div>
+                      <Label htmlFor="cvv">CVV</Label>
+                      <Input id="cvv" placeholder="123" />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="installments">Parcelas</Label>
+                    <Select value={installments} onValueChange={setInstallments}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione as parcelas" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">1x sem juros</SelectItem>
+                        <SelectItem value="2">2x sem juros</SelectItem>
+                        <SelectItem value="3">3x sem juros</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter className="mt-4">
+                  <Button type="submit" disabled={isProcessing}>
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processando
+                      </>
+                    ) : (
+                      'Finalizar Pagamento'
+                    )}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </TabsContent>
+            <TabsContent value="pix">
+              <div className="space-y-4">
+                <div className="flex justify-center">
+                  <img src="/qr-code-placeholder.png" alt="QR Code PIX" className="w-48 h-48" />
+                </div>
+                <Button className="w-full" onClick={() => console.log('Copiar código PIX')}>
+                  Copiar código PIX
+                </Button>
+                <DialogFooter>
+                  <Button onClick={handlePaymentSubmit} disabled={isProcessing}>
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processando
+                      </>
+                    ) : (
+                      'Finalizar Pagamento'
+                    )}
+                  </Button>
+                </DialogFooter>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
