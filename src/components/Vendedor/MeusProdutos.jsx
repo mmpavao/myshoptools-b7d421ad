@@ -5,8 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import ProdutoCard from './ProdutoCard';
 import { useAuth } from '../Auth/AuthProvider';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const MeusProdutos = () => {
   const [produtos, setProdutos] = useState([]);
@@ -49,8 +48,8 @@ const MeusProdutos = () => {
         title: "Sucesso",
         description: "Produto removido com sucesso.",
       });
-      fetchMeusProdutos(); // Recarrega a lista de produtos após a exclusão
-      setProdutoParaExcluir(null); // Reseta o produto para excluir
+      fetchMeusProdutos();
+      setProdutoParaExcluir(null);
     } catch (error) {
       console.error("Erro ao excluir produto:", error);
       toast({
