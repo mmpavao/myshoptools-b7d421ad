@@ -9,11 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const MeusProdutos = () => {
   const [produtos, setProdutos] = useState([]);
   const [filtro, setFiltro] = useState('');
   const [editingProduct, setEditingProduct] = useState(null);
+  const [activeTab, setActiveTab] = useState('MyShop');
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -93,17 +96,39 @@ const MeusProdutos = () => {
     produto.sku.toLowerCase().includes(filtro.toLowerCase())
   );
 
+  const marketplaces = ['MyShop', 'Mercado Livre', 'Shopee', 'Amazon', 'Shopify', 'WooCommerce'];
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Meus Produtos</h1>
+      
+      <Card className="bg-gray-100">
+        <CardContent className="p-4">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {marketplaces.map((marketplace) => (
+                <TabsTrigger
+                  key={marketplace}
+                  value={marketplace}
+                  className="bg-blue-500 text-white hover:bg-blue-600"
+                >
+                  {marketplace}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </CardContent>
+      </Card>
+
       <Input
         placeholder="Filtrar por título ou SKU"
         value={filtro}
         onChange={(e) => setFiltro(e.target.value)}
         className="max-w-sm mb-4"
       />
+      
       {produtos.length === 0 ? (
-        <p>Você ainda não importou nenhum produto.</p>
+        <p>Você ainda não importou nenhum produto para {activeTab}.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {produtosFiltrados.map((produto) => (
