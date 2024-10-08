@@ -85,7 +85,7 @@ const DetalheProduto = () => {
         />
       )}
       {activeMarketplace === 'MyShop' && (
-        <MyShopLandingPage produtos={[produto]} />
+        <MyShopLandingPage produto={produto} />
       )}
     </div>
   );
