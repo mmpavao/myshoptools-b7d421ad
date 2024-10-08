@@ -29,13 +29,22 @@ const PedidosFornecedor = () => {
   }, [user]);
 
   const fetchPedidos = async () => {
-    try {
-      const pedidosData = await firebaseOperations.getPedidosFornecedor(user.uid);
-      setPedidos(pedidosData);
-      calculateStats(pedidosData);
-    } catch (error) {
-      console.error("Erro ao buscar pedidos do fornecedor:", error);
-    }
+    // Pedidos fictícios do fornecedor
+    const pedidosFicticios = [
+      { id: 'PEDF001', sku: 'SKU001', titulo: 'Smartphone XYZ', quantidade: 2, preco: 2599.98, dataCompra: '2024-03-15T10:30:00', statusLogistica: 'Aguardando' },
+      { id: 'PEDF002', sku: 'SKU002', titulo: 'Notebook ABC', quantidade: 1, preco: 3499.99, dataCompra: '2024-03-14T14:45:00', statusLogistica: 'Preparando' },
+      { id: 'PEDF003', sku: 'SKU003', titulo: 'Smart TV 4K', quantidade: 1, preco: 2199.99, dataCompra: '2024-03-13T09:15:00', statusLogistica: 'Enviado' },
+      { id: 'PEDF004', sku: 'SKU004', titulo: 'Fone de Ouvido Bluetooth', quantidade: 3, preco: 899.97, dataCompra: '2024-03-12T16:20:00', statusLogistica: 'Aguardando' },
+      { id: 'PEDF005', sku: 'SKU005', titulo: 'Câmera DSLR', quantidade: 1, preco: 1899.99, dataCompra: '2024-03-11T11:00:00', statusLogistica: 'Preparando' },
+      { id: 'PEDF006', sku: 'SKU006', titulo: 'Smartwatch', quantidade: 2, preco: 1199.98, dataCompra: '2024-03-10T13:30:00', statusLogistica: 'Enviado' },
+      { id: 'PEDF007', sku: 'SKU007', titulo: 'Console de Videogame', quantidade: 1, preco: 2499.99, dataCompra: '2024-03-09T15:45:00', statusLogistica: 'Aguardando' },
+      { id: 'PEDF008', sku: 'SKU008', titulo: 'Tablet', quantidade: 2, preco: 1999.98, dataCompra: '2024-03-08T10:10:00', statusLogistica: 'Preparando' },
+      { id: 'PEDF009', sku: 'SKU009', titulo: 'Impressora Multifuncional', quantidade: 1, preco: 449.99, dataCompra: '2024-03-07T14:00:00', statusLogistica: 'Enviado' },
+      { id: 'PEDF010', sku: 'SKU010', titulo: 'Monitor Ultrawide', quantidade: 1, preco: 1799.99, dataCompra: '2024-03-06T09:30:00', statusLogistica: 'Aguardando' },
+    ];
+
+    setPedidos(pedidosFicticios);
+    calculateStats(pedidosFicticios);
   };
 
   const calculateStats = (pedidosData) => {
@@ -51,20 +60,6 @@ const PedidosFornecedor = () => {
   const pedidosFiltrados = pedidos.filter(pedido =>
     pedido.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
     pedido.sku.toLowerCase().includes(filtro.toLowerCase())
-  );
-
-  const StatCard = ({ title, value, icon: Icon }) => (
-    <Card>
-      <CardContent className="flex flex-row items-center justify-between p-6">
-        <div className="flex flex-col space-y-1">
-          <span className="text-sm font-medium text-muted-foreground">{title}</span>
-          <span className="text-2xl font-bold">{value}</span>
-        </div>
-        <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-          <Icon className="h-6 w-6 text-primary" />
-        </div>
-      </CardContent>
-    </Card>
   );
 
   return (

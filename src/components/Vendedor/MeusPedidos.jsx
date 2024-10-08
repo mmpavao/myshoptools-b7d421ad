@@ -28,13 +28,22 @@ const MeusPedidos = () => {
   }, [user]);
 
   const fetchPedidos = async () => {
-    try {
-      const pedidosData = await firebaseOperations.getPedidosVendedor(user.uid);
-      setPedidos(pedidosData);
-      calculateStats(pedidosData);
-    } catch (error) {
-      console.error("Erro ao buscar pedidos:", error);
-    }
+    // Pedidos fictícios
+    const pedidosFicticios = [
+      { id: 'PED001', sku: 'SKU001', titulo: 'Smartphone XYZ', preco: 1299.99, dataCompra: '2024-03-15T10:30:00', statusVendedor: 'Novo' },
+      { id: 'PED002', sku: 'SKU002', titulo: 'Notebook ABC', preco: 3499.99, dataCompra: '2024-03-14T14:45:00', statusVendedor: 'Processando' },
+      { id: 'PED003', sku: 'SKU003', titulo: 'Smart TV 4K', preco: 2199.99, dataCompra: '2024-03-13T09:15:00', statusVendedor: 'Enviado' },
+      { id: 'PED004', sku: 'SKU004', titulo: 'Fone de Ouvido Bluetooth', preco: 299.99, dataCompra: '2024-03-12T16:20:00', statusVendedor: 'Novo' },
+      { id: 'PED005', sku: 'SKU005', titulo: 'Câmera DSLR', preco: 1899.99, dataCompra: '2024-03-11T11:00:00', statusVendedor: 'Processando' },
+      { id: 'PED006', sku: 'SKU006', titulo: 'Smartwatch', preco: 599.99, dataCompra: '2024-03-10T13:30:00', statusVendedor: 'Enviado' },
+      { id: 'PED007', sku: 'SKU007', titulo: 'Console de Videogame', preco: 2499.99, dataCompra: '2024-03-09T15:45:00', statusVendedor: 'Novo' },
+      { id: 'PED008', sku: 'SKU008', titulo: 'Tablet', preco: 999.99, dataCompra: '2024-03-08T10:10:00', statusVendedor: 'Processando' },
+      { id: 'PED009', sku: 'SKU009', titulo: 'Impressora Multifuncional', preco: 449.99, dataCompra: '2024-03-07T14:00:00', statusVendedor: 'Enviado' },
+      { id: 'PED010', sku: 'SKU010', titulo: 'Monitor Ultrawide', preco: 1799.99, dataCompra: '2024-03-06T09:30:00', statusVendedor: 'Novo' },
+    ];
+
+    setPedidos(pedidosFicticios);
+    calculateStats(pedidosFicticios);
   };
 
   const calculateStats = (pedidosData) => {
