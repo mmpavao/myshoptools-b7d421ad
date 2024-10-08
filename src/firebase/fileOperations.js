@@ -63,31 +63,39 @@ const fileOperations = {
     return allFiles;
   },
 
-  uploadProductImage: (file, productId) => {
-    return new Promise((resolve, reject) => {
-      const storageRef = ref(storage, `products/${productId}/${file.name}`);
+  uploadProductImage: async (file, productId) => {
+    if (!file || !productId) {
+      throw new Error('Invalid file or product ID');
+    }
+    const fileExtension = file.name.split('.').pop();
+    const path = `products/${productId}/${Date.now()}_${file.name}`;
+    const storageRef = ref(storage, path);
+    
+    try {
       const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log('Upload is ' + progress + '% done');
-        },
-        (error) => {
-          console.error('Upload error:', error);
-          reject(error);
-        },
-        async () => {
-          try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve(downloadURL);
-          } catch (error) {
-            console.error('Error getting download URL:', error);
+      
+      await new Promise((resolve, reject) => {
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload is ' + progress + '% done');
+          },
+          (error) => {
+            console.error('Upload error:', error);
             reject(error);
+          },
+          () => {
+            resolve();
           }
-        }
-      );
-    });
+        );
+      });
+
+      const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+      return downloadURL;
+    } catch (error) {
+      console.error('Error uploading product image:', error);
+      throw error;
+    }
   },
 
   uploadAvatar: async (file, userId) => {
