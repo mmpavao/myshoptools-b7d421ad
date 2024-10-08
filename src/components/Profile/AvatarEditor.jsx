@@ -29,18 +29,19 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
       const reader = new FileReader();
       reader.onload = (event) => {
         setImage(event.target.result);
         setZoom(1);
         setCrop({ x: 0, y: 0 });
       };
-      reader.readAsDataURL(e.target.files[0]);
+      reader.readAsDataURL(file);
     }
   };
 
   const handleSave = useCallback(async () => {
-    if (!croppedAreaPixels || !user) {
+    if (!croppedAreaPixels || !image || !user) {
       toast({
         title: "Erro",
         description: "Por favor, selecione uma imagem e faça o recorte antes de salvar.",
@@ -120,7 +121,7 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Editar Avatar</Button>
+        <Button variant="outline">{currentAvatar && currentAvatar !== "/placeholder.svg" ? "Trocar imagem" : "Adicionar imagem"}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
