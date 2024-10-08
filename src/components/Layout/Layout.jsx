@@ -6,7 +6,7 @@ import { useTheme } from "@/components/ThemeProvider";
 const Layout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [companyName, setCompanyName] = useState('Vissa Ecommerce');
-  const { theme } = useTheme();
+  const { theme = 'light' } = useTheme() || {};
 
   useEffect(() => {
     const handleResize = () => {

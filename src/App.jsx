@@ -14,7 +14,7 @@ const App = () => (
     <TooltipProvider>
       <Router>
         <AuthProvider>
-          <ThemeProvider>
+          <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
             <Toaster position="top-right" />
             <AppRoutes />
           </ThemeProvider>
