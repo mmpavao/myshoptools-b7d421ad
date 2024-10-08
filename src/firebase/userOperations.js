@@ -4,16 +4,7 @@ import { updateProfile, deleteUser as deleteAuthUser } from 'firebase/auth';
 import { ref, deleteObject } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
 import { safeFirestoreOperation } from '../utils/errorReporting';
-
-const MASTER_USER_EMAIL = 'pavaosmart@gmail.com';
-const ADMIN_USER_EMAIL = 'marcio@talkmaker.io';
-
-const userRoles = {
-  MASTER: 'Master',
-  ADMIN: 'Admin',
-  VENDOR: 'Vendedor',
-  PROVIDER: 'Fornecedor'
-};
+import { MASTER_USER_EMAIL, ADMIN_USER_EMAIL, userRoles } from '../utils/userConstants';
 
 const createUser = (userData) => 
   safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), {
@@ -74,8 +65,9 @@ const updateUserRole = async (userId, newRole, currentUserRole) => {
       throw new Error('Cannot change Master user role');
     }
 
-    if (currentUserRole !== userRoles.MASTER && (userData.role === userRoles.ADMIN || newRole === userRoles.MASTER)) {
-      throw new Error('Only Master can change Admin role or assign Master role');
+    // Permitir que o usuário master altere qualquer função, incluindo admin
+    if (currentUserRole !== userRoles.MASTER && newRole === userRoles.MASTER) {
+      throw new Error('Only Master can assign Master role');
     }
 
     await updateDoc(doc(db, 'users', userId), { role: newRole });
