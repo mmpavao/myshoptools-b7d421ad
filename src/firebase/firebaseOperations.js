@@ -132,7 +132,7 @@ const firebaseOperations = {
   },
 
   uploadProfileImage: async (userId, blob, fileName) => {
-    const path = `avatars/${userId}/${Date.now()}_${fileName}`;
+    const path = `user_avatars/${userId}/${Date.now()}_${fileName}`;
     const storageRef = ref(storage, path);
     const uploadTask = uploadBytesResumable(storageRef, blob);
 
@@ -159,7 +159,6 @@ const firebaseOperations = {
     });
   },
 
-  // Add these two new functions
   getAllUsers: userOperations.getAllUsers,
   getUserRole: userOperations.getUserRole,
 

@@ -30,7 +30,11 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const reader = new FileReader();
-      reader.onload = (event) => setImage(event.target.result);
+      reader.onload = (event) => {
+        setImage(event.target.result);
+        setZoom(1);
+        setCrop({ x: 0, y: 0 });
+      };
       reader.readAsDataURL(e.target.files[0]);
     }
   };
