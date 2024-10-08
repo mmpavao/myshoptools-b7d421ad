@@ -31,11 +31,15 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
 
   const handleSave = async () => {
     try {
+      if (!image) {
+        throw new Error("No image selected");
+      }
       const croppedImage = await getCroppedImg(image, croppedAreaPixels);
       const blob = await fetch(croppedImage).then(r => r.blob());
       const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
       await onSave(file);
       setIsOpen(false);
+      setImage(null);
       toast({
         title: "Avatar Updated",
         description: "Your avatar has been successfully updated.",
