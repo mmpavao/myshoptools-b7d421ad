@@ -1,6 +1,6 @@
 import React from 'react';
-import { Bell, User, FileText, Book, Code, LogOut, ChevronDown, ChevronUp, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Bell, User, FileText, Book, Code, LogOut, ChevronDown, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -11,19 +11,31 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from '../Auth/AuthProvider';
+import { Input } from "@/components/ui/input";
 
 const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
 
+  const getBreadcrumbs = () => {
+    const paths = location.pathname.split('/').filter(Boolean);
+    return paths.map((path, index) => (
+      <React.Fragment key={index}>
+        {index > 0 && <span className="mx-2 text-gray-400">/</span>}
+        <span className="capitalize">{path}</span>
+      </React.Fragment>
+    ));
+  };
+
   return (
-    <header className="bg-transparent h-16">
-      <div className="flex items-center justify-between h-full px-4">
+    <header className="bg-transparent">
+      <div className="flex items-center justify-between h-16 px-4">
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
@@ -35,23 +47,14 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
               <PanelLeftOpen size={28} />
             )}
           </button>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="ml-4 text-lg font-medium text-gray-700 hover:text-gray-900 focus:outline-none flex items-center">
-              {companyName || 'Selecione uma empresa'}
-              <ChevronDown className="ml-1 h-5 w-5" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>Empresas</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Vissa Ecommerce</DropdownMenuItem>
-              <DropdownMenuItem>Meubles Frire</DropdownMenuItem>
-              <DropdownMenuItem>ColorFios</DropdownMenuItem>
-              <DropdownMenuItem>Online Sales</DropdownMenuItem>
-              <DropdownMenuItem>Adicionar nova empresa</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <span className="ml-4 text-lg font-medium text-gray-700">{companyName}</span>
         </div>
         <div className="flex items-center space-x-4">
+          <Input
+            type="search"
+            placeholder="Pesquisar..."
+            className="w-64 bg-gray-100"
+          />
           <button className="text-gray-500 hover:text-gray-700 focus:outline-none">
             <Bell size={24} />
           </button>
@@ -105,6 +108,9 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+      </div>
+      <div className="px-4 py-2 bg-white bg-opacity-50 text-sm text-gray-600">
+        {getBreadcrumbs()}
       </div>
     </header>
   );
