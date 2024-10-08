@@ -160,6 +160,34 @@ const meusProdutosOperations = {
       throw error;
     }
   },
+  importarProduto: async (userId, produto) => {
+    try {
+      const produtoImportadoRef = doc(db, 'users', userId, 'produtosImportados', produto.id);
+      await setDoc(produtoImportadoRef, {
+        id: produto.id,
+        dataImportacao: new Date().toISOString(),
+        status: 'ativo'
+      });
+      return true;
+    } catch (error) {
+      console.error('Erro ao importar produto:', error);
+      throw error;
+    }
+  },
+  getProdutosImportadosStatus: async (userId) => {
+    try {
+      const produtosImportadosRef = collection(db, 'users', userId, 'produtosImportados');
+      const snapshot = await getDocs(produtosImportadosRef);
+      const status = {};
+      snapshot.docs.forEach(doc => {
+        status[doc.id] = true;
+      });
+      return status;
+    } catch (error) {
+      console.error('Erro ao buscar status dos produtos importados:', error);
+      throw error;
+    }
+  }
 };
 
 const landPageOperations = {
