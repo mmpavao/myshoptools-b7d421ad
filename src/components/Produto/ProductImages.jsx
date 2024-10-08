@@ -9,25 +9,19 @@ const ProductImages = ({ fotos, titulo }) => {
     setFotoPrincipal(foto);
   };
 
-  const renderImage = (img, index, isThumbnail = false) => (
-    <div 
-      key={index} 
-      className={`relative pb-[100%] overflow-hidden rounded-lg ${isThumbnail ? 'cursor-pointer' : ''}`}
-      onClick={isThumbnail ? () => handleThumbnailClick(img) : undefined}
-    >
-      <img 
-        src={img} 
-        alt={`${titulo} ${index + 1}`} 
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-    </div>
-  );
-
   return (
     <div className="md:w-1/2">
-      {renderImage(fotoPrincipal, 0)}
-      <div className="grid grid-cols-4 gap-2 mt-4">
-        {fotos.slice(0, 4).map((img, index) => renderImage(img, index, true))}
+      <img src={fotoPrincipal} alt={titulo} className="w-full h-auto object-cover rounded-lg mb-4" />
+      <div className="grid grid-cols-4 gap-2">
+        {fotos.slice(0, 4).map((img, index) => (
+          <img 
+            key={index} 
+            src={img} 
+            alt={`${titulo} ${index + 1}`} 
+            className="w-full h-24 object-cover rounded-lg cursor-pointer" 
+            onClick={() => handleThumbnailClick(img)}
+          />
+        ))}
       </div>
       {fotos.length > 4 && (
         <Dialog>
@@ -38,7 +32,15 @@ const ProductImages = ({ fotos, titulo }) => {
           </DialogTrigger>
           <DialogContent className="max-w-4xl">
             <div className="grid grid-cols-3 gap-4">
-              {fotos.map((img, index) => renderImage(img, index, true))}
+              {fotos.map((img, index) => (
+                <img 
+                  key={index} 
+                  src={img} 
+                  alt={`${titulo} ${index + 1}`} 
+                  className="w-full h-auto object-cover rounded-lg cursor-pointer" 
+                  onClick={() => handleThumbnailClick(img)}
+                />
+              ))}
             </div>
           </DialogContent>
         </Dialog>
