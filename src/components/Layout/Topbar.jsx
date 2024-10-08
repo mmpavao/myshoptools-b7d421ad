@@ -34,7 +34,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
 
   return (
     <header className="bg-transparent">
-      <div className="flex items-center justify-between h-14 px-4">
+      <div className="flex items-center justify-between h-16 px-4"> {/* Changed h-14 to h-16 */}
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
@@ -48,21 +48,21 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           </button>
           <span className="ml-3 text-base font-medium text-gray-700">{companyName}</span>
         </div>
-        <div className="flex items-center space-x-3 bg-white bg-opacity-80 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] px-2 py-1">
+        <div className="flex items-center space-x-3 bg-white bg-opacity-80 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] px-2 py-1.5"> {/* Increased py-1 to py-1.5 */}
           <div className="relative flex items-center">
             <Search className="absolute left-2 h-4 w-4 text-gray-400" />
             <Input
               type="search"
               placeholder="Pesquisar..."
-              className="w-56 bg-gray-100 border-none focus:ring-0 text-sm focus:outline-none pl-8 rounded-full"
+              className="w-56 bg-gray-100 border-none focus:ring-0 text-sm focus:outline-none pl-8 rounded-full h-9" {/* Added h-9 to increase input height */}
             />
           </div>
           <button className="text-gray-500 hover:text-gray-700 focus:outline-none">
-            <Bell size={18} />
+            <Bell size={20} /> {/* Increased size from 18 to 20 */}
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none flex items-center">
-              <Avatar className="h-7 w-7">
+              <Avatar className="h-8 w-8"> {/* Increased size from h-7 w-7 to h-8 w-8 */}
                 <AvatarImage src={user?.photoURL} alt="User avatar" />
                 <AvatarFallback className="font-bold text-xs">
                   {user?.photoURL ? (
@@ -111,7 +111,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           </DropdownMenu>
         </div>
       </div>
-      <div className="px-4 py-1.5 bg-white bg-opacity-50 text-xs text-gray-600">
+      <div className="px-4 py-2 bg-white bg-opacity-50 text-xs text-gray-600"> {/* Increased py-1.5 to py-2 */}
         {getBreadcrumbs()}
       </div>
     </header>
