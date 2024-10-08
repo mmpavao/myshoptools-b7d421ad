@@ -19,6 +19,10 @@ import AdminUserList from "./components/Admin/AdminUserList";
 import ChatAdmin from "./components/Admin/ChatAdmin";
 import SettingsPage from "./components/Admin/SettingsPage";
 import Suporte from "./components/Suporte/Suporte";
+import UserProfile from "./components/Profile/UserProfile";
+import LogsPage from "./components/Logs/LogsPage";
+import DocumentationPage from "./components/Documentation/DocumentationPage";
+import APIPage from "./components/APIs/APIPage";
 
 const queryClient = new QueryClient();
 
@@ -106,6 +110,26 @@ const AppRoutes = () => (
     <Route path="/suporte" element={
       <ProtectedRoute>
         <RoleBasedRoute element={Suporte} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />
+      </ProtectedRoute>
+    } />
+    <Route path="/profile" element={
+      <ProtectedRoute>
+        <RoleBasedRoute element={UserProfile} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />
+      </ProtectedRoute>
+    } />
+    <Route path="/logs" element={
+      <ProtectedRoute>
+        <RoleBasedRoute element={LogsPage} allowedRoles={['Admin', 'Master']} />
+      </ProtectedRoute>
+    } />
+    <Route path="/documentation" element={
+      <ProtectedRoute>
+        <RoleBasedRoute element={DocumentationPage} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />
+      </ProtectedRoute>
+    } />
+    <Route path="/apis" element={
+      <ProtectedRoute>
+        <RoleBasedRoute element={APIPage} allowedRoles={['Admin', 'Master']} />
       </ProtectedRoute>
     } />
     <Route path="*" element={<Navigate to="/dashboard" />} />
