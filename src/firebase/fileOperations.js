@@ -68,7 +68,8 @@ const fileOperations = {
       throw new Error('Invalid file or product ID');
     }
     const fileExtension = file.name.split('.').pop();
-    const path = `products/${productId}/${Date.now()}_${file.name}`;
+    const fileName = `${Date.now()}_${file.name}`;
+    const path = `products/${productId}/${fileName}`;
     const storageRef = ref(storage, path);
     
     try {
@@ -91,6 +92,7 @@ const fileOperations = {
       });
 
       const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+      console.log('File available at', downloadURL);
       return downloadURL;
     } catch (error) {
       console.error('Error uploading product image:', error);

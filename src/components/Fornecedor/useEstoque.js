@@ -79,6 +79,7 @@ export const useEstoque = () => {
     const uploadPromises = files.map(file => firebaseOperations.uploadProductImage(file, productId));
     try {
       const uploadedUrls = await Promise.all(uploadPromises);
+      console.log('Uploaded URLs:', uploadedUrls);
       setNovoProduto(prev => ({ ...prev, fotos: [...prev.fotos, ...uploadedUrls] }));
     } catch (error) {
       console.error("Erro ao fazer upload das imagens:", error);
