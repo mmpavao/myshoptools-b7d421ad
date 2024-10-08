@@ -1,18 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../Auth/AuthProvider';
 import walletOperations from '../../firebase/walletOperations';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatCurrency, parseCurrency, formatInputCurrency } from '../../utils/currencyUtils';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from 'lucide-react';
 import { toast } from "@/components/ui/use-toast";
-import QRCodeFicticio from './QRCodeFicticio';
 import { WalletBalance, TransactionHistory, CheckoutDialog } from './WalletComponents';
 
 const Wallet = () => {
@@ -88,23 +78,15 @@ const Wallet = () => {
     try {
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulação de processamento
       const parsedAmount = parseCurrency(amount);
-      await walletOperations.addFunds(user.uid, parsedAmount, paymentMethod);
+      const { newBalance, transactionId } = await walletOperations.addFunds(user.uid, parsedAmount, paymentMethod);
       
-      // Gerar a transação
-      await walletOperations.createTransaction(user.uid, {
-        type: 'credit',
-        amount: parsedAmount,
-        method: paymentMethod,
-        description: `Adição de fundos via ${paymentMethod}`,
-        status: 'completed',
-      });
-
+      setBalance(newBalance);
       setAmount('');
       fetchWalletData();
       handleCheckoutClose();
       toast({
         title: "Sucesso",
-        description: "Fundos adicionados e transação gerada com sucesso.",
+        description: `Fundos adicionados com sucesso. ID da transação: ${transactionId}`,
         variant: "success",
       });
     } catch (error) {

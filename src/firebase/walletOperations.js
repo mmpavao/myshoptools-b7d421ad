@@ -17,7 +17,8 @@ const walletOperations = {
     const q = query(walletRef, where("userId", "==", userId));
     const querySnapshot = await getDocs(q);
     if (querySnapshot.empty) {
-      throw new Error('Wallet not found');
+      await walletOperations.createWallet(userId);
+      return 0;
     }
     return querySnapshot.docs[0].data().balance;
   },
@@ -26,19 +27,27 @@ const walletOperations = {
     const walletRef = collection(db, 'wallets');
     const q = query(walletRef, where("userId", "==", userId));
     const querySnapshot = await getDocs(q);
+    let walletDoc;
     if (querySnapshot.empty) {
-      throw new Error('Wallet not found');
+      const newWalletRef = await addDoc(walletRef, {
+        userId,
+        balance: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      walletDoc = await getDoc(newWalletRef);
+    } else {
+      walletDoc = querySnapshot.docs[0];
     }
-    const walletDoc = querySnapshot.docs[0];
 
-    await runTransaction(db, async (transaction) => {
+    return runTransaction(db, async (transaction) => {
       const walletData = await transaction.get(walletDoc.ref);
       const newBalance = walletData.data().balance + amount;
       transaction.update(walletDoc.ref, { balance: newBalance, updatedAt: new Date().toISOString() });
 
-      // Add transaction to history
       const historyRef = collection(db, 'walletHistory');
-      transaction.set(doc(historyRef), {
+      const newTransactionRef = doc(historyRef);
+      transaction.set(newTransactionRef, {
         userId,
         type: 'credit',
         amount,
@@ -46,6 +55,8 @@ const walletOperations = {
         balance: newBalance,
         createdAt: new Date().toISOString(),
       });
+
+      return { newBalance, transactionId: newTransactionRef.id };
     });
   },
 
@@ -167,7 +178,7 @@ const walletOperations = {
 
   getWalletHistory: async (userId) => {
     const historyRef = collection(db, 'walletHistory');
-    const q = query(historyRef, where("userId", "==", userId));
+    const q = query(historyRef, where("userId", "==", userId), where("type", "==", "credit"));
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
