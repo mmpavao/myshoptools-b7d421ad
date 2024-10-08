@@ -111,7 +111,7 @@ const NavItem = ({ item, isOpen, userRole, isCollapsible, activeSection }) => {
   );
 };
 
-const Sidebar = ({ isOpen, isMobile }) => {
+const Sidebar = ({ isOpen }) => {
   const { user } = useAuth();
   const [userRole, setUserRole] = useState('Vendedor');
   const [isCollapsible, setIsCollapsible] = useState(false);
@@ -128,22 +128,18 @@ const Sidebar = ({ isOpen, isMobile }) => {
     fetchUserRole();
 
     const handleResize = () => {
-      const sidebarHeight = document.querySelector('aside')?.clientHeight;
-      if (sidebarHeight) {
-        const totalItemsHeight = navItems.reduce((acc, item) => {
-          return acc + (item.children ? (item.children.length + 1) * 40 : 40);
-        }, 0);
-        setIsCollapsible(totalItemsHeight > sidebarHeight - 300);
-      }
+      const sidebarHeight = document.querySelector('aside').clientHeight;
+      const totalItemsHeight = navItems.reduce((acc, item) => {
+        return acc + (item.children ? (item.children.length + 1) * 40 : 40);
+      }, 0);
+      setIsCollapsible(totalItemsHeight > sidebarHeight - 300); // Increased threshold to 300px
     };
 
-    if (!isMobile) {
-      window.addEventListener('resize', handleResize);
-      handleResize();
-    }
+    window.addEventListener('resize', handleResize);
+    handleResize();
 
     return () => window.removeEventListener('resize', handleResize);
-  }, [user, isMobile]);
+  }, [user]);
 
   useEffect(() => {
     const currentSection = navItems.find(item => 
@@ -153,15 +149,12 @@ const Sidebar = ({ isOpen, isMobile }) => {
     setActiveSection(currentSection ? currentSection.label : '');
   }, [location]);
 
-  const sidebarClasses = cn(
-    "fixed left-0 top-0 z-50 h-[calc(100vh-1.5rem)] m-3 rounded-xl transition-all duration-300",
-    isOpen ? "w-60" : "w-20",
-    "bg-gray-900 text-white shadow-md",
-    isMobile && "w-full h-full m-0 rounded-none"
-  );
-
   return (
-    <aside className={sidebarClasses}>
+    <aside className={cn(
+      "fixed left-0 top-0 z-50 h-[calc(100vh-1.5rem)] m-3 rounded-xl transition-all duration-300",
+      isOpen ? "w-60" : "w-20",
+      "bg-gray-900 text-white shadow-md"
+    )}>
       <div className="h-full overflow-y-auto py-3 px-1.5">
         <div className={cn(
           "text-xl font-bold mb-3 text-center",

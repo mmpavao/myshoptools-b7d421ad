@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StarIcon, Heart } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
-const ProdutoCard = ({ produto, onDetalhes, onExcluir }) => {
+const ProdutoCard = ({ produto, onDetalhes, onImportar, isImportado, onExcluir, showExcluirButton = false }) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const renderProductImage = (foto) => (
@@ -72,14 +73,41 @@ const ProdutoCard = ({ produto, onDetalhes, onExcluir }) => {
         >
           Detalhes
         </Button>
-        <Button 
-          variant="destructive" 
-          size="sm" 
-          className="text-xs flex-grow"
-          onClick={() => onExcluir(produto.id)}
-        >
-          Excluir
-        </Button>
+        {showExcluirButton ? (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                className="text-xs flex-grow"
+              >
+                Excluir
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tem certeza que deseja excluir este produto? Esta ação também removerá os anúncios de venda dos marketplaces.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onExcluir(produto.id)}>Excluir</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        ) : (
+          <Button 
+            variant="default" 
+            size="sm" 
+            className="text-xs flex-grow bg-primary hover:bg-primary/90"
+            onClick={() => onImportar(produto.id)}
+            disabled={isImportado}
+          >
+            {isImportado ? 'Importado' : 'Importar'}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

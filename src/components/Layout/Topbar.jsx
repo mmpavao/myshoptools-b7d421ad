@@ -12,7 +12,7 @@ import {
 import { useAuth } from '../Auth/AuthProvider';
 import { Input } from "@/components/ui/input";
 
-const Topbar = ({ companyName, toggleSidebar, isSidebarOpen, isMobile }) => {
+const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -23,20 +23,18 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen, isMobile }) => {
 
   return (
     <header className="bg-transparent">
-      <div className="flex items-center justify-between h-[4.2rem] px-4">
+      <div className="flex items-center justify-between h-[4.2rem] px-4"> {/* Increased height by 5% */}
         <div className="flex items-center">
-          {!isMobile && (
-            <button
-              onClick={toggleSidebar}
-              className="p-2 rounded-full hover:bg-gray-200 focus:outline-none mr-3"
-            >
-              {isSidebarOpen ? (
-                <PanelLeftClose size={28} className="text-gray-700" />
-              ) : (
-                <PanelLeftOpen size={28} className="text-gray-700" />
-              )}
-            </button>
-          )}
+          <button
+            onClick={toggleSidebar}
+            className="p-2 rounded-full hover:bg-gray-200 focus:outline-none mr-3"
+          >
+            {isSidebarOpen ? (
+              <PanelLeftClose size={28} className="text-gray-700" />
+            ) : (
+              <PanelLeftOpen size={28} className="text-gray-700" />
+            )}
+          </button>
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none">
               <div className="flex items-center">
@@ -63,57 +61,55 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen, isMobile }) => {
           <button className="text-gray-500 hover:text-gray-700 focus:outline-none">
             <Bell size={20} />
           </button>
-          {!isMobile && (
-            <DropdownMenu>
-              <DropdownMenuTrigger className="focus:outline-none flex items-center">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={user?.photoURL} alt="User avatar" />
-                  <AvatarFallback className="font-bold text-sm">
-                    {user?.photoURL ? (
-                      user.displayName?.[0] || 'U'
-                    ) : (
-                      <User className="h-5 w-5" />
-                    )}
-                  </AvatarFallback>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="focus:outline-none flex items-center">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user?.photoURL} alt="User avatar" />
+                <AvatarFallback className="font-bold text-sm">
+                  {user?.photoURL ? (
+                    user.displayName?.[0] || 'U'
+                  ) : (
+                    <User className="h-5 w-5" />
+                  )}
+                </AvatarFallback>
+              </Avatar>
+              <ChevronDown className="ml-1 h-4 w-4 text-gray-500" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end">
+              <div className="flex items-center p-2">
+                <Avatar className="w-10 h-10 mr-2 ring-1 ring-gray-300">
+                  <AvatarImage src={user?.photoURL || "/placeholder.svg"} alt="User avatar" />
+                  <AvatarFallback>{user?.displayName?.[0] || 'U'}</AvatarFallback>
                 </Avatar>
-                <ChevronDown className="ml-1 h-4 w-4 text-gray-500" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
-                <div className="flex items-center p-2">
-                  <Avatar className="w-10 h-10 mr-2 ring-1 ring-gray-300">
-                    <AvatarImage src={user?.photoURL || "/placeholder.svg"} alt="User avatar" />
-                    <AvatarFallback>{user?.displayName?.[0] || 'U'}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">{user?.displayName || 'Usuário'}</span>
-                    <span className="text-xs text-gray-500">{user?.email}</span>
-                  </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">{user?.displayName || 'Usuário'}</span>
+                  <span className="text-xs text-gray-500">{user?.email}</span>
                 </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/profile')}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Perfil</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/logs')}>
-                  <FileText className="mr-2 h-4 w-4" />
-                  <span>Logs</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/documentation')}>
-                  <Book className="mr-2 h-4 w-4" />
-                  <span>Documentação</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/apis')}>
-                  <Code className="mr-2 h-4 w-4" />
-                  <span>APIs</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sair</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/profile')}>
+                <User className="mr-2 h-4 w-4" />
+                <span>Perfil</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/logs')}>
+                <FileText className="mr-2 h-4 w-4" />
+                <span>Logs</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/documentation')}>
+                <Book className="mr-2 h-4 w-4" />
+                <span>Documentação</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/apis')}>
+                <Code className="mr-2 h-4 w-4" />
+                <span>APIs</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sair</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>

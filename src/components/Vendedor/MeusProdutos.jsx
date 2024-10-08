@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import ProdutoCard from './ProdutoCard';
@@ -76,12 +75,7 @@ const MeusProdutos = () => {
         className="max-w-sm"
       />
       {produtos.length === 0 ? (
-        <div className="text-center">
-          <p className="mb-4">Você ainda não importou nenhum produto.</p>
-          <Button onClick={() => navigate('/vitrine')}>
-            Ir para a Vitrine
-          </Button>
-        </div>
+        <p>Você ainda não importou nenhum produto.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {produtosFiltrados.map((produto) => (
@@ -90,6 +84,7 @@ const MeusProdutos = () => {
               produto={produto}
               onDetalhes={handleDetalhes}
               onExcluir={() => setProdutoParaExcluir(produto.id)}
+              showExcluirButton={true}
             />
           ))}
         </div>
