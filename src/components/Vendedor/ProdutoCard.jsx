@@ -22,6 +22,10 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
 
   const formatPrice = (price) => (typeof price === 'number' ? price.toFixed(2) : '0.00');
 
+  const originalPrice = produto.desconto > 0
+    ? produto.preco / (1 - produto.desconto / 100)
+    : produto.preco;
+
   return (
     <Card className="w-full h-full flex flex-col">
       <CardContent className="p-3 flex-grow flex flex-col justify-between">
@@ -29,10 +33,15 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
         <div className="mt-3 space-y-2">
           <h3 className="font-semibold text-sm line-clamp-2">{produto.titulo}</h3>
           <div className="flex items-center justify-between">
-            <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
-            {produto.desconto > 0 && (
-              <span className="bg-red-500 text-white text-xs px-1 py-0.5 rounded-full">-{produto.desconto}%</span>
-            )}
+            <div className="flex items-center space-x-2">
+              <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
+              {produto.desconto > 0 && (
+                <>
+                  <p className="text-xs text-gray-500 line-through">R$ {formatPrice(originalPrice)}</p>
+                  <span className="bg-red-500 text-white text-xs px-1 py-0.5 rounded-full">-{produto.desconto}%</span>
+                </>
+              )}
+            </div>
           </div>
           <div className="flex items-center">
             {renderStars(produto.avaliacao || 0)}
