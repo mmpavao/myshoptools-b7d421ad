@@ -102,9 +102,9 @@ const Vitrine = () => {
       {produtos.length === 0 ? (
         <p>Carregando produtos...</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
           {produtosFiltrados.map((produto) => (
-            <Card key={produto.id} className="flex flex-col">
+            <Card key={produto.id} className="flex flex-col w-[130%]">
               <CardHeader className="p-4">
                 <CardTitle className="text-lg line-clamp-2">{produto.titulo}</CardTitle>
               </CardHeader>
