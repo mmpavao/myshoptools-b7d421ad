@@ -48,28 +48,28 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           </button>
           <span className="ml-4 text-lg font-medium text-gray-700">{companyName}</span>
         </div>
-        <div className="flex items-center space-x-4 bg-white rounded-full shadow-sm px-4 py-2">
+        <div className="flex items-center space-x-4 bg-transparent rounded-full shadow-sm px-3 py-1.5">
           <Input
             type="search"
             placeholder="Pesquisar..."
-            className="w-64 bg-transparent border-none focus:ring-0"
+            className="w-64 bg-transparent border-none focus:ring-0 text-sm"
           />
           <button className="text-gray-500 hover:text-gray-700 focus:outline-none">
-            <Bell size={24} />
+            <Bell size={20} />
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none flex items-center">
-              <Avatar className="ring-2 ring-gray-300">
+              <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.photoURL} alt="User avatar" />
-                <AvatarFallback className="font-bold text-lg">
+                <AvatarFallback className="font-bold text-sm">
                   {user?.photoURL ? (
                     user.displayName?.[0] || 'U'
                   ) : (
-                    <User className="h-5 w-5" />
+                    <User className="h-4 w-4" />
                   )}
                 </AvatarFallback>
               </Avatar>
-              <ChevronDown className="ml-1 h-4 w-4 text-gray-500" />
+              <ChevronDown className="ml-1 h-3 w-3 text-gray-500" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
               <div className="flex items-center p-2">
