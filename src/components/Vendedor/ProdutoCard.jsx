@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StarIcon, Heart } from "lucide-react";
 
-const ProdutoCard = ({ produto, onDetalhes }) => {
+const ProdutoCard = ({ produto, onDetalhes, onImportar }) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const renderProductImage = (foto) => (
@@ -63,14 +63,22 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-2">
+      <CardFooter className="p-2 flex justify-between gap-2">
         <Button 
           variant="outline" 
           size="sm" 
-          className="w-full text-xs" 
+          className="text-xs flex-grow"
           onClick={() => onDetalhes(produto.id)}
         >
           Detalhes
+        </Button>
+        <Button 
+          variant="default" 
+          size="sm" 
+          className="text-xs flex-grow bg-blue-600 hover:bg-blue-700"
+          onClick={() => onImportar(produto.id)}
+        >
+          Importar
         </Button>
       </CardFooter>
     </Card>
