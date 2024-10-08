@@ -129,6 +129,11 @@ const firebaseOperations = {
     }
   },
 
+
+  // Add these two new functions
+  getAllUsers: userOperations.getAllUsers,
+  getUserRole: userOperations.getUserRole,
+
   updateUserProfile: async (userId, profileData) => {
     try {
       const userRef = doc(db, 'users', userId);
