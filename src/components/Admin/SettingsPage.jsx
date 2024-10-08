@@ -5,7 +5,6 @@ import SystemSettings from './SystemSettings';
 import Integrations from './Integrations';
 import Billing from './Billing';
 import ChatSettings from './ChatSettings';
-import LandPageSettings from './LandPageSettings';
 
 const SettingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -31,7 +30,6 @@ const SettingsPage = () => {
           <TabsTrigger value="chat">Chat de Suporte</TabsTrigger>
           <TabsTrigger value="integrations">Integrações</TabsTrigger>
           <TabsTrigger value="billing">Billing</TabsTrigger>
-          <TabsTrigger value="landpage">LandPage</TabsTrigger>
         </TabsList>
         
         <TabsContent value="system">
@@ -48,10 +46,6 @@ const SettingsPage = () => {
         
         <TabsContent value="billing">
           <Billing />
-        </TabsContent>
-
-        <TabsContent value="landpage">
-          <LandPageSettings />
         </TabsContent>
       </Tabs>
     </div>
