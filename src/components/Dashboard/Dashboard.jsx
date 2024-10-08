@@ -12,6 +12,7 @@ import TaskList from './TaskList';
 import SalesDistribution from './SalesDistribution';
 import UserInfo from './UserInfo';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { formatCurrency } from '../../utils/currencyUtils';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -59,10 +60,10 @@ const Dashboard = () => {
       </div>
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-6">
-        <StatCard title="Ganhos" value={`$${dashboardData.faturamento.toFixed(2)}`} icon={DollarSign} />
-        <StatCard title="Gastos este mês" value={`$${(dashboardData.faturamento * 0.6).toFixed(2)}`} icon={ShoppingCart} />
-        <StatCard title="Vendas" value={`$${(dashboardData.faturamento * 0.8).toFixed(2)}`} icon={TrendingUp} />
-        <StatCard title="Saldo" value={`$${(dashboardData.faturamento * 0.4).toFixed(2)}`} icon={DollarSign} />
+        <StatCard title="Ganhos" value={formatCurrency(dashboardData.faturamento)} icon={DollarSign} />
+        <StatCard title="Gastos este mês" value={formatCurrency(dashboardData.faturamento * 0.6)} icon={ShoppingCart} />
+        <StatCard title="Vendas" value={formatCurrency(dashboardData.faturamento * 0.8)} icon={TrendingUp} />
+        <StatCard title="Saldo" value={formatCurrency(dashboardData.faturamento * 0.4)} icon={DollarSign} />
         <StatCard title="Novas Tarefas" value={dashboardData.tarefas.length} icon={Package} />
         <StatCard title="Projetos Totais" value={dashboardData.totalVendas} icon={Users} />
       </div>

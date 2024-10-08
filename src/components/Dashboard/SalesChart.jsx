@@ -5,7 +5,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 const SalesChart = ({ data }) => (
   <Card>
     <CardHeader>
-      <CardTitle>Gastos Mensais</CardTitle>
+      <CardTitle>Vendas Mensais</CardTitle>
     </CardHeader>
     <CardContent>
       <ResponsiveContainer width="100%" height={300}>
@@ -15,8 +15,8 @@ const SalesChart = ({ data }) => (
           <YAxis />
           <Tooltip />
           <Legend />
-          <Line type="monotone" dataKey="vendas" stroke="#8884d8" activeDot={{ r: 8 }} />
-          <Line type="monotone" dataKey="gastos" stroke="#82ca9d" />
+          <Line type="monotone" dataKey="vendas" name="Vendas" stroke="#8884d8" activeDot={{ r: 8 }} />
+          <Line type="monotone" dataKey="gastos" name="Gastos" stroke="#82ca9d" />
         </LineChart>
       </ResponsiveContainer>
     </CardContent>

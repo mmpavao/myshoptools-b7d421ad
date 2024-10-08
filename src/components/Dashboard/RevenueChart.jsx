@@ -15,8 +15,8 @@ const RevenueChart = ({ data }) => (
           <YAxis />
           <Tooltip />
           <Legend />
-          <Bar dataKey="receita" fill="#8884d8" />
-          <Bar dataKey="despesas" fill="#82ca9d" />
+          <Bar dataKey="receita" name="Receita" fill="#8884d8" />
+          <Bar dataKey="despesas" name="Despesas" fill="#82ca9d" />
         </BarChart>
       </ResponsiveContainer>
     </CardContent>

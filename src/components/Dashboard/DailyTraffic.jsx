@@ -16,7 +16,7 @@ const DailyTraffic = ({ data }) => (
           <XAxis dataKey="hora" />
           <YAxis />
           <Tooltip />
-          <Bar dataKey="visitantes" fill="#8884d8" />
+          <Bar dataKey="visitantes" name="Visitantes" fill="#8884d8" />
         </BarChart>
       </ResponsiveContainer>
     </CardContent>
