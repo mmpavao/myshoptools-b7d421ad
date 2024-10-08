@@ -32,16 +32,14 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
         {renderProductImage(produto.fotos && produto.fotos[0])}
         <div className="mt-3 space-y-2">
           <h3 className="font-semibold text-sm line-clamp-2">{produto.titulo}</h3>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
-              {produto.desconto > 0 && (
-                <>
-                  <p className="text-xs text-gray-500 line-through">R$ {formatPrice(originalPrice)}</p>
-                  <span className="bg-red-500 text-white text-xs px-1 py-0.5 rounded-full">-{produto.desconto}%</span>
-                </>
-              )}
-            </div>
+          <div className="flex items-center space-x-2 flex-wrap">
+            <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
+            {produto.desconto > 0 && (
+              <>
+                <p className="text-xs text-gray-500 line-through">R$ {formatPrice(originalPrice)}</p>
+                <span className="bg-red-500 text-white text-xs px-1 py-0.5 rounded-full">-{produto.desconto}%</span>
+              </>
+            )}
           </div>
           <div className="flex items-center">
             {renderStars(produto.avaliacao || 0)}

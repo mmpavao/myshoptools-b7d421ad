@@ -14,6 +14,10 @@ const ProductDetails = ({ produto, isImportado, handleImportar }) => {
     return typeof price === 'number' ? price.toFixed(2) : '0.00';
   };
 
+  const originalPrice = produto.desconto > 0
+    ? produto.preco / (1 - produto.desconto / 100)
+    : produto.preco;
+
   return (
     <div className="md:w-1/2">
       <h1 className="text-3xl font-bold mb-2">{produto.titulo}</h1>
@@ -24,14 +28,14 @@ const ProductDetails = ({ produto, isImportado, handleImportar }) => {
         <span className="ml-2 text-gray-600">({produto.numeroAvaliacoes || 0} avaliações)</span>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-4 flex items-center space-x-2 flex-wrap">
         <span className="text-3xl font-bold text-primary">R$ {formatPrice(produto.preco)}</span>
         {produto.desconto > 0 && (
           <>
-            <span className="ml-2 text-gray-500 line-through">
-              R$ {formatPrice(produto.preco / (1 - produto.desconto / 100))}
+            <span className="text-gray-500 line-through">
+              R$ {formatPrice(originalPrice)}
             </span>
-            <span className="ml-2 bg-red-500 text-white px-2 py-1 rounded-full text-sm">-{produto.desconto}%</span>
+            <span className="bg-red-500 text-white px-2 py-1 rounded-full text-sm">-{produto.desconto}%</span>
           </>
         )}
       </div>
