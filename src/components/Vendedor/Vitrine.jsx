@@ -18,6 +18,10 @@ const Vitrine = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
+  useEffect(() => {
+    fetchProdutos();
+  }, [user]);
+
   const fetchProdutos = async () => {
     try {
       const produtosData = await firebaseOperations.getProducts();
@@ -32,43 +36,54 @@ const Vitrine = () => {
     }
   };
 
-  useEffect(() => {
-    fetchProdutos();
-  }, [user]);
+  const handleDetalhes = (produtoId) => {
+    navigate(`/produto/${produtoId}`);
+  };
 
-  const renderProductImage = (foto) => {
-    if (typeof foto === 'string' && foto.startsWith('http')) {
-      return (
-        <div className="w-full pb-[100%] relative overflow-hidden rounded-lg">
-          <img 
-            src={foto} 
-            alt="Produto" 
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        </div>
+  const handleAvaliar = (produtoId) => {
+    setAvaliacaoAtual({ produtoId, nota: 0, comentario: '' });
+  };
+
+  const handleSubmitAvaliacao = async () => {
+    try {
+      await firebaseOperations.adicionarAvaliacao(
+        avaliacaoAtual.produtoId,
+        user.uid,
+        avaliacaoAtual.nota,
+        avaliacaoAtual.comentario
       );
-    } else {
-      return (
-        <div className="w-full pb-[100%] relative overflow-hidden rounded-lg bg-gray-200">
-          <img 
-            src="/placeholder.svg" 
-            alt="Placeholder" 
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        </div>
-      );
+      toast({
+        title: "Sucesso",
+        description: "Avaliação enviada com sucesso!",
+      });
+      fetchProdutos(); // Atualiza a lista de produtos após a avaliação
+    } catch (error) {
+      console.error("Erro ao enviar avaliação:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível enviar a avaliação.",
+        variant: "destructive",
+      });
     }
   };
 
-  const renderStars = (rating) => {
-    return [...Array(5)].map((_, index) => (
-      <StarIcon key={index} className={`w-4 h-4 ${index < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'}`} />
-    ));
-  };
+  const renderProductImage = (foto) => (
+    <div className="w-full pb-[100%] relative overflow-hidden rounded-lg">
+      <img 
+        src={foto && foto.startsWith('http') ? foto : "/placeholder.svg"}
+        alt="Produto" 
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    </div>
+  );
 
-  const formatPrice = (price) => {
-    return typeof price === 'number' ? price.toFixed(2) : '0.00';
-  };
+  const renderStars = (rating) => (
+    [...Array(5)].map((_, index) => (
+      <StarIcon key={index} className={`w-4 h-4 ${index < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'}`} />
+    ))
+  );
+
+  const formatPrice = (price) => (typeof price === 'number' ? price.toFixed(2) : '0.00');
 
   const produtosFiltrados = produtos.filter(produto =>
     produto.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
@@ -87,17 +102,14 @@ const Vitrine = () => {
       {produtos.length === 0 ? (
         <p>Carregando produtos...</p>
       ) : (
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {produtosFiltrados.map((produto) => (
             <Card key={produto.id} className="flex flex-col h-full">
               <CardHeader className="p-3">
                 <CardTitle className="text-sm line-clamp-2 h-10 overflow-hidden">{produto.titulo}</CardTitle>
               </CardHeader>
               <CardContent className="p-3 flex-grow">
-                {produto.fotos && produto.fotos.length > 0
-                  ? renderProductImage(produto.fotos[0])
-                  : renderProductImage(null)
-                }
+                {renderProductImage(produto.fotos && produto.fotos[0])}
                 <p className="text-lg font-bold text-primary mt-2">R$ {formatPrice(produto.preco)}</p>
                 {produto.desconto > 0 && (
                   <div className="text-xs">
@@ -143,9 +155,6 @@ const Vitrine = () => {
                 </Dialog>
               </CardFooter>
             </Card>
-          ))}
-          {[...Array(5 - (produtosFiltrados.length % 5 || 5))].map((_, index) => (
-            <div key={`empty-${index}`} className="hidden sm:block"></div>
           ))}
         </div>
       )}
