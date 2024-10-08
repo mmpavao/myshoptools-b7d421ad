@@ -165,7 +165,7 @@ const Sidebar = ({ isOpen }) => {
             </React.Fragment>
           ))}
         </ul>
-        <div className="mt-auto pt-6">
+        <div className="mt-auto pt-6 pb-6"> {/* Added pb-6 for bottom padding */}
           <NavLink
             to="/suporte"
             className={cn(
