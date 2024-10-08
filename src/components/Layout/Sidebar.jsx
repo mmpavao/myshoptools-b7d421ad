@@ -62,10 +62,10 @@ const NavItem = ({ item, isOpen, userRole, isCollapsible, activeSection }) => {
       <li>
         <div
           className={cn(
-            "flex items-center w-full p-2 text-base font-semibold rounded-lg text-gray-900",
-            isOpen && "hover:bg-gray-100",
+            "flex items-center w-full p-2 text-base font-semibold rounded-lg text-white",
+            isOpen && "hover:bg-gray-800",
             !isOpen && "justify-center",
-            isActive && "bg-gray-100"
+            isActive && "bg-gray-800"
           )}
           onClick={() => isCollapsible && setIsExpanded(!isExpanded)}
         >
@@ -96,8 +96,8 @@ const NavItem = ({ item, isOpen, userRole, isCollapsible, activeSection }) => {
           cn(
             "flex items-center p-2 text-base font-normal rounded-lg",
             isActive
-              ? "bg-gray-100 text-gray-900"
-              : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+              ? "bg-gray-800 text-white"
+              : "text-gray-300 hover:bg-gray-800 hover:text-white",
             !isOpen && "justify-center"
           )
         }
@@ -151,7 +151,7 @@ const Sidebar = ({ isOpen }) => {
     <aside className={cn(
       "fixed left-0 top-0 z-50 h-screen transition-all duration-300",
       isOpen ? "w-64" : "w-16",
-      "bg-white text-gray-900 shadow-md"
+      "bg-gray-900 text-white shadow-md"
     )}>
       <div className="h-full overflow-y-auto py-4 px-3">
         <div className={cn(
@@ -170,7 +170,7 @@ const Sidebar = ({ isOpen }) => {
                 isCollapsible={isCollapsible} 
                 activeSection={activeSection}
               />
-              {isOpen && index < navItems.length - 1 && <Separator className="my-2" />}
+              {isOpen && index < navItems.length - 1 && <Separator className="my-2 bg-gray-700" />}
             </React.Fragment>
           ))}
         </ul>
@@ -178,7 +178,7 @@ const Sidebar = ({ isOpen }) => {
           <NavLink
             to="/suporte"
             className={cn(
-              "flex items-center p-2 text-base font-normal rounded-lg text-gray-900 hover:bg-gray-100",
+              "flex items-center p-2 text-base font-normal rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white",
               !isOpen && "justify-center"
             )}
           >
