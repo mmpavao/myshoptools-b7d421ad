@@ -37,16 +37,16 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
 
   const handleVenderEmMyShop = async () => {
     try {
-      await firebaseOperations.addProductToMyShopAndHighlight(user.uid, produto.id);
+      await firebaseOperations.addProductToMyShop(user.uid, produto.id);
       toast({
         title: "Sucesso",
-        description: "Produto adicionado à sua loja MyShop e aos destaques da landing page.",
+        description: "Produto adicionado à sua loja MyShop.",
       });
     } catch (error) {
-      console.error("Erro ao adicionar produto à loja MyShop e destaques:", error);
+      console.error("Erro ao adicionar produto à loja MyShop:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível adicionar o produto à loja MyShop e aos destaques.",
+        description: "Não foi possível adicionar o produto à loja MyShop.",
         variant: "destructive",
       });
     }
