@@ -43,7 +43,6 @@ const DetalheProduto = () => {
       await firebaseOperations.importarProduto(user.uid, produto);
       setIsImportado(true);
       console.log("Produto importado com sucesso!");
-      navigate('/meus-produtos');
     } catch (error) {
       console.error("Erro ao importar produto:", error);
     }

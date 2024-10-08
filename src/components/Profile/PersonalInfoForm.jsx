@@ -72,7 +72,7 @@ const PersonalInfoForm = () => {
 
   const handleAvatarSave = async (blob) => {
     try {
-      const downloadURL = await firebaseOperations.uploadProfileImage(blob, user.uid);
+      const downloadURL = await firebaseOperations.uploadProfileImage(user.uid, blob);
       setFormData(prev => ({ ...prev, profileImage: downloadURL }));
       await firebaseOperations.updateUserProfile(user.uid, { photoURL: downloadURL });
       updateUserContext({ photoURL: downloadURL });

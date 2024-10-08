@@ -1,10 +1,9 @@
 import { db, storage, auth } from './config';
 import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where } from 'firebase/firestore';
-import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
-import crudOperations from './crudOperations';
+import { updateProfile } from 'firebase/auth';
 import * as userOperations from './userOperations';
-import { safeFirestoreOperation } from '../utils/errorReporting';
 
 const firebaseOperations = {
   createProduct: async (productData) => {
@@ -152,14 +151,6 @@ const firebaseOperations = {
         await userOperations.updateUserStatus(userId, profileData.status);
       }
       
-      // Atualizar outros campos relevantes
-      const fieldsToUpdate = ['name', 'email', 'phoneNumber', 'address'];
-      for (const field of fieldsToUpdate) {
-        if (profileData[field] !== undefined) {
-          await updateDoc(userRef, { [field]: profileData[field] });
-        }
-      }
-      
       console.log('Perfil do usuário atualizado com sucesso:', profileData);
       return true;
     } catch (error) {
@@ -168,48 +159,32 @@ const firebaseOperations = {
     }
   },
 
-  getUserProfile: async (userId) => {
-    try {
-      const userDoc = await getDoc(doc(db, 'users', userId));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        // Verificar se a URL da foto do perfil é válida
-        if (userData.photoURL) {
+  uploadProfileImage: async (userId, blob) => {
+    const path = `avatars/${userId}/${Date.now()}_profile.jpg`;
+    const storageRef = ref(storage, path);
+    const uploadTask = uploadBytesResumable(storageRef, blob);
+
+    return new Promise((resolve, reject) => {
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          // Progresso do upload
+        },
+        (error) => {
+          console.error('Erro no upload:', error);
+          reject(error);
+        },
+        async () => {
           try {
-            await fetch(userData.photoURL, { method: 'HEAD' });
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadURL);
           } catch (error) {
-            console.warn('Imagem de perfil inválida, usando placeholder:', error);
-            userData.photoURL = '/placeholder.svg';
+            console.error('Erro ao obter URL de download:', error);
+            reject(error);
           }
         }
-        return userData;
-      } else {
-        console.warn('Usuário não encontrado, retornando perfil padrão');
-        return {
-          displayName: '',
-          email: '',
-          phoneNumber: '',
-          address: '',
-          photoURL: '/placeholder.svg'
-        };
-      }
-    } catch (error) {
-      console.error('Erro ao buscar perfil do usuário:', error);
-      toast({
-        title: "Erro",
-        description: "Falha ao carregar o perfil do usuário. Usando dados padrão.",
-        variant: "destructive",
-      });
-      return {
-        displayName: '',
-        email: '',
-        phoneNumber: '',
-        address: '',
-        photoURL: '/placeholder.svg'
-      };
-    }
+      );
+    });
   },
-
 };
 
 export default firebaseOperations;
