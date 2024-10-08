@@ -5,12 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, CreditCard, Package, Clock, CheckCircle, XCircle, Plus } from 'lucide-react';
+import { Eye, CreditCard, Package, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { useAuth } from '../Auth/AuthProvider';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { formatCurrency } from '../../utils/currencyUtils';
-import { useToast } from "@/components/ui/use-toast";
-import StatCard from '../Dashboard/StatCard';
 
 const MeusPedidos = () => {
   const [filtro, setFiltro] = useState('');
@@ -22,7 +20,6 @@ const MeusPedidos = () => {
     enviados: 0
   });
   const { user } = useAuth();
-  const { toast } = useToast();
 
   useEffect(() => {
     if (user) {
@@ -32,46 +29,22 @@ const MeusPedidos = () => {
 
   const fetchPedidos = async () => {
     try {
-      const fetchedPedidos = await firebaseOperations.getPedidosVendedor(user.uid);
-      setPedidos(fetchedPedidos);
-      updateStats(fetchedPedidos);
+      const pedidosData = await firebaseOperations.getPedidosVendedor(user.uid);
+      setPedidos(pedidosData);
+      calculateStats(pedidosData);
     } catch (error) {
       console.error("Erro ao buscar pedidos:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar os pedidos.",
-        variant: "destructive",
-      });
     }
   };
 
-  const updateStats = (pedidosList) => {
+  const calculateStats = (pedidosData) => {
     const newStats = {
-      total: pedidosList.length,
-      novos: pedidosList.filter(p => p.statusVendedor === 'Novo').length,
-      processando: pedidosList.filter(p => p.statusVendedor === 'Processando').length,
-      enviados: pedidosList.filter(p => p.statusVendedor === 'Enviado').length
+      total: pedidosData.length,
+      novos: pedidosData.filter(p => p.statusVendedor === 'Novo').length,
+      processando: pedidosData.filter(p => p.statusVendedor === 'Processando').length,
+      enviados: pedidosData.filter(p => p.statusVendedor === 'Enviado').length
     };
     setStats(newStats);
-  };
-
-  const gerarPedidosFicticios = async () => {
-    try {
-      await firebaseOperations.gerarPedidosFicticios(user.uid, user.uid);
-      toast({
-        title: "Pedidos gerados",
-        description: "50 pedidos fictícios foram gerados com sucesso.",
-        variant: "success",
-      });
-      fetchPedidos();
-    } catch (error) {
-      console.error("Erro ao gerar pedidos fictícios:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível gerar os pedidos fictícios.",
-        variant: "destructive",
-      });
-    }
   };
 
   const pedidosFiltrados = pedidos.filter(pedido =>
@@ -79,15 +52,23 @@ const MeusPedidos = () => {
     pedido.sku.toLowerCase().includes(filtro.toLowerCase())
   );
 
+  const StatCard = ({ title, value, icon: Icon }) => (
+    <Card>
+      <CardContent className="flex flex-row items-center justify-between p-6">
+        <div className="flex flex-col space-y-1">
+          <span className="text-sm font-medium text-muted-foreground">{title}</span>
+          <span className="text-2xl font-bold">{value}</span>
+        </div>
+        <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+          <Icon className="h-6 w-6 text-primary" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Meus Pedidos</h1>
-        <Button onClick={gerarPedidosFicticios}>
-          <Plus className="mr-2 h-4 w-4" />
-          Gerar 50 Pedidos Fictícios
-        </Button>
-      </div>
+      <h1 className="text-2xl font-bold">Meus Pedidos</h1>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total de Pedidos" value={stats.total} icon={Package} />

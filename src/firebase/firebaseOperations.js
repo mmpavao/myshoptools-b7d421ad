@@ -19,52 +19,6 @@ const firebaseOperations = {
   updateUserAvatar: userProfileOperations.updateUserAvatar,
   getUserProfile: userProfileOperations.getUserProfile,
 
-
-  gerarPedidosFicticios: async (userId, fornecedorId) => {
-    try {
-      const produtos = await productOperations.getProducts();
-      const pedidos = [];
-
-      for (let i = 0; i < 50; i++) {
-        const produto = produtos[i % produtos.length];
-        const pedido = {
-          produtoId: produto.id,
-          titulo: produto.titulo,
-          preco: produto.preco,
-          quantidade: Math.floor(Math.random() * 5) + 1,
-          status: ['Novo', 'Processando', 'Enviado'][Math.floor(Math.random() * 3)],
-          dataCompra: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-          sku: produto.sku,
-          fornecedorId: fornecedorId,
-        };
-
-        // Adicionar pedido para o vendedor
-        const pedidoVendedorRef = await addDoc(collection(db, 'users', userId, 'pedidos'), {
-          ...pedido,
-          statusVendedor: pedido.status,
-          dataAtualizacao: new Date().toISOString(),
-        });
-
-        // Adicionar pedido para o fornecedor
-        const pedidoFornecedorRef = await addDoc(collection(db, 'pedidosFornecedor'), {
-          ...pedido,
-          statusLogistica: ['Aguardando', 'Preparando', 'Pronto para envio', 'Enviado'][Math.floor(Math.random() * 4)],
-          dataAtualizacao: new Date().toISOString(),
-        });
-
-        pedidos.push({
-          vendedorId: pedidoVendedorRef.id,
-          fornecedorId: pedidoFornecedorRef.id,
-        });
-      }
-
-      return pedidos;
-    } catch (error) {
-      console.error("Erro ao gerar pedidos fictícios:", error);
-      throw error;
-    }
-  },
-
   adicionarPedidoVendedor: async (userId, pedido) => {
     try {
       const pedidosRef = collection(db, 'users', userId, 'pedidos');
