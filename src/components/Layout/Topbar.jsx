@@ -23,7 +23,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
 
   return (
     <header className="bg-transparent">
-      <div className="flex items-center justify-between h-16 px-4">
+      <div className="flex items-center justify-between h-[4.2rem] px-4"> {/* Increased height by 5% */}
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
