@@ -1,5 +1,5 @@
 import { db, storage, auth } from './config';
-import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where, arrayUnion, limit } from 'firebase/firestore';
+import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where, arrayUnion } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
 import crudOperations from './crudOperations';
@@ -199,18 +199,6 @@ const landPageOperations = {
     await landPageOperations.saveLandPageSettings({ bannerUrl: downloadURL });
     
     return downloadURL;
-  },
-
-  getFeaturedProducts: async () => {
-    try {
-      const productsRef = collection(db, 'products');
-      const q = query(productsRef, where('featured', '==', true), limit(3));
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    } catch (error) {
-      console.error("Error fetching featured products:", error);
-      throw error;
-    }
   },
 };
 
