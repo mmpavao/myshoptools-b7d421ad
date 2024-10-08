@@ -237,6 +237,7 @@ const clearAllData = async () => {
   console.warn('clearAllData function is not implemented');
 };
 
+
 const myShopOperations = {
   getLandingPageData: async (userId) => {
     try {

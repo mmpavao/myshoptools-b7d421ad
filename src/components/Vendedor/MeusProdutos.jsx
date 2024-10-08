@@ -7,12 +7,14 @@ import ProdutoCard from './ProdutoCard';
 import { useAuth } from '../Auth/AuthProvider';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import MyShopLandingPage from './MyShopLandingPage';
 
 const MeusProdutos = () => {
   const [produtos, setProdutos] = useState([]);
   const [filtro, setFiltro] = useState('');
   const [produtoParaExcluir, setProdutoParaExcluir] = useState(null);
   const [myShopUrl, setMyShopUrl] = useState('');
+  const [isLandingPageOpen, setIsLandingPageOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -104,16 +106,22 @@ const MeusProdutos = () => {
       {produtos.length === 0 ? (
         <p>Você ainda não importou nenhum produto.</p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {produtosFiltrados.map((produto) => (
-            <ProdutoCard
-              key={produto.id}
-              produto={produto}
-              onDetalhes={handleDetalhes}
-              onExcluir={() => setProdutoParaExcluir(produto.id)}
-              showExcluirButton={true}
-            />
-          ))}
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {produtosFiltrados.map((produto) => (
+              <ProdutoCard
+                key={produto.id}
+                produto={produto}
+                onDetalhes={handleDetalhes}
+                onExcluir={() => setProdutoParaExcluir(produto.id)}
+                showExcluirButton={true}
+              />
+            ))}
+          </div>
+          <div className="flex justify-center space-x-4">
+            <Button onClick={() => setIsLandingPageOpen(true)}>Vender em MyShop</Button>
+            <Button variant="outline" onClick={() => window.open(myShopUrl, '_blank')}>Ver Loja</Button>
+          </div>
         </div>
       )}
 
@@ -131,6 +139,12 @@ const MeusProdutos = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <MyShopLandingPage
+        isOpen={isLandingPageOpen}
+        onClose={() => setIsLandingPageOpen(false)}
+        produtos={produtos}
+      />
     </div>
   );
 };
