@@ -32,6 +32,7 @@ const ProductSection = () => {
 
   const handleCloseCheckout = () => {
     setIsCheckoutOpen(false);
+    setCart([]); // Limpa o carrinho após fechar o checkout
   };
 
   const handleAddToCart = (produto) => {

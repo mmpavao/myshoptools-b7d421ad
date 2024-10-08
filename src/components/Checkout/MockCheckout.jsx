@@ -79,7 +79,7 @@ const MockCheckout = ({ isOpen, onClose, products = [] }) => {
 
   if (!products || products.length === 0) return null;
 
-  const truncateTitle = (title, maxLength = 30) => {
+  const truncateTitle = (title, maxLength = 40) => {
     return title.length > maxLength ? title.substring(0, maxLength) + '...' : title;
   };
 
