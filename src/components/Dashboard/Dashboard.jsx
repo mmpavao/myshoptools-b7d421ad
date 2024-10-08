@@ -17,9 +17,10 @@ const Dashboard = () => {
     crescimento: 0,
     vendasPorMes: [],
     receitaSemanal: [],
-    trafegoDiario: [],
+    trafegoDiario: { total: 0, crescimento: 0, porHora: [] },
     tarefas: [],
-    checkTable: []
+    checkTable: [],
+    distribuicaoVendas: []
   });
 
   useEffect(() => {
@@ -27,7 +28,7 @@ const Dashboard = () => {
       if (user) {
         try {
           const data = await firebaseOperations.getDashboardData(user.uid);
-          setDashboardData(data);
+          setDashboardData(prevData => ({ ...prevData, ...data }));
         } catch (error) {
           console.error("Erro ao buscar dados do dashboard:", error);
         }
