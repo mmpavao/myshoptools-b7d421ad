@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, User, FileText, Book, Code, LogOut, ChevronDown, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Bell, User, FileText, Book, Code, LogOut, Sun, Moon } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from '../Auth/AuthProvider';
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   const { user, logout } = useAuth();
@@ -33,53 +34,60 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   };
 
   return (
-    <header className="bg-transparent">
-      <div className="flex items-center justify-between h-14 px-4">
+    <header className="bg-white shadow-sm">
+      <div className="flex items-center justify-between h-16 px-4">
         <div className="flex items-center">
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={toggleSidebar}
-            className="p-1.5 rounded-full hover:bg-gray-200 focus:outline-none"
+            className="mr-4 text-gray-500 hover:text-gray-700"
           >
             {isSidebarOpen ? (
-              <PanelLeftClose size={24} />
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             ) : (
-              <PanelLeftOpen size={24} />
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             )}
-          </button>
-          <span className="ml-3 text-base font-medium text-gray-700">{companyName}</span>
+          </Button>
+          <span className="text-xl font-semibold text-gray-800">{companyName}</span>
         </div>
-        <div className="flex items-center space-x-3 bg-white bg-opacity-80 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] px-2 py-1">
-          <Input
-            type="search"
-            placeholder="Pesquisar..."
-            className="w-56 bg-transparent border-none focus:ring-0 text-sm focus:outline-none"
-          />
-          <button className="text-gray-500 hover:text-gray-700 focus:outline-none">
-            <Bell size={18} />
-          </button>
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <Input
+              type="search"
+              placeholder="Pesquisar..."
+              className="w-64 pl-10 pr-4 py-2 rounded-full bg-gray-100 focus:bg-white transition-colors duration-200"
+            />
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-700">
+            <Bell size={20} />
+          </Button>
+          <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-700">
+            <Sun size={20} />
+          </Button>
           <DropdownMenu>
-            <DropdownMenuTrigger className="focus:outline-none flex items-center">
-              <Avatar className="h-7 w-7">
-                <AvatarImage src={user?.photoURL} alt="User avatar" />
-                <AvatarFallback className="font-bold text-xs">
-                  {user?.photoURL ? (
-                    user.displayName?.[0] || 'U'
-                  ) : (
-                    <User className="h-3 w-3" />
-                  )}
-                </AvatarFallback>
-              </Avatar>
-              <ChevronDown className="ml-1 h-3 w-3 text-gray-500" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end">
-              <div className="flex items-center p-2">
-                <Avatar className="w-10 h-10 mr-2 ring-1 ring-gray-300">
-                  <AvatarImage src={user?.photoURL || "/placeholder.svg"} alt="User avatar" />
-                  <AvatarFallback>{user?.displayName?.[0] || 'U'}</AvatarFallback>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user?.photoURL} alt="User avatar" />
+                  <AvatarFallback>
+                    {user?.displayName?.[0] || <User className="h-4 w-4" />}
+                  </AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">{user?.displayName || 'Usuário'}</span>
-                  <span className="text-xs text-gray-500">{user?.email}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <div className="flex items-center justify-start gap-2 p-2">
+                <div className="flex flex-col space-y-1 leading-none">
+                  {user?.displayName && <p className="font-medium">{user.displayName}</p>}
+                  {user?.email && (
+                    <p className="w-[200px] truncate text-sm text-muted-foreground">
+                      {user.email}
+                    </p>
+                  )}
                 </div>
               </div>
               <DropdownMenuSeparator />
@@ -108,7 +116,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           </DropdownMenu>
         </div>
       </div>
-      <div className="px-4 py-1.5 bg-white bg-opacity-50 text-xs text-gray-600">
+      <div className="px-4 py-2 bg-gray-50 text-sm text-gray-600">
         {getBreadcrumbs()}
       </div>
     </header>
