@@ -77,6 +77,43 @@ const Vitrine = () => {
     navigate(`/produto/${produtoId}`);
   };
 
+  const handleAvaliar = (produtoId) => {
+    setAvaliacaoAtual({ produtoId, nota: 0, comentario: '' });
+  };
+
+  const handleSubmitAvaliacao = async () => {
+    if (!user) {
+      toast({
+        title: "Erro",
+        description: "Você precisa estar logado para avaliar produtos.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await firebaseOperations.adicionarAvaliacao(
+        avaliacaoAtual.produtoId,
+        user.uid,
+        avaliacaoAtual.nota,
+        avaliacaoAtual.comentario
+      );
+      toast({
+        title: "Sucesso",
+        description: "Avaliação enviada com sucesso!",
+      });
+      setAvaliacaoAtual({ produtoId: null, nota: 0, comentario: '' });
+      await fetchProdutos();
+    } catch (error) {
+      console.error("Erro ao enviar avaliação:", error);
+      toast({
+        title: "Erro",
+        description: "Falha ao enviar a avaliação. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const renderStars = (rating) => {
     return [...Array(5)].map((_, index) => (
       <StarIcon key={index} className={`w-5 h-5 ${index < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'}`} />
