@@ -177,6 +177,8 @@ const Sidebar = ({ isOpen }) => {
             {isOpen && <span className="ml-3">Suporte</span>}
           </NavLink>
         </div>
+        {/* Add padding to the bottom of the sidebar */}
+        <div className="pb-6"></div>
       </div>
     </aside>
   );
