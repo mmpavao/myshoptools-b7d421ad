@@ -1,6 +1,7 @@
 {
   "storage": {
-    "rules": "storage.rules"
+    "rules": "storage.rules",
+    "bucket": "myshoptools-84ff5.appspot.com"
   },
   "firestore": {
     "rules": "firestore.rules",
