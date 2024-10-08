@@ -3,7 +3,7 @@ import { useAuth } from '../Auth/AuthProvider';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Package, DollarSign, ShoppingCart, TrendingUp, Users, Calendar } from 'lucide-react';
+import { Package, DollarSign, ShoppingCart, TrendingUp, Users } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import firebaseOperations from '../../firebase/firebaseOperations';
@@ -43,7 +43,7 @@ const Dashboard = () => {
   };
 
   const StatCard = ({ title, value, icon: Icon }) => (
-    <Card className="h-32"> {/* Increased height for more rectangular shape */}
+    <Card className="h-32">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <Icon className="h-4 w-4 text-muted-foreground" />
@@ -67,7 +67,7 @@ const Dashboard = () => {
         <Button onClick={handleLogout}>Sair</Button>
       </div>
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"> {/* Adjusted grid layout */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard title="Ganhos" value={`$${dashboardData.faturamento.toFixed(2)}`} icon={DollarSign} />
         <StatCard title="Gastos este mês" value={`$${(dashboardData.faturamento * 0.6).toFixed(2)}`} icon={ShoppingCart} />
         <StatCard title="Vendas" value={`$${(dashboardData.faturamento * 0.8).toFixed(2)}`} icon={TrendingUp} />
