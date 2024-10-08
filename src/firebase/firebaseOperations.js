@@ -39,96 +39,6 @@ const productOperations = {
       throw new Error('Produto não encontrado');
     }
   },
-
-  importarProduto: async (userId, produto) => {
-    const produtoImportado = {
-      ...produto,
-      skuOriginal: produto.sku,
-      precoCusto: produto.preco,
-      precoVenda: produto.vendaSugerida,
-      descricaoPersonalizada: produto.descricao,
-      fotosPersonalizadas: produto.fotos,
-      dataImportacao: new Date().toISOString()
-    };
-    const userProductRef = doc(db, 'users', userId, 'produtosImportados', produto.id);
-    await setDoc(userProductRef, produtoImportado);
-  },
-
-  getProdutosImportados: async (userId) => {
-    const userProductsRef = collection(db, 'users', userId, 'produtosImportados');
-    const snapshot = await getDocs(userProductsRef);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  },
-
-  getProdutosImportadosStatus: async (userId) => {
-    const userProductsRef = collection(db, 'users', userId, 'produtosImportados');
-    const snapshot = await getDocs(userProductsRef);
-    const status = {};
-    snapshot.docs.forEach(doc => {
-      status[doc.id] = true;
-    });
-    return status;
-  },
-
-  removerProdutoImportado: async (userId, produtoId) => {
-    const userProductRef = doc(db, 'users', userId, 'produtosImportados', produtoId);
-    await deleteDoc(userProductRef);
-  },
-
-  verificarProdutoImportado: async (userId, produtoId) => {
-    const userProductRef = doc(db, 'users', userId, 'produtosImportados', produtoId);
-    const docSnap = await getDoc(userProductRef);
-    return docSnap.exists();
-  },
-};
-
-const meusProdutosOperations = {
-  getMeusProdutos: async (userId) => {
-    try {
-      const produtosImportadosRef = collection(db, 'users', userId, 'produtosImportados');
-      const snapshot = await getDocs(produtosImportadosRef);
-      const produtosImportados = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-      // Buscar detalhes completos dos produtos
-      const produtosCompletos = await Promise.all(produtosImportados.map(async (produto) => {
-        const produtoCompleto = await productOperations.getProduct(produto.id);
-        return {
-          ...produtoCompleto,
-          dataImportacao: produto.dataImportacao || new Date().toISOString(),
-          status: produto.status || 'ativo'
-        };
-      }));
-
-      return produtosCompletos;
-    } catch (error) {
-      console.error('Erro ao buscar meus produtos:', error);
-      throw error;
-    }
-  },
-};
-
-const userProfileOperations = {
-  getUserProfile: async (userId) => {
-    try {
-      const userDoc = await getDoc(doc(db, 'users', userId));
-      if (userDoc.exists()) {
-        return userDoc.data();
-      }
-      return null;
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-      throw error;
-    }
-  },
-  updateUserProfile: async (userId, profileData) => {
-    try {
-      await setDoc(doc(db, 'users', userId), profileData, { merge: true });
-      return true;
-    } catch (error) {
-      console.error('Error updating user profile:', error);
-      throw error;
-    }
-  },
 };
 
 const fileOperations = {
@@ -203,65 +113,50 @@ const fileOperations = {
   }
 };
 
-const testFirebaseOperations = async (logCallback) => {
-  try {
-    logCallback({ step: 'Starting Firebase test', status: 'info' });
-    
-    // Test product creation
-    const testProduct = { title: 'Test Product', price: 9.99 };
-    const productId = await productOperations.createProduct(testProduct);
-    logCallback({ step: 'Product created', status: 'success' });
-    
-    // Test product retrieval
-    const retrievedProduct = await productOperations.getProduct(productId);
-    logCallback({ step: 'Product retrieved', status: 'success' });
-    
-    // Test product update
-    await productOperations.updateProduct(productId, { price: 19.99 });
-    logCallback({ step: 'Product updated', status: 'success' });
-    
-    // Test product deletion
-    await productOperations.deleteProduct(productId);
-    logCallback({ step: 'Product deleted', status: 'success' });
-    
-    logCallback({ step: 'All Firebase operations completed successfully', status: 'success' });
-  } catch (error) {
-    logCallback({ step: 'Error during Firebase test', status: 'error', message: error.message });
-    throw error;
-  }
-};
-
-const clearAllData = async () => {
-  // Implementation for clearing all data
-  // This is a placeholder and should be implemented with caution
-  console.warn('clearAllData function is not implemented');
-};
-
-const myShopOperations = {
-  getMyShopProducts: async (userId) => {
+const userProfileOperations = {
+  getUserProfile: async (userId) => {
     try {
-      const userProductsRef = collection(db, 'users', userId, 'myShopProducts');
-      const snapshot = await getDocs(userProductsRef);
-      const productIds = snapshot.docs.map(doc => doc.id);
-      
-      const products = await Promise.all(productIds.map(async (id) => {
-        const productDoc = await getDoc(doc(db, 'products', id));
-        return { id, ...productDoc.data() };
-      }));
-      
-      return products;
+      const userDoc = await getDoc(doc(db, 'users', userId));
+      if (userDoc.exists()) {
+        return userDoc.data();
+      }
+      return null;
     } catch (error) {
-      console.error('Error getting MyShop products:', error);
+      console.error('Error fetching user profile:', error);
       throw error;
     }
   },
-
-  addProductToMyShop: async (userId, productId) => {
+  updateUserProfile: async (userId, profileData) => {
     try {
-      const userProductRef = doc(db, 'users', userId, 'myShopProducts', productId);
-      await setDoc(userProductRef, { addedAt: new Date() });
+      await setDoc(doc(db, 'users', userId), profileData, { merge: true });
+      return true;
     } catch (error) {
-      console.error('Error adding product to MyShop:', error);
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
+  },
+};
+
+const meusProdutosOperations = {
+  getMeusProdutos: async (userId) => {
+    try {
+      const produtosImportadosRef = collection(db, 'users', userId, 'produtosImportados');
+      const snapshot = await getDocs(produtosImportadosRef);
+      const produtosImportados = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      // Buscar detalhes completos dos produtos
+      const produtosCompletos = await Promise.all(produtosImportados.map(async (produto) => {
+        const produtoCompleto = await productOperations.getProduct(produto.id);
+        return {
+          ...produtoCompleto,
+          dataImportacao: produto.dataImportacao || new Date().toISOString(),
+          status: produto.status || 'ativo'
+        };
+      }));
+
+      return produtosCompletos;
+    } catch (error) {
+      console.error('Erro ao buscar meus produtos:', error);
       throw error;
     }
   },
@@ -272,11 +167,9 @@ const firebaseOperations = {
   ...userOperations,
   ...productOperations,
   ...fileOperations,
-  ...meusProdutosOperations,
   ...userProfileOperations,
-  ...myShopOperations,
-  testFirebaseOperations,
-  clearAllData
+  getUserProfile: userProfileOperations.getUserProfile,
+  updateUserProfile: userProfileOperations.updateUserProfile,
 };
 
 export default firebaseOperations;
