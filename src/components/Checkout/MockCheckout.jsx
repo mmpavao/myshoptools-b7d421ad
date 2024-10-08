@@ -41,18 +41,18 @@ const MockCheckout = ({ isOpen, onClose, products = [], onPurchaseComplete }) =>
       }));
 
       if (user) {
-        await Promise.all(pedidos.map(pedido => 
-          firebaseOperations.adicionarPedidoVendedor(user.uid, pedido)
-        ));
+        for (const pedido of pedidos) {
+          await firebaseOperations.adicionarPedidoVendedor(user.uid, pedido);
+        }
       }
 
-      await Promise.all(pedidos.map(pedido => 
-        firebaseOperations.adicionarPedidoFornecedor(pedido.produtoId, pedido)
-      ));
+      for (const pedido of pedidos) {
+        await firebaseOperations.adicionarPedidoFornecedor(pedido.produtoId, pedido);
+      }
 
-      await Promise.all(products.map(product =>
-        firebaseOperations.atualizarEstoque(product.id, product.estoque - 1)
-      ));
+      for (const product of products) {
+        await firebaseOperations.atualizarEstoque(product.id, Math.max(0, product.estoque - 1));
+      }
 
       setIsProcessing(false);
       setIsPurchaseComplete(true);

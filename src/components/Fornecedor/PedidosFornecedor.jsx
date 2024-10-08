@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, Truck } from 'lucide-react';
+import { Eye, Truck, Package, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { formatCurrency } from '../../utils/currencyUtils';
@@ -13,6 +13,12 @@ import { formatCurrency } from '../../utils/currencyUtils';
 const PedidosFornecedor = () => {
   const [filtro, setFiltro] = useState('');
   const [pedidos, setPedidos] = useState([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    aguardando: 0,
+    preparando: 0,
+    enviados: 0
+  });
 
   useEffect(() => {
     fetchPedidos();
@@ -22,9 +28,20 @@ const PedidosFornecedor = () => {
     try {
       const pedidosData = await firebaseOperations.getPedidosFornecedor();
       setPedidos(pedidosData);
+      calculateStats(pedidosData);
     } catch (error) {
       console.error("Erro ao buscar pedidos do fornecedor:", error);
     }
+  };
+
+  const calculateStats = (pedidosData) => {
+    const newStats = {
+      total: pedidosData.length,
+      aguardando: pedidosData.filter(p => p.statusLogistica === 'Aguardando').length,
+      preparando: pedidosData.filter(p => p.statusLogistica === 'Preparando').length,
+      enviados: pedidosData.filter(p => ['Enviado', 'Entregue'].includes(p.statusLogistica)).length
+    };
+    setStats(newStats);
   };
 
   const pedidosFiltrados = pedidos.filter(pedido =>
@@ -32,9 +49,30 @@ const PedidosFornecedor = () => {
     pedido.sku.toLowerCase().includes(filtro.toLowerCase())
   );
 
+  const StatCard = ({ title, value, icon: Icon }) => (
+    <Card>
+      <CardContent className="flex flex-row items-center justify-between p-6">
+        <div className="flex flex-col space-y-1">
+          <span className="text-sm font-medium text-muted-foreground">{title}</span>
+          <span className="text-2xl font-bold">{value}</span>
+        </div>
+        <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+          <Icon className="h-6 w-6 text-primary" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Pedidos do Fornecedor</h1>
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Total de Pedidos" value={stats.total} icon={Package} />
+        <StatCard title="Aguardando" value={stats.aguardando} icon={Clock} />
+        <StatCard title="Em Preparação" value={stats.preparando} icon={Truck} />
+        <StatCard title="Enviados" value={stats.enviados} icon={CheckCircle} />
+      </div>
       
       <Card>
         <CardContent className="p-6">
@@ -77,8 +115,6 @@ const PedidosTable = ({ pedidos }) => {
   const handleStatusChange = async (pedidoId, novoStatus) => {
     try {
       await firebaseOperations.atualizarStatusPedidoFornecedor(pedidoId, novoStatus);
-      // Atualizar a lista de pedidos após a mudança de status
-      // Você pode implementar uma função para atualizar apenas o pedido específico, se preferir
     } catch (error) {
       console.error("Erro ao atualizar status do pedido:", error);
     }

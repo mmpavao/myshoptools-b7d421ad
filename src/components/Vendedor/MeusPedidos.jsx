@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, CreditCard } from 'lucide-react';
+import { Eye, CreditCard, Package, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { useAuth } from '../Auth/AuthProvider';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { formatCurrency } from '../../utils/currencyUtils';
@@ -13,6 +13,12 @@ import { formatCurrency } from '../../utils/currencyUtils';
 const MeusPedidos = () => {
   const [filtro, setFiltro] = useState('');
   const [pedidos, setPedidos] = useState([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    pendentes: 0,
+    pagos: 0,
+    cancelados: 0
+  });
   const { user } = useAuth();
 
   useEffect(() => {
@@ -25,9 +31,20 @@ const MeusPedidos = () => {
     try {
       const pedidosData = await firebaseOperations.getPedidosVendedor(user.uid);
       setPedidos(pedidosData);
+      calculateStats(pedidosData);
     } catch (error) {
       console.error("Erro ao buscar pedidos:", error);
     }
+  };
+
+  const calculateStats = (pedidosData) => {
+    const newStats = {
+      total: pedidosData.length,
+      pendentes: pedidosData.filter(p => p.status === 'Pendente').length,
+      pagos: pedidosData.filter(p => p.status === 'Pago').length,
+      cancelados: pedidosData.filter(p => p.status === 'Cancelado').length
+    };
+    setStats(newStats);
   };
 
   const pedidosFiltrados = pedidos.filter(pedido =>
@@ -35,9 +52,30 @@ const MeusPedidos = () => {
     pedido.sku.toLowerCase().includes(filtro.toLowerCase())
   );
 
+  const StatCard = ({ title, value, icon: Icon }) => (
+    <Card>
+      <CardContent className="flex flex-row items-center justify-between p-6">
+        <div className="flex flex-col space-y-1">
+          <span className="text-sm font-medium text-muted-foreground">{title}</span>
+          <span className="text-2xl font-bold">{value}</span>
+        </div>
+        <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+          <Icon className="h-6 w-6 text-primary" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Meus Pedidos</h1>
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Total de Pedidos" value={stats.total} icon={Package} />
+        <StatCard title="Pedidos Pendentes" value={stats.pendentes} icon={Clock} />
+        <StatCard title="Pedidos Pagos" value={stats.pagos} icon={CheckCircle} />
+        <StatCard title="Pedidos Cancelados" value={stats.cancelados} icon={XCircle} />
+      </div>
       
       <Card>
         <CardContent className="p-6">
