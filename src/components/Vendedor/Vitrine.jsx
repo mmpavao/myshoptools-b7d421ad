@@ -4,16 +4,20 @@ import { useToast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useNavigate } from 'react-router-dom';
 import ProdutoCard from './ProdutoCard';
+import { useAuth } from '../Auth/AuthProvider';
 
 const Vitrine = () => {
   const [produtos, setProdutos] = useState([]);
   const [filtro, setFiltro] = useState('');
+  const [produtosImportados, setProdutosImportados] = useState({});
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchProdutos();
-  }, []);
+    fetchProdutosImportadosStatus();
+  }, [user]);
 
   const fetchProdutos = async () => {
     try {
@@ -29,8 +33,40 @@ const Vitrine = () => {
     }
   };
 
+  const fetchProdutosImportadosStatus = async () => {
+    if (user) {
+      try {
+        const status = await firebaseOperations.getProdutosImportadosStatus(user.uid);
+        setProdutosImportados(status);
+      } catch (error) {
+        console.error("Erro ao buscar status dos produtos importados:", error);
+      }
+    }
+  };
+
   const handleDetalhes = (produtoId) => {
     navigate(`/produto/${produtoId}`);
+  };
+
+  const handleImportar = async (produtoId) => {
+    if (user) {
+      try {
+        const produto = produtos.find(p => p.id === produtoId);
+        await firebaseOperations.importarProduto(user.uid, produto);
+        setProdutosImportados(prev => ({ ...prev, [produtoId]: true }));
+        toast({
+          title: "Sucesso",
+          description: "Produto importado com sucesso!",
+        });
+      } catch (error) {
+        console.error("Erro ao importar produto:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível importar o produto.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   const produtosFiltrados = produtos.filter(produto =>
@@ -56,6 +92,8 @@ const Vitrine = () => {
               key={produto.id}
               produto={produto}
               onDetalhes={handleDetalhes}
+              onImportar={handleImportar}
+              isImportado={produtosImportados[produto.id]}
             />
           ))}
         </div>

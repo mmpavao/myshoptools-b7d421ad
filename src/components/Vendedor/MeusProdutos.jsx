@@ -4,20 +4,24 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import ProdutoCard from './ProdutoCard';
+import { useAuth } from '../Auth/AuthProvider';
 
 const MeusProdutos = () => {
   const [produtos, setProdutos] = useState([]);
   const [filtro, setFiltro] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetchMeusProdutos();
-  }, []);
+    if (user) {
+      fetchMeusProdutos();
+    }
+  }, [user]);
 
   const fetchMeusProdutos = async () => {
     try {
-      const produtosData = await firebaseOperations.getMeusProdutos();
+      const produtosData = await firebaseOperations.getProdutosImportados(user.uid);
       setProdutos(produtosData);
     } catch (error) {
       console.error("Erro ao buscar meus produtos:", error);
