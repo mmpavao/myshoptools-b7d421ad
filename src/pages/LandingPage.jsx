@@ -5,8 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/Auth/AuthProvider';
 import firebaseOperations from '../firebase/firebaseOperations';
 import { ChevronDown, ShoppingCart, Globe, DollarSign, Store, BarChart2, Shield, Zap, Code, Headphones, Users, Truck } from 'lucide-react';
+import PricingSection from '../components/Pricing/PricingSection';
+import MockCheckout from '../components/Checkout/MockCheckout';
 
 const LandingPage = () => {
+  const [settings, setSettings] = useState({
   const [settings, setSettings] = useState({
     title: 'A maior plataforma de dropshipping da América Latina',
     subtitle: 'Conectando vendedores e fornecedores em uma rede global de oportunidades',
@@ -23,6 +26,9 @@ const LandingPage = () => {
     secureTransactions: 'Garantimos transações seguras entre fornecedores e vendedores, protegendo seu negócio.',
     featuredProducts: [],
   });
+  });
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -59,6 +65,16 @@ const LandingPage = () => {
 
   const handleCTAClick = () => {
     navigate('/register');
+  };
+
+  const handleSelectPlan = (plan) => {
+    setSelectedPlan(plan);
+    setIsCheckoutOpen(true);
+  };
+
+  const closeCheckout = () => {
+    setIsCheckoutOpen(false);
+    setSelectedPlan(null);
   };
 
   const renderFeatureSection = (icon, title, description) => (
@@ -122,6 +138,9 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Pricing Section */}
+      <PricingSection onSelectPlan={handleSelectPlan} />
 
       {/* Multi-Channel Sales Section */}
       <section className="py-20 bg-blue-800 text-white">
@@ -231,6 +250,9 @@ const LandingPage = () => {
           <p>&copy; {new Date().getFullYear()} MyShopTools. Todos os direitos reservados.</p>
         </div>
       </footer>
+
+      {/* Mock Checkout */}
+      <MockCheckout isOpen={isCheckoutOpen} onClose={closeCheckout} plan={selectedPlan} />
     </div>
   );
 };
