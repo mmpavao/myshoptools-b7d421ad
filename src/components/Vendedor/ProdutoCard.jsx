@@ -7,11 +7,11 @@ import RatingForm from '../Produto/RatingForm';
 
 const ProdutoCard = ({ produto, onDetalhes, onAvaliar, avaliacaoAtual, setAvaliacaoAtual, handleSubmitAvaliacao }) => {
   const renderProductImage = (foto) => (
-    <div className="aspect-square w-full overflow-hidden rounded-lg">
+    <div className="w-full pb-[100%] relative overflow-hidden rounded-lg">
       <img 
         src={foto && foto.startsWith('http') ? foto : "/placeholder.svg"}
         alt="Produto" 
-        className="w-full h-full object-cover"
+        className="absolute top-0 left-0 w-full h-full object-cover"
       />
     </div>
   );
@@ -25,13 +25,13 @@ const ProdutoCard = ({ produto, onDetalhes, onAvaliar, avaliacaoAtual, setAvalia
   const formatPrice = (price) => (typeof price === 'number' ? price.toFixed(2) : '0.00');
 
   return (
-    <Card className="flex flex-col w-[110%] h-[68%]"> {/* Diminuímos a altura em mais 20% */}
-      <CardHeader className="p-2"> {/* Reduzimos ainda mais o padding */}
+    <Card className="w-full aspect-square flex flex-col">
+      <CardHeader className="p-2 flex-shrink-0">
         <CardTitle className="text-sm line-clamp-1">{produto.titulo}</CardTitle>
       </CardHeader>
-      <CardContent className="p-2 flex-grow"> {/* Reduzimos ainda mais o padding */}
+      <CardContent className="p-2 flex-grow flex flex-col justify-between">
         {renderProductImage(produto.fotos && produto.fotos[0])}
-        <div className="mt-1 space-y-0.5"> {/* Reduzimos ainda mais o espaçamento */}
+        <div className="mt-2 space-y-1">
           <div className="flex items-center justify-between">
             <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
             {produto.desconto > 0 && (
@@ -43,15 +43,13 @@ const ProdutoCard = ({ produto, onDetalhes, onAvaliar, avaliacaoAtual, setAvalia
               R$ {formatPrice(produto.preco / (1 - produto.desconto / 100))}
             </p>
           )}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              {renderStars(produto.avaliacao || 0)}
-              <span className="ml-1 text-xs text-gray-600">({produto.numeroAvaliacoes || 0})</span>
-            </div>
+          <div className="flex items-center">
+            {renderStars(produto.avaliacao || 0)}
+            <span className="ml-1 text-xs text-gray-600">({produto.numeroAvaliacoes || 0})</span>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-2 flex justify-between"> {/* Reduzimos ainda mais o padding */}
+      <CardFooter className="p-2 flex justify-between flex-shrink-0">
         <Button variant="outline" size="sm" className="text-xs px-2 py-1" onClick={() => onDetalhes(produto.id)}>Detalhes</Button>
         <Dialog>
           <DialogTrigger asChild>
