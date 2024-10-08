@@ -174,10 +174,16 @@ const firebaseOperations = {
       uploadTask.on('state_changed',
         (snapshot) => {
           // Progress handling if needed
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload is ' + progress + '% done');
         },
         (error) => {
           console.error('Error in upload:', error);
-          reject(new Error(`Upload failed: ${error.message}`));
+          if (error.code === 'storage/unauthorized') {
+            reject(new Error('Permission denied. Check Firebase Storage rules.'));
+          } else {
+            reject(new Error(`Upload failed: ${error.message}`));
+          }
         },
         async () => {
           try {

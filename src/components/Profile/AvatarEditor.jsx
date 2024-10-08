@@ -48,7 +48,7 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
     try {
       const croppedImage = await getCroppedImg(image, croppedAreaPixels);
       const blob = await fetch(croppedImage).then(r => r.blob());
-      const fileName = `avatar_${Date.now()}.jpg`;
+      const fileName = `avatar_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
       const downloadURL = await firebaseOperations.uploadProfileImage(user.uid, blob, fileName);
       
       if (!downloadURL) {
