@@ -61,7 +61,7 @@ const Vitrine = () => {
 
   const renderStars = (rating) => {
     return [...Array(5)].map((_, index) => (
-      <StarIcon key={index} className={`w-5 h-5 ${index < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'}`} />
+      <StarIcon key={index} className={`w-5 h-5 ${index < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`} />
     ));
   };
 
