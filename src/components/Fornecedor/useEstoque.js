@@ -56,7 +56,26 @@ export const useEstoque = () => {
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
-    const productId = novoProduto.id || `temp_${Date.now()}`; // Use existing ID or create a temporary one
+    let productId = novoProduto.id;
+    
+    if (!productId) {
+      // Criar um novo produto no Firestore para obter um ID real
+      const tempProduct = {
+        titulo: 'Produto Temporário',
+        fotos: [],
+        descricao: '',
+        sku: '',
+        estoque: 0,
+        preco: 0,
+        desconto: 0,
+        tipoDesconto: '%',
+        variacoes: [],
+        vendaSugerida: 0
+      };
+      productId = await firebaseOperations.createProduct(tempProduct);
+      setNovoProduto(prev => ({ ...prev, id: productId }));
+    }
+
     const uploadPromises = files.map(file => firebaseOperations.uploadProductImage(file, productId));
     try {
       const uploadedUrls = await Promise.all(uploadPromises);
@@ -76,28 +95,14 @@ export const useEstoque = () => {
         desconto: Number(novoProduto.desconto),
         estoque: Number(novoProduto.estoque)
       };
-      let productId;
+
       if (novoProduto.id) {
         await firebaseOperations.updateProduct(novoProduto.id, produtoParaSalvar);
-        productId = novoProduto.id;
         console.log("Produto atualizado com sucesso!");
       } else {
-        productId = await firebaseOperations.createProduct(produtoParaSalvar);
+        const newProductId = await firebaseOperations.createProduct(produtoParaSalvar);
         console.log("Produto adicionado com sucesso!");
-      }
-      
-      // Update image paths if necessary
-      if (produtoParaSalvar.fotos.some(foto => foto.includes('temp_'))) {
-        const updatedFotos = await Promise.all(
-          produtoParaSalvar.fotos.map(async (foto) => {
-            if (foto.includes('temp_')) {
-              const file = await fetch(foto).then(r => r.blob());
-              return firebaseOperations.uploadProductImage(file, productId);
-            }
-            return foto;
-          })
-        );
-        await firebaseOperations.updateProduct(productId, { fotos: updatedFotos });
+        setNovoProduto(prev => ({ ...prev, id: newProductId }));
       }
       
       fetchProdutos();
