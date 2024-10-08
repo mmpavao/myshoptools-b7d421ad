@@ -7,6 +7,7 @@ import ProductDetails from './ProductDetails';
 import ProductTabs from './ProductTabs';
 import RatingForm from './RatingForm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MyShopLandingPage from '../Vendedor/MyShopLandingPage';
 
 const DetalheProduto = () => {
   const { id } = useParams();
@@ -82,6 +83,9 @@ const DetalheProduto = () => {
           setAvaliacaoAtual={setAvaliacaoAtual} 
           handleSubmitAvaliacao={handleSubmitAvaliacao}
         />
+      )}
+      {activeMarketplace === 'MyShop' && (
+        <MyShopLandingPage produtos={[produto]} />
       )}
     </div>
   );
