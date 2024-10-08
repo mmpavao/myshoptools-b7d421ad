@@ -75,18 +75,18 @@ const Vitrine = () => {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <h1 className="text-2xl font-bold">Vitrine</h1>
       <Input
         placeholder="Filtrar por título ou SKU"
         value={filtro}
         onChange={(e) => setFiltro(e.target.value)}
-        className="w-full mb-4"
+        className="max-w-sm mb-4"
       />
       {produtos.length === 0 ? (
         <p>Carregando produtos...</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {produtosFiltrados.map((produto) => (
             <ProdutoCard
               key={produto.id}

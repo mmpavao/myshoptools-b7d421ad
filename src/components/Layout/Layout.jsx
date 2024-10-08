@@ -46,7 +46,7 @@ const Layout = ({ children }) => {
           isMobile={isMobile}
         />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-3">
-          <div className="container mx-auto max-w-full md:max-w-7xl pb-16 md:pb-0">
+          <div className="container mx-auto max-w-7xl pb-16 md:pb-0">
             {children}
           </div>
         </main>
@@ -62,12 +62,14 @@ const Layout = ({ children }) => {
       {isMobile && (
         <Sheet>
           <SheetTrigger asChild>
-            <button className="fixed top-4 left-4 p-2 bg-gray-900 text-white rounded-full z-50">
+            <button className="fixed top-4 left-4 p-2 bg-gray-900 text-white rounded-full">
               <Menu className="h-6 w-6" />
             </button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[400px] p-0">
-            <Sidebar isOpen={true} isMobile={true} />
+          <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+            <nav className="flex flex-col space-y-4 mt-8">
+              <Sidebar isOpen={true} />
+            </nav>
           </SheetContent>
         </Sheet>
       )}

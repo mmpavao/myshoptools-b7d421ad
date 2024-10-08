@@ -59,20 +59,14 @@ const Login = () => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      if (error.code === 'auth/invalid-login-credentials' || error.code === 'auth/invalid-email' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+      if (error.code === 'auth/invalid-login-credentials') {
         setError("Credenciais inválidas. Por favor, verifique seu e-mail e senha.");
-        toast({
-          title: "Erro de Login",
-          description: "Credenciais inválidas. Por favor, verifique seu e-mail e senha.",
-          variant: "destructive",
-        });
+      } else if (error.code === 'auth/user-not-found') {
+        setError("Usuário não encontrado. Verifique seu e-mail ou registre-se.");
+      } else if (error.code === 'auth/wrong-password') {
+        setError("Senha incorreta. Por favor, tente novamente.");
       } else {
         setError("Erro ao fazer login. Por favor, tente novamente mais tarde.");
-        toast({
-          title: "Erro",
-          description: "Ocorreu um erro ao tentar fazer login. Por favor, tente novamente mais tarde.",
-          variant: "destructive",
-        });
       }
     }
   };
