@@ -48,7 +48,7 @@ const navItems = [
 ];
 
 const NavItem = ({ item, isOpen, userRole, isCollapsible }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(!isCollapsible);
   const hasAccess = item.roles ? item.roles.includes(userRole) : true;
 
   if (!hasAccess) return null;
@@ -56,7 +56,7 @@ const NavItem = ({ item, isOpen, userRole, isCollapsible }) => {
   if (item.children) {
     return (
       <li>
-        <Collapsible open={isExpanded && !isCollapsible} onOpenChange={setIsExpanded}>
+        <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
           <CollapsibleTrigger className={cn(
             "flex items-center w-full p-2 text-base font-semibold rounded-lg text-gray-900 hover:bg-gray-100",
             isExpanded ? "bg-gray-100" : "",
@@ -65,12 +65,12 @@ const NavItem = ({ item, isOpen, userRole, isCollapsible }) => {
             {isOpen && (
               <>
                 <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>
-                {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                {isCollapsible && (isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />)}
               </>
             )}
             {!isOpen && <span className="text-xs">{item.label[0]}</span>}
           </CollapsibleTrigger>
-          <CollapsibleContent>
+          <CollapsibleContent forceMount={!isCollapsible}>
             {isOpen && (
               <ul className="py-2 space-y-2 pl-4">
                 {item.children.map((child) => (
@@ -120,7 +120,11 @@ const Sidebar = ({ isOpen }) => {
     fetchUserRole();
 
     const handleResize = () => {
-      setIsCollapsible(window.innerHeight < 600);
+      const sidebarHeight = document.querySelector('aside').clientHeight;
+      const totalItemsHeight = navItems.reduce((acc, item) => {
+        return acc + (item.children ? (item.children.length + 1) * 40 : 40);
+      }, 0);
+      setIsCollapsible(totalItemsHeight > sidebarHeight - 200); // 200px for padding and other elements
     };
 
     window.addEventListener('resize', handleResize);
