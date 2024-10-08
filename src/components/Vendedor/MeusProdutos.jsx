@@ -5,10 +5,13 @@ import { useToast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import ProdutoCard from './ProdutoCard';
 import { useAuth } from '../Auth/AuthProvider';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 const MeusProdutos = () => {
   const [produtos, setProdutos] = useState([]);
   const [filtro, setFiltro] = useState('');
+  const [produtoParaExcluir, setProdutoParaExcluir] = useState(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -37,14 +40,17 @@ const MeusProdutos = () => {
     navigate(`/produto/${produtoId}`);
   };
 
-  const handleExcluir = async (produtoId) => {
+  const handleExcluir = async () => {
+    if (!produtoParaExcluir) return;
+
     try {
-      await firebaseOperations.removerProdutoImportado(user.uid, produtoId);
+      await firebaseOperations.removerProdutoImportado(user.uid, produtoParaExcluir);
       toast({
         title: "Sucesso",
         description: "Produto removido com sucesso.",
       });
       fetchMeusProdutos(); // Recarrega a lista de produtos após a exclusão
+      setProdutoParaExcluir(null); // Reseta o produto para excluir
     } catch (error) {
       console.error("Erro ao excluir produto:", error);
       toast({
@@ -78,12 +84,27 @@ const MeusProdutos = () => {
               key={produto.id}
               produto={produto}
               onDetalhes={handleDetalhes}
-              onExcluir={handleExcluir}
+              onExcluir={() => setProdutoParaExcluir(produto.id)}
               showExcluirButton={true}
             />
           ))}
         </div>
       )}
+
+      <AlertDialog open={!!produtoParaExcluir} onOpenChange={() => setProdutoParaExcluir(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este produto? Esta ação também removerá os anúncios de venda dos marketplaces.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleExcluir}>Excluir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
