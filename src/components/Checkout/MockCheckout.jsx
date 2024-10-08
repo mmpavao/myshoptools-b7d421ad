@@ -54,13 +54,6 @@ const MockCheckout = ({ isOpen, onClose, products = [] }) => {
         origin: { y: 0.6 }
       });
 
-      // Mostra o toast de sucesso
-      toast({
-        title: "Parabéns!",
-        description: "Sua compra foi aprovada com sucesso!",
-        variant: "success",
-      });
-
     } catch (error) {
       console.error("Erro ao processar compra:", error);
       toast({
@@ -122,10 +115,11 @@ const MockCheckout = ({ isOpen, onClose, products = [] }) => {
               </Button>
             </>
           ) : (
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center bg-green-100 p-6 rounded-lg">
               <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-              <p className="text-center font-bold mb-4">Parabéns! Seu pagamento foi aprovado!</p>
-              <Button onClick={handleConcluir} className="w-full">
+              <h2 className="text-2xl font-bold text-green-700 mb-2">Parabéns!</h2>
+              <p className="text-center text-green-600 mb-4">Sua compra foi aprovada com sucesso!</p>
+              <Button onClick={handleConcluir} className="w-full bg-green-500 hover:bg-green-600">
                 Concluir
               </Button>
             </div>
