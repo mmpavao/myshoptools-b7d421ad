@@ -37,89 +37,6 @@ const landPageOperations = {
   },
 };
 
-const productOperations = {
-  getProducts: async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, 'products'));
-      return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      throw error;
-    }
-  },
-
-  createProduct: async (productData) => {
-    try {
-      const docRef = await addDoc(collection(db, 'products'), productData);
-      return docRef.id;
-    } catch (error) {
-      console.error('Error creating product:', error);
-      throw error;
-    }
-  },
-
-  updateProduct: async (productId, productData) => {
-    try {
-      await updateDoc(doc(db, 'products', productId), productData);
-      return true;
-    } catch (error) {
-      console.error('Error updating product:', error);
-      throw error;
-    }
-  },
-
-  deleteProduct: async (productId) => {
-    try {
-      await deleteDoc(doc(db, 'products', productId));
-      return true;
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      throw error;
-    }
-  },
-};
-
-const fileOperations = {
-  uploadFile: async (file, path) => {
-    const storageRef = ref(storage, path);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    return new Promise((resolve, reject) => {
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log('Upload is ' + progress + '% done');
-        },
-        (error) => {
-          console.error('Error uploading file:', error);
-          reject(error);
-        },
-        async () => {
-          try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve(downloadURL);
-          } catch (error) {
-            console.error('Error getting download URL:', error);
-            reject(error);
-          }
-        }
-      );
-    });
-  },
-};
-
-const meusProdutosOperations = {
-  // ... keep existing code (if any)
-};
-
-const userProfileOperations = {
-  // ... keep existing code (if any)
-};
-
-const myShopOperations = {
-  // ... keep existing code (if any)
-};
-
 const firebaseOperations = {
   ...crudOperations,
   ...userOperations,
@@ -129,6 +46,8 @@ const firebaseOperations = {
   ...userProfileOperations,
   ...myShopOperations,
   ...landPageOperations,
+  testFirebaseOperations,
+  clearAllData
 };
 
 export default firebaseOperations;
