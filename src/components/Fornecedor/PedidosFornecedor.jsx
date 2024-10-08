@@ -11,6 +11,7 @@ import { useAuth } from '../Auth/AuthProvider';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { formatCurrency } from '../../utils/currencyUtils';
 import { useToast } from "@/components/ui/use-toast";
+import StatCard from '../Dashboard/StatCard'; // Add this import
 
 const PedidosFornecedor = () => {
   const [filtro, setFiltro] = useState('');
@@ -22,6 +23,7 @@ const PedidosFornecedor = () => {
     enviados: 0
   });
   const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (user) {
@@ -29,11 +31,34 @@ const PedidosFornecedor = () => {
     }
   }, [user]);
 
-  const { toast } = useToast();
+  const fetchPedidos = async () => {
+    try {
+      const fetchedPedidos = await firebaseOperations.getPedidosFornecedor(user.uid);
+      setPedidos(fetchedPedidos);
+      updateStats(fetchedPedidos);
+    } catch (error) {
+      console.error("Erro ao buscar pedidos:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os pedidos.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updateStats = (pedidosList) => {
+    const newStats = {
+      total: pedidosList.length,
+      aguardando: pedidosList.filter(p => p.statusLogistica === 'Aguardando').length,
+      preparando: pedidosList.filter(p => p.statusLogistica === 'Preparando').length,
+      enviados: pedidosList.filter(p => p.statusLogistica === 'Enviado').length
+    };
+    setStats(newStats);
+  };
 
   const gerarPedidosFicticios = async () => {
     try {
-      await firebaseOperations.gerarPedidosFicticios(user.uid, user.uid); // Assumindo que o fornecedorId é o mesmo que o userId
+      await firebaseOperations.gerarPedidosFicticios(user.uid, user.uid);
       toast({
         title: "Pedidos gerados",
         description: "50 pedidos fictícios foram gerados com sucesso.",
@@ -49,6 +74,11 @@ const PedidosFornecedor = () => {
       });
     }
   };
+
+  const pedidosFiltrados = pedidos.filter(pedido =>
+    pedido.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
+    pedido.sku.toLowerCase().includes(filtro.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
