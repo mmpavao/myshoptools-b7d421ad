@@ -54,6 +54,13 @@ const MockCheckout = ({ isOpen, onClose, products = [] }) => {
         origin: { y: 0.6 }
       });
 
+      // Mostra o toast de sucesso
+      toast({
+        title: "Parabéns!",
+        description: "Sua compra foi aprovada com sucesso!",
+        variant: "success",
+      });
+
     } catch (error) {
       console.error("Erro ao processar compra:", error);
       toast({

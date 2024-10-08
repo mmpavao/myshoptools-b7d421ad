@@ -8,7 +8,6 @@ import { formatCurrency } from '../../utils/currencyUtils';
 
 const ProductSection = () => {
   const [produtos, setProdutos] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [cart, setCart] = useState([]);
   const { user } = useAuth();
@@ -31,14 +30,8 @@ const ProductSection = () => {
     }
   };
 
-  const handleComprar = (produto) => {
-    setSelectedProduct(produto);
-    setIsCheckoutOpen(true);
-  };
-
   const handleCloseCheckout = () => {
     setIsCheckoutOpen(false);
-    setSelectedProduct(null);
   };
 
   const handleAddToCart = (produto) => {
@@ -83,7 +76,7 @@ const ProductSection = () => {
             <span className="ml-1 text-sm text-gray-600">({produto.numeroAvaliacoes || 0})</span>
           </div>
         </div>
-        <Button onClick={() => handleAddToCart(produto)} className="w-full mt-4 bg-green-500 hover:bg-green-600">
+        <Button onClick={() => handleAddToCart(produto)} className="w-full mt-4 bg-primary hover:bg-primary/90">
           <ShoppingCart className="w-4 h-4 mr-2" />
           Adicionar ao Carrinho
         </Button>
@@ -100,19 +93,17 @@ const ProductSection = () => {
           {produtos.map(renderProductCard)}
         </div>
         <div className="mt-12 text-center">
-          <Button onClick={() => handleComprar(cart)} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg rounded-full">
+          <Button onClick={() => setIsCheckoutOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg rounded-full">
             <ShoppingCart className="w-6 h-6 mr-2" />
             Finalizar Compra ({cart.length} itens)
           </Button>
         </div>
       </div>
-      {selectedProduct && (
-        <MockCheckout
-          isOpen={isCheckoutOpen}
-          onClose={handleCloseCheckout}
-          product={selectedProduct}
-        />
-      )}
+      <MockCheckout
+        isOpen={isCheckoutOpen}
+        onClose={handleCloseCheckout}
+        products={cart}
+      />
     </section>
   );
 };
