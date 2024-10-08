@@ -98,5 +98,5 @@ export const ProtectedRoute = ({ children }) => {
     return <Spinner />;
   }
 
-  return user ? children(user) : null;
+  return user ? children : null;
 };
