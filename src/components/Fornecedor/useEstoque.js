@@ -41,12 +41,13 @@ export const useEstoque = () => {
     setStats(newStats);
   };
 
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let parsedValue = value;
 
     if (['preco', 'vendaSugerida'].includes(name)) {
-      parsedValue = parseCurrency(value);
+      parsedValue = value; // Mantém o valor formatado no estado
     } else if (['estoque', 'desconto'].includes(name)) {
       parsedValue = parseInt(value, 10) || 0;
     }
@@ -69,15 +70,16 @@ export const useEstoque = () => {
     setNovoProduto(prev => ({ ...prev, fotos: newFotos }));
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const produtoParaSalvar = {
         ...novoProduto,
-        preco: Number(novoProduto.preco),
+        preco: parseCurrency(novoProduto.preco),
+        vendaSugerida: parseCurrency(novoProduto.vendaSugerida),
         desconto: Number(novoProduto.desconto),
-        estoque: Number(novoProduto.estoque),
-        vendaSugerida: Number(novoProduto.vendaSugerida)
+        estoque: Number(novoProduto.estoque)
       };
       if (novoProduto.id) {
         await firebaseOperations.updateProduct(novoProduto.id, produtoParaSalvar);

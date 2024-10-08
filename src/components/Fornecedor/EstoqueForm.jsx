@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { formatCurrency, parseCurrency } from '../../utils/currencyUtils';
+import { formatCurrency, parseCurrency, formatInputCurrency } from '../../utils/currencyUtils';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Sparkles } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -17,13 +17,12 @@ const EstoqueForm = ({
   calcularMarkup, 
   updateFotos,
   generateAIContent,
-  onDragEnd // Add this prop
+  onDragEnd
 }) => {
   const handleCurrencyChange = (e) => {
     const { name, value } = e.target;
-    const formattedValue = formatCurrency(parseCurrency(value));
-    e.target.value = formattedValue;
-    handleInputChange(e);
+    const formattedValue = formatInputCurrency(value);
+    handleInputChange({ target: { name, value: formattedValue } });
   };
 
   const handleGenerateAIContent = (e, field, context) => {
@@ -96,11 +95,23 @@ const EstoqueForm = ({
         </div>
         <div className="space-y-2">
           <Label htmlFor="preco">Preço de Custo</Label>
-          <Input id="preco" name="preco" value={formatCurrency(novoProduto.preco)} onChange={handleCurrencyChange} placeholder="R$ 0,00" />
+          <Input 
+            id="preco" 
+            name="preco" 
+            value={novoProduto.preco} 
+            onChange={handleCurrencyChange} 
+            placeholder="R$ 0,00" 
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="vendaSugerida">Preço de Venda Sugerido</Label>
-          <Input id="vendaSugerida" name="vendaSugerida" value={formatCurrency(novoProduto.vendaSugerida)} onChange={handleCurrencyChange} placeholder="R$ 0,00" />
+          <Input 
+            id="vendaSugerida" 
+            name="vendaSugerida" 
+            value={novoProduto.vendaSugerida} 
+            onChange={handleCurrencyChange} 
+            placeholder="R$ 0,00" 
+          />
         </div>
       </div>
 
