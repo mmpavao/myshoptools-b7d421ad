@@ -163,6 +163,7 @@ const fileOperations = {
       );
     });
   },
+  },
   deleteFile: (path) => deleteObject(ref(storage, path)),
   listStorageFiles: async () => {
     const folders = ['uploads', 'avatars'];
