@@ -4,7 +4,7 @@ import { toast } from "@/components/ui/use-toast";
 
 export const loadUserProfile = async (userId) => {
   try {
-    const userProfile = await firebaseOperations.getUserProfile(userId);
+    const userProfile = await firebaseOperations.getUserById(userId);
     if (userProfile) {
       const phoneNumber = userProfile.phoneNumber || '';
       const country = countries.find(c => phoneNumber.startsWith(c.ddi)) || countries[0];

@@ -23,7 +23,11 @@ const PersonalInfoForm = () => {
       if (user && user.uid) {
         setIsLoading(true);
         const profile = await loadUserProfile(user.uid);
-        if (profile) setFormData(profile);
+        if (profile) {
+          setFormData(profile);
+        } else {
+          console.error('Perfil do usuário não encontrado');
+        }
         setIsLoading(false);
       }
     };
