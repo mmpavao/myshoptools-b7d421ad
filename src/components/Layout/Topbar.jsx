@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Menu, User, FileText, Book, Code, LogOut } from 'lucide-react';
+import { Bell, Menu, User, FileText, Book, Code, LogOut, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -51,11 +51,18 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
             <Bell size={24} />
           </button>
           <DropdownMenu>
-            <DropdownMenuTrigger className="focus:outline-none">
+            <DropdownMenuTrigger className="focus:outline-none flex items-center">
               <Avatar>
-                <AvatarImage src={user?.photoURL || "/placeholder.svg"} alt="User avatar" />
-                <AvatarFallback>{user?.displayName?.[0] || 'U'}</AvatarFallback>
+                <AvatarImage src={user?.photoURL} alt="User avatar" />
+                <AvatarFallback>
+                  {user?.photoURL ? (
+                    user.displayName?.[0] || 'U'
+                  ) : (
+                    <User className="h-5 w-5" />
+                  )}
+                </AvatarFallback>
               </Avatar>
+              <ChevronDown className="ml-1 h-4 w-4 text-gray-500" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
               <div className="flex items-center p-2">
