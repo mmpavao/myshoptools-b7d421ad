@@ -149,11 +149,11 @@ const Sidebar = ({ isOpen }) => {
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 z-50 h-screen transition-all duration-300",
-      isOpen ? "w-64" : "w-16",
+      "fixed left-0 top-0 z-50 h-[calc(100vh-3rem)] m-6 rounded-xl transition-all duration-300",
+      isOpen ? "w-60" : "w-20",
       "bg-gray-900 text-white shadow-md"
     )}>
-      <div className="h-full overflow-y-auto py-4 px-3">
+      <div className="h-full overflow-y-auto py-6 px-3">
         <div className={cn(
           "text-xl font-bold mb-6 text-center",
           !isOpen && "text-sm"
@@ -174,7 +174,7 @@ const Sidebar = ({ isOpen }) => {
             </React.Fragment>
           ))}
         </ul>
-        <div className="absolute bottom-0 left-0 right-0 p-4">
+        <div className="absolute bottom-6 left-3 right-3">
           <NavLink
             to="/suporte"
             className={cn(
