@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { parseCurrency } from '../../utils/currencyUtils';
 import { chatWithBot } from '../../integrations/openAIOperations';
+import { useAuth } from '../Auth/AuthProvider';
 
 export const useEstoque = () => {
   const [produtos, setProdutos] = useState([]);
@@ -16,14 +17,17 @@ export const useEstoque = () => {
     bestSellers: 0,
     worstSellers: 0
   });
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetchProdutos();
-  }, []);
+    if (user) {
+      fetchProdutos();
+    }
+  }, [user]);
 
   const fetchProdutos = async () => {
     try {
-      const produtosData = await firebaseOperations.getProducts();
+      const produtosData = await firebaseOperations.getProductsByUser(user.uid);
       setProdutos(produtosData);
       calculateStats(produtosData);
     } catch (error) {
@@ -91,6 +95,7 @@ export const useEstoque = () => {
     try {
       const produtoParaSalvar = {
         ...novoProduto,
+        userId: user.uid,
         preco: parseCurrency(novoProduto.preco),
         vendaSugerida: parseCurrency(novoProduto.vendaSugerida),
         desconto: Number(novoProduto.desconto),

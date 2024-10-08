@@ -1,5 +1,5 @@
 import { db } from './config';
-import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc } from 'firebase/firestore';
+import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where } from 'firebase/firestore';
 
 const productOperations = {
   createProduct: async (productData) => {
@@ -64,6 +64,11 @@ const productOperations = {
     const userProductRef = doc(db, 'users', userId, 'produtosImportados', produtoId);
     const docSnap = await getDoc(userProductRef);
     return docSnap.exists();
+  },
+  getProductsByUser: async (userId) => {
+    const q = query(collection(db, 'products'), where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
 };
 

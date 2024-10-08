@@ -19,6 +19,7 @@ const firebaseOperations = {
   updateUserAvatar: userProfileOperations.updateUserAvatar,
   getUserProfile: userProfileOperations.getUserProfile,
   uploadProductImage: fileOperations.uploadProductImage,
+  getProductsByUser: productOperations.getProductsByUser,
 
   adicionarPedidoVendedor: async (userId, pedido) => {
     try {

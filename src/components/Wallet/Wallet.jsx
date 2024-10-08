@@ -1,30 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../Auth/AuthProvider';
-import walletOperations from '../../firebase/walletOperations';
-import { formatCurrency, parseCurrency, formatInputCurrency } from '../../utils/currencyUtils';
-import { toast } from "@/components/ui/use-toast";
 import { WalletBalance, TransactionHistory, CheckoutDialog } from './WalletComponents';
+import walletOperations from '../../firebase/walletOperations';
+import { useToast } from "@/components/ui/use-toast";
 
 const Wallet = () => {
-  const { user } = useAuth();
   const [balance, setBalance] = useState(0);
   const [history, setHistory] = useState([]);
   const [amount, setAmount] = useState('');
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('credit');
-  const [isProcessing, setIsProcessing] = useState(false);
   const [installments, setInstallments] = useState('1');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (user) fetchWalletData();
+    if (user) {
+      fetchWalletData();
+    }
   }, [user]);
 
   const fetchWalletData = async () => {
     try {
-      const walletBalance = await walletOperations.getWalletBalance(user.uid);
-      setBalance(walletBalance);
-      const walletHistory = await walletOperations.getWalletHistory(user.uid);
-      setHistory(walletHistory);
+      const userBalance = await walletOperations.getWalletBalance(user.uid);
+      setBalance(userBalance);
+      const transactionHistory = await walletOperations.getWalletHistory(user.uid);
+      setHistory(transactionHistory);
     } catch (error) {
       console.error('Error fetching wallet data:', error);
       toast({
@@ -35,65 +37,63 @@ const Wallet = () => {
     }
   };
 
-  const handleAddFunds = () => setIsCheckoutOpen(true);
-  
+  const handleAmountChange = (e) => {
+    setAmount(e.target.value);
+  };
+
+  const handleAddFunds = () => {
+    setIsCheckoutOpen(true);
+  };
+
   const handleWithdraw = async () => {
     try {
-      await walletOperations.withdrawFunds(user.uid, parseCurrency(amount));
-      setAmount('');
+      const withdrawAmount = parseFloat(amount);
+      if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
+        throw new Error('Valor inválido para saque');
+      }
+      await walletOperations.withdrawFunds(user.uid, withdrawAmount);
       fetchWalletData();
+      setAmount('');
       toast({
         title: "Sucesso",
-        description: "Saque realizado com sucesso.",
-        variant: "success",
+        description: `Saque de R$ ${withdrawAmount.toFixed(2)} realizado com sucesso.`,
       });
     } catch (error) {
       console.error('Error withdrawing funds:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível realizar o saque.",
+        description: error.message || "Não foi possível realizar o saque.",
         variant: "destructive",
       });
     }
   };
 
   const handleTransfer = () => {
-    toast({
-      title: "Em breve",
-      description: "Funcionalidade de transferência será implementada em breve.",
-      variant: "default",
-    });
-  };
-
-  const handleCheckoutClose = () => {
-    setIsCheckoutOpen(false);
-    setPaymentMethod('credit');
-    setInstallments('1');
-    setIsProcessing(false);
+    // Implementar lógica de transferência
+    console.log('Transferência não implementada');
   };
 
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
     setIsProcessing(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulação de processamento
-      const parsedAmount = parseCurrency(amount);
-      const { newBalance, transactionId } = await walletOperations.addFunds(user.uid, parsedAmount, paymentMethod);
-      
-      setBalance(newBalance);
-      setAmount('');
+      const addedAmount = parseFloat(amount);
+      if (isNaN(addedAmount) || addedAmount <= 0) {
+        throw new Error('Valor inválido para adição de fundos');
+      }
+      await walletOperations.addFunds(user.uid, addedAmount, paymentMethod);
       fetchWalletData();
-      handleCheckoutClose();
+      setAmount('');
+      setIsCheckoutOpen(false);
       toast({
         title: "Sucesso",
-        description: `Fundos adicionados com sucesso. ID da transação: ${transactionId}`,
-        variant: "success",
+        description: `R$ ${addedAmount.toFixed(2)} adicionados à sua carteira.`,
       });
     } catch (error) {
       console.error('Error processing payment:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível processar o pagamento ou gerar a transação.",
+        description: "Não foi possível processar o pagamento.",
         variant: "destructive",
       });
     } finally {
@@ -101,32 +101,28 @@ const Wallet = () => {
     }
   };
 
-  const handleAmountChange = (e) => {
-    const formattedValue = formatInputCurrency(e.target.value);
-    setAmount(formattedValue);
-  };
-
   return (
     <div className="space-y-6">
-      <WalletBalance 
-        balance={balance} 
-        amount={amount} 
+      <h1 className="text-2xl font-bold">Minha Carteira</h1>
+      <WalletBalance
+        balance={balance}
+        amount={amount}
         handleAmountChange={handleAmountChange}
-        handleAddFunds={handleAddFunds} 
-        handleWithdraw={handleWithdraw} 
-        handleTransfer={handleTransfer} 
+        handleAddFunds={handleAddFunds}
+        handleWithdraw={handleWithdraw}
+        handleTransfer={handleTransfer}
       />
       <TransactionHistory history={history} />
-      <CheckoutDialog 
-        isOpen={isCheckoutOpen} 
-        onClose={handleCheckoutClose}
-        paymentMethod={paymentMethod} 
+      <CheckoutDialog
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        paymentMethod={paymentMethod}
         setPaymentMethod={setPaymentMethod}
-        installments={installments} 
+        installments={installments}
         setInstallments={setInstallments}
-        isProcessing={isProcessing} 
+        isProcessing={isProcessing}
         handlePaymentSubmit={handlePaymentSubmit}
-        amount={amount}
+        amount={parseFloat(amount)}
       />
     </div>
   );
