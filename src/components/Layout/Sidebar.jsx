@@ -155,13 +155,14 @@ const Sidebar = ({ isOpen }) => {
     <aside className={cn(
       "fixed left-0 top-0 z-50 h-[calc(100vh-1.5rem)] m-3 rounded-xl transition-all duration-300",
       isOpen ? "w-60" : "w-20",
-      theme === 'dark' ? "bg-gray-900" : "bg-gray-900",
+      theme === 'dark' ? "bg-gray-900" : "bg-white",
       "text-white shadow-md"
     )}>
       <div className="h-full overflow-y-auto py-3 px-1.5">
         <div className={cn(
           "text-xl font-bold mb-3 text-center",
-          !isOpen && "text-sm"
+          !isOpen && "text-sm",
+          theme === 'dark' ? "text-white" : "text-gray-900"
         )}>
           {isOpen ? "MyShopTools" : "MST"}
         </div>
@@ -175,7 +176,7 @@ const Sidebar = ({ isOpen }) => {
                 isCollapsible={isCollapsible} 
                 activeSection={activeSection}
               />
-              {isOpen && index < navItems.length - 1 && <Separator className="my-1 bg-gray-700" />}
+              {isOpen && index < navItems.length - 1 && <Separator className={cn("my-1", theme === 'dark' ? "bg-gray-700" : "bg-gray-200")} />}
             </React.Fragment>
           ))}
         </ul>
@@ -183,7 +184,8 @@ const Sidebar = ({ isOpen }) => {
           <NavLink
             to="/suporte"
             className={cn(
-              "flex items-center p-2 text-base font-normal rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white",
+              "flex items-center p-2 text-base font-normal rounded-lg",
+              theme === 'dark' ? "text-gray-300 hover:bg-gray-800 hover:text-white" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
               !isOpen && "justify-center"
             )}
           >
