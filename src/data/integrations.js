@@ -1,4 +1,4 @@
-import { Cpu, ShoppingCart, BarChart3, CloudCog, FileSpreadsheet, FileText, Users, MessageSquare } from "lucide-react";
+import { Cpu, ShoppingCart, BarChart3, Users, MessageSquare } from "lucide-react";
 
 export const integrations = [
   {
@@ -30,27 +30,6 @@ export const integrations = [
     icon: BarChart3
   },
   {
-    name: "Google Drive",
-    category: "Cloud Storage",
-    description: "Access and manage files stored in Google Drive.",
-    pricing: "Free up to 15 GB, then from $1.99/month",
-    icon: CloudCog
-  },
-  {
-    name: "Google Sheets",
-    category: "Productivity",
-    description: "Interact with and manipulate data in Google Sheets.",
-    pricing: "Free for basic use",
-    icon: FileSpreadsheet
-  },
-  {
-    name: "Google Docs",
-    category: "Productivity",
-    description: "Create and edit documents with Google Docs integration.",
-    pricing: "Free for basic use",
-    icon: FileText
-  },
-  {
     name: "Bitrix24",
     category: "CRM",
     description: "Integrate with Bitrix24 for comprehensive business management.",
@@ -64,5 +43,4 @@ export const integrations = [
     pricing: "Free plan available, paid plans vary",
     icon: MessageSquare
   },
-  // ... Include all previously listed integrations with appropriate icons
 ];

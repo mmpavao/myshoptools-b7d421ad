@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, ProtectedRoute } from "./components/Auth/AuthProvider";
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import Dashboard from "./components/Dashboard/Dashboard";
@@ -23,7 +22,6 @@ import AdminUserList from "./components/Admin/AdminUserList";
 import SettingsPage from "./components/Admin/SettingsPage";
 import ChatAdmin from "./components/Admin/ChatAdmin";
 import OpenAIIntegration from "./integrations/OpenAIIntegration";
-import GoogleSheetsIntegration from "./integrations/GoogleSheetsIntegration";
 
 const queryClient = new QueryClient();
 
@@ -51,7 +49,6 @@ const AppRoutes = () => {
         <Route path="/admin/settings" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
         <Route path="/admin/chat" element={<ProtectedRoute><Layout><ChatAdmin /></Layout></ProtectedRoute>} />
         <Route path="/admin/integrations/openai" element={<ProtectedRoute><Layout><OpenAIIntegration /></Layout></ProtectedRoute>} />
-        <Route path="/admin/integrations/google-sheets" element={<ProtectedRoute><Layout><GoogleSheetsIntegration /></Layout></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
     </AuthProvider>
@@ -61,12 +58,10 @@ const AppRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
-        <Router>
-          <Toaster position="top-right" />
-          <AppRoutes />
-        </Router>
-      </GoogleOAuthProvider>
+      <Router>
+        <Toaster position="top-right" />
+        <AppRoutes />
+      </Router>
     </TooltipProvider>
   </QueryClientProvider>
 );

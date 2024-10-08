@@ -29,9 +29,6 @@ const Integrations = () => {
       case "OpenAI GPT-4":
         navigate('/admin/integrations/openai');
         break;
-      case "Google Sheets":
-        navigate('/admin/integrations/google-sheets');
-        break;
       default:
         console.log(`Integrating ${integration.name}`);
     }
