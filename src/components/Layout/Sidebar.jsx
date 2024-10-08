@@ -165,7 +165,7 @@ const Sidebar = ({ isOpen }) => {
             </React.Fragment>
           ))}
         </ul>
-        <div className="mt-6">
+        <div className="mt-auto pt-6">
           <NavLink
             to="/suporte"
             className={cn(
