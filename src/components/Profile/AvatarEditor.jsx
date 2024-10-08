@@ -36,7 +36,14 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
   };
 
   const handleSave = useCallback(async () => {
-    if (!croppedAreaPixels || !user) return;
+    if (!croppedAreaPixels || !user) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione uma imagem e faça o recorte antes de salvar.",
+        variant: "destructive",
+      });
+      return;
+    }
     setIsSaving(true);
     try {
       const croppedImage = await getCroppedImg(image, croppedAreaPixels);
