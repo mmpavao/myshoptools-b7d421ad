@@ -152,6 +152,14 @@ const firebaseOperations = {
         await userOperations.updateUserStatus(userId, profileData.status);
       }
       
+      // Atualizar outros campos relevantes
+      const fieldsToUpdate = ['name', 'email', 'phoneNumber', 'address'];
+      for (const field of fieldsToUpdate) {
+        if (profileData[field] !== undefined) {
+          await updateDoc(userRef, { [field]: profileData[field] });
+        }
+      }
+      
       console.log('Perfil do usuário atualizado com sucesso:', profileData);
       return true;
     } catch (error) {

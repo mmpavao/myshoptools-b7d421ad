@@ -46,7 +46,11 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
     try {
       await firebaseOperations.updateUserProfile(user.id, {
         role: userData.role,
-        status: userData.status
+        status: userData.status,
+        // Adicione outros campos que podem ter sido modificados
+        name: userData.name,
+        email: userData.email,
+        // ... outros campos relevantes
       });
       
       onUserUpdate();
