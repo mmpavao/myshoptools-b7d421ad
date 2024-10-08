@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { StarIcon, Heart } from "lucide-react";
+import { StarIcon, Heart, Edit, Trash2, Eye } from "lucide-react";
 
-const ProdutoCard = ({ produto, onDetalhes, onImportar, isImportado, onExcluir, showExcluirButton = false }) => {
+const ProdutoCard = ({ produto, onDetalhes, onImportar, isImportado, onExcluir, onEdit, showExcluirButton = false, showEditButton = false }) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const renderProductImage = (foto) => (
@@ -70,8 +70,18 @@ const ProdutoCard = ({ produto, onDetalhes, onImportar, isImportado, onExcluir, 
           className="text-xs flex-grow"
           onClick={() => onDetalhes(produto.id)}
         >
-          Detalhes
+          <Eye className="w-4 h-4 mr-1" /> Detalhes
         </Button>
+        {showEditButton && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="text-xs flex-grow"
+            onClick={() => onEdit(produto)}
+          >
+            <Edit className="w-4 h-4 mr-1" /> Editar
+          </Button>
+        )}
         {showExcluirButton ? (
           <Button 
             variant="destructive" 
@@ -79,7 +89,7 @@ const ProdutoCard = ({ produto, onDetalhes, onImportar, isImportado, onExcluir, 
             className="text-xs flex-grow"
             onClick={() => onExcluir(produto.id)}
           >
-            Excluir
+            <Trash2 className="w-4 h-4 mr-1" /> Excluir
           </Button>
         ) : (
           <Button 
