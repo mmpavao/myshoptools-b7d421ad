@@ -20,7 +20,7 @@ const MockCheckout = ({ isOpen, onClose, products = [], onPurchaseComplete }) =>
     if (isPurchaseComplete) {
       const timer = setTimeout(() => {
         handleConcluir();
-      }, 3000); // Fecha automaticamente após 3 segundos
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [isPurchaseComplete]);
@@ -50,7 +50,6 @@ const MockCheckout = ({ isOpen, onClose, products = [], onPurchaseComplete }) =>
         firebaseOperations.adicionarPedidoFornecedor(pedido.produtoId, pedido)
       ));
 
-      // Atualizar o estoque
       await Promise.all(products.map(product =>
         firebaseOperations.atualizarEstoque(product.id, product.estoque - 1)
       ));
@@ -62,6 +61,12 @@ const MockCheckout = ({ isOpen, onClose, products = [], onPurchaseComplete }) =>
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 }
+      });
+
+      toast({
+        title: "Compra realizada com sucesso!",
+        description: "Seu pedido foi processado e registrado.",
+        variant: "success",
       });
 
       onPurchaseComplete();

@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, CreditCard } from 'lucide-react';
 import { useAuth } from '../Auth/AuthProvider';
 import firebaseOperations from '../../firebase/firebaseOperations';
+import { formatCurrency } from '../../utils/currencyUtils';
 
 const MeusPedidos = () => {
   const [filtro, setFiltro] = useState('');
@@ -42,12 +43,11 @@ const MeusPedidos = () => {
         <CardContent className="p-6">
           <div className="flex justify-between items-center mb-6">
             <Input
-              placeholder="Filtrar por produto ou plataforma"
+              placeholder="Filtrar por produto ou SKU"
               value={filtro}
               onChange={(e) => setFiltro(e.target.value)}
               className="max-w-sm"
             />
-            <Button>Novo Pedido</Button>
           </div>
 
           <Tabs defaultValue="todos">
@@ -93,8 +93,8 @@ const PedidosTable = ({ pedidos }) => (
           <TableCell>{pedido.id}</TableCell>
           <TableCell>{pedido.sku}</TableCell>
           <TableCell>{pedido.titulo}</TableCell>
-          <TableCell>R$ {pedido.preco}</TableCell>
-          <TableCell>{new Date(pedido.dataCompra).toLocaleDateString()}</TableCell>
+          <TableCell>{formatCurrency(pedido.preco)}</TableCell>
+          <TableCell>{new Date(pedido.dataCompra).toLocaleString()}</TableCell>
           <TableCell>{pedido.status}</TableCell>
           <TableCell className="space-x-2">
             <Button variant="outline" size="icon"><Eye className="h-4 w-4" /></Button>

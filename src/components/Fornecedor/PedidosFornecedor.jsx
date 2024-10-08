@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, Truck } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import firebaseOperations from '../../firebase/firebaseOperations';
+import { formatCurrency } from '../../utils/currencyUtils';
 
 const PedidosFornecedor = () => {
   const [filtro, setFiltro] = useState('');
@@ -39,12 +40,11 @@ const PedidosFornecedor = () => {
         <CardContent className="p-6">
           <div className="flex justify-between items-center mb-6">
             <Input
-              placeholder="Filtrar por produto ou status"
+              placeholder="Filtrar por produto ou SKU"
               value={filtro}
               onChange={(e) => setFiltro(e.target.value)}
               className="max-w-sm"
             />
-            <Button>Novo Pedido</Button>
           </div>
 
           <Tabs defaultValue="todos">
@@ -107,8 +107,8 @@ const PedidosTable = ({ pedidos }) => {
             <TableCell>{pedido.sku}</TableCell>
             <TableCell>{pedido.titulo}</TableCell>
             <TableCell>{pedido.quantidade}</TableCell>
-            <TableCell>R$ {pedido.preco}</TableCell>
-            <TableCell>{new Date(pedido.dataCompra).toLocaleDateString()}</TableCell>
+            <TableCell>{formatCurrency(pedido.preco)}</TableCell>
+            <TableCell>{new Date(pedido.dataCompra).toLocaleString()}</TableCell>
             <TableCell>
               <Select 
                 defaultValue={pedido.statusLogistica} 
