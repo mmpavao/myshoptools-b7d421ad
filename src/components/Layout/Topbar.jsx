@@ -1,8 +1,7 @@
 import React from 'react';
-import { Bell, Menu, User, FileText, Book, Code, LogOut, Sun, Moon } from 'lucide-react';
+import { Bell, Menu, User, FileText, Book, Code, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,34 +11,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from '../Auth/AuthProvider';
-import { useTheme } from 'next-themes';
 
 const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
   return (
-    <header className="bg-background h-16 border-b">
+    <header className="bg-transparent h-16">
       <div className="flex items-center justify-between h-full px-4">
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
-            className="p-2 mr-4 rounded-full hover:bg-accent focus:outline-none"
+            className="p-2 mr-4 rounded-full hover:bg-gray-200 focus:outline-none"
           >
             <Menu size={24} />
           </button>
           <DropdownMenu>
-            <DropdownMenuTrigger className="text-sm font-medium text-foreground hover:text-foreground/80 focus:outline-none">
+            <DropdownMenuTrigger className="text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
               {companyName || 'Selecione uma empresa'}
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -54,10 +47,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           </DropdownMenu>
         </div>
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" onClick={toggleTheme}>
-            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-          </Button>
-          <button className="text-foreground/80 hover:text-foreground focus:outline-none">
+          <button className="text-gray-500 hover:text-gray-700 focus:outline-none">
             <Bell size={24} />
           </button>
           <DropdownMenu>
