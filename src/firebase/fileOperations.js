@@ -61,6 +61,34 @@ const fileOperations = {
     return allFiles;
   },
 
+
+  uploadProductImage: (file, path) => {
+    return new Promise((resolve, reject) => {
+      const storageRef = ref(storage, `products/${path}/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload is ' + progress + '% done');
+        },
+        (error) => {
+          console.error('Upload error:', error);
+          reject(error);
+        },
+        async () => {
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadURL);
+          } catch (error) {
+            console.error('Error getting download URL:', error);
+            reject(error);
+          }
+        }
+      );
+    });
+  },
+
   uploadAvatar: async (file, userId) => {
     if (!file || !userId) {
       throw new Error('Invalid file or user ID');

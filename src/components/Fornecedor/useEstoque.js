@@ -41,7 +41,6 @@ export const useEstoque = () => {
     setStats(newStats);
   };
 
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let parsedValue = value;
@@ -65,11 +64,6 @@ export const useEstoque = () => {
       console.error("Erro ao fazer upload das imagens:", error);
     }
   };
-
-  const updateFotos = (newFotos) => {
-    setNovoProduto(prev => ({ ...prev, fotos: newFotos }));
-  };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -173,7 +167,6 @@ export const useEstoque = () => {
     handleEditProduct,
     resetNovoProduto,
     calcularMarkup,
-    updateFotos,
     generateAIContent,
   };
 };
