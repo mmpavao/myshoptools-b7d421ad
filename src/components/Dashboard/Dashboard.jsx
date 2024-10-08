@@ -11,6 +11,7 @@ import DailyTraffic from './DailyTraffic';
 import TaskList from './TaskList';
 import SalesDistribution from './SalesDistribution';
 import UserInfo from './UserInfo';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -57,7 +58,7 @@ const Dashboard = () => {
         <Button onClick={handleLogout}>Sair</Button>
       </div>
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 2xl:grid-cols-6">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-6">
         <StatCard title="Ganhos" value={`$${dashboardData.faturamento.toFixed(2)}`} icon={DollarSign} />
         <StatCard title="Gastos este mês" value={`$${(dashboardData.faturamento * 0.6).toFixed(2)}`} icon={ShoppingCart} />
         <StatCard title="Vendas" value={`$${(dashboardData.faturamento * 0.8).toFixed(2)}`} icon={TrendingUp} />
