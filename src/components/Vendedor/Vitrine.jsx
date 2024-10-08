@@ -16,7 +16,9 @@ const Vitrine = () => {
 
   useEffect(() => {
     fetchProdutos();
-    fetchProdutosImportadosStatus();
+    if (user) {
+      fetchProdutosImportadosStatus();
+    }
   }, [user]);
 
   const fetchProdutos = async () => {
@@ -34,13 +36,11 @@ const Vitrine = () => {
   };
 
   const fetchProdutosImportadosStatus = async () => {
-    if (user) {
-      try {
-        const status = await firebaseOperations.getProdutosImportadosStatus(user.uid);
-        setProdutosImportados(status);
-      } catch (error) {
-        console.error("Erro ao buscar status dos produtos importados:", error);
-      }
+    try {
+      const status = await firebaseOperations.getProdutosImportadosStatus(user.uid);
+      setProdutosImportados(status);
+    } catch (error) {
+      console.error("Erro ao buscar status dos produtos importados:", error);
     }
   };
 

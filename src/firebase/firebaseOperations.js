@@ -39,56 +39,27 @@ const productOperations = {
       throw new Error('Produto não encontrado');
     }
   },
-  adicionarAvaliacao: async (produtoId, userId, nota, comentario) => {
-    try {
-      const produtoRef = doc(db, 'products', produtoId);
-      const produtoDoc = await getDoc(produtoRef);
-      const userDoc = await getDoc(doc(db, 'users', userId));
 
-      if (!produtoDoc.exists()) {
-        throw new Error('Produto não encontrado');
-      }
-
-      const produtoData = produtoDoc.data();
-      const avaliacoes = produtoData.avaliacoes || [];
-      const userName = userDoc.exists() ? userDoc.data().displayName || 'Usuário' : 'Usuário';
-      const abreviatedName = userName.split(' ')[0] + (userName.split(' ')[1] ? ` ${userName.split(' ')[1][0]}.` : '');
-
-      const novaAvaliacao = {
-        userId,
-        userName: abreviatedName,
-        nota,
-        comentario,
-        data: new Date().toISOString()
-      };
-
-      avaliacoes.push(novaAvaliacao);
-
-      const numeroAvaliacoes = avaliacoes.length;
-      const somaNotas = avaliacoes.reduce((sum, av) => sum + av.nota, 0);
-      const mediaAvaliacoes = somaNotas / numeroAvaliacoes;
-
-      await updateDoc(produtoRef, {
-        avaliacoes,
-        avaliacao: mediaAvaliacoes,
-        numeroAvaliacoes
-      });
-
-      return true;
-    } catch (error) {
-      console.error('Erro ao adicionar avaliação:', error);
-      throw error;
-    }
-  },
   importarProduto: async (userId, produto) => {
+    const produtoImportado = {
+      ...produto,
+      skuOriginal: produto.sku,
+      precoCusto: produto.preco,
+      precoVenda: produto.vendaSugerida,
+      descricaoPersonalizada: produto.descricao,
+      fotosPersonalizadas: produto.fotos,
+      dataImportacao: new Date().toISOString()
+    };
     const userProductRef = doc(db, 'users', userId, 'produtosImportados', produto.id);
-    await setDoc(userProductRef, produto);
+    await setDoc(userProductRef, produtoImportado);
   },
+
   getProdutosImportados: async (userId) => {
     const userProductsRef = collection(db, 'users', userId, 'produtosImportados');
     const snapshot = await getDocs(userProductsRef);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
+
   getProdutosImportadosStatus: async (userId) => {
     const userProductsRef = collection(db, 'users', userId, 'produtosImportados');
     const snapshot = await getDocs(userProductsRef);
@@ -98,10 +69,12 @@ const productOperations = {
     });
     return status;
   },
+
   removerProdutoImportado: async (userId, produtoId) => {
     const userProductRef = doc(db, 'users', userId, 'produtosImportados', produtoId);
     await deleteDoc(userProductRef);
   },
+
   verificarProdutoImportado: async (userId, produtoId) => {
     const userProductRef = doc(db, 'users', userId, 'produtosImportados', produtoId);
     const docSnap = await getDoc(userProductRef);

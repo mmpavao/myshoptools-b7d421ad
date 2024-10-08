@@ -78,8 +78,8 @@ const MeusProdutos = () => {
               key={produto.id}
               produto={produto}
               onDetalhes={handleDetalhes}
-              isImportado={true}
               onExcluir={handleExcluir}
+              showExcluirButton={true}
             />
           ))}
         </div>

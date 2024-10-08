@@ -46,11 +46,11 @@ const ProdutoCard = ({ produto, onDetalhes, onImportar, isImportado, onExcluir, 
         {renderProductImage(produto.fotos && produto.fotos[0])}
         <div className="mt-2 space-y-1">
           <div className="flex items-center justify-between flex-wrap">
-            <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
+            <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.precoVenda || produto.preco)}</p>
             {produto.desconto > 0 && (
               <>
                 <span className="text-xs text-gray-500 line-through">
-                  R$ {formatPrice(calculateOldPrice(produto.preco, produto.desconto))}
+                  R$ {formatPrice(calculateOldPrice(produto.precoVenda || produto.preco, produto.desconto))}
                 </span>
                 <span className="bg-red-500 text-white text-xs px-1 py-0.5 rounded-full">-{produto.desconto}%</span>
               </>
@@ -72,7 +72,7 @@ const ProdutoCard = ({ produto, onDetalhes, onImportar, isImportado, onExcluir, 
         >
           Detalhes
         </Button>
-        {showExcluirButton && isImportado ? (
+        {showExcluirButton ? (
           <Button 
             variant="destructive" 
             size="sm" 
