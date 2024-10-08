@@ -132,7 +132,7 @@ const firebaseOperations = {
   },
 
   uploadProfileImage: async (userId, blob, fileName) => {
-    const path = `user_avatars/${userId}/${Date.now()}_${fileName}`;
+    const path = `avatars/${userId}/${Date.now()}_${fileName}`;
     const storageRef = ref(storage, path);
     const uploadTask = uploadBytesResumable(storageRef, blob);
 
