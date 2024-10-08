@@ -84,7 +84,6 @@ const MeusProdutos = () => {
               produto={produto}
               onDetalhes={handleDetalhes}
               onExcluir={() => setProdutoParaExcluir(produto.id)}
-              showExcluirButton={true}
             />
           ))}
         </div>
