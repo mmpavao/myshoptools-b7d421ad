@@ -18,6 +18,20 @@ const Vitrine = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
+  const fetchProdutos = async () => {
+    try {
+      const produtosData = await firebaseOperations.getProducts();
+      setProdutos(produtosData);
+    } catch (error) {
+      console.error("Erro ao buscar produtos:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os produtos.",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     fetchProdutos();
   }, [user]);
