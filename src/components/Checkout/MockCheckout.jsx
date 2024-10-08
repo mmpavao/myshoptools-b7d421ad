@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from '../../components/Auth/AuthProvider';
 import firebaseOperations from '../../firebase/firebaseOperations';
+import { Spinner } from '../ui/spinner';
 
 const MockCheckout = ({ isOpen, onClose, product }) => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ const MockCheckout = ({ isOpen, onClose, product }) => {
     expiry: '',
     cvc: '',
   });
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -25,9 +27,10 @@ const MockCheckout = ({ isOpen, onClose, product }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsProcessing(true);
     try {
       // Simular processamento do pagamento
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       // Criar pedido fictício
       const pedido = {
@@ -52,7 +55,10 @@ const MockCheckout = ({ isOpen, onClose, product }) => {
         description: "Seu pedido foi processado e registrado.",
       });
 
-      onClose();
+      setTimeout(() => {
+        setIsProcessing(false);
+        onClose();
+      }, 1000);
     } catch (error) {
       console.error("Erro ao processar compra:", error);
       toast({
@@ -60,6 +66,7 @@ const MockCheckout = ({ isOpen, onClose, product }) => {
         description: "Não foi possível processar sua compra. Tente novamente.",
         variant: "destructive",
       });
+      setIsProcessing(false);
     }
   };
 
@@ -71,33 +78,42 @@ const MockCheckout = ({ isOpen, onClose, product }) => {
         <DialogHeader>
           <DialogTitle>Checkout - {product.titulo}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="name">Nome Completo</Label>
-            <Input id="name" name="name" value={formData.name} onChange={handleInputChange} required />
+        {isProcessing ? (
+          <div className="flex flex-col items-center justify-center py-8">
+            <Spinner className="w-12 h-12 mb-4" />
+            <p>Processando seu pedido...</p>
           </div>
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} required />
-          </div>
-          <div>
-            <Label htmlFor="cardNumber">Número do Cartão</Label>
-            <Input id="cardNumber" name="cardNumber" value={formData.cardNumber} onChange={handleInputChange} required />
-          </div>
-          <div className="flex space-x-4">
-            <div className="flex-1">
-              <Label htmlFor="expiry">Validade</Label>
-              <Input id="expiry" name="expiry" placeholder="MM/AA" value={formData.expiry} onChange={handleInputChange} required />
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="name">Nome Completo</Label>
+              <Input id="name" name="name" value={formData.name} onChange={handleInputChange} required />
             </div>
-            <div className="flex-1">
-              <Label htmlFor="cvc">CVC</Label>
-              <Input id="cvc" name="cvc" value={formData.cvc} onChange={handleInputChange} required />
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} required />
             </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Pagar R$ {product.preco.toFixed(2)}</Button>
-          </DialogFooter>
-        </form>
+            <div>
+              <Label htmlFor="cardNumber">Número do Cartão</Label>
+              <Input id="cardNumber" name="cardNumber" value={formData.cardNumber} onChange={handleInputChange} required />
+            </div>
+            <div className="flex space-x-4">
+              <div className="flex-1">
+                <Label htmlFor="expiry">Validade</Label>
+                <Input id="expiry" name="expiry" placeholder="MM/AA" value={formData.expiry} onChange={handleInputChange} required />
+              </div>
+              <div className="flex-1">
+                <Label htmlFor="cvc">CVC</Label>
+                <Input id="cvc" name="cvc" value={formData.cvc} onChange={handleInputChange} required />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" disabled={isProcessing}>
+                {isProcessing ? 'Processando...' : `Pagar R$ ${product.preco.toFixed(2)}`}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );
