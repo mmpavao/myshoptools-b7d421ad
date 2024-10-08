@@ -22,16 +22,25 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
 
   const formatPrice = (price) => (typeof price === 'number' ? price.toFixed(2) : '0.00');
 
+  const calculateOldPrice = (currentPrice, discount) => {
+    return currentPrice / (1 - discount / 100);
+  };
+
   return (
     <Card className="w-full h-full flex flex-col">
       <CardContent className="p-2 flex-grow flex flex-col justify-between">
         {renderProductImage(produto.fotos && produto.fotos[0])}
         <div className="mt-2 space-y-1">
           <h3 className="font-semibold text-sm line-clamp-2">{produto.titulo}</h3>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap">
             <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
             {produto.desconto > 0 && (
-              <span className="bg-red-500 text-white text-xs px-1 py-0.5 rounded-full">-{produto.desconto}%</span>
+              <>
+                <span className="text-xs text-gray-500 line-through">
+                  R$ {formatPrice(calculateOldPrice(produto.preco, produto.desconto))}
+                </span>
+                <span className="bg-red-500 text-white text-xs px-1 py-0.5 rounded-full">-{produto.desconto}%</span>
+              </>
             )}
           </div>
           <div className="flex items-center">
