@@ -4,12 +4,12 @@ import { updateProfile, deleteUser as deleteAuthUser } from 'firebase/auth';
 import { ref, deleteObject } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
 import { safeFirestoreOperation } from '../utils/errorReporting';
-import { MASTER_USER_EMAIL, ADMIN_USER_EMAIL, userRoles } from '../utils/userConstants';
+import { MASTER_USER_EMAIL, userRoles } from '../utils/userConstants';
 
 const createUser = (userData) => 
   safeFirestoreOperation(() => setDoc(doc(db, 'users', userData.uid), {
     ...userData,
-    role: userData.email === MASTER_USER_EMAIL ? userRoles.MASTER : (userData.email === ADMIN_USER_EMAIL ? userRoles.ADMIN : userRoles.VENDOR),
+    role: userData.email === MASTER_USER_EMAIL ? userRoles.MASTER : userData.role,
     status: 'Active',
   }));
 
@@ -42,7 +42,7 @@ const getAllUsers = async () => {
       title: doc.data().title || 'No title',
       department: doc.data().department || 'No department',
       status: doc.data().email === MASTER_USER_EMAIL ? 'Active' : (doc.data().status || 'Inactive'),
-      role: doc.data().email === MASTER_USER_EMAIL ? userRoles.MASTER : (doc.data().email === ADMIN_USER_EMAIL ? userRoles.ADMIN : (doc.data().role || userRoles.VENDOR)),
+      role: doc.data().email === MASTER_USER_EMAIL ? userRoles.MASTER : (doc.data().role || userRoles.VENDOR),
       isOnline: doc.id === currentUser?.uid,
     }));
   } catch (error) {
@@ -65,7 +65,6 @@ const updateUserRole = async (userId, newRole, currentUserRole) => {
       throw new Error('Cannot change Master user role');
     }
 
-    // Permitir que o usuário master altere qualquer função, incluindo admin
     if (currentUserRole !== userRoles.MASTER && newRole === userRoles.MASTER) {
       throw new Error('Only Master can assign Master role');
     }
@@ -94,7 +93,6 @@ const getUserRole = async (userId) => {
     if (userDoc.exists()) {
       const userData = userDoc.data();
       if (userData.email === MASTER_USER_EMAIL) return userRoles.MASTER;
-      if (userData.email === ADMIN_USER_EMAIL) return userRoles.ADMIN;
       return userData.role || userRoles.VENDOR;
     }
     return userRoles.VENDOR;
