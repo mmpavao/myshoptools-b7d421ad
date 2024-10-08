@@ -237,6 +237,39 @@ const clearAllData = async () => {
   console.warn('clearAllData function is not implemented');
 };
 
+const myShopOperations = {
+  getLandingPageData: async (userId) => {
+    try {
+      const docRef = doc(db, 'users', userId, 'myShop', 'landingPage');
+      const docSnap = await getDoc(docRef);
+      return docSnap.exists() ? docSnap.data() : null;
+    } catch (error) {
+      console.error('Error getting landing page data:', error);
+      throw error;
+    }
+  },
+
+  saveLandingPageData: async (userId, data) => {
+    try {
+      const docRef = doc(db, 'users', userId, 'myShop', 'landingPage');
+      await setDoc(docRef, data, { merge: true });
+    } catch (error) {
+      console.error('Error saving landing page data:', error);
+      throw error;
+    }
+  },
+
+  getMyShopUrl: async (userId) => {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', userId));
+      return userDoc.exists() ? userDoc.data().myShopUrl : null;
+    } catch (error) {
+      console.error('Error getting MyShop URL:', error);
+      throw error;
+    }
+  },
+};
+
 const firebaseOperations = {
   ...crudOperations,
   ...userOperations,
@@ -244,6 +277,7 @@ const firebaseOperations = {
   ...fileOperations,
   ...meusProdutosOperations,
   ...userProfileOperations,
+  ...myShopOperations,
   testFirebaseOperations,
   clearAllData
 };

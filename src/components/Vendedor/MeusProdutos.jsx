@@ -4,13 +4,16 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import ProdutoCard from './ProdutoCard';
+import MyShopLandingPage from './MyShopLandingPage';
 import { useAuth } from '../Auth/AuthProvider';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 const MeusProdutos = () => {
   const [produtos, setProdutos] = useState([]);
   const [filtro, setFiltro] = useState('');
   const [produtoParaExcluir, setProdutoParaExcluir] = useState(null);
+  const [myShopUrl, setMyShopUrl] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -18,6 +21,7 @@ const MeusProdutos = () => {
   useEffect(() => {
     if (user) {
       fetchMeusProdutos();
+      fetchMyShopUrl();
     }
   }, [user]);
 
@@ -32,6 +36,15 @@ const MeusProdutos = () => {
         description: "Não foi possível carregar seus produtos.",
         variant: "destructive",
       });
+    }
+  };
+
+  const fetchMyShopUrl = async () => {
+    try {
+      const url = await firebaseOperations.getMyShopUrl(user.uid);
+      setMyShopUrl(url);
+    } catch (error) {
+      console.error("Erro ao buscar URL da loja MyShop:", error);
     }
   };
 
@@ -65,15 +78,33 @@ const MeusProdutos = () => {
     produto.sku.toLowerCase().includes(filtro.toLowerCase())
   );
 
+  const copyMyShopUrl = () => {
+    navigator.clipboard.writeText(myShopUrl);
+    toast({
+      title: "URL Copiada",
+      description: "A URL da sua loja MyShop foi copiada para a área de transferência.",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Meus Produtos</h1>
-      <Input
-        placeholder="Filtrar por título ou SKU"
-        value={filtro}
-        onChange={(e) => setFiltro(e.target.value)}
-        className="max-w-sm mb-4"
-      />
+      <div className="flex justify-between items-center">
+        <Input
+          placeholder="Filtrar por título ou SKU"
+          value={filtro}
+          onChange={(e) => setFiltro(e.target.value)}
+          className="max-w-sm"
+        />
+        <div className="space-x-2">
+          <MyShopLandingPage produtos={produtos} />
+          {myShopUrl && (
+            <Button variant="outline" onClick={copyMyShopUrl}>
+              Copiar URL da Loja
+            </Button>
+          )}
+        </div>
+      </div>
       {produtos.length === 0 ? (
         <p>Você ainda não importou nenhum produto.</p>
       ) : (
