@@ -6,7 +6,7 @@ import { formatCurrency } from '@/utils/currencyUtils';
 
 const ProdutoCard = ({ produto, onDetalhes }) => {
   const renderProductImage = (foto) => (
-    <div className="w-full aspect-square relative overflow-hidden rounded-t-lg">
+    <div className="w-full h-0 pb-[100%] relative overflow-hidden">
       <img 
         src={foto && foto.startsWith('http') ? foto : "/placeholder.svg"}
         alt={produto.titulo} 
@@ -26,29 +26,31 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
     : produto.preco;
 
   return (
-    <Card className="w-full flex flex-col aspect-square overflow-hidden">
-      <CardContent className="p-0 flex-grow flex flex-col">
+    <Card className="w-full aspect-square flex flex-col overflow-hidden">
+      <div className="h-1/2">
         {renderProductImage(produto.fotos && produto.fotos[0])}
-        <div className="p-3 flex-grow flex flex-col justify-between">
+      </div>
+      <CardContent className="p-2 flex-grow flex flex-col justify-between h-1/2">
+        <div>
           <h3 className="font-semibold text-sm line-clamp-2 mb-1">{produto.titulo}</h3>
-          <div className="mt-auto">
-            <div className="flex items-center space-x-1 text-xs mb-1">
-              {renderStars(produto.avaliacao || 0)}
-              <span className="text-gray-600">({produto.numeroAvaliacoes || 0})</span>
-            </div>
-            <div className="flex items-center space-x-2 flex-wrap">
-              {produto.desconto > 0 && (
-                <>
-                  <span className="text-xs text-gray-500 line-through">{formatCurrency(originalPrice)}</span>
-                  <span className="text-xs bg-red-500 text-white px-1 py-0.5 rounded">-{produto.desconto}%</span>
-                </>
-              )}
-              <span className="text-sm font-bold text-primary">{formatCurrency(produto.preco)}</span>
-            </div>
+          <div className="flex items-center space-x-1 text-xs mb-1">
+            {renderStars(produto.avaliacao || 0)}
+            <span className="text-gray-600">({produto.numeroAvaliacoes || 0})</span>
+          </div>
+        </div>
+        <div className="mt-auto">
+          <div className="flex flex-col items-start space-y-1">
+            {produto.desconto > 0 && (
+              <div className="flex items-center space-x-2 text-xs">
+                <span className="text-gray-500 line-through">{formatCurrency(originalPrice)}</span>
+                <span className="bg-red-500 text-white px-1 py-0.5 rounded">-{produto.desconto}%</span>
+              </div>
+            )}
+            <span className="text-sm font-bold text-primary">{formatCurrency(produto.preco)}</span>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-2">
+      <CardFooter className="p-2 mt-auto">
         <Button 
           variant="outline" 
           size="sm" 
