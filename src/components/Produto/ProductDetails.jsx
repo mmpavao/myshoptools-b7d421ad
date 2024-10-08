@@ -64,15 +64,7 @@ const ProductDetails = ({ produto, isImportado, handleImportar }) => {
 
       <Card className="mb-6">
         <CardContent className="pt-6">
-          <p><strong>SKU:</strong> {produto.sku}</p>
-          <p><strong>Estoque:</strong> {produto.estoque}</p>
-          <p><strong>Venda Sugerida:</strong> R$ {formatPrice(produto.vendaSugerida)}</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="pt-6">
-          <Tabs defaultValue="MyShop">
+          <Tabs defaultValue="MyShop" className="w-full">
             <TabsList className="grid grid-cols-3 gap-2 mb-4">
               {marketplaces.map((marketplace) => (
                 <TabsTrigger key={marketplace} value={marketplace} className="text-xs">
@@ -81,9 +73,14 @@ const ProductDetails = ({ produto, isImportado, handleImportar }) => {
               ))}
             </TabsList>
             {marketplaces.map((marketplace) => (
-              <TabsContent key={marketplace} value={marketplace}>
-                <p>Configurações para {marketplace}</p>
-                {/* Aqui você pode adicionar campos específicos para cada marketplace */}
+              <TabsContent key={marketplace} value={marketplace} className="mt-2">
+                <Card>
+                  <CardContent className="pt-4">
+                    <h3 className="text-lg font-semibold mb-2">Configurações para {marketplace}</h3>
+                    <p className="text-sm text-gray-600">Aqui você pode adicionar configurações específicas para {marketplace}.</p>
+                    {/* Adicione campos de configuração específicos para cada marketplace aqui */}
+                  </CardContent>
+                </Card>
               </TabsContent>
             ))}
           </Tabs>
