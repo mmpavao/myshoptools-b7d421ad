@@ -18,7 +18,6 @@ import {
 import { useAuth } from '../Auth/AuthProvider';
 import { getUserRole } from '../../firebase/userOperations';
 import { Separator } from "@/components/ui/separator";
-import { useTheme } from "@/components/ThemeProvider";
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
@@ -118,7 +117,6 @@ const Sidebar = ({ isOpen }) => {
   const [isCollapsible, setIsCollapsible] = useState(false);
   const [activeSection, setActiveSection] = useState('');
   const location = useLocation();
-  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -155,8 +153,7 @@ const Sidebar = ({ isOpen }) => {
     <aside className={cn(
       "fixed left-0 top-0 z-50 h-[calc(100vh-1.5rem)] m-3 rounded-xl transition-all duration-300",
       isOpen ? "w-60" : "w-20",
-      theme === 'dark' ? "bg-[#8884d8]" : "bg-gray-900",
-      "text-white shadow-md"
+      "bg-gray-900 text-white shadow-md"
     )}>
       <div className="h-full overflow-y-auto py-3 px-1.5">
         <div className={cn(

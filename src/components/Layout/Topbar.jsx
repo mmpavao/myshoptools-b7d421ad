@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, User, FileText, Book, Code, LogOut, ChevronDown, PanelLeftClose, PanelLeftOpen, Search, Sun, Moon } from 'lucide-react';
+import { Bell, User, FileText, Book, Code, LogOut, ChevronDown, PanelLeftClose, PanelLeftOpen, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -11,21 +11,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from '../Auth/AuthProvider';
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useTheme } from "@/components/ThemeProvider";
 
 const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
-  };
-
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
   };
 
   const companies = [
@@ -37,24 +30,24 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   ];
 
   return (
-    <header className={`${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-gray-800'} transition-colors duration-200`}>
+    <header className="bg-transparent">
       <div className="flex items-center justify-between h-[4.2rem] px-4">
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
-            className={`p-2 rounded-full ${theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-200'} focus:outline-none mr-3`}
+            className="p-2 rounded-full hover:bg-gray-200 focus:outline-none mr-3"
           >
             {isSidebarOpen ? (
-              <PanelLeftClose size={28} className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} />
+              <PanelLeftClose size={28} className="text-gray-700" />
             ) : (
-              <PanelLeftOpen size={28} className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} />
+              <PanelLeftOpen size={28} className="text-gray-700" />
             )}
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none">
               <div className="flex items-center">
-                <span className="text-lg font-semibold">{companyName}</span>
-                <ChevronDown className="ml-1 h-4 w-4" />
+                <span className="text-lg font-semibold text-gray-800">{companyName}</span>
+                <ChevronDown className="ml-1 h-4 w-4 text-gray-600" />
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -64,26 +57,18 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className={`flex items-center space-x-3 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'} rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] px-2 py-1.5`}>
+        <div className="flex items-center space-x-3 bg-white bg-opacity-80 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] px-2 py-1.5">
           <div className="relative flex items-center">
-            <Search className="absolute left-2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-2 h-4 w-4 text-gray-400" />
             <Input
               type="search"
               placeholder="Pesquisar..."
-              className={`w-56 ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'} border-none focus:ring-0 text-sm focus:outline-none pl-8 rounded-full h-9`}
+              className="w-56 bg-gray-100 border-none focus:ring-0 text-sm focus:outline-none pl-8 rounded-full h-9"
             />
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}
-          >
-            {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
-          </Button>
-          <Button variant="ghost" size="icon" className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
+          <button className="text-gray-500 hover:text-gray-700 focus:outline-none">
             <Bell size={20} />
-          </Button>
+          </button>
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none flex items-center">
               <Avatar className="h-10 w-10">
@@ -96,7 +81,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
                   )}
                 </AvatarFallback>
               </Avatar>
-              <ChevronDown className="ml-1 h-4 w-4" />
+              <ChevronDown className="ml-1 h-4 w-4 text-gray-500" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
               <div className="flex items-center p-2">
