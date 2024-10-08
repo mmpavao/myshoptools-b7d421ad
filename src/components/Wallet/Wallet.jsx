@@ -5,12 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { formatCurrency } from '../../utils/currencyUtils';
+import { formatCurrency, parseCurrency, formatInputCurrency } from '../../utils/currencyUtils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from 'lucide-react';
+import { toast } from "@/components/ui/use-toast";
 import QRCodeFicticio from './QRCodeFicticio';
 
 const Wallet = () => {
@@ -35,21 +36,44 @@ const Wallet = () => {
       setHistory(walletHistory);
     } catch (error) {
       console.error('Error fetching wallet data:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os dados da carteira.",
+        variant: "destructive",
+      });
     }
   };
 
   const handleAddFunds = () => setIsCheckoutOpen(true);
+  
   const handleWithdraw = async () => {
     try {
-      await walletOperations.withdrawFunds(user.uid, parseFloat(amount));
+      await walletOperations.withdrawFunds(user.uid, parseCurrency(amount));
       setAmount('');
       fetchWalletData();
+      toast({
+        title: "Sucesso",
+        description: "Saque realizado com sucesso.",
+        variant: "success",
+      });
     } catch (error) {
       console.error('Error withdrawing funds:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível realizar o saque.",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleTransfer = () => console.log('Transfer functionality to be implemented');
+  const handleTransfer = () => {
+    // Implementação futura
+    toast({
+      title: "Em breve",
+      description: "Funcionalidade de transferência será implementada em breve.",
+      variant: "default",
+    });
+  };
 
   const handleCheckoutClose = () => {
     setIsCheckoutOpen(false);
@@ -62,27 +86,55 @@ const Wallet = () => {
     e.preventDefault();
     setIsProcessing(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      await walletOperations.addFunds(user.uid, parseFloat(amount), paymentMethod);
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulação de processamento
+      await walletOperations.addFunds(user.uid, parseCurrency(amount), paymentMethod);
       setAmount('');
       fetchWalletData();
       handleCheckoutClose();
+      toast({
+        title: "Sucesso",
+        description: "Fundos adicionados com sucesso.",
+        variant: "success",
+      });
     } catch (error) {
       console.error('Error processing payment:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível processar o pagamento.",
+        variant: "destructive",
+      });
     } finally {
       setIsProcessing(false);
     }
   };
 
+  const handleAmountChange = (e) => {
+    const formattedValue = formatInputCurrency(e.target.value);
+    setAmount(formattedValue);
+  };
+
   return (
     <div className="space-y-6">
-      <WalletBalance balance={balance} amount={amount} setAmount={setAmount} 
-                    handleAddFunds={handleAddFunds} handleWithdraw={handleWithdraw} handleTransfer={handleTransfer} />
+      <WalletBalance 
+        balance={balance} 
+        amount={amount} 
+        handleAmountChange={handleAmountChange}
+        handleAddFunds={handleAddFunds} 
+        handleWithdraw={handleWithdraw} 
+        handleTransfer={handleTransfer} 
+      />
       <TransactionHistory history={history} />
-      <CheckoutDialog isOpen={isCheckoutOpen} onClose={handleCheckoutClose} 
-                      paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod}
-                      installments={installments} setInstallments={setInstallments}
-                      isProcessing={isProcessing} handlePaymentSubmit={handlePaymentSubmit} />
+      <CheckoutDialog 
+        isOpen={isCheckoutOpen} 
+        onClose={handleCheckoutClose}
+        paymentMethod={paymentMethod} 
+        setPaymentMethod={setPaymentMethod}
+        installments={installments} 
+        setInstallments={setInstallments}
+        isProcessing={isProcessing} 
+        handlePaymentSubmit={handlePaymentSubmit}
+        amount={amount}
+      />
     </div>
   );
 };
