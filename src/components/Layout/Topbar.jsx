@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, User, FileText, Book, Code, LogOut, Sun, Moon } from 'lucide-react';
+import { Bell, User, FileText, Book, Code, LogOut, Sun } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -23,14 +23,10 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
     navigate('/login');
   };
 
-  const getBreadcrumbs = () => {
+  const getPageTitle = () => {
     const paths = location.pathname.split('/').filter(Boolean);
-    return paths.map((path, index) => (
-      <React.Fragment key={index}>
-        {index > 0 && <span className="mx-2 text-gray-400">/</span>}
-        <span className="capitalize">{path}</span>
-      </React.Fragment>
-    ));
+    const lastPath = paths[paths.length - 1];
+    return lastPath.charAt(0).toUpperCase() + lastPath.slice(1);
   };
 
   return (
@@ -116,8 +112,9 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           </DropdownMenu>
         </div>
       </div>
-      <div className="px-4 py-2 bg-gray-50 text-sm text-gray-600">
-        {getBreadcrumbs()}
+      <div className="px-4 py-2 bg-white text-sm text-gray-600">
+        <div className="text-xs uppercase font-semibold text-gray-500">Pages</div>
+        <h1 className="text-2xl font-bold text-gray-800">{getPageTitle()}</h1>
       </div>
     </header>
   );
