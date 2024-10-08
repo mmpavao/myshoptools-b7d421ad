@@ -37,7 +37,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
   ];
 
   return (
-    <header className={`bg-secondary-dark text-white transition-colors duration-200`}>
+    <header className="bg-background text-foreground transition-colors duration-200">
       <div className="flex items-center justify-between h-[4.2rem] px-4">
         <div className="flex items-center">
           <button
