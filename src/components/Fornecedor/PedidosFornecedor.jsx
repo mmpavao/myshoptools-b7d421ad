@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from '../Auth/AuthProvider';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { formatCurrency } from '../../utils/currencyUtils';
+import StatCard from '../Dashboard/StatCard';
 
 const PedidosFornecedor = () => {
   const [filtro, setFiltro] = useState('');
