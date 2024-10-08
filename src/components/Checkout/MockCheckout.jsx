@@ -8,13 +8,13 @@ import { Loader2, CheckCircle, ShoppingCart } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { formatCurrency } from '../../utils/currencyUtils';
 
-const MockCheckout = ({ isOpen, onClose, products }) => {
+const MockCheckout = ({ isOpen, onClose, products = [] }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const totalAmount = products.reduce((total, product) => total + product.preco, 0);
+  const totalAmount = products.reduce((total, product) => total + (product?.preco || 0), 0);
 
   const handleComprar = async () => {
     setIsProcessing(true);
@@ -24,9 +24,9 @@ const MockCheckout = ({ isOpen, onClose, products }) => {
 
       // Criar pedidos fictícios
       const pedidos = products.map(product => ({
-        produtoId: product.id,
-        titulo: product.titulo,
-        preco: product.preco,
+        produtoId: product?.id,
+        titulo: product?.titulo,
+        preco: product?.preco,
         quantidade: 1,
         status: 'Pago',
         dataCompra: new Date().toISOString(),
@@ -84,8 +84,8 @@ const MockCheckout = ({ isOpen, onClose, products }) => {
               <div className="max-h-60 overflow-y-auto mb-4">
                 {products.map((product, index) => (
                   <div key={index} className="flex justify-between items-center mb-2">
-                    <span className="text-sm truncate">{product.titulo}</span>
-                    <span className="font-bold">{formatCurrency(product.preco)}</span>
+                    <span className="text-sm truncate">{product?.titulo}</span>
+                    <span className="font-bold">{formatCurrency(product?.preco)}</span>
                   </div>
                 ))}
               </div>
