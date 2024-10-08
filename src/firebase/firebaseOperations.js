@@ -130,6 +130,7 @@ const firebaseOperations = {
     }
   },
 
+
   updateUserProfile: async (userId, profileData) => {
     try {
       const userRef = doc(db, 'users', userId);

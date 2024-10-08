@@ -90,7 +90,6 @@ const UserActions = ({ user, isMasterAdmin, onUserUpdate }) => {
       });
     } finally {
       setIsSaving(false);
-      setHasChanges(false);
     }
   };
 
