@@ -68,11 +68,11 @@ const Vitrine = () => {
   };
 
   const renderProductImage = (foto) => (
-    <div className="w-full pb-[100%] relative overflow-hidden rounded-lg">
+    <div className="aspect-square w-full overflow-hidden rounded-lg">
       <img 
         src={foto && foto.startsWith('http') ? foto : "/placeholder.svg"}
         alt="Produto" 
-        className="absolute inset-0 w-full h-full object-cover"
+        className="w-full h-full object-cover"
       />
     </div>
   );
@@ -102,57 +102,63 @@ const Vitrine = () => {
       {produtos.length === 0 ? (
         <p>Carregando produtos...</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {produtosFiltrados.map((produto) => (
             <Card key={produto.id} className="flex flex-col h-full">
               <CardHeader className="p-3">
                 <CardTitle className="text-sm line-clamp-2 h-10 overflow-hidden">{produto.titulo}</CardTitle>
               </CardHeader>
-              <CardContent className="p-3 flex-grow">
+              <CardContent className="p-3 flex-grow flex flex-col">
                 {renderProductImage(produto.fotos && produto.fotos[0])}
-                <p className="text-lg font-bold text-primary mt-2">R$ {formatPrice(produto.preco)}</p>
-                {produto.desconto > 0 && (
-                  <div className="text-xs">
-                    <span className="text-gray-500 line-through mr-1">
-                      R$ {formatPrice(produto.preco / (1 - produto.desconto / 100))}
-                    </span>
-                    <span className="bg-red-500 text-white px-1 py-0.5 rounded-full">-{produto.desconto}%</span>
+                <div className="mt-2 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <p className="text-lg font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
+                    {produto.desconto > 0 && (
+                      <span className="ml-1 bg-red-500 text-white text-xs px-1 py-0.5 rounded-full">-{produto.desconto}%</span>
+                    )}
                   </div>
+                </div>
+                {produto.desconto > 0 && (
+                  <p className="text-xs text-gray-500 line-through">
+                    R$ {formatPrice(produto.preco / (1 - produto.desconto / 100))}
+                  </p>
                 )}
-                <div className="flex items-center mt-1">
-                  {renderStars(produto.avaliacao || 0)}
-                  <span className="ml-1 text-xs text-gray-600">({produto.numeroAvaliacoes || 0})</span>
+                <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center">
+                    {renderStars(produto.avaliacao || 0)}
+                    <span className="ml-1 text-xs text-gray-600">({produto.numeroAvaliacoes || 0})</span>
+                  </div>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm" onClick={() => handleAvaliar(produto.id)}>Avaliar</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Avaliar Produto</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="flex justify-center">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <StarIcon
+                              key={star}
+                              className={`w-8 h-8 cursor-pointer ${star <= avaliacaoAtual.nota ? 'text-yellow-400' : 'text-gray-300'}`}
+                              onClick={() => setAvaliacaoAtual(prev => ({ ...prev, nota: star }))}
+                            />
+                          ))}
+                        </div>
+                        <Textarea
+                          placeholder="Deixe seu comentário"
+                          value={avaliacaoAtual.comentario}
+                          onChange={(e) => setAvaliacaoAtual(prev => ({ ...prev, comentario: e.target.value }))}
+                        />
+                        <Button onClick={handleSubmitAvaliacao}>Enviar Avaliação</Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </CardContent>
-              <CardFooter className="p-3 flex justify-between mt-auto">
-                <Button variant="outline" size="sm" onClick={() => handleDetalhes(produto.id)}>Detalhes</Button>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" onClick={() => handleAvaliar(produto.id)}>Avaliar</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Avaliar Produto</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="flex justify-center">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <StarIcon
-                            key={star}
-                            className={`w-8 h-8 cursor-pointer ${star <= avaliacaoAtual.nota ? 'text-yellow-400' : 'text-gray-300'}`}
-                            onClick={() => setAvaliacaoAtual(prev => ({ ...prev, nota: star }))}
-                          />
-                        ))}
-                      </div>
-                      <Textarea
-                        placeholder="Deixe seu comentário"
-                        value={avaliacaoAtual.comentario}
-                        onChange={(e) => setAvaliacaoAtual(prev => ({ ...prev, comentario: e.target.value }))}
-                      />
-                      <Button onClick={handleSubmitAvaliacao}>Enviar Avaliação</Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+              <CardFooter className="p-3">
+                <Button variant="outline" size="sm" className="w-full" onClick={() => handleDetalhes(produto.id)}>Detalhes</Button>
               </CardFooter>
             </Card>
           ))}
