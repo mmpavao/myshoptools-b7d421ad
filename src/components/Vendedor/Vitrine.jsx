@@ -45,7 +45,7 @@ const Vitrine = () => {
   };
 
   const handleDetalhes = (produtoId) => {
-    navigate(`/produto/${produtoId}`);
+    navigate(`/produto/${produtoId}?source=vitrine`);
   };
 
   const handleImportar = async (produtoId) => {
