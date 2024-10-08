@@ -24,6 +24,27 @@ const ProductDetails = ({ produto, isImportado, handleImportar }) => {
       <h1 className="text-3xl font-bold mb-2">{produto.titulo}</h1>
       <h2 className="text-xl text-gray-600 mb-4">{produto.sku}</h2>
       
+      <Tabs defaultValue="MyShop" className="w-full mb-6">
+        <TabsList className="grid grid-cols-3 gap-2 mb-4">
+          {marketplaces.map((marketplace) => (
+            <TabsTrigger key={marketplace} value={marketplace} className="text-xs">
+              {marketplace}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        {marketplaces.map((marketplace) => (
+          <TabsContent key={marketplace} value={marketplace} className="mt-2">
+            <Card>
+              <CardContent className="pt-4">
+                <h3 className="text-lg font-semibold mb-2">Configurações para {marketplace}</h3>
+                <p className="text-sm text-gray-600">Aqui você pode adicionar configurações específicas para {marketplace}.</p>
+                {/* Adicione campos de configuração específicos para cada marketplace aqui */}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        ))}
+      </Tabs>
+      
       <div className="flex items-center mb-4">
         {renderStars(produto.avaliacao || 0)}
         <span className="ml-2 text-gray-600">({produto.numeroAvaliacoes || 0} avaliações)</span>
@@ -61,31 +82,6 @@ const ProductDetails = ({ produto, isImportado, handleImportar }) => {
           {isImportado ? 'Adicionado' : 'Adicionar'}
         </Button>
       </div>
-
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          <Tabs defaultValue="MyShop" className="w-full">
-            <TabsList className="grid grid-cols-3 gap-2 mb-4">
-              {marketplaces.map((marketplace) => (
-                <TabsTrigger key={marketplace} value={marketplace} className="text-xs">
-                  {marketplace}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {marketplaces.map((marketplace) => (
-              <TabsContent key={marketplace} value={marketplace} className="mt-2">
-                <Card>
-                  <CardContent className="pt-4">
-                    <h3 className="text-lg font-semibold mb-2">Configurações para {marketplace}</h3>
-                    <p className="text-sm text-gray-600">Aqui você pode adicionar configurações específicas para {marketplace}.</p>
-                    {/* Adicione campos de configuração específicos para cada marketplace aqui */}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </CardContent>
-      </Card>
     </div>
   );
 };
