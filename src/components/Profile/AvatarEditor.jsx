@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Cropper from 'react-easy-crop';
@@ -11,6 +11,7 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const fileInputRef = useRef(null);
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -22,6 +23,10 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
       reader.addEventListener('load', () => setImage(reader.result));
       reader.readAsDataURL(e.target.files[0]);
     }
+  };
+
+  const handleSelectImage = () => {
+    fileInputRef.current.click();
   };
 
   const handleSave = async () => {
@@ -70,15 +75,14 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
             ) : (
               <div className="w-64 h-64 bg-gray-200 flex items-center justify-center">
                 <input
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   onChange={handleFileChange}
                   className="hidden"
                   id="avatar-upload"
                 />
-                <label htmlFor="avatar-upload" className="cursor-pointer">
-                  <Button variant="outline">Select Image</Button>
-                </label>
+                <Button variant="outline" onClick={handleSelectImage}>Select Image</Button>
               </div>
             )}
           </div>
