@@ -2,8 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard, Store, Package, ClipboardList, LifeBuoy,
-  ShoppingCart, Users, Settings, MessageSquare, ChevronDown, ChevronRight,
+  LayoutDashboard,
+  Store,
+  Package,
+  ClipboardList,
+  LifeBuoy,
+  ShoppingCart,
+  Users,
+  Settings,
+  MessageSquare,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../Auth/AuthProvider';
 import { getUserRole } from '../../firebase/userOperations';
@@ -140,18 +149,18 @@ const Sidebar = ({ isOpen }) => {
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 z-50 h-screen transition-all duration-300",
-      isOpen ? "w-64" : "w-20",
-      "bg-gray-900 text-white shadow-md rounded-l-3xl m-2"
+      "fixed left-0 top-0 z-50 h-[calc(100vh-3rem)] m-6 rounded-xl transition-all duration-300",
+      isOpen ? "w-60" : "w-20",
+      "bg-card text-card-foreground shadow-md"
     )}>
-      <div className="h-full overflow-y-auto py-6 px-3 flex flex-col">
+      <div className="h-full overflow-y-auto py-6 px-3">
         <div className={cn(
           "text-xl font-bold mb-6 text-center",
           !isOpen && "text-sm"
         )}>
           {isOpen ? "MyShopTools" : "MST"}
         </div>
-        <ul className="space-y-2 flex-grow">
+        <ul className="space-y-2">
           {navItems.map((item, index) => (
             <React.Fragment key={index}>
               <NavItem 
@@ -161,15 +170,15 @@ const Sidebar = ({ isOpen }) => {
                 isCollapsible={isCollapsible} 
                 activeSection={activeSection}
               />
-              {isOpen && index < navItems.length - 1 && <Separator className="my-2 bg-gray-700" />}
+              {isOpen && index < navItems.length - 1 && <Separator className="my-2 bg-border" />}
             </React.Fragment>
           ))}
         </ul>
-        <div className="mt-auto pt-6">
+        <div className="absolute bottom-6 left-3 right-3">
           <NavLink
             to="/suporte"
             className={cn(
-              "flex items-center p-2 text-base font-normal rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white",
+              "flex items-center p-2 text-base font-normal rounded-lg text-foreground/80 hover:bg-accent hover:text-foreground",
               !isOpen && "justify-center"
             )}
           >
@@ -177,8 +186,6 @@ const Sidebar = ({ isOpen }) => {
             {isOpen && <span className="ml-3">Suporte</span>}
           </NavLink>
         </div>
-        {/* Add padding to the bottom of the sidebar */}
-        <div className="pb-6"></div>
       </div>
     </aside>
   );
