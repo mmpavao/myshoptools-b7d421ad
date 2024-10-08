@@ -6,7 +6,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -49,18 +48,18 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           </button>
           <span className="ml-4 text-lg font-medium text-gray-700">{companyName}</span>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 bg-white rounded-full shadow-sm px-4 py-2">
           <Input
             type="search"
             placeholder="Pesquisar..."
-            className="w-64 bg-gray-100"
+            className="w-64 bg-transparent border-none focus:ring-0"
           />
           <button className="text-gray-500 hover:text-gray-700 focus:outline-none">
             <Bell size={24} />
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none flex items-center">
-              <Avatar className="ring-1 ring-gray-300">
+              <Avatar className="ring-2 ring-gray-300">
                 <AvatarImage src={user?.photoURL} alt="User avatar" />
                 <AvatarFallback className="font-bold text-lg">
                   {user?.photoURL ? (
