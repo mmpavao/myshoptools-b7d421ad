@@ -66,7 +66,19 @@ const userOperations = {
   updateUserRole: async (userId, newRole) => {
     try {
       const userRef = doc(db, 'users', userId);
+      const userDoc = await getDoc(userRef);
+      
+      if (!userDoc.exists()) {
+        throw new Error('User not found');
+      }
+      
+      const userData = userDoc.data();
+      if (userData.email === MASTER_USER_EMAIL) {
+        throw new Error('Cannot change role of Master user');
+      }
+      
       await updateDoc(userRef, { role: newRole });
+      console.log(`User role updated successfully for user ${userId} to ${newRole}`);
       return true;
     } catch (error) {
       console.error('Error updating user role:', error);
@@ -77,7 +89,19 @@ const userOperations = {
   updateUserStatus: async (userId, newStatus) => {
     try {
       const userRef = doc(db, 'users', userId);
+      const userDoc = await getDoc(userRef);
+      
+      if (!userDoc.exists()) {
+        throw new Error('User not found');
+      }
+      
+      const userData = userDoc.data();
+      if (userData.email === MASTER_USER_EMAIL) {
+        throw new Error('Cannot change status of Master user');
+      }
+      
       await updateDoc(userRef, { status: newStatus });
+      console.log(`User status updated successfully for user ${userId} to ${newStatus}`);
       return true;
     } catch (error) {
       console.error('Error updating user status:', error);

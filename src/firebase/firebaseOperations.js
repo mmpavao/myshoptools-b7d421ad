@@ -145,6 +145,14 @@ const firebaseOperations = {
         }
       }
       
+      // Update user role and status
+      if (profileData.role) {
+        await userOperations.updateUserRole(userId, profileData.role);
+      }
+      if (profileData.status) {
+        await userOperations.updateUserStatus(userId, profileData.status);
+      }
+      
       console.log('Perfil do usuário atualizado com sucesso:', profileData);
       return true;
     } catch (error) {
