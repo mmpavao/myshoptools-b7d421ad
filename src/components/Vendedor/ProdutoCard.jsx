@@ -18,22 +18,22 @@ const ProdutoCard = ({ produto, onDetalhes, onAvaliar, avaliacaoAtual, setAvalia
 
   const renderStars = (rating) => (
     [...Array(5)].map((_, index) => (
-      <StarIcon key={index} className={`w-4 h-4 ${index < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'}`} />
+      <StarIcon key={index} className={`w-3 h-3 ${index < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'}`} />
     ))
   );
 
   const formatPrice = (price) => (typeof price === 'number' ? price.toFixed(2) : '0.00');
 
   return (
-    <Card className="flex flex-col w-[110%] h-[85%]"> {/* Aumentamos a largura em 10% e diminuímos a altura em 15% */}
-      <CardHeader className="p-3"> {/* Reduzimos o padding */}
-        <CardTitle className="text-lg line-clamp-2">{produto.titulo}</CardTitle>
+    <Card className="flex flex-col w-[110%] h-[68%]"> {/* Diminuímos a altura em mais 20% */}
+      <CardHeader className="p-2"> {/* Reduzimos ainda mais o padding */}
+        <CardTitle className="text-sm line-clamp-1">{produto.titulo}</CardTitle>
       </CardHeader>
-      <CardContent className="p-3 flex-grow"> {/* Reduzimos o padding */}
+      <CardContent className="p-2 flex-grow"> {/* Reduzimos ainda mais o padding */}
         {renderProductImage(produto.fotos && produto.fotos[0])}
-        <div className="mt-2 space-y-1"> {/* Reduzimos o espaçamento */}
+        <div className="mt-1 space-y-0.5"> {/* Reduzimos ainda mais o espaçamento */}
           <div className="flex items-center justify-between">
-            <p className="text-lg font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
+            <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
             {produto.desconto > 0 && (
               <span className="bg-red-500 text-white text-xs px-1 py-0.5 rounded-full">-{produto.desconto}%</span>
             )}
@@ -51,11 +51,11 @@ const ProdutoCard = ({ produto, onDetalhes, onAvaliar, avaliacaoAtual, setAvalia
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-3 flex justify-between"> {/* Reduzimos o padding */}
-        <Button variant="outline" size="sm" onClick={() => onDetalhes(produto.id)}>Detalhes</Button>
+      <CardFooter className="p-2 flex justify-between"> {/* Reduzimos ainda mais o padding */}
+        <Button variant="outline" size="sm" className="text-xs px-2 py-1" onClick={() => onDetalhes(produto.id)}>Detalhes</Button>
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm" onClick={() => onAvaliar(produto.id)}>Avaliar</Button>
+            <Button variant="outline" size="sm" className="text-xs px-2 py-1" onClick={() => onAvaliar(produto.id)}>Avaliar</Button>
           </DialogTrigger>
           <RatingForm 
             avaliacaoAtual={avaliacaoAtual}
