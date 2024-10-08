@@ -24,13 +24,13 @@ const Layout = ({ children }) => {
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar isOpen={isSidebarOpen} />
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? 'ml-72' : 'ml-32'}`}>
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? 'ml-[calc(15rem+0.75rem)]' : 'ml-[calc(5rem+0.75rem)]'}`}>
         <Topbar 
           companyName={companyName} 
           toggleSidebar={toggleSidebar} 
           isSidebarOpen={isSidebarOpen} 
         />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-2">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-3">
           {children}
         </main>
       </div>

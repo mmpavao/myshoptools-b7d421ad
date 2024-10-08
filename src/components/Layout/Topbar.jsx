@@ -23,16 +23,16 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
 
   return (
     <header className="bg-transparent h-14">
-      <div className="flex items-center justify-between h-full px-2">
+      <div className="flex items-center justify-between h-full px-3">
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
-            className="p-1 mr-2 rounded-full hover:bg-gray-200 focus:outline-none"
+            className="p-1 rounded-full hover:bg-gray-200 focus:outline-none"
           >
             <Menu size={20} />
           </button>
           <DropdownMenu>
-            <DropdownMenuTrigger className="text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
+            <DropdownMenuTrigger className="ml-3 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
               {companyName || 'Selecione uma empresa'}
             </DropdownMenuTrigger>
             <DropdownMenuContent>
