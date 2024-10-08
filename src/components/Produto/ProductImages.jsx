@@ -18,7 +18,7 @@ const ProductImages = ({ fotos, titulo }) => {
       <img 
         src={img} 
         alt={`${titulo} ${index + 1}`} 
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover border-l-[3px] border-r-[3px] border-primary"
       />
     </div>
   );
