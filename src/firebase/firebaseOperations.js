@@ -87,21 +87,19 @@ const meusProdutosOperations = {
     try {
       const produtosImportadosRef = collection(db, 'users', userId, 'produtosImportados');
       const snapshot = await getDocs(produtosImportadosRef);
-      const produtosImportados = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-      // Buscar detalhes completos dos produtos
-      const produtosCompletos = await Promise.all(produtosImportados.map(async (produto) => {
-        const produtoCompleto = await productOperations.getProduct(produto.id);
-        return {
-          ...produtoCompleto,
-          dataImportacao: produto.dataImportacao || new Date().toISOString(),
-          status: produto.status || 'ativo'
-        };
-      }));
-
-      return produtosCompletos;
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
       console.error('Erro ao buscar meus produtos:', error);
+      throw error;
+    }
+  },
+  updateMeuProduto: async (userId, produtoId, produtoData) => {
+    try {
+      const produtoRef = doc(db, 'users', userId, 'produtosImportados', produtoId);
+      await updateDoc(produtoRef, produtoData);
+      return true;
+    } catch (error) {
+      console.error('Erro ao atualizar meu produto:', error);
       throw error;
     }
   },
