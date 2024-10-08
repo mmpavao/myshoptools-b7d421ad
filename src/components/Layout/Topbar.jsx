@@ -34,38 +34,38 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
 
   return (
     <header className="bg-transparent">
-      <div className="flex items-center justify-between h-16 px-4">
+      <div className="flex items-center justify-between h-14 px-4">
         <div className="flex items-center">
           <button
             onClick={toggleSidebar}
-            className="p-2 rounded-full hover:bg-gray-200 focus:outline-none"
+            className="p-1.5 rounded-full hover:bg-gray-200 focus:outline-none"
           >
             {isSidebarOpen ? (
-              <PanelLeftClose size={28} />
+              <PanelLeftClose size={24} />
             ) : (
-              <PanelLeftOpen size={28} />
+              <PanelLeftOpen size={24} />
             )}
           </button>
-          <span className="ml-4 text-lg font-medium text-gray-700">{companyName}</span>
+          <span className="ml-3 text-base font-medium text-gray-700">{companyName}</span>
         </div>
-        <div className="flex items-center space-x-4 bg-transparent rounded-full shadow-sm px-3 py-1.5">
+        <div className="flex items-center space-x-3 bg-transparent rounded-full shadow-sm px-2 py-1">
           <Input
             type="search"
             placeholder="Pesquisar..."
-            className="w-64 bg-transparent border-none focus:ring-0 text-sm"
+            className="w-56 bg-transparent border-none focus:ring-0 text-sm focus:outline-none"
           />
           <button className="text-gray-500 hover:text-gray-700 focus:outline-none">
-            <Bell size={20} />
+            <Bell size={18} />
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none flex items-center">
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-7 w-7">
                 <AvatarImage src={user?.photoURL} alt="User avatar" />
-                <AvatarFallback className="font-bold text-sm">
+                <AvatarFallback className="font-bold text-xs">
                   {user?.photoURL ? (
                     user.displayName?.[0] || 'U'
                   ) : (
-                    <User className="h-4 w-4" />
+                    <User className="h-3 w-3" />
                   )}
                 </AvatarFallback>
               </Avatar>
@@ -108,7 +108,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           </DropdownMenu>
         </div>
       </div>
-      <div className="px-4 py-2 bg-white bg-opacity-50 text-sm text-gray-600">
+      <div className="px-4 py-1.5 bg-white bg-opacity-50 text-xs text-gray-600">
         {getBreadcrumbs()}
       </div>
     </header>
