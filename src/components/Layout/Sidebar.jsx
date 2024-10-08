@@ -151,7 +151,7 @@ const Sidebar = ({ isOpen }) => {
     <aside className={cn(
       "fixed left-0 top-0 z-50 h-screen transition-all duration-300",
       isOpen ? "w-64" : "w-20",
-      "bg-gray-900 text-white shadow-md rounded-r-3xl m-2"
+      "bg-gray-900 text-white shadow-md rounded-l-3xl m-2"
     )}>
       <div className="h-full overflow-y-auto py-6 px-3">
         <div className={cn(
