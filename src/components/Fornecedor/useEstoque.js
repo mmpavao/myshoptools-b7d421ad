@@ -10,6 +10,12 @@ export const useEstoque = () => {
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [filtro, setFiltro] = useState('');
+  const [stats, setStats] = useState({
+    total: 0,
+    lowStock: 0,
+    bestSellers: 0,
+    worstSellers: 0
+  });
 
   useEffect(() => {
     fetchProdutos();
@@ -19,9 +25,20 @@ export const useEstoque = () => {
     try {
       const produtosData = await firebaseOperations.getProducts();
       setProdutos(produtosData);
+      calculateStats(produtosData);
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
     }
+  };
+
+  const calculateStats = (produtosData) => {
+    const newStats = {
+      total: produtosData.length,
+      lowStock: produtosData.filter(p => p.estoque < 10).length,
+      bestSellers: 5, // Placeholder, implement real logic
+      worstSellers: 5 // Placeholder, implement real logic
+    };
+    setStats(newStats);
   };
 
   const handleInputChange = (e) => {
@@ -144,6 +161,7 @@ export const useEstoque = () => {
     novoProduto,
     isDialogOpen,
     filtro,
+    stats,
     handleInputChange,
     handleFileChange,
     handleSubmit,

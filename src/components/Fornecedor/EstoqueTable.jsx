@@ -3,6 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2, Eye } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const EstoqueTable = ({ produtos, onDelete, onDetalhes, onEdit }) => {
   return (
@@ -10,6 +11,7 @@ const EstoqueTable = ({ produtos, onDelete, onDetalhes, onEdit }) => {
       <TableHeader>
         <TableRow>
           <TableHead className="w-[50px]"><Checkbox /></TableHead>
+          <TableHead className="w-[80px]">Foto</TableHead>
           <TableHead>SKU</TableHead>
           <TableHead>Título</TableHead>
           <TableHead>Preço</TableHead>
@@ -19,11 +21,17 @@ const EstoqueTable = ({ produtos, onDelete, onDetalhes, onEdit }) => {
       </TableHeader>
       <TableBody>
         {produtos.map((produto) => (
-          <TableRow key={produto.id}>
+          <TableRow key={produto.id} className="h-20">
             <TableCell><Checkbox /></TableCell>
+            <TableCell>
+              <Avatar className="h-12 w-12">
+                <AvatarImage src={produto.fotos?.[0] || ''} alt={produto.titulo} />
+                <AvatarFallback>{produto.titulo.charAt(0)}</AvatarFallback>
+              </Avatar>
+            </TableCell>
             <TableCell>{produto.sku}</TableCell>
             <TableCell>{produto.titulo}</TableCell>
-            <TableCell>R$ {produto.preco}</TableCell>
+            <TableCell>R$ {produto.preco.toFixed(2)}</TableCell>
             <TableCell>{produto.estoque}</TableCell>
             <TableCell className="space-x-2">
               <Button variant="outline" size="icon" onClick={() => onDetalhes(produto.id)}><Eye className="h-4 w-4" /></Button>
