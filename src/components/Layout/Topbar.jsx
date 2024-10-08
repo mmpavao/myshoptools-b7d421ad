@@ -54,7 +54,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
             <Input
               type="search"
               placeholder="Pesquisar..."
-              className="w-56 bg-gray-100 border-none focus:ring-0 text-sm focus:outline-none pl-8"
+              className="w-56 bg-gray-100 border-none focus:ring-0 text-sm focus:outline-none pl-8 rounded-full"
             />
           </div>
           <button className="text-gray-500 hover:text-gray-700 focus:outline-none">
