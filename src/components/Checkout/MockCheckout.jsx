@@ -4,14 +4,17 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from '../../components/Auth/AuthProvider';
 import firebaseOperations from '../../firebase/firebaseOperations';
-import { Loader2, CheckCircle } from 'lucide-react';
+import { Loader2, CheckCircle, ShoppingCart } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { formatCurrency } from '../../utils/currencyUtils';
 
-const MockCheckout = ({ isOpen, onClose, product }) => {
+const MockCheckout = ({ isOpen, onClose, products }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+
+  const totalAmount = products.reduce((total, product) => total + product.preco, 0);
 
   const handleComprar = async () => {
     setIsProcessing(true);
@@ -19,23 +22,27 @@ const MockCheckout = ({ isOpen, onClose, product }) => {
       // Simular processamento do pagamento
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Criar pedido fictício
-      const pedido = {
+      // Criar pedidos fictícios
+      const pedidos = products.map(product => ({
         produtoId: product.id,
         titulo: product.titulo,
         preco: product.preco,
         quantidade: 1,
         status: 'Pago',
         dataCompra: new Date().toISOString(),
-      };
+      }));
 
-      // Adicionar pedido aos meus pedidos do vendedor
+      // Adicionar pedidos aos meus pedidos do vendedor
       if (user) {
-        await firebaseOperations.adicionarPedidoVendedor(user.uid, pedido);
+        await Promise.all(pedidos.map(pedido => 
+          firebaseOperations.adicionarPedidoVendedor(user.uid, pedido)
+        ));
       }
 
-      // Adicionar pedido aos pedidos do fornecedor
-      await firebaseOperations.adicionarPedidoFornecedor(product.fornecedorId, pedido);
+      // Adicionar pedidos aos pedidos dos fornecedores
+      await Promise.all(pedidos.map(pedido => 
+        firebaseOperations.adicionarPedidoFornecedor(pedido.produtoId, pedido)
+      ));
 
       setIsProcessing(false);
       setIsPurchaseComplete(true);
@@ -63,19 +70,26 @@ const MockCheckout = ({ isOpen, onClose, product }) => {
     onClose();
   };
 
-  if (!product) return null;
+  if (!products || products.length === 0) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[300px]">
+      <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle>{isPurchaseComplete ? "Compra Concluída" : "Finalizar Compra"}</DialogTitle>
         </DialogHeader>
         <div className="py-4">
           {!isPurchaseComplete ? (
             <>
-              <p className="text-center mb-4">Produto: {product.titulo}</p>
-              <p className="text-center font-bold mb-4">Total: R$ {product.preco.toFixed(2)}</p>
+              <div className="max-h-60 overflow-y-auto mb-4">
+                {products.map((product, index) => (
+                  <div key={index} className="flex justify-between items-center mb-2">
+                    <span className="text-sm truncate">{product.titulo}</span>
+                    <span className="font-bold">{formatCurrency(product.preco)}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-center font-bold mb-4">Total: {formatCurrency(totalAmount)}</p>
               <Button 
                 onClick={handleComprar} 
                 className="w-full" 
@@ -87,7 +101,10 @@ const MockCheckout = ({ isOpen, onClose, product }) => {
                     Processando...
                   </>
                 ) : (
-                  "Pagar Agora"
+                  <>
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    Pagar Agora
+                  </>
                 )}
               </Button>
             </>

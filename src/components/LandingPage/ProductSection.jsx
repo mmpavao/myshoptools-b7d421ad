@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { StarIcon, Heart } from "lucide-react";
+import { StarIcon, Heart, ShoppingCart } from "lucide-react";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../../components/Auth/AuthProvider';
 import MockCheckout from '../Checkout/MockCheckout';
@@ -10,6 +10,7 @@ const ProductSection = () => {
   const [produtos, setProdutos] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [cart, setCart] = useState([]);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -38,6 +39,10 @@ const ProductSection = () => {
   const handleCloseCheckout = () => {
     setIsCheckoutOpen(false);
     setSelectedProduct(null);
+  };
+
+  const handleAddToCart = (produto) => {
+    setCart([...cart, produto]);
   };
 
   const renderStars = (rating) => {
@@ -73,13 +78,15 @@ const ProductSection = () => {
               </div>
             )}
           </div>
-          <p className="text-sm text-gray-600">Venda sugerida: {formatCurrency(produto.vendaSugerida)}</p>
           <div className="flex items-center">
             {renderStars(produto.avaliacao || 0)}
             <span className="ml-1 text-sm text-gray-600">({produto.numeroAvaliacoes || 0})</span>
           </div>
         </div>
-        <Button onClick={() => handleComprar(produto)} className="w-full mt-4">Comprar</Button>
+        <Button onClick={() => handleAddToCart(produto)} className="w-full mt-4 bg-green-500 hover:bg-green-600">
+          <ShoppingCart className="w-4 h-4 mr-2" />
+          Adicionar ao Carrinho
+        </Button>
       </div>
     </div>
   );
@@ -87,9 +94,16 @@ const ProductSection = () => {
   return (
     <section className="py-20 bg-gray-100 text-gray-800">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold mb-12 text-center">Produtos em Destaque</h2>
+        <h2 className="text-4xl font-bold mb-6 text-center">Loja Pronta - Preview</h2>
+        <p className="text-center mb-12 text-lg">Experimente nossa loja pronta para uso. Adicione produtos ao carrinho e simule uma compra!</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {produtos.map(renderProductCard)}
+        </div>
+        <div className="mt-12 text-center">
+          <Button onClick={() => handleComprar(cart)} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg rounded-full">
+            <ShoppingCart className="w-6 h-6 mr-2" />
+            Finalizar Compra ({cart.length} itens)
+          </Button>
         </div>
       </div>
       {selectedProduct && (
