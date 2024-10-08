@@ -28,6 +28,7 @@ const MockCheckout = ({ isOpen, onClose, products = [], onPurchaseComplete }) =>
   const handleComprar = async () => {
     setIsProcessing(true);
     try {
+      // Simula o tempo de processamento
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       const pedidos = products.map(product => ({
@@ -40,19 +41,21 @@ const MockCheckout = ({ isOpen, onClose, products = [], onPurchaseComplete }) =>
         sku: product.sku,
       }));
 
+      // Registra os pedidos para o vendedor e o fornecedor
       if (user) {
-        for (const pedido of pedidos) {
-          await firebaseOperations.adicionarPedidoVendedor(user.uid, pedido);
-        }
+        await Promise.all(pedidos.map(pedido => 
+          firebaseOperations.adicionarPedidoVendedor(user.uid, pedido)
+        ));
       }
 
-      for (const pedido of pedidos) {
-        await firebaseOperations.adicionarPedidoFornecedor(pedido.produtoId, pedido);
-      }
+      await Promise.all(pedidos.map(pedido => 
+        firebaseOperations.adicionarPedidoFornecedor(pedido.produtoId, pedido)
+      ));
 
-      for (const product of products) {
-        await firebaseOperations.atualizarEstoque(product.id, Math.max(0, product.estoque - 1));
-      }
+      // Atualiza o estoque
+      await Promise.all(products.map(product => 
+        firebaseOperations.atualizarEstoque(product.id, Math.max(0, product.estoque - 1))
+      ));
 
       setIsProcessing(false);
       setIsPurchaseComplete(true);
