@@ -37,6 +37,24 @@ const MeusProdutos = () => {
     navigate(`/produto/${produtoId}`);
   };
 
+  const handleExcluir = async (produtoId) => {
+    try {
+      await firebaseOperations.removerProdutoImportado(user.uid, produtoId);
+      toast({
+        title: "Sucesso",
+        description: "Produto removido com sucesso.",
+      });
+      fetchMeusProdutos(); // Recarrega a lista de produtos após a exclusão
+    } catch (error) {
+      console.error("Erro ao excluir produto:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível excluir o produto.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const produtosFiltrados = produtos.filter(produto =>
     produto.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
     produto.sku.toLowerCase().includes(filtro.toLowerCase())
@@ -61,6 +79,7 @@ const MeusProdutos = () => {
               produto={produto}
               onDetalhes={handleDetalhes}
               isImportado={true}
+              onExcluir={handleExcluir}
             />
           ))}
         </div>
