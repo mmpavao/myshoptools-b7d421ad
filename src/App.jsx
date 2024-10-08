@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "next-themes";
 import { AuthProvider, ProtectedRoute } from "./components/Auth/AuthProvider";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
@@ -55,12 +54,10 @@ const AppRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <ThemeProvider attribute="class">
-        <Router>
-          <Toaster position="top-right" />
-          <AppRoutes />
-        </Router>
-      </ThemeProvider>
+      <Router>
+        <Toaster position="top-right" />
+        <AppRoutes />
+      </Router>
     </TooltipProvider>
   </QueryClientProvider>
 );
