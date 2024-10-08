@@ -14,6 +14,7 @@ const AvatarEditor = ({ onSave }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef(null);
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
@@ -33,10 +34,17 @@ const AvatarEditor = ({ onSave }) => {
   };
 
   const handleSave = async () => {
+    if (!image) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione uma imagem primeiro.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
     try {
-      if (!image) {
-        throw new Error("No image selected");
-      }
       const croppedImage = await getCroppedImg(image, croppedAreaPixels);
       const blob = await fetch(croppedImage).then(r => r.blob());
       const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
@@ -59,13 +67,15 @@ const AvatarEditor = ({ onSave }) => {
         description: "Falha ao atualizar o avatar. Por favor, tente novamente.",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Alterar Avatar</Button>
+        <Button variant="outline" className="hover:bg-gray-100 transition-colors">Alterar Avatar</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -95,12 +105,24 @@ const AvatarEditor = ({ onSave }) => {
                   className="hidden"
                   id="avatar-upload"
                 />
-                <Button variant="outline" onClick={handleSelectImage}>Selecionar Imagem</Button>
+                <Button 
+                  variant="outline" 
+                  onClick={handleSelectImage}
+                  className="hover:bg-gray-300 transition-colors"
+                >
+                  Selecionar Imagem
+                </Button>
               </div>
             )}
           </div>
           {image && (
-            <Button onClick={handleSave}>Salvar</Button>
+            <Button 
+              onClick={handleSave} 
+              disabled={isSaving}
+              className="hover:bg-blue-600 transition-colors"
+            >
+              {isSaving ? 'Salvando...' : 'Salvar Avatar'}
+            </Button>
           )}
         </div>
       </DialogContent>
