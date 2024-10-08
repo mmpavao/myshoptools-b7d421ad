@@ -111,7 +111,6 @@ const PersonalInfoForm = () => {
           </div>
         </div>
       </div>
-      </div>
       <Button type="submit" className="mt-6" disabled={isSubmitting}>
         {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
       </Button>
