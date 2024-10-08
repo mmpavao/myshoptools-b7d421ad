@@ -75,7 +75,7 @@ const ProdutoCard = ({ produto, onDetalhes, onImportar }) => {
         <Button 
           variant="default" 
           size="sm" 
-          className="text-xs flex-grow bg-blue-600 hover:bg-blue-700"
+          className="text-xs flex-grow bg-primary hover:bg-primary/90"
           onClick={() => onImportar(produto.id)}
         >
           Importar
