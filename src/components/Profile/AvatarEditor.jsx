@@ -7,7 +7,7 @@ import { toast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../Auth/AuthProvider';
 
-const AvatarEditor = ({ onSave, currentAvatar }) => {
+const AvatarEditor = ({ onSave }) => {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [image, setImage] = useState(null);
@@ -41,24 +41,22 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
       const blob = await fetch(croppedImage).then(r => r.blob());
       const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
       
-      // Use a nova função de upload de avatar
       const downloadURL = await firebaseOperations.uploadAvatar(file, user.uid);
       
-      // Atualiza o perfil do usuário com a nova URL do avatar
       await firebaseOperations.updateUserProfile(user.uid, { photoURL: downloadURL });
       
       onSave(downloadURL);
       setIsOpen(false);
       setImage(null);
       toast({
-        title: "Avatar Updated",
-        description: "Your avatar has been successfully updated.",
+        title: "Avatar Atualizado",
+        description: "Seu avatar foi atualizado com sucesso.",
       });
     } catch (error) {
-      console.error('Error saving avatar:', error);
+      console.error('Erro ao salvar avatar:', error);
       toast({
-        title: "Error",
-        description: "Failed to update avatar. Please try again.",
+        title: "Erro",
+        description: "Falha ao atualizar o avatar. Por favor, tente novamente.",
         variant: "destructive",
       });
     }
@@ -67,11 +65,11 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Change Avatar</Button>
+        <Button variant="outline">Alterar Avatar</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Avatar</DialogTitle>
+          <DialogTitle>Editar Avatar</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="flex items-center justify-center">
@@ -97,12 +95,12 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
                   className="hidden"
                   id="avatar-upload"
                 />
-                <Button variant="outline" onClick={handleSelectImage}>Select Image</Button>
+                <Button variant="outline" onClick={handleSelectImage}>Selecionar Imagem</Button>
               </div>
             )}
           </div>
           {image && (
-            <Button onClick={handleSave}>Save</Button>
+            <Button onClick={handleSave}>Salvar</Button>
           )}
         </div>
       </DialogContent>

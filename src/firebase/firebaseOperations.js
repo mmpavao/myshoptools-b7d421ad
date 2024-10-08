@@ -89,7 +89,6 @@ const meusProdutosOperations = {
       const snapshot = await getDocs(produtosImportadosRef);
       const produtosImportados = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      // Buscar detalhes completos dos produtos
       const produtosCompletos = await Promise.all(produtosImportados.map(async (produto) => {
         const produtoCompleto = await productOperations.getProduct(produto.id);
         return {
@@ -123,6 +122,12 @@ const userProfileOperations = {
   updateUserProfile: async (userId, profileData) => {
     try {
       await setDoc(doc(db, 'users', userId), profileData, { merge: true });
+      if (profileData.displayName || profileData.photoURL) {
+        await auth.currentUser.updateProfile({
+          displayName: profileData.displayName,
+          photoURL: profileData.photoURL
+        });
+      }
       return true;
     } catch (error) {
       console.error('Error updating user profile:', error);
@@ -198,8 +203,25 @@ const fileOperations = {
     
     try {
       const uploadTask = uploadBytesResumable(storageRef, file);
-      await uploadTask;
+      
+      await new Promise((resolve, reject) => {
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload is ' + progress + '% done');
+          },
+          (error) => {
+            console.error('Upload error:', error);
+            reject(error);
+          },
+          () => {
+            resolve();
+          }
+        );
+      });
+
       const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+      await userProfileOperations.updateUserProfile(userId, { photoURL: downloadURL });
       return downloadURL;
     } catch (error) {
       console.error('Error uploading avatar:', error);
@@ -211,8 +233,6 @@ const fileOperations = {
 const dashboardOperations = {
   getDashboardData: async (userId) => {
     try {
-      // Simulating data fetch from Firestore
-      // In a real scenario, you would query Firestore collections
       return {
         totalVendas: 150,
         produtosVendidos: 300,

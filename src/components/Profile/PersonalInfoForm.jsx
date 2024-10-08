@@ -68,23 +68,9 @@ export const PersonalInfoForm = () => {
     setFormData(prev => ({ ...prev, country: selectedCountry, phone: '' }));
   };
 
-  const handleAvatarSave = async (file) => {
-    try {
-      const downloadURL = await firebaseOperations.uploadProfileImage(file, user.uid);
-      setFormData(prev => ({ ...prev, profileImage: downloadURL }));
-      updateUserContext({ photoURL: downloadURL });
-      toast({
-        title: "Avatar Atualizado",
-        description: "Seu avatar foi atualizado com sucesso.",
-      });
-    } catch (error) {
-      console.error('Erro ao atualizar avatar:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o avatar.",
-        variant: "destructive",
-      });
-    }
+  const handleAvatarSave = async (downloadURL) => {
+    setFormData(prev => ({ ...prev, profileImage: downloadURL }));
+    updateUserContext({ photoURL: downloadURL });
   };
 
   const handleSubmit = async (e) => {
@@ -138,7 +124,7 @@ export const PersonalInfoForm = () => {
             <AvatarImage src={formData.profileImage} alt="Profile" />
             <AvatarFallback>{formData.name[0] || 'U'}</AvatarFallback>
           </Avatar>
-          <AvatarEditor onSave={handleAvatarSave} currentAvatar={formData.profileImage} />
+          <AvatarEditor onSave={handleAvatarSave} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
