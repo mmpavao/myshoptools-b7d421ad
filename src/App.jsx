@@ -10,14 +10,14 @@ import Register from "./components/Auth/Register";
 import Layout from "./components/Layout/Layout";
 import { getUserRole } from "./firebase/userOperations";
 import Dashboard from "./components/Dashboard/Dashboard";
-import { auth } from "./firebase/config"; // Import the auth object
+import { auth } from "./firebase/config";
 
 const queryClient = new QueryClient();
 
 const RoleBasedRoute = ({ element: Element, allowedRoles }) => {
   const [userRole, setUserRole] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
-  const { user } = useAuth(); // Use the useAuth hook to get the current user
+  const { user } = useAuth();
 
   React.useEffect(() => {
     const fetchUserRole = async () => {
@@ -56,7 +56,52 @@ const AppRoutes = () => (
       </ProtectedRoute>
     } />
     {/* Add other routes here */}
-    <Route path="*" element={<ProtectedRoute><Navigate to="/dashboard" /></ProtectedRoute>} />
+    <Route path="/vitrine" element={
+      <ProtectedRoute>
+        <RoleBasedRoute element={() => <div>Vitrine</div>} allowedRoles={['Vendedor', 'Admin', 'Master']} />
+      </ProtectedRoute>
+    } />
+    <Route path="/meus-pedidos" element={
+      <ProtectedRoute>
+        <RoleBasedRoute element={() => <div>Meus Pedidos</div>} allowedRoles={['Vendedor', 'Admin', 'Master']} />
+      </ProtectedRoute>
+    } />
+    <Route path="/meus-produtos" element={
+      <ProtectedRoute>
+        <RoleBasedRoute element={() => <div>Meus Produtos</div>} allowedRoles={['Vendedor', 'Admin', 'Master']} />
+      </ProtectedRoute>
+    } />
+    <Route path="/estoque" element={
+      <ProtectedRoute>
+        <RoleBasedRoute element={() => <div>Estoque</div>} allowedRoles={['Fornecedor', 'Admin', 'Master']} />
+      </ProtectedRoute>
+    } />
+    <Route path="/pedidos-fornecedor" element={
+      <ProtectedRoute>
+        <RoleBasedRoute element={() => <div>Pedidos Fornecedor</div>} allowedRoles={['Fornecedor', 'Admin', 'Master']} />
+      </ProtectedRoute>
+    } />
+    <Route path="/admin/users" element={
+      <ProtectedRoute>
+        <RoleBasedRoute element={() => <div>Usuários</div>} allowedRoles={['Admin', 'Master']} />
+      </ProtectedRoute>
+    } />
+    <Route path="/admin/chat" element={
+      <ProtectedRoute>
+        <RoleBasedRoute element={() => <div>Chat Admin</div>} allowedRoles={['Admin', 'Master']} />
+      </ProtectedRoute>
+    } />
+    <Route path="/admin/settings" element={
+      <ProtectedRoute>
+        <RoleBasedRoute element={() => <div>Configurações</div>} allowedRoles={['Admin', 'Master']} />
+      </ProtectedRoute>
+    } />
+    <Route path="/suporte" element={
+      <ProtectedRoute>
+        <RoleBasedRoute element={() => <div>Suporte</div>} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />
+      </ProtectedRoute>
+    } />
+    <Route path="*" element={<Navigate to="/dashboard" />} />
   </Routes>
 );
 
