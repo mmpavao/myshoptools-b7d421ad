@@ -53,8 +53,8 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none">
               <div className="flex items-center">
-                <span className="text-lg font-semibold">{companyName}</span>
-                <ChevronDown className="ml-1 h-4 w-4" />
+                <span className="text-lg font-semibold text-gray-100">{companyName}</span>
+                <ChevronDown className="ml-1 h-4 w-4 text-gray-300" />
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -66,7 +66,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
         </div>
         <div className={`flex items-center space-x-3 bg-primary-dark rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] px-2 py-1.5`}>
           <div className="relative flex items-center">
-            <Search className="absolute left-2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-2 h-4 w-4 text-gray-400" />
             <Input
               type="search"
               placeholder="Pesquisar..."
@@ -77,11 +77,11 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}
+            className="text-gray-300 hover:text-white"
           >
             {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
           </Button>
-          <Button variant="ghost" size="icon" className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
+          <Button variant="ghost" size="icon" className="text-gray-300 hover:text-white">
             <Bell size={20} />
           </Button>
           <DropdownMenu>
@@ -96,7 +96,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
                   )}
                 </AvatarFallback>
               </Avatar>
-              <ChevronDown className="ml-1 h-4 w-4" />
+              <ChevronDown className="ml-1 h-4 w-4 text-gray-300" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
               <div className="flex items-center p-2">
