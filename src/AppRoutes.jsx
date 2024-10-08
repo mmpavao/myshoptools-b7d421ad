@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { ProtectedRoute } from './components/Auth/AuthProvider';
+import { AuthProvider, ProtectedRoute } from './components/Auth/AuthProvider';
 import Layout from './components/Layout/Layout';
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
@@ -23,40 +23,42 @@ import Wallet from "./components/Wallet/Wallet";
 
 const AppRoutes = () => {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <Layout>
-            <Dashboard />
-          </Layout>
-        </ProtectedRoute>
-      } />
-      <Route path="/wallet" element={
-        <ProtectedRoute>
-          <Layout>
-            <Wallet />
-          </Layout>
-        </ProtectedRoute>
-      } />
-      <Route path="/vitrine" element={<ProtectedRoute><Layout><Vitrine /></Layout></ProtectedRoute>} />
-      <Route path="/meus-produtos" element={<ProtectedRoute><Layout><MeusProdutos /></Layout></ProtectedRoute>} />
-      <Route path="/meus-pedidos" element={<ProtectedRoute><Layout><MeusPedidos /></Layout></ProtectedRoute>} />
-      <Route path="/estoque" element={<ProtectedRoute><Layout><Estoque /></Layout></ProtectedRoute>} />
-      <Route path="/pedidos-fornecedor" element={<ProtectedRoute><Layout><PedidosFornecedor /></Layout></ProtectedRoute>} />
-      <Route path="/integracoes" element={<ProtectedRoute><Layout><div>Integrações</div></Layout></ProtectedRoute>} />
-      <Route path="/profile" element={<ProtectedRoute><Layout><UserProfile /></Layout></ProtectedRoute>} />
-      <Route path="/documentation" element={<ProtectedRoute><Layout><DocumentationPage /></Layout></ProtectedRoute>} />
-      <Route path="/apis" element={<ProtectedRoute><Layout><APIPage /></Layout></ProtectedRoute>} />
-      <Route path="/suporte" element={<ProtectedRoute><Layout><div>Suporte</div></Layout></ProtectedRoute>} />
-      <Route path="/produto/:id" element={<ProtectedRoute><Layout><DetalheProduto /></Layout></ProtectedRoute>} />
-      <Route path="/admin/users" element={<ProtectedRoute><Layout><AdminUserList /></Layout></ProtectedRoute>} />
-      <Route path="/admin/settings" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
-      <Route path="/admin/chat" element={<ProtectedRoute><Layout><ChatAdmin /></Layout></ProtectedRoute>} />
-      <Route path="/admin/integrations/openai" element={<ProtectedRoute><Layout><OpenAIIntegration /></Layout></ProtectedRoute>} />
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/wallet" element={
+          <ProtectedRoute>
+            <Layout>
+              <Wallet />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/vitrine" element={<ProtectedRoute><Layout><Vitrine /></Layout></ProtectedRoute>} />
+        <Route path="/meus-produtos" element={<ProtectedRoute><Layout><MeusProdutos /></Layout></ProtectedRoute>} />
+        <Route path="/meus-pedidos" element={<ProtectedRoute><Layout><MeusPedidos /></Layout></ProtectedRoute>} />
+        <Route path="/estoque" element={<ProtectedRoute><Layout><Estoque /></Layout></ProtectedRoute>} />
+        <Route path="/pedidos-fornecedor" element={<ProtectedRoute><Layout><PedidosFornecedor /></Layout></ProtectedRoute>} />
+        <Route path="/integracoes" element={<ProtectedRoute><Layout><div>Integrações</div></Layout></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Layout><UserProfile /></Layout></ProtectedRoute>} />
+        <Route path="/documentation" element={<ProtectedRoute><Layout><DocumentationPage /></Layout></ProtectedRoute>} />
+        <Route path="/apis" element={<ProtectedRoute><Layout><APIPage /></Layout></ProtectedRoute>} />
+        <Route path="/suporte" element={<ProtectedRoute><Layout><div>Suporte</div></Layout></ProtectedRoute>} />
+        <Route path="/produto/:id" element={<ProtectedRoute><Layout><DetalheProduto /></Layout></ProtectedRoute>} />
+        <Route path="/admin/users" element={<ProtectedRoute><Layout><AdminUserList /></Layout></ProtectedRoute>} />
+        <Route path="/admin/settings" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
+        <Route path="/admin/chat" element={<ProtectedRoute><Layout><ChatAdmin /></Layout></ProtectedRoute>} />
+        <Route path="/admin/integrations/openai" element={<ProtectedRoute><Layout><OpenAIIntegration /></Layout></ProtectedRoute>} />
+      </Routes>
+    </AuthProvider>
   );
 };
 
