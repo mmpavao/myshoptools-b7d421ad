@@ -23,6 +23,7 @@ import UserProfile from "./components/Profile/UserProfile";
 import LogsPage from "./components/Logs/LogsPage";
 import DocumentationPage from "./components/Documentation/DocumentationPage";
 import APIPage from "./components/APIs/APIPage";
+import DetalheProduto from "./components/Produto/DetalheProduto";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ const RoleBasedRoute = ({ element: Element, allowedRoles }) => {
     </Layout>
   );
 };
+
 
 const AppRoutes = () => (
   <Routes>
@@ -130,6 +132,11 @@ const AppRoutes = () => (
     <Route path="/apis" element={
       <ProtectedRoute>
         <RoleBasedRoute element={APIPage} allowedRoles={['Admin', 'Master']} />
+      </ProtectedRoute>
+    } />
+    <Route path="/produto/:id" element={
+      <ProtectedRoute>
+        <RoleBasedRoute element={DetalheProduto} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />
       </ProtectedRoute>
     } />
     <Route path="*" element={<Navigate to="/dashboard" />} />

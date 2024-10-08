@@ -62,7 +62,6 @@ const Vitrine = () => {
         title: "Sucesso",
         description: "Produto importado com sucesso para Meus Produtos!",
       });
-      // Adicione esta linha para atualizar a lista de produtos importados
       await fetchProdutos();
     } catch (error) {
       console.error("Erro ao importar produto:", error);
@@ -76,21 +75,6 @@ const Vitrine = () => {
 
   const handleDetalhes = (produtoId) => {
     navigate(`/produto/${produtoId}`);
-  };
-
-  const handleAvaliar = (produtoId) => {
-    setAvaliacaoAtual({ produtoId, nota: 0, comentario: '' });
-  };
-
-  const handleSubmitAvaliacao = async () => {
-    try {
-      await firebaseOperations.adicionarAvaliacao(avaliacaoAtual.produtoId, user.uid, avaliacaoAtual.nota, avaliacaoAtual.comentario);
-      console.log("Avaliação enviada com sucesso!");
-      setAvaliacaoAtual({ produtoId: null, nota: 0, comentario: '' });
-      fetchProdutos();
-    } catch (error) {
-      console.error("Erro ao enviar avaliação:", error);
-    }
   };
 
   const renderStars = (rating) => {
