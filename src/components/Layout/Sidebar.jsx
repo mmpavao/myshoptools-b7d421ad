@@ -174,7 +174,7 @@ const Sidebar = ({ isOpen }) => {
                 isCollapsible={isCollapsible} 
                 activeSection={activeSection}
               />
-              {isOpen && index < navItems.length - 1 && <Separator className="my-1 bg-gray-700" />}
+              {isOpen && index > 1 && index < navItems.length - 1 && <Separator className="my-1 bg-gray-700" />}
             </React.Fragment>
           ))}
         </ul>
