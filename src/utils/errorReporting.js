@@ -7,7 +7,6 @@ const createSafeErrorObject = (error) => ({
 const safePostMessage = (target, message, origin) => {
   if (target && typeof target.postMessage === 'function') {
     try {
-      // Ensure the message is serializable
       const safeMessage = JSON.parse(JSON.stringify(message));
       target.postMessage(safeMessage, origin);
     } catch (postMessageError) {
@@ -59,6 +58,7 @@ export const safeFirestoreOperation = async (operation) => {
     return await operation();
   } catch (error) {
     console.error("Firestore operation error:", error);
+    reportHTTPError(error);
     throw error;
   }
 };

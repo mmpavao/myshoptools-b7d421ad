@@ -28,6 +28,11 @@ const ProductImages = ({ fotos, titulo, activeMarketplace }) => {
     }
   };
 
+  const handleImageError = (e) => {
+    e.target.src = '/placeholder.svg';
+    e.target.alt = 'Imagem não disponível';
+  };
+
   const renderImage = (img, index, isThumbnail = false) => (
     <div 
       key={index} 
@@ -38,6 +43,7 @@ const ProductImages = ({ fotos, titulo, activeMarketplace }) => {
         src={img} 
         alt={`${titulo} ${index + 1}`} 
         className="absolute inset-0 w-full h-full object-cover border-l-[3px] border-r-[3px] border-primary"
+        onError={handleImageError}
       />
       {activeMarketplace === 'Fornecedor' && (
         <TooltipProvider>
