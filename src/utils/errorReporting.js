@@ -39,7 +39,6 @@ export const wrapFetch = () => {
     } catch (error) {
       if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
         console.error('Network error when fetching resource:', args[0]);
-        // Return a mock response instead of throwing an error
         return {
           ok: true,
           status: 200,
