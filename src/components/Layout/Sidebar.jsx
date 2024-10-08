@@ -13,6 +13,7 @@ import {
   MessageSquare,
   ChevronDown,
   ChevronRight,
+  Boxes
 } from 'lucide-react';
 import { useAuth } from '../Auth/AuthProvider';
 import { getUserRole } from '../../firebase/userOperations';
@@ -25,6 +26,7 @@ const navItems = [
     roles: ['Vendedor', 'Admin', 'Master'],
     children: [
       { icon: Store, label: 'Vitrine', to: '/vitrine' },
+      { icon: Boxes, label: 'Meus Produtos', to: '/meus-produtos' },
       { icon: ClipboardList, label: 'Meus Pedidos', to: '/meus-pedidos' },
     ],
   },
