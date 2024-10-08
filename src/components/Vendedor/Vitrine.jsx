@@ -22,21 +22,27 @@ const Vitrine = () => {
     fetchProdutos();
   }, [user]);
 
-  const fetchProdutos = async () => {
-    try {
-      const produtosData = await firebaseOperations.getProducts();
-      console.log("Produtos carregados:", produtosData);
-      setProdutos(produtosData);
-    } catch (error) {
-      console.error("Erro ao buscar produtos:", error);
-    }
-  };
-
   const renderProductImage = (foto) => {
     if (typeof foto === 'string' && foto.startsWith('http')) {
-      return <img src={foto} alt="Produto" className="w-full h-48 object-cover mb-2" />;
+      return (
+        <div className="w-full pb-[100%] relative overflow-hidden rounded-lg">
+          <img 
+            src={foto} 
+            alt="Produto" 
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        </div>
+      );
     } else {
-      return <img src="/placeholder.svg" alt="Placeholder" className="w-full h-48 object-cover mb-2" />;
+      return (
+        <div className="w-full pb-[100%] relative overflow-hidden rounded-lg bg-gray-200">
+          <img 
+            src="/placeholder.svg" 
+            alt="Placeholder" 
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        </div>
+      );
     }
   };
 
@@ -95,7 +101,7 @@ const Vitrine = () => {
               <CardContent className="flex-grow">
                 {produto.fotos && produto.fotos.length > 0
                   ? renderProductImage(produto.fotos[0])
-                  : <img src="/placeholder.svg" alt="Placeholder" className="w-full h-48 object-cover mb-2" />
+                  : renderProductImage(null)
                 }
                 <p className="text-2xl font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
                 {produto.desconto > 0 && (
