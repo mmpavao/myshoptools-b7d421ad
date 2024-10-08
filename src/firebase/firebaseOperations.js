@@ -1,5 +1,5 @@
 import { db, storage, auth } from './config';
-import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDoc, updateDoc, deleteDoc, doc, getDocs, setDoc, query, where, arrayUnion } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from 'firebase/storage';
 import { toast } from '@/components/ui/use-toast';
 import crudOperations from './crudOperations';
@@ -237,35 +237,31 @@ const clearAllData = async () => {
   console.warn('clearAllData function is not implemented');
 };
 
-
 const myShopOperations = {
-  getLandingPageData: async (userId) => {
+  getMyShopProducts: async (userId) => {
     try {
-      const docRef = doc(db, 'users', userId, 'myShop', 'landingPage');
-      const docSnap = await getDoc(docRef);
-      return docSnap.exists() ? docSnap.data() : null;
+      const userProductsRef = collection(db, 'users', userId, 'myShopProducts');
+      const snapshot = await getDocs(userProductsRef);
+      const productIds = snapshot.docs.map(doc => doc.id);
+      
+      const products = await Promise.all(productIds.map(async (id) => {
+        const productDoc = await getDoc(doc(db, 'products', id));
+        return { id, ...productDoc.data() };
+      }));
+      
+      return products;
     } catch (error) {
-      console.error('Error getting landing page data:', error);
+      console.error('Error getting MyShop products:', error);
       throw error;
     }
   },
 
-  saveLandingPageData: async (userId, data) => {
+  addProductToMyShop: async (userId, productId) => {
     try {
-      const docRef = doc(db, 'users', userId, 'myShop', 'landingPage');
-      await setDoc(docRef, data, { merge: true });
+      const userProductRef = doc(db, 'users', userId, 'myShopProducts', productId);
+      await setDoc(userProductRef, { addedAt: new Date() });
     } catch (error) {
-      console.error('Error saving landing page data:', error);
-      throw error;
-    }
-  },
-
-  getMyShopUrl: async (userId) => {
-    try {
-      const userDoc = await getDoc(doc(db, 'users', userId));
-      return userDoc.exists() ? userDoc.data().myShopUrl : null;
-    } catch (error) {
-      console.error('Error getting MyShop URL:', error);
+      console.error('Error adding product to MyShop:', error);
       throw error;
     }
   },

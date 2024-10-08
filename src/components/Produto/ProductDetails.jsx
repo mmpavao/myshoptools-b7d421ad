@@ -3,13 +3,11 @@ import { Button } from "@/components/ui/button";
 import { StarIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { renderStars, formatPrice, calculateOldPrice } from './productUtils';
-import MyShopLandingPage from '../Vendedor/MyShopLandingPage';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from '../Auth/AuthProvider';
 
 const ProductDetails = ({ produto, activeMarketplace }) => {
-  const [isLandingPageOpen, setIsLandingPageOpen] = useState(false);
   const [myShopUrl, setMyShopUrl] = useState('');
   const { toast } = useToast();
   const { user } = useAuth();
@@ -35,6 +33,23 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
       title: "URL Copiada",
       description: "A URL da sua loja MyShop foi copiada para a área de transferência.",
     });
+  };
+
+  const handleVenderEmMyShop = async () => {
+    try {
+      await firebaseOperations.addProductToMyShop(user.uid, produto.id);
+      toast({
+        title: "Sucesso",
+        description: "Produto adicionado à sua loja MyShop.",
+      });
+    } catch (error) {
+      console.error("Erro ao adicionar produto à loja MyShop:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível adicionar o produto à loja MyShop.",
+        variant: "destructive",
+      });
+    }
   };
 
   const renderFornecedorContent = () => (
@@ -91,7 +106,7 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
       <p>Preço de Venda: R$ {formatPrice(produto.precoVenda)}</p>
       <p>Estoque Disponível: {produto.estoqueDisponivel || 0}</p>
       <div className="mt-4 space-y-2">
-        <Button onClick={() => setIsLandingPageOpen(true)} className="w-full">Vender em MyShop</Button>
+        <Button onClick={handleVenderEmMyShop} className="w-full">Vender em MyShop</Button>
         {myShopUrl && (
           <Button variant="outline" onClick={copyMyShopUrl} className="w-full">
             Copiar URL da Loja
@@ -103,11 +118,6 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
           </Button>
         )}
       </div>
-      <MyShopLandingPage
-        isOpen={isLandingPageOpen}
-        onClose={() => setIsLandingPageOpen(false)}
-        produtos={[produto]}
-      />
     </div>
   );
 

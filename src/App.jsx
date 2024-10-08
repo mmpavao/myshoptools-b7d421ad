@@ -21,6 +21,7 @@ import AdminUserList from "./components/Admin/AdminUserList";
 import SettingsPage from "./components/Admin/SettingsPage";
 import ChatAdmin from "./components/Admin/ChatAdmin";
 import OpenAIIntegration from "./integrations/OpenAIIntegration";
+import LandingPage from "./pages/LandingPage";
 
 const queryClient = new QueryClient();
 
@@ -28,9 +29,9 @@ const AppRoutes = () => {
   return (
     <AuthProvider>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/" element={<ProtectedRoute><Navigate to="/dashboard" /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
         <Route path="/vitrine" element={<ProtectedRoute><Layout><Vitrine /></Layout></ProtectedRoute>} />
         <Route path="/meus-produtos" element={<ProtectedRoute><Layout><MeusProdutos /></Layout></ProtectedRoute>} />
@@ -47,7 +48,6 @@ const AppRoutes = () => {
         <Route path="/admin/settings" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
         <Route path="/admin/chat" element={<ProtectedRoute><Layout><ChatAdmin /></Layout></ProtectedRoute>} />
         <Route path="/admin/integrations/openai" element={<ProtectedRoute><Layout><OpenAIIntegration /></Layout></ProtectedRoute>} />
-        <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
     </AuthProvider>
   );
