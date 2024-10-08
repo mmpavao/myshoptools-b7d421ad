@@ -16,7 +16,6 @@ import MeusPedidos from "./components/Vendedor/MeusPedidos";
 import Estoque from "./components/Fornecedor/Estoque";
 import PedidosFornecedor from "./components/Fornecedor/PedidosFornecedor";
 import DetalheProduto from "./components/Produto/DetalheProduto";
-import MeusProdutos from "./components/Produto/MeusProdutos";
 import AdminUserList from "./components/Admin/AdminUserList";
 import SettingsPage from "./components/Admin/SettingsPage";
 import ChatAdmin from "./components/Admin/ChatAdmin";
@@ -36,7 +35,6 @@ const AppRoutes = () => {
         <Route path="/meus-pedidos" element={<ProtectedRoute><Layout><MeusPedidos /></Layout></ProtectedRoute>} />
         <Route path="/estoque" element={<ProtectedRoute><Layout><Estoque /></Layout></ProtectedRoute>} />
         <Route path="/pedidos-fornecedor" element={<ProtectedRoute><Layout><PedidosFornecedor /></Layout></ProtectedRoute>} />
-        <Route path="/meus-produtos" element={<ProtectedRoute><Layout><MeusProdutos /></Layout></ProtectedRoute>} />
         <Route path="/integracoes" element={<ProtectedRoute><Layout><div>Integrações</div></Layout></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Layout><UserProfile /></Layout></ProtectedRoute>} />
         <Route path="/documentation" element={<ProtectedRoute><Layout><DocumentationPage /></Layout></ProtectedRoute>} />

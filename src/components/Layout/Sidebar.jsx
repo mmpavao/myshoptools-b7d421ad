@@ -7,9 +7,7 @@ import {
   Package,
   ClipboardList,
   LifeBuoy,
-  Box,
   ShoppingCart,
-  List,
   Users,
   Settings,
   MessageSquare,
@@ -27,7 +25,6 @@ const navItems = [
     children: [
       { icon: Store, label: 'Vitrine', to: '/vitrine' },
       { icon: ClipboardList, label: 'Meus Pedidos', to: '/meus-pedidos' },
-      { icon: List, label: 'Meus Produtos', to: '/meus-produtos' },
     ],
   },
   {

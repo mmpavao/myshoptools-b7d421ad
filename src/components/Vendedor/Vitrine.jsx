@@ -12,7 +12,6 @@ import { useAuth } from '../../components/Auth/AuthProvider';
 
 const Vitrine = () => {
   const [produtos, setProdutos] = useState([]);
-  const [produtosImportados, setProdutosImportados] = useState({});
   const [avaliacaoAtual, setAvaliacaoAtual] = useState({ produtoId: null, nota: 0, comentario: '' });
   const [filtro, setFiltro] = useState('');
   const navigate = useNavigate();
@@ -28,10 +27,6 @@ const Vitrine = () => {
       const produtosData = await firebaseOperations.getProducts();
       console.log("Produtos carregados:", produtosData);
       setProdutos(produtosData);
-      if (user) {
-        const importadosStatus = await firebaseOperations.getProdutosImportadosStatus(user.uid);
-        setProdutosImportados(importadosStatus);
-      }
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
     }
@@ -42,35 +37,6 @@ const Vitrine = () => {
       return <img src={foto} alt="Produto" className="w-full h-48 object-cover mb-2" />;
     } else {
       return <img src="/placeholder.svg" alt="Placeholder" className="w-full h-48 object-cover mb-2" />;
-    }
-  };
-
-  const handleImportar = async (produto) => {
-    if (!user) {
-      toast({
-        title: "Erro",
-        description: "Você precisa estar logado para importar produtos.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      await firebaseOperations.importarProduto(user.uid, produto);
-      setProdutosImportados(prev => ({ ...prev, [produto.id]: true }));
-      toast({
-        title: "Sucesso",
-        description: "Produto importado com sucesso para Meus Produtos!",
-      });
-      // Adicione esta linha para atualizar a lista de produtos importados
-      await fetchProdutos();
-    } catch (error) {
-      console.error("Erro ao importar produto:", error);
-      toast({
-        title: "Erro",
-        description: "Falha ao importar o produto. Tente novamente.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -178,12 +144,6 @@ const Vitrine = () => {
               </CardContent>
               <CardFooter className="flex justify-between mt-auto">
                 <Button variant="outline" onClick={() => handleDetalhes(produto.id)}>Detalhes</Button>
-                <Button 
-                  onClick={() => handleImportar(produto)}
-                  disabled={produtosImportados[produto.id]}
-                >
-                  {produtosImportados[produto.id] ? 'Importado' : 'Importar'}
-                </Button>
               </CardFooter>
             </Card>
           ))}
