@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { StarIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ProductDetails = ({ produto, isImportado, handleImportar }) => {
   const renderStars = (rating) => {
@@ -13,6 +14,10 @@ const ProductDetails = ({ produto, isImportado, handleImportar }) => {
   const formatPrice = (price) => {
     return typeof price === 'number' ? price.toFixed(2) : '0.00';
   };
+
+  const marketplaces = [
+    'MyShop', 'Mercado Livre', 'Shopee', 'Amazon', 'Shopify', 'WooCommerce'
+  ];
 
   return (
     <div className="md:w-1/2">
@@ -62,6 +67,26 @@ const ProductDetails = ({ produto, isImportado, handleImportar }) => {
           <p><strong>SKU:</strong> {produto.sku}</p>
           <p><strong>Estoque:</strong> {produto.estoque}</p>
           <p><strong>Venda Sugerida:</strong> R$ {formatPrice(produto.vendaSugerida)}</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="pt-6">
+          <Tabs defaultValue="MyShop">
+            <TabsList className="grid grid-cols-3 gap-2 mb-4">
+              {marketplaces.map((marketplace) => (
+                <TabsTrigger key={marketplace} value={marketplace} className="text-xs">
+                  {marketplace}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            {marketplaces.map((marketplace) => (
+              <TabsContent key={marketplace} value={marketplace}>
+                <p>Configurações para {marketplace}</p>
+                {/* Aqui você pode adicionar campos específicos para cada marketplace */}
+              </TabsContent>
+            ))}
+          </Tabs>
         </CardContent>
       </Card>
     </div>
