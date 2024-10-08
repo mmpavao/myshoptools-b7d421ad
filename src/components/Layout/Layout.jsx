@@ -62,14 +62,12 @@ const Layout = ({ children }) => {
       {isMobile && (
         <Sheet>
           <SheetTrigger asChild>
-            <button className="fixed top-4 left-4 p-2 bg-gray-900 text-white rounded-full">
+            <button className="fixed top-4 left-4 p-2 bg-gray-900 text-white rounded-full z-50">
               <Menu className="h-6 w-6" />
             </button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-            <nav className="flex flex-col space-y-4 mt-8">
-              <Sidebar isOpen={true} />
-            </nav>
+          <SheetContent side="left" className="w-[300px] sm:w-[400px] p-0">
+            <Sidebar isOpen={true} isMobile={true} />
           </SheetContent>
         </Sheet>
       )}
