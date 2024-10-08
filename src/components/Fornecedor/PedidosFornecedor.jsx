@@ -5,11 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, Truck, Package, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Eye, Truck, Package, Clock, CheckCircle, XCircle, Plus } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from '../Auth/AuthProvider';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { formatCurrency } from '../../utils/currencyUtils';
+import { useToast } from "@/components/ui/use-toast";
 
 const PedidosFornecedor = () => {
   const [filtro, setFiltro] = useState('');
@@ -28,48 +29,36 @@ const PedidosFornecedor = () => {
     }
   }, [user]);
 
-  const fetchPedidos = async () => {
+  const { toast } = useToast();
+
+  const gerarPedidosFicticios = async () => {
     try {
-      const pedidosData = await firebaseOperations.getPedidosFornecedor(user.uid);
-      setPedidos(pedidosData);
-      calculateStats(pedidosData);
+      await firebaseOperations.gerarPedidosFicticios(user.uid, user.uid); // Assumindo que o fornecedorId é o mesmo que o userId
+      toast({
+        title: "Pedidos gerados",
+        description: "50 pedidos fictícios foram gerados com sucesso.",
+        variant: "success",
+      });
+      fetchPedidos();
     } catch (error) {
-      console.error("Erro ao buscar pedidos do fornecedor:", error);
+      console.error("Erro ao gerar pedidos fictícios:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível gerar os pedidos fictícios.",
+        variant: "destructive",
+      });
     }
   };
 
-  const calculateStats = (pedidosData) => {
-    const newStats = {
-      total: pedidosData.length,
-      aguardando: pedidosData.filter(p => p.statusLogistica === 'Aguardando').length,
-      preparando: pedidosData.filter(p => p.statusLogistica === 'Preparando').length,
-      enviados: pedidosData.filter(p => ['Enviado', 'Entregue'].includes(p.statusLogistica)).length
-    };
-    setStats(newStats);
-  };
-
-  const pedidosFiltrados = pedidos.filter(pedido =>
-    pedido.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
-    pedido.sku.toLowerCase().includes(filtro.toLowerCase())
-  );
-
-  const StatCard = ({ title, value, icon: Icon }) => (
-    <Card>
-      <CardContent className="flex flex-row items-center justify-between p-6">
-        <div className="flex flex-col space-y-1">
-          <span className="text-sm font-medium text-muted-foreground">{title}</span>
-          <span className="text-2xl font-bold">{value}</span>
-        </div>
-        <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-          <Icon className="h-6 w-6 text-primary" />
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Pedidos do Fornecedor</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Pedidos do Fornecedor</h1>
+        <Button onClick={gerarPedidosFicticios}>
+          <Plus className="mr-2 h-4 w-4" />
+          Gerar 50 Pedidos Fictícios
+        </Button>
+      </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total de Pedidos" value={stats.total} icon={Package} />
