@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, User, FileText, Book, Code, LogOut, ChevronDown, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Bell, User, FileText, Book, Code, LogOut, ChevronDown, PanelLeftClose, PanelLeftOpen, Search } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -49,11 +49,14 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
           <span className="ml-3 text-base font-medium text-gray-700">{companyName}</span>
         </div>
         <div className="flex items-center space-x-3 bg-white bg-opacity-80 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] px-2 py-1">
-          <Input
-            type="search"
-            placeholder="Pesquisar..."
-            className="w-56 bg-transparent border-none focus:ring-0 text-sm focus:outline-none"
-          />
+          <div className="relative flex items-center">
+            <Search className="absolute left-2 h-4 w-4 text-gray-400" />
+            <Input
+              type="search"
+              placeholder="Pesquisar..."
+              className="w-56 bg-gray-100 border-none focus:ring-0 text-sm focus:outline-none pl-8"
+            />
+          </div>
           <button className="text-gray-500 hover:text-gray-700 focus:outline-none">
             <Bell size={18} />
           </button>
