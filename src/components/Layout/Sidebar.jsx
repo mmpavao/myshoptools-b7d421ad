@@ -22,6 +22,7 @@ import { Separator } from "@/components/ui/separator";
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
+  { icon: Wallet, label: 'Carteira', to: '/wallet' },
   {
     label: 'Vendedor',
     roles: ['Vendedor', 'Admin', 'Master'],
@@ -29,7 +30,6 @@ const navItems = [
       { icon: Store, label: 'Vitrine', to: '/vitrine' },
       { icon: Boxes, label: 'Meus Produtos', to: '/meus-produtos' },
       { icon: ClipboardList, label: 'Meus Pedidos', to: '/meus-pedidos' },
-      { icon: Wallet, label: 'Carteira', to: '/wallet' },
     ],
   },
   {
@@ -38,7 +38,6 @@ const navItems = [
     children: [
       { icon: Package, label: 'Estoque', to: '/estoque' },
       { icon: ShoppingCart, label: 'Pedidos', to: '/pedidos-fornecedor' },
-      { icon: Wallet, label: 'Carteira', to: '/wallet' },
     ],
   },
   {
