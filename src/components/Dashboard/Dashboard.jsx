@@ -47,6 +47,10 @@ const Dashboard = () => {
     </Card>
   );
 
+  if (!user) {
+    return <div>Carregando...</div>;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
