@@ -7,13 +7,13 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const ProdutoCard = ({ produto, onDetalhes }) => {
   const renderProductImage = (foto) => (
-    <div className="w-full h-48 overflow-hidden">
+    <AspectRatio ratio={4/3} className="bg-muted">
       <img 
         src={foto && foto.startsWith('http') ? foto : "/placeholder.svg"}
         alt={produto.titulo} 
-        className="w-full h-full object-cover"
+        className="rounded-t-lg object-cover w-full h-full"
       />
-    </div>
+    </AspectRatio>
   );
 
   const renderStars = (rating) => (
@@ -27,36 +27,32 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
     : produto.preco;
 
   return (
-    <Card className="w-full flex flex-col overflow-hidden">
+    <Card className="w-full overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
       {renderProductImage(produto.fotos && produto.fotos[0])}
-      <CardContent className="p-3 flex-grow flex flex-col justify-between">
-        <div>
-          <h3 className="font-semibold text-sm line-clamp-2 mb-1">{produto.titulo}</h3>
-          <div className="flex items-center space-x-1 text-xs mb-2">
-            {renderStars(produto.avaliacao || 0)}
-            <span className="text-gray-600">({produto.numeroAvaliacoes || 0})</span>
-          </div>
+      <CardContent className="p-4">
+        <h3 className="font-semibold text-lg line-clamp-2 mb-2">{produto.titulo}</h3>
+        <div className="flex items-center space-x-1 mb-2">
+          {renderStars(produto.avaliacao || 0)}
+          <span className="text-sm text-gray-600">({produto.numeroAvaliacoes || 0})</span>
         </div>
-        <div className="mt-auto">
-          <div className="flex items-baseline space-x-2 flex-wrap">
-            <span className="text-lg font-bold text-primary">{formatCurrency(produto.preco)}</span>
-            {produto.desconto > 0 && (
-              <>
-                <span className="text-sm text-gray-500 line-through">{formatCurrency(originalPrice)}</span>
-                <span className="text-xs bg-red-500 text-white px-1 py-0.5 rounded">-{produto.desconto}%</span>
-              </>
-            )}
-          </div>
+        <div className="flex items-baseline space-x-2 flex-wrap mb-4">
+          <span className="text-2xl font-bold text-primary">{formatCurrency(produto.preco)}</span>
+          {produto.desconto > 0 && (
+            <>
+              <span className="text-sm text-gray-500 line-through">{formatCurrency(originalPrice)}</span>
+              <span className="text-sm bg-red-500 text-white px-2 py-0.5 rounded-full">-{produto.desconto}%</span>
+            </>
+          )}
         </div>
       </CardContent>
-      <CardFooter className="p-3 pt-0">
+      <CardFooter className="p-4 pt-0">
         <Button 
-          variant="outline" 
+          variant="default"
           size="sm" 
           className="w-full" 
           onClick={() => onDetalhes(produto.id)}
         >
-          Detalhes
+          Ver detalhes
         </Button>
       </CardFooter>
     </Card>
