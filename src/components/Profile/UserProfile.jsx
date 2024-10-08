@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../Auth/AuthProvider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import PersonalInfoForm from './PersonalInfoForm';
+import { PersonalInfoForm } from './PersonalInfoForm';
 import { NotificationPreferences } from './NotificationPreferences';
 import { SecuritySettings } from './SecuritySettings';
 

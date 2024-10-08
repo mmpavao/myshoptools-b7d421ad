@@ -1,34 +1,17 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Allow public read access to all files
+    // Allow read access to all files for any request
     match /{allPaths=**} {
       allow read: if true;
     }
 
-    // Allow authenticated users to upload their own avatar
-    match /avatars/{userId}/{allPaths=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Regras para produtos (usuários autenticados podem escrever)
-    match /products/{productId}/{allPaths=**} {
-      allow read: if true;
+    // Allow write access to all files for authenticated users
+    match /{allPaths=**} {
       allow write: if request.auth != null;
     }
-
-    // Regras para uploads (usuários autenticados podem escrever)
-    match /uploads/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-
-    // Regras para pedidos (apenas usuários autenticados podem ler e escrever)
-    match /orders/{orderId}/{allPaths=**} {
-      allow read, write: if request.auth != null;
-    }
-
-    // Regras para testes (acesso total para usuários autenticados)
+    
+    // Test folder for Firebase operations tests
     match /test/{allPaths=**} {
       allow read, write: if request.auth != null;
     }

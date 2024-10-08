@@ -21,10 +21,6 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
     navigate('/login');
   };
 
-  const handleNavigation = (path) => {
-    navigate(path);
-  };
-
   return (
     <header className="bg-white border-b border-gray-200 h-16">
       <div className="flex items-center justify-between h-full px-4">
@@ -73,19 +69,19 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
                 </div>
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleNavigation('/profile')}>
+              <DropdownMenuItem onClick={() => navigate('/profile')}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Perfil</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleNavigation('/logs')}>
+              <DropdownMenuItem onClick={() => navigate('/logs')}>
                 <FileText className="mr-2 h-4 w-4" />
                 <span>Logs</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleNavigation('/documentation')}>
+              <DropdownMenuItem onClick={() => navigate('/documentation')}>
                 <Book className="mr-2 h-4 w-4" />
                 <span>Documentação</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleNavigation('/apis')}>
+              <DropdownMenuItem onClick={() => navigate('/apis')}>
                 <Code className="mr-2 h-4 w-4" />
                 <span>APIs</span>
               </DropdownMenuItem>

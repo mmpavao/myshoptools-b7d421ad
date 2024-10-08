@@ -5,8 +5,6 @@ import Cropper from 'react-easy-crop';
 import { Slider } from "@/components/ui/slider";
 import { toast } from "@/components/ui/use-toast";
 import { SpinnerDefault } from "@/components/ui/spinners";
-import firebaseOperations from '../../firebase/firebaseOperations';
-import { useAuth } from '../Auth/AuthProvider';
 
 const AvatarEditor = ({ onSave, currentAvatar }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +13,6 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
-  const { user, updateUserContext } = useAuth();
 
   useEffect(() => {
     if (currentAvatar && currentAvatar !== "/placeholder.svg") {
@@ -23,7 +20,7 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
     }
   }, [currentAvatar]);
 
-  const onCropComplete = useCallback((_, croppedAreaPixels) => {
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
@@ -33,114 +30,93 @@ const AvatarEditor = ({ onSave, currentAvatar }) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         setImage(event.target.result);
-        setZoom(1);
-        setCrop({ x: 0, y: 0 });
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleSave = useCallback(async () => {
-    if (!croppedAreaPixels || !image || !user) {
-      toast({
-        title: "Erro",
-        description: "Por favor, selecione uma imagem e faça o recorte antes de salvar.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setIsSaving(true);
-    try {
-      const croppedImage = await getCroppedImg(image, croppedAreaPixels);
-      const blob = await fetch(croppedImage).then(r => r.blob());
-      const fileName = `avatar_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
-      const downloadURL = await firebaseOperations.uploadProfileImage(user.uid, blob, fileName);
-      
-      if (!downloadURL) {
-        throw new Error("Failed to get download URL");
+    if (croppedAreaPixels) {
+      setIsSaving(true);
+      try {
+        const croppedImage = await getCroppedImg(image, croppedAreaPixels);
+        await onSave(croppedImage);
+        setIsOpen(false);
+        toast({
+          title: "Avatar Atualizado",
+          description: "Seu avatar foi atualizado com sucesso.",
+        });
+      } catch (error) {
+        console.error('Error cropping image:', error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível processar a imagem. Tente novamente.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsSaving(false);
       }
-
-      await firebaseOperations.updateUserProfile(user.uid, { photoURL: downloadURL });
-      updateUserContext({ photoURL: downloadURL });
-      
-      onSave(downloadURL);
-      setIsOpen(false);
-      toast({ title: "Avatar Atualizado", description: "Seu avatar foi atualizado com sucesso." });
-    } catch (error) {
-      console.error('Error updating avatar:', error);
-      toast({
-        title: "Erro",
-        description: `Não foi possível atualizar o avatar: ${error.message}`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
     }
-  }, [croppedAreaPixels, image, onSave, user, updateUserContext]);
-
-  const renderImageUpload = () => (
-    <>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-        className="hidden"
-        id="avatar-upload"
-      />
-      <label htmlFor="avatar-upload" className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
-        {image ? 'Trocar imagem' : 'Adicionar imagem'}
-      </label>
-    </>
-  );
-
-  const renderCropper = () => (
-    image && (
-      <>
-        <div className="relative h-64 w-full">
-          <Cropper
-            image={image}
-            crop={crop}
-            zoom={zoom}
-            aspect={1}
-            onCropChange={setCrop}
-            onCropComplete={onCropComplete}
-            onZoomChange={setZoom}
-          />
-        </div>
-        <Slider
-          value={[zoom]}
-          min={1}
-          max={3}
-          step={0.1}
-          onValueChange={(value) => setZoom(value[0])}
-        />
-      </>
-    )
-  );
+  }, [croppedAreaPixels, image, onSave]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">{currentAvatar && currentAvatar !== "/placeholder.svg" ? "Trocar imagem" : "Adicionar imagem"}</Button>
+        <Button variant="outline">Editar Avatar</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Editar Avatar</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col space-y-4">
-          {renderImageUpload()}
-          {renderCropper()}
-          <Button onClick={handleSave} disabled={isSaving || !image}>
-            {isSaving ? (
-              <>
-                <SpinnerDefault className="mr-2 h-4 w-4 animate-spin" />
-                Salvando...
-              </>
-            ) : (
-              'Salvar Avatar'
-            )}
-          </Button>
+        <div className="flex items-center space-x-2">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+            id="avatar-upload"
+          />
+          <label
+            htmlFor="avatar-upload"
+            className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+          >
+            {image ? 'Trocar imagem' : 'Escolher arquivo'}
+          </label>
+          {!image && <span className="text-sm text-gray-500">Nenhum arquivo escolhido</span>}
         </div>
+        {image && (
+          <div className="relative h-64 w-full mt-4">
+            <Cropper
+              image={image}
+              crop={crop}
+              zoom={zoom}
+              aspect={1}
+              onCropChange={setCrop}
+              onCropComplete={onCropComplete}
+              onZoomChange={setZoom}
+            />
+          </div>
+        )}
+        {image && (
+          <Slider
+            value={[zoom]}
+            min={1}
+            max={3}
+            step={0.1}
+            onValueChange={(value) => setZoom(value[0])}
+            className="mt-4"
+          />
+        )}
+        <Button onClick={handleSave} className="mt-4" disabled={isSaving || !image}>
+          {isSaving ? (
+            <>
+              <SpinnerDefault className="mr-2 h-4 w-4 animate-spin" />
+              Salvando...
+            </>
+          ) : (
+            'Salvar Avatar'
+          )}
+        </Button>
       </DialogContent>
     </Dialog>
   );
@@ -179,7 +155,7 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => {
-      resolve(URL.createObjectURL(blob));
+      resolve(blob);
     }, 'image/jpeg');
   });
 };

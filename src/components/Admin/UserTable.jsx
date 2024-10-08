@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../Auth/AuthProvider';
+import { toast } from "@/components/ui/use-toast";
 import UserActions from './UserActions';
-import { userRoles } from '../../utils/userConstants';
 
 const getStatusColor = (status) => {
   const colors = { Active: 'bg-green-500', Inactive: 'bg-red-500' };
@@ -23,7 +24,35 @@ export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSi
     }
   }, [currentUser]);
 
-  const isMasterAdmin = currentUserRole === userRoles.MASTER;
+  const isMasterAdmin = currentUserRole === firebaseOperations.userRoles.MASTER;
+
+  const handleRoleChange = async (userId, newRole) => {
+    try {
+      await firebaseOperations.updateUserRole(userId, newRole, currentUserRole);
+      onUserUpdate();
+      toast({ title: "Role Updated", description: `User role has been updated to ${newRole}.`, variant: "success" });
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      toast({ title: "Error", description: "Failed to update user role. Please try again.", variant: "destructive" });
+    }
+  };
+
+  const handleToggleUserStatus = async (userId, currentStatus) => {
+    const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
+    await firebaseOperations.updateUserStatus(userId, newStatus);
+    onUserUpdate();
+  };
+
+  const handleDeleteUser = async (userId) => {
+    try {
+      await firebaseOperations.deleteUser(userId);
+      toast({ title: "User Deleted", description: "The user has been completely removed from the system.", variant: "success" });
+      onUserUpdate();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({ title: "Error", description: "Failed to delete user. Please try again.", variant: "destructive" });
+    }
+  };
 
   const totalPages = Math.ceil(totalUsers / pageSize);
 
@@ -61,7 +90,25 @@ export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSi
                 </Badge>
               </TableCell>
               <TableCell>
-                <Badge>{user.role}</Badge>
+                {user.role === firebaseOperations.userRoles.MASTER ? (
+                  <Badge>Master</Badge>
+                ) : (
+                  <Select
+                    value={user.role}
+                    onValueChange={(newRole) => handleRoleChange(user.id, newRole)}
+                    disabled={!isMasterAdmin || user.role === firebaseOperations.userRoles.MASTER}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={firebaseOperations.userRoles.VENDOR}>Vendedor</SelectItem>
+                      <SelectItem value={firebaseOperations.userRoles.PROVIDER}>Fornecedor</SelectItem>
+                      <SelectItem value={firebaseOperations.userRoles.ADMIN}>Admin</SelectItem>
+                      {isMasterAdmin && <SelectItem value={firebaseOperations.userRoles.MASTER}>Master</SelectItem>}
+                    </SelectContent>
+                  </Select>
+                )}
               </TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
@@ -74,7 +121,9 @@ export const UserTable = ({ users, onUserUpdate, totalUsers, currentPage, pageSi
                 <UserActions
                   user={user}
                   isMasterAdmin={isMasterAdmin}
-                  onUserUpdate={onUserUpdate}
+                  onEdit={onUserUpdate}
+                  onToggleStatus={handleToggleUserStatus}
+                  onDelete={handleDeleteUser}
                 />
               </TableCell>
             </TableRow>

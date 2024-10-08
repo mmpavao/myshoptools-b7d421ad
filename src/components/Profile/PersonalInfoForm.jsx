@@ -3,43 +3,74 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "@/components/ui/use-toast";
+import firebaseOperations from '../../firebase/firebaseOperations';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from '../Auth/AuthProvider';
 import AvatarEditor from './AvatarEditor';
-import { countries, getPhoneInputValue } from '../../utils/formUtils';
-import { loadUserProfile, updateUserProfile } from '../../utils/profileUtils';
 
-const PersonalInfoForm = () => {
+const countries = [
+  { code: 'BR', flag: '🇧🇷', ddi: '+55' },
+  { code: 'US', flag: '🇺🇸', ddi: '+1' },
+  { code: 'CN', flag: '🇨🇳', ddi: '+86' },
+  { code: 'MX', flag: '🇲🇽', ddi: '+52' },
+  { code: 'CO', flag: '🇨🇴', ddi: '+57' },
+  { code: 'CA', flag: '🇨🇦', ddi: '+1' },
+  { code: 'AU', flag: '🇦🇺', ddi: '+61' },
+  { code: 'ID', flag: '🇮🇩', ddi: '+62' },
+];
+
+export const PersonalInfoForm = () => {
   const { user, updateUserContext } = useAuth();
   const [formData, setFormData] = useState({
-    name: '', email: '', phone: '', address: '',
-    country: countries[0], profileImage: "/placeholder.svg"
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    country: countries[0],
+    profileImage: "/placeholder.svg"
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (user && user.uid) {
-        setIsLoading(true);
-        const profile = await loadUserProfile(user.uid);
-        if (profile) {
-          setFormData(profile);
-        } else {
-          console.error('Perfil do usuário não encontrado');
-        }
-        setIsLoading(false);
-      }
-    };
-    fetchUserProfile();
+    if (user && user.uid) {
+      loadUserProfile(user.uid);
+    }
   }, [user]);
+
+  const loadUserProfile = async (userId) => {
+    try {
+      const userProfile = await firebaseOperations.getUserProfile(userId);
+      if (userProfile) {
+        const phoneNumber = userProfile.phoneNumber || '';
+        const country = countries.find(c => phoneNumber.startsWith(c.ddi)) || countries[0];
+        setFormData({
+          name: userProfile.displayName || '',
+          email: userProfile.email || '',
+          phone: phoneNumber.slice(country.ddi.length).replace(/\D/g, ''),
+          address: userProfile.address || '',
+          profileImage: userProfile.photoURL || "/placeholder.svg",
+          country: country,
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao carregar perfil do usuário:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os dados do perfil.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'phone' ? value.replace(/\D/g, '') : value
-    }));
+    if (name === 'phone') {
+      const numericValue = value.replace(/\D/g, '');
+      setFormData(prev => ({ ...prev, [name]: numericValue }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleCountryChange = (value) => {
@@ -47,19 +78,79 @@ const PersonalInfoForm = () => {
     setFormData(prev => ({ ...prev, country: selectedCountry, phone: '' }));
   };
 
-  const onAvatarSave = (newAvatarUrl) => {
-    setFormData(prev => ({ ...prev, profileImage: newAvatarUrl }));
-    updateUserContext({ photoURL: newAvatarUrl });
+  const handleAvatarSave = async (blob) => {
+    try {
+      const downloadURL = await firebaseOperations.uploadProfileImage(blob, user.uid);
+      setFormData(prev => ({ ...prev, profileImage: downloadURL }));
+      await firebaseOperations.updateUserProfile(user.uid, { photoURL: downloadURL });
+      updateUserContext({ photoURL: downloadURL });
+      toast({
+        title: "Avatar Atualizado",
+        description: "Seu avatar foi atualizado com sucesso.",
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar avatar:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o avatar.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await updateUserProfile(user.uid, formData, updateUserContext);
-    setIsSubmitting(false);
+    try {
+      const updatedUserData = {
+        displayName: formData.name,
+        email: formData.email,
+        phoneNumber: formatPhoneNumber(formData.phone, formData.country),
+        address: formData.address,
+        country: formData.country.code,
+        photoURL: formData.profileImage,
+      };
+      await firebaseOperations.updateUserProfile(user.uid, updatedUserData);
+      updateUserContext(updatedUserData);
+      toast({
+        title: "Perfil Atualizado",
+        description: "Suas informações foram atualizadas com sucesso.",
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar perfil:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o perfil. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  if (isLoading) return <div>Carregando dados do perfil...</div>;
+  const formatPhoneNumber = (phoneNumber, country) => {
+    const cleaned = phoneNumber.replace(/\D/g, '');
+    if (country.code === 'US') {
+      const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+      if (match) {
+        return `${country.ddi} (${match[1]}) ${match[2]}-${match[3]}`;
+      }
+    }
+    return `${country.ddi} ${cleaned}`;
+  };
+
+  const getPhoneInputValue = () => {
+    if (formData.country.code === 'US') {
+      const cleaned = formData.phone.replace(/\D/g, '');
+      const match = cleaned.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/);
+      if (match) {
+        const parts = [match[1], match[2], match[3]].filter(Boolean);
+        if (parts.length === 0) return '';
+        return `(${parts[0]})${parts[1] ? ' ' + parts[1] : ''}${parts[2] ? '-' + parts[2] : ''}`;
+      }
+    }
+    return formData.phone;
+  };
 
   return (
     <form onSubmit={handleSubmit}>
@@ -69,7 +160,7 @@ const PersonalInfoForm = () => {
             <AvatarImage src={formData.profileImage} alt="Profile" />
             <AvatarFallback>{formData.name[0] || 'U'}</AvatarFallback>
           </Avatar>
-          <AvatarEditor onSave={onAvatarSave} currentAvatar={formData.profileImage} />
+          <AvatarEditor onSave={handleAvatarSave} currentAvatar={formData.profileImage} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -89,7 +180,9 @@ const PersonalInfoForm = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((c) => (
-                    <SelectItem key={c.code} value={c.code}>{c.flag}</SelectItem>
+                    <SelectItem key={c.code} value={c.code}>
+                      {c.flag}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -98,9 +191,12 @@ const PersonalInfoForm = () => {
                   {formData.country.ddi}
                 </span>
                 <Input
-                  id="phone" name="phone" type="tel"
-                  value={getPhoneInputValue(formData.phone, formData.country)}
-                  onChange={handleChange} className="pl-10"
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  value={getPhoneInputValue()}
+                  onChange={handleChange}
+                  className="pl-10"
                   placeholder="Número de telefone"
                 />
               </div>

@@ -1,13 +1,13 @@
 {
-  "storage": {
-    "rules": "storage.rules",
-    "bucket": "myshoptools-84ff5.appspot.com"
-  },
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
   },
   "functions": {
-    "source": "functions"
+    "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run lint"]
   }
 }

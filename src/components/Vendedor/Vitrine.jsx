@@ -62,6 +62,7 @@ const Vitrine = () => {
         title: "Sucesso",
         description: "Produto importado com sucesso para Meus Produtos!",
       });
+      // Adicione esta linha para atualizar a lista de produtos importados
       await fetchProdutos();
     } catch (error) {
       console.error("Erro ao importar produto:", error);
@@ -82,35 +83,13 @@ const Vitrine = () => {
   };
 
   const handleSubmitAvaliacao = async () => {
-    if (!user) {
-      toast({
-        title: "Erro",
-        description: "Você precisa estar logado para avaliar produtos.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
-      await firebaseOperations.adicionarAvaliacao(
-        avaliacaoAtual.produtoId,
-        user.uid,
-        avaliacaoAtual.nota,
-        avaliacaoAtual.comentario
-      );
-      toast({
-        title: "Sucesso",
-        description: "Avaliação enviada com sucesso!",
-      });
+      await firebaseOperations.adicionarAvaliacao(avaliacaoAtual.produtoId, user.uid, avaliacaoAtual.nota, avaliacaoAtual.comentario);
+      console.log("Avaliação enviada com sucesso!");
       setAvaliacaoAtual({ produtoId: null, nota: 0, comentario: '' });
-      await fetchProdutos();
+      fetchProdutos();
     } catch (error) {
       console.error("Erro ao enviar avaliação:", error);
-      toast({
-        title: "Erro",
-        description: "Falha ao enviar a avaliação. Tente novamente.",
-        variant: "destructive",
-      });
     }
   };
 
