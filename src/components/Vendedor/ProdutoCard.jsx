@@ -2,18 +2,16 @@ import React from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StarIcon } from "lucide-react";
-import { formatCurrency } from '@/utils/currencyUtils';
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const ProdutoCard = ({ produto, onDetalhes }) => {
   const renderProductImage = (foto) => (
-    <AspectRatio ratio={4/3} className="bg-muted">
+    <div className="w-full pb-[100%] relative overflow-hidden rounded-lg">
       <img 
         src={foto && foto.startsWith('http') ? foto : "/placeholder.svg"}
         alt={produto.titulo} 
-        className="rounded-t-lg object-cover w-full h-full"
+        className="absolute top-0 left-0 w-full h-full object-cover"
       />
-    </AspectRatio>
+    </div>
   );
 
   const renderStars = (rating) => (
@@ -22,37 +20,34 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
     ))
   );
 
-  const originalPrice = produto.desconto > 0
-    ? produto.preco / (1 - produto.desconto / 100)
-    : produto.preco;
+  const formatPrice = (price) => (typeof price === 'number' ? price.toFixed(2) : '0.00');
 
   return (
-    <Card className="w-full overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-      {renderProductImage(produto.fotos && produto.fotos[0])}
-      <CardContent className="p-4">
-        <h3 className="font-semibold text-lg line-clamp-2 mb-2">{produto.titulo}</h3>
-        <div className="flex items-center space-x-1 mb-2">
-          {renderStars(produto.avaliacao || 0)}
-          <span className="text-sm text-gray-600">({produto.numeroAvaliacoes || 0})</span>
-        </div>
-        <div className="flex items-baseline space-x-2 flex-wrap mb-4">
-          <span className="text-2xl font-bold text-primary">{formatCurrency(produto.preco)}</span>
-          {produto.desconto > 0 && (
-            <>
-              <span className="text-sm text-gray-500 line-through">{formatCurrency(originalPrice)}</span>
-              <span className="text-sm bg-red-500 text-white px-2 py-0.5 rounded-full">-{produto.desconto}%</span>
-            </>
-          )}
+    <Card className="w-full h-full flex flex-col">
+      <CardContent className="p-2 flex-grow flex flex-col justify-between">
+        {renderProductImage(produto.fotos && produto.fotos[0])}
+        <div className="mt-2 space-y-1">
+          <h3 className="font-semibold text-sm line-clamp-2">{produto.titulo}</h3>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
+            {produto.desconto > 0 && (
+              <span className="bg-red-500 text-white text-xs px-1 py-0.5 rounded-full">-{produto.desconto}%</span>
+            )}
+          </div>
+          <div className="flex items-center">
+            {renderStars(produto.avaliacao || 0)}
+            <span className="ml-1 text-xs text-gray-600">({produto.numeroAvaliacoes || 0})</span>
+          </div>
         </div>
       </CardContent>
-      <CardFooter className="p-4 pt-0">
+      <CardFooter className="p-2">
         <Button 
-          variant="default"
+          variant="outline" 
           size="sm" 
-          className="w-full" 
+          className="w-full text-xs" 
           onClick={() => onDetalhes(produto.id)}
         >
-          Ver detalhes
+          Detalhes
         </Button>
       </CardFooter>
     </Card>
