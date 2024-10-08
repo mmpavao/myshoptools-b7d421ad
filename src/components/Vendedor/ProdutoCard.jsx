@@ -5,7 +5,7 @@ import { StarIcon } from "lucide-react";
 
 const ProdutoCard = ({ produto, onDetalhes }) => {
   const renderProductImage = (foto) => (
-    <div className="w-full pb-[100%] relative overflow-hidden rounded-lg">
+    <div className="w-full aspect-square relative overflow-hidden rounded-lg">
       <img 
         src={foto && foto.startsWith('http') ? foto : "/placeholder.svg"}
         alt={produto.titulo} 
@@ -24,9 +24,9 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
 
   return (
     <Card className="w-full h-full flex flex-col">
-      <CardContent className="p-2 flex-grow flex flex-col justify-between">
+      <CardContent className="p-3 flex-grow flex flex-col justify-between">
         {renderProductImage(produto.fotos && produto.fotos[0])}
-        <div className="mt-2 space-y-1">
+        <div className="mt-3 space-y-2">
           <h3 className="font-semibold text-sm line-clamp-2">{produto.titulo}</h3>
           <div className="flex items-center justify-between">
             <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
@@ -40,7 +40,7 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-2">
+      <CardFooter className="p-3">
         <Button 
           variant="outline" 
           size="sm" 
