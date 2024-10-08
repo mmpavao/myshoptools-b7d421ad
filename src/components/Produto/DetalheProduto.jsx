@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../../components/Auth/AuthProvider';
 import ProductImages from './ProductImages';
@@ -11,11 +11,14 @@ import MyShopLandingPage from '../Vendedor/MyShopLandingPage';
 
 const DetalheProduto = () => {
   const { id } = useParams();
+  const location = useLocation();
   const [produto, setProduto] = useState(null);
   const [avaliacaoAtual, setAvaliacaoAtual] = useState({ nota: 0, comentario: '' });
   const [activeTab, setActiveTab] = useState('descricao');
   const [activeMarketplace, setActiveMarketplace] = useState('Fornecedor');
   const { user } = useAuth();
+
+  const isMyProduct = location.pathname.includes('/meus-produtos');
 
   const marketplaces = [
     'Fornecedor', 'MyShop', 'Mercado Livre', 'Shopee', 'Amazon', 'Shopify', 'WooCommerce'
@@ -50,41 +53,43 @@ const DetalheProduto = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Tabs value={activeMarketplace} onValueChange={setActiveMarketplace} className="mb-6">
-        <TabsList className="w-full flex justify-between overflow-x-auto">
-          {marketplaces.map((marketplace) => (
-            <TabsTrigger key={marketplace} value={marketplace} className="flex-shrink-0">
-              {marketplace}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      {isMyProduct && (
+        <Tabs value={activeMarketplace} onValueChange={setActiveMarketplace} className="mb-6">
+          <TabsList className="w-full flex justify-between overflow-x-auto">
+            {marketplaces.map((marketplace) => (
+              <TabsTrigger key={marketplace} value={marketplace} className="flex-shrink-0">
+                {marketplace}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      )}
 
       <div className="flex flex-col md:flex-row gap-8">
         <ProductImages 
           fotos={produto.fotos} 
           titulo={produto.titulo} 
-          activeMarketplace={activeMarketplace}
+          activeMarketplace={isMyProduct ? activeMarketplace : 'Fornecedor'}
         />
         <ProductDetails 
           produto={produto} 
-          activeMarketplace={activeMarketplace}
+          activeMarketplace={isMyProduct ? activeMarketplace : 'Fornecedor'}
         />
       </div>
       <ProductTabs 
         produto={produto} 
         activeTab={activeTab} 
         setActiveTab={setActiveTab}
-        activeMarketplace={activeMarketplace}
+        activeMarketplace={isMyProduct ? activeMarketplace : 'Fornecedor'}
       />
-      {activeMarketplace === 'Fornecedor' && activeTab === 'avaliacoes' && (
+      {(!isMyProduct || activeMarketplace === 'Fornecedor') && activeTab === 'avaliacoes' && (
         <RatingForm 
           avaliacaoAtual={avaliacaoAtual} 
           setAvaliacaoAtual={setAvaliacaoAtual} 
           handleSubmitAvaliacao={handleSubmitAvaliacao}
         />
       )}
-      {activeMarketplace === 'MyShop' && (
+      {isMyProduct && activeMarketplace === 'MyShop' && (
         <MyShopLandingPage produto={produto} />
       )}
     </div>
