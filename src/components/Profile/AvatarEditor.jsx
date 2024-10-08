@@ -8,7 +8,7 @@ import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../Auth/AuthProvider';
 
 const AvatarEditor = ({ onSave }) => {
-  const { user } = useAuth();
+  const { user, updateUserContext } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [image, setImage] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -53,6 +53,7 @@ const AvatarEditor = ({ onSave }) => {
       
       await firebaseOperations.updateUserProfile(user.uid, { photoURL: downloadURL });
       
+      updateUserContext({ photoURL: downloadURL });
       onSave(downloadURL);
       setIsOpen(false);
       setImage(null);
