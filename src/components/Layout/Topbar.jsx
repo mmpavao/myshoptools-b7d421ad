@@ -46,6 +46,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+
         <div className="flex items-center space-x-4">
           <button className="text-gray-500 hover:text-gray-700 focus:outline-none">
             <Bell size={24} />
@@ -54,7 +55,7 @@ const Topbar = ({ companyName, toggleSidebar, isSidebarOpen }) => {
             <DropdownMenuTrigger className="focus:outline-none flex items-center">
               <Avatar>
                 <AvatarImage src={user?.photoURL} alt="User avatar" />
-                <AvatarFallback>
+                <AvatarFallback className="font-bold text-lg">
                   {user?.photoURL ? (
                     user.displayName?.[0] || 'U'
                   ) : (
