@@ -60,6 +60,7 @@ const fileOperations = {
 
     return allFiles;
   },
+
   uploadAvatar: async (file, userId) => {
     if (!file || !userId) {
       throw new Error('Invalid file or user ID');
