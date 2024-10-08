@@ -29,9 +29,9 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
   return (
     <Card className="w-full h-full flex flex-col">
       <CardContent className="p-2 flex-grow flex flex-col justify-between">
+        <h3 className="font-semibold text-sm line-clamp-2 mb-2">{produto.titulo}</h3>
         {renderProductImage(produto.fotos && produto.fotos[0])}
         <div className="mt-2 space-y-1">
-          <h3 className="font-semibold text-sm line-clamp-2">{produto.titulo}</h3>
           <div className="flex items-center justify-between flex-wrap">
             <p className="text-sm font-bold text-primary">R$ {formatPrice(produto.preco)}</p>
             {produto.desconto > 0 && (
@@ -43,6 +43,7 @@ const ProdutoCard = ({ produto, onDetalhes }) => {
               </>
             )}
           </div>
+          <p className="text-xs text-gray-600">Venda sugerida: R$ {formatPrice(produto.vendaSugerida)}</p>
           <div className="flex items-center">
             {renderStars(produto.avaliacao || 0)}
             <span className="ml-1 text-xs text-gray-600">({produto.numeroAvaliacoes || 0})</span>
