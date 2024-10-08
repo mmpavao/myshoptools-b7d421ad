@@ -58,15 +58,16 @@ const RoleBasedRoute = ({ element: Element, allowedRoles }) => {
 };
 
 const AppRoutes = () => (
-  <Routes>
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
-    <Route path="/" element={<ProtectedRoute><Navigate to="/dashboard" /></ProtectedRoute>} />
-    <Route path="/dashboard" element={
-      <ProtectedRoute>
-        <RoleBasedRoute element={Dashboard} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />
-      </ProtectedRoute>
-    } />
+  <AuthProvider>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/" element={<ProtectedRoute><Navigate to="/dashboard" /></ProtectedRoute>} />
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <RoleBasedRoute element={Dashboard} allowedRoles={['Vendedor', 'Fornecedor', 'Admin', 'Master']} />
+        </ProtectedRoute>
+      } />
     <Route path="/vitrine" element={
       <ProtectedRoute>
         <RoleBasedRoute element={Vitrine} allowedRoles={['Vendedor', 'Admin', 'Master']} />
@@ -132,8 +133,9 @@ const AppRoutes = () => (
         <RoleBasedRoute element={APIPage} allowedRoles={['Admin', 'Master']} />
       </ProtectedRoute>
     } />
-    <Route path="*" element={<Navigate to="/dashboard" />} />
-  </Routes>
+      <Route path="*" element={<Navigate to="/dashboard" />} />
+    </Routes>
+  </AuthProvider>
 );
 
 const App = () => (
@@ -141,10 +143,8 @@ const App = () => (
     <TooltipProvider>
       <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
         <Router>
-          <AuthProvider>
-            <Toaster position="top-right" />
-            <AppRoutes />
-          </AuthProvider>
+          <Toaster position="top-right" />
+          <AppRoutes />
         </Router>
       </GoogleOAuthProvider>
     </TooltipProvider>
