@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 
 const LandPageSettings = () => {
@@ -16,6 +16,12 @@ const LandPageSettings = () => {
     contactEmail: '',
     contactPhone: '',
     footerText: '',
+    activeVendors: '',
+    countriesServed: '',
+    competitivePricing: '',
+    readyToSellStore: '',
+    inventoryManagement: '',
+    secureTransactions: '',
   });
 
   useEffect(() => {
@@ -30,7 +36,11 @@ const LandPageSettings = () => {
       }
     } catch (error) {
       console.error("Erro ao buscar configurações da LandPage:", error);
-      toast.error("Falha ao carregar as configurações da LandPage");
+      toast({
+        title: "Erro",
+        description: "Falha ao carregar as configurações da LandPage",
+        variant: "destructive",
+      });
     }
   };
 
@@ -42,10 +52,17 @@ const LandPageSettings = () => {
   const handleSave = async () => {
     try {
       await firebaseOperations.saveLandPageSettings(settings);
-      toast.success("Configurações da LandPage salvas com sucesso");
+      toast({
+        title: "Sucesso",
+        description: "Configurações da LandPage salvas com sucesso",
+      });
     } catch (error) {
       console.error("Erro ao salvar configurações da LandPage:", error);
-      toast.error("Falha ao salvar as configurações da LandPage");
+      toast({
+        title: "Erro",
+        description: "Falha ao salvar as configurações da LandPage",
+        variant: "destructive",
+      });
     }
   };
 
@@ -55,10 +72,17 @@ const LandPageSettings = () => {
       try {
         const uploadedUrl = await firebaseOperations.uploadBannerImage(file);
         setSettings(prev => ({ ...prev, bannerUrl: uploadedUrl }));
-        toast.success("Banner atualizado com sucesso");
+        toast({
+          title: "Sucesso",
+          description: "Banner atualizado com sucesso",
+        });
       } catch (error) {
         console.error("Erro ao fazer upload do banner:", error);
-        toast.error("Falha ao atualizar o banner");
+        toast({
+          title: "Erro",
+          description: "Falha ao atualizar o banner",
+          variant: "destructive",
+        });
       }
     }
   };
@@ -96,6 +120,30 @@ const LandPageSettings = () => {
         <div className="space-y-2">
           <Label htmlFor="contactPhone">Telefone de Contato</Label>
           <Input id="contactPhone" name="contactPhone" value={settings.contactPhone} onChange={handleInputChange} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="activeVendors">Número de Vendedores Ativos</Label>
+          <Input id="activeVendors" name="activeVendors" value={settings.activeVendors} onChange={handleInputChange} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="countriesServed">Número de Países Atendidos</Label>
+          <Input id="countriesServed" name="countriesServed" value={settings.countriesServed} onChange={handleInputChange} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="competitivePricing">Preços Competitivos (Descrição)</Label>
+          <Textarea id="competitivePricing" name="competitivePricing" value={settings.competitivePricing} onChange={handleInputChange} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="readyToSellStore">Loja Pronta para Vender (Descrição)</Label>
+          <Textarea id="readyToSellStore" name="readyToSellStore" value={settings.readyToSellStore} onChange={handleInputChange} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="inventoryManagement">Gestão de Estoque (Descrição)</Label>
+          <Textarea id="inventoryManagement" name="inventoryManagement" value={settings.inventoryManagement} onChange={handleInputChange} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="secureTransactions">Transações Seguras (Descrição)</Label>
+          <Textarea id="secureTransactions" name="secureTransactions" value={settings.secureTransactions} onChange={handleInputChange} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="footerText">Texto do Rodapé</Label>

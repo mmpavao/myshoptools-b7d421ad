@@ -162,14 +162,54 @@ const meusProdutosOperations = {
   },
 };
 
+const landPageOperations = {
+  getLandPageSettings: async () => {
+    try {
+      const docRef = doc(db, 'settings', 'landpage');
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return docSnap.data();
+      } else {
+        console.log("No LandPage settings found");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching LandPage settings:", error);
+      throw error;
+    }
+  },
+  saveLandPageSettings: async (settings) => {
+    try {
+      const docRef = doc(db, 'settings', 'landpage');
+      await setDoc(docRef, settings, { merge: true });
+      return true;
+    } catch (error) {
+      console.error("Error saving LandPage settings:", error);
+      throw error;
+    }
+  },
+  uploadBannerImage: async (file) => {
+    if (!file) {
+      throw new Error('No file provided');
+    }
+    const path = `landpage/banner_${Date.now()}.${file.name.split('.').pop()}`;
+    const downloadURL = await fileOperations.uploadFile(file, path);
+    
+    // Update landpage settings with new banner URL
+    await landPageOperations.saveLandPageSettings({ bannerUrl: downloadURL });
+    
+    return downloadURL;
+  },
+};
+
 const firebaseOperations = {
   ...crudOperations,
   ...userOperations,
   ...productOperations,
   ...fileOperations,
   ...userProfileOperations,
-  getUserProfile: userProfileOperations.getUserProfile,
-  updateUserProfile: userProfileOperations.updateUserProfile,
+  ...meusProdutosOperations,
+  ...landPageOperations,
 };
 
 export default firebaseOperations;
