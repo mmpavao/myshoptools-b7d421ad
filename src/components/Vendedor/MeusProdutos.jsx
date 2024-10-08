@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import ProdutoCard from './ProdutoCard';
+import MyShopLandingPage from './MyShopLandingPage';
 import { useAuth } from '../Auth/AuthProvider';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
@@ -95,11 +96,14 @@ const MeusProdutos = () => {
           onChange={(e) => setFiltro(e.target.value)}
           className="max-w-sm"
         />
-        {myShopUrl && (
-          <Button variant="outline" onClick={copyMyShopUrl}>
-            Copiar URL da Loja
-          </Button>
-        )}
+        <div className="space-x-2">
+          <MyShopLandingPage produtos={produtos} />
+          {myShopUrl && (
+            <Button variant="outline" onClick={copyMyShopUrl}>
+              Copiar URL da Loja
+            </Button>
+          )}
+        </div>
       </div>
       {produtos.length === 0 ? (
         <p>Você ainda não importou nenhum produto.</p>

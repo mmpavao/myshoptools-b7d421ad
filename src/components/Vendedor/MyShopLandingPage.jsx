@@ -3,10 +3,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import ProdutoCard from './ProdutoCard';
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../Auth/AuthProvider';
 
-const MyShopLandingPage = ({ produto }) => {
+const MyShopLandingPage = ({ produtos }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [landingPageData, setLandingPageData] = useState({
     bannerUrl: '',
@@ -39,13 +41,23 @@ const MyShopLandingPage = ({ produto }) => {
     setLandingPageData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleProductToggle = () => {
+  const handleProductToggle = (productId) => {
     setLandingPageData(prev => {
-      const newSelectedProducts = prev.selectedProducts.includes(produto.id)
-        ? prev.selectedProducts.filter(id => id !== produto.id)
-        : [...prev.selectedProducts, produto.id];
+      const newSelectedProducts = prev.selectedProducts.includes(productId)
+        ? prev.selectedProducts.filter(id => id !== productId)
+        : [...prev.selectedProducts, productId];
       return { ...prev, selectedProducts: newSelectedProducts };
     });
+  };
+
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const newSelectedProducts = Array.from(landingPageData.selectedProducts);
+    const [reorderedItem] = newSelectedProducts.splice(result.source.index, 1);
+    newSelectedProducts.splice(result.destination.index, 0, reorderedItem);
+
+    setLandingPageData(prev => ({ ...prev, selectedProducts: newSelectedProducts }));
   };
 
   const handleSave = async () => {
@@ -85,14 +97,34 @@ const MyShopLandingPage = ({ produto }) => {
             onChange={handleInputChange}
             placeholder="Descrição da Loja"
           />
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={landingPageData.selectedProducts.includes(produto.id)}
-              onChange={handleProductToggle}
-            />
-            <span>{produto.titulo}</span>
-          </div>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="produtos">
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
+                  {produtos.map((produto, index) => (
+                    <Draggable key={produto.id} draggableId={produto.id} index={index}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="flex items-center space-x-2"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={landingPageData.selectedProducts.includes(produto.id)}
+                            onChange={() => handleProductToggle(produto.id)}
+                          />
+                          <ProdutoCard produto={produto} />
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
           <Textarea
             name="footerInfo"
             value={landingPageData.footerInfo}
