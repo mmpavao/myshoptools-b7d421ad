@@ -30,7 +30,9 @@ const fileOperations = {
       );
     });
   },
+
   deleteFile: (path) => deleteObject(ref(storage, path)),
+  
   listStorageFiles: async () => {
     const folders = ['uploads', 'avatars'];
     let allFiles = [];
@@ -61,10 +63,9 @@ const fileOperations = {
     return allFiles;
   },
 
-
-  uploadProductImage: (file, path) => {
+  uploadProductImage: (file, productId) => {
     return new Promise((resolve, reject) => {
-      const storageRef = ref(storage, `products/${path}/${file.name}`);
+      const storageRef = ref(storage, `products/${productId}/${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
       uploadTask.on('state_changed',
