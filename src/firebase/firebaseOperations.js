@@ -172,20 +172,44 @@ const firebaseOperations = {
     try {
       const userDoc = await getDoc(doc(db, 'users', userId));
       if (userDoc.exists()) {
-        return userDoc.data();
+        const userData = userDoc.data();
+        // Verificar se a URL da foto do perfil é válida
+        if (userData.photoURL) {
+          try {
+            await fetch(userData.photoURL, { method: 'HEAD' });
+          } catch (error) {
+            console.warn('Imagem de perfil inválida, usando placeholder:', error);
+            userData.photoURL = '/placeholder.svg';
+          }
+        }
+        return userData;
       } else {
-        throw new Error('Usuário não encontrado');
+        console.warn('Usuário não encontrado, retornando perfil padrão');
+        return {
+          displayName: '',
+          email: '',
+          phoneNumber: '',
+          address: '',
+          photoURL: '/placeholder.svg'
+        };
       }
     } catch (error) {
       console.error('Erro ao buscar perfil do usuário:', error);
-      throw error;
+      toast({
+        title: "Erro",
+        description: "Falha ao carregar o perfil do usuário. Usando dados padrão.",
+        variant: "destructive",
+      });
+      return {
+        displayName: '',
+        email: '',
+        phoneNumber: '',
+        address: '',
+        photoURL: '/placeholder.svg'
+      };
     }
   },
 
-  getUserRole: userOperations.getUserRole,
-  getAllUsers: userOperations.getAllUsers,
-  updateUserRole: userOperations.updateUserRole,
-  updateUserStatus: userOperations.updateUserStatus,
 };
 
 export default firebaseOperations;

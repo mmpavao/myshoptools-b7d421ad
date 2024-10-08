@@ -120,6 +120,15 @@ const PersonalInfoForm = () => {
     }
   };
 
+  const handleAvatarError = () => {
+    setFormData(prev => ({ ...prev, profileImage: "/placeholder.svg" }));
+    toast({
+      title: "Aviso",
+      description: "Não foi possível carregar a imagem do perfil. Usando imagem padrão.",
+      variant: "warning",
+    });
+  };
+
   if (isLoading) {
     return <div>Carregando dados do perfil...</div>;
   }
@@ -129,7 +138,11 @@ const PersonalInfoForm = () => {
       <div className="space-y-4">
         <div className="flex items-center space-x-4 mb-4">
           <Avatar className="w-24 h-24">
-            <AvatarImage src={formData.profileImage} alt="Profile" />
+            <AvatarImage 
+              src={formData.profileImage} 
+              alt="Profile" 
+              onError={handleAvatarError}
+            />
             <AvatarFallback>{formData.name[0] || 'U'}</AvatarFallback>
           </Avatar>
           <AvatarEditor onSave={handleAvatarSave} currentAvatar={formData.profileImage} />
