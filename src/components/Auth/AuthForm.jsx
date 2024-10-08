@@ -24,7 +24,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import firebaseOperations from '../../firebase/firebaseOperations';
-import { toast } from '@/components/ui/use-toast';
 
 const schema = z.object({
   email: z.string().email({ message: "Endereço de e-mail inválido" }),
@@ -50,40 +49,17 @@ const AuthForm = ({ isLogin }) => {
     try {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, data.email, data.password);
-        navigate('/dashboard');
       } else {
-        try {
-          const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-          await firebaseOperations.createUser({
-            uid: userCredential.user.uid,
-            email: data.email,
-            role: data.role,
-          });
-          navigate('/dashboard');
-        } catch (error) {
-          if (error.code === 'auth/email-already-in-use') {
-            setError('Este e-mail já está em uso. Por favor, use outro e-mail ou faça login.');
-          } else {
-            throw error;
-          }
-        }
+        const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+        await firebaseOperations.createUser({
+          uid: userCredential.user.uid,
+          email: data.email,
+          role: data.role,
+        });
       }
+      navigate('/dashboard');
     } catch (error) {
-      console.error('Authentication error:', error);
-      if (error.code === 'auth/invalid-login-credentials') {
-        setError('Credenciais inválidas. Verifique seu e-mail e senha.');
-      } else if (error.code === 'auth/user-not-found') {
-        setError('Usuário não encontrado. Verifique seu e-mail ou registre-se.');
-      } else if (error.code === 'auth/wrong-password') {
-        setError('Senha incorreta. Por favor, tente novamente.');
-      } else {
-        setError('Ocorreu um erro. Por favor, tente novamente mais tarde.');
-      }
-      toast({
-        title: "Erro de Autenticação",
-        description: error.message,
-        variant: "destructive",
-      });
+      setError(error.message);
     }
   };
 
