@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from '../../components/Auth/AuthProvider';
 import firebaseOperations from '../../firebase/firebaseOperations';
-import { Loader2, PartyPopper } from 'lucide-react';
+import { Loader2, CheckCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const MockCheckout = ({ isOpen, onClose, product }) => {
@@ -93,8 +93,8 @@ const MockCheckout = ({ isOpen, onClose, product }) => {
             </>
           ) : (
             <div className="flex flex-col items-center">
-              <PartyPopper className="h-16 w-16 text-yellow-400 mb-4" />
-              <p className="text-center font-bold mb-4">Parabéns! Compra aprovada!</p>
+              <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
+              <p className="text-center font-bold mb-4">Parabéns! Seu pagamento foi aprovado!</p>
               <Button onClick={handleConcluir} className="w-full">
                 Concluir
               </Button>
