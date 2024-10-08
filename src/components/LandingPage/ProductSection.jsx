@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import firebaseOperations from '../../firebase/firebaseOperations';
 import { useAuth } from '../../components/Auth/AuthProvider';
+import MockCheckout from '../Checkout/MockCheckout';
 
 const ProductSection = () => {
   const [produtos, setProdutos] = useState([]);
-  const navigate = useNavigate();
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -27,13 +28,14 @@ const ProductSection = () => {
     }
   };
 
-  const handleDetalhes = (produtoId) => {
-    navigate(`/produto/${produtoId}`);
+  const handleComprar = (produto) => {
+    setSelectedProduct(produto);
+    setIsCheckoutOpen(true);
   };
 
-  const handleComprar = (produto) => {
-    // Implemente a lógica de checkout aqui
-    console.log("Comprar produto:", produto);
+  const handleCloseCheckout = () => {
+    setIsCheckoutOpen(false);
+    setSelectedProduct(null);
   };
 
   const renderProductCard = (produto) => (
@@ -43,8 +45,7 @@ const ProductSection = () => {
         <h3 className="text-lg font-semibold mb-2">{produto.titulo}</h3>
         <p className="text-gray-600 mb-2 line-clamp-2">{produto.descricao}</p>
         <p className="text-blue-600 font-bold mb-4">R$ {produto.preco.toFixed(2)}</p>
-        <div className="flex justify-between">
-          <Button variant="outline" onClick={() => handleDetalhes(produto.id)}>Detalhes</Button>
+        <div className="flex justify-center">
           <Button onClick={() => handleComprar(produto)}>Comprar</Button>
         </div>
       </div>
@@ -59,6 +60,13 @@ const ProductSection = () => {
           {produtos.map(renderProductCard)}
         </div>
       </div>
+      {selectedProduct && (
+        <MockCheckout
+          isOpen={isCheckoutOpen}
+          onClose={handleCloseCheckout}
+          product={selectedProduct}
+        />
+      )}
     </section>
   );
 };

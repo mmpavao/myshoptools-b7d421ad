@@ -267,6 +267,29 @@ const myShopOperations = {
   },
 };
 
+
+const pedidosOperations = {
+  adicionarPedidoVendedor: async (userId, pedido) => {
+    try {
+      const pedidoRef = await addDoc(collection(db, 'users', userId, 'pedidos'), pedido);
+      return pedidoRef.id;
+    } catch (error) {
+      console.error('Erro ao adicionar pedido do vendedor:', error);
+      throw error;
+    }
+  },
+
+  adicionarPedidoFornecedor: async (fornecedorId, pedido) => {
+    try {
+      const pedidoRef = await addDoc(collection(db, 'fornecedores', fornecedorId, 'pedidos'), pedido);
+      return pedidoRef.id;
+    } catch (error) {
+      console.error('Erro ao adicionar pedido do fornecedor:', error);
+      throw error;
+    }
+  },
+};
+
 const firebaseOperations = {
   ...crudOperations,
   ...userOperations,
@@ -275,6 +298,7 @@ const firebaseOperations = {
   ...meusProdutosOperations,
   ...userProfileOperations,
   ...myShopOperations,
+  ...pedidosOperations,
   testFirebaseOperations,
   clearAllData
 };

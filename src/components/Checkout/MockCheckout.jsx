@@ -3,8 +3,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from '../../components/Auth/AuthProvider';
+import firebaseOperations from '../../firebase/firebaseOperations';
 
-const MockCheckout = ({ isOpen, onClose, plan }) => {
+const MockCheckout = ({ isOpen, onClose, product }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,32 +15,61 @@ const MockCheckout = ({ isOpen, onClose, plan }) => {
     expiry: '',
     cvc: '',
   });
+  const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevData => ({ ...prevData, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically process the payment
-    console.log('Processing payment for:', plan);
-    console.log('Form data:', formData);
-    // Mock successful payment
-    alert('Pagamento processado com sucesso! Obrigado por escolher nossos serviços.');
-    onClose();
+    try {
+      // Simular processamento do pagamento
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Criar pedido fictício
+      const pedido = {
+        produtoId: product.id,
+        titulo: product.titulo,
+        preco: product.preco,
+        quantidade: 1,
+        status: 'Pago',
+        dataCompra: new Date().toISOString(),
+      };
+
+      // Adicionar pedido aos meus pedidos do vendedor
+      if (user) {
+        await firebaseOperations.adicionarPedidoVendedor(user.uid, pedido);
+      }
+
+      // Adicionar pedido aos pedidos do fornecedor
+      await firebaseOperations.adicionarPedidoFornecedor(product.fornecedorId, pedido);
+
+      toast({
+        title: "Compra realizada com sucesso!",
+        description: "Seu pedido foi processado e registrado.",
+      });
+
+      onClose();
+    } catch (error) {
+      console.error("Erro ao processar compra:", error);
+      toast({
+        title: "Erro na compra",
+        description: "Não foi possível processar sua compra. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
-  // If plan is null or undefined, show a message or return null
-  if (!plan) {
-    return null; // Or you could return a message like "No plan selected"
-  }
+  if (!product) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Checkout - {plan.name}</DialogTitle>
+          <DialogTitle>Checkout - {product.titulo}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -63,7 +95,7 @@ const MockCheckout = ({ isOpen, onClose, plan }) => {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Pagar R$ {plan.price}/mês</Button>
+            <Button type="submit">Pagar R$ {product.preco.toFixed(2)}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
