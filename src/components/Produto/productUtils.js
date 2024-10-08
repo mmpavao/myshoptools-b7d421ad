@@ -1,11 +1,4 @@
-// Remove the React import as it's not needed for utility functions
-// import React from 'react';
-
-// Remove the StarIcon import as we're not using JSX here
-// import { StarIcon } from "lucide-react";
-
 export const renderStars = (rating) => {
-  // Instead of returning JSX, return an array of objects that can be used to render stars
   return Array.from({ length: 5 }, (_, index) => ({
     filled: index < Math.floor(rating),
     key: index

@@ -84,7 +84,12 @@ const ProductDetails = ({ produto, activeMarketplace }) => {
       <h1 className="text-3xl font-bold mb-2">{produto.titulo}</h1>
       
       <div className="flex items-center mb-4">
-        {renderStars(produto.avaliacao || 0)}
+        {renderStars(produto.avaliacao || 0).map((star, index) => (
+          <StarIcon
+            key={index}
+            className={`w-5 h-5 ${star.filled ? 'text-yellow-400' : 'text-gray-300'}`}
+          />
+        ))}
         <span className="ml-2 text-gray-600">({produto.numeroAvaliacoes || 0} avaliações)</span>
       </div>
 
