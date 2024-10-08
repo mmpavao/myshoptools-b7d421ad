@@ -17,6 +17,7 @@ export const loadUserProfile = async (userId) => {
         country: country,
       };
     }
+    console.error('Perfil do usuário não encontrado');
     return null;
   } catch (error) {
     console.error('Erro ao carregar perfil do usuário:', error);

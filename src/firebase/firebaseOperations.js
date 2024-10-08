@@ -114,11 +114,13 @@ const firebaseOperations = {
         return { 
           id: userDoc.id, 
           ...userData,
-          name: userData.displayName || 'Nome não disponível',
+          displayName: userData.displayName || 'Nome não disponível',
           email: userData.email || 'Email não disponível',
-          avatar: userData.photoURL || 'https://example.com/placeholder-avatar.jpg',
+          photoURL: userData.photoURL || 'https://example.com/placeholder-avatar.jpg',
           role: userData.role || 'Usuário',
-          status: userData.status || 'Inativo'
+          status: userData.status || 'Inativo',
+          phoneNumber: userData.phoneNumber || '',
+          address: userData.address || '',
         };
       } else {
         throw new Error('Usuário não encontrado');
@@ -128,7 +130,6 @@ const firebaseOperations = {
       throw error;
     }
   },
-
 
   // Add these two new functions
   getAllUsers: userOperations.getAllUsers,
