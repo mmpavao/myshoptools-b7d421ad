@@ -131,6 +131,40 @@ const walletOperations = {
     });
   },
 
+
+  createTransaction: async (userId, transactionData) => {
+    try {
+      const walletRef = collection(db, 'wallets');
+      const q = query(walletRef, where("userId", "==", userId));
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
+        throw new Error('Wallet not found');
+      }
+      const walletDoc = querySnapshot.docs[0];
+
+      await runTransaction(db, async (transaction) => {
+        const walletData = await transaction.get(walletDoc.ref);
+        const currentBalance = walletData.data().balance;
+        const newBalance = transactionData.type === 'credit' 
+          ? currentBalance + transactionData.amount 
+          : currentBalance - transactionData.amount;
+
+        transaction.update(walletDoc.ref, { balance: newBalance, updatedAt: new Date().toISOString() });
+
+        const historyRef = collection(db, 'walletHistory');
+        transaction.set(doc(historyRef), {
+          ...transactionData,
+          userId,
+          balance: newBalance,
+          createdAt: new Date().toISOString(),
+        });
+      });
+    } catch (error) {
+      console.error('Error creating transaction:', error);
+      throw error;
+    }
+  },
+
   getWalletHistory: async (userId) => {
     const historyRef = collection(db, 'walletHistory');
     const q = query(historyRef, where("userId", "==", userId));
