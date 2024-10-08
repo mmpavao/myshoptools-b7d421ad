@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../Auth/AuthProvider';
 import { getUserRole } from '../../firebase/userOperations';
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
@@ -48,7 +48,7 @@ const navItems = [
 ];
 
 const NavItem = ({ item, isOpen, userRole, isCollapsible }) => {
-  const [isExpanded, setIsExpanded] = useState(!isCollapsible);
+  const [isExpanded, setIsExpanded] = useState(true);
   const hasAccess = item.roles ? item.roles.includes(userRole) : true;
 
   if (!hasAccess) return null;
@@ -56,30 +56,29 @@ const NavItem = ({ item, isOpen, userRole, isCollapsible }) => {
   if (item.children) {
     return (
       <li>
-        <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
-          <CollapsibleTrigger className={cn(
-            "flex items-center w-full p-2 text-base font-semibold rounded-lg text-gray-900 hover:bg-gray-100",
-            isExpanded ? "bg-gray-100" : "",
+        <div
+          className={cn(
+            "flex items-center w-full p-2 text-base font-semibold rounded-lg text-gray-900",
+            isOpen && "hover:bg-gray-100",
             !isOpen && "justify-center"
-          )}>
-            {isOpen && (
-              <>
-                <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>
-                {isCollapsible && (isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />)}
-              </>
-            )}
-            {!isOpen && <span className="text-xs">{item.label[0]}</span>}
-          </CollapsibleTrigger>
-          <CollapsibleContent forceMount={!isCollapsible}>
-            {isOpen && (
-              <ul className="py-2 space-y-2 pl-4">
-                {item.children.map((child) => (
-                  <NavItem key={child.to} item={child} isOpen={isOpen} userRole={userRole} isCollapsible={isCollapsible} />
-                ))}
-              </ul>
-            )}
-          </CollapsibleContent>
-        </Collapsible>
+          )}
+          onClick={() => isCollapsible && setIsExpanded(!isExpanded)}
+        >
+          {isOpen && (
+            <>
+              <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>
+              {isCollapsible && (isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />)}
+            </>
+          )}
+          {!isOpen && <span className="text-xs">{item.label[0]}</span>}
+        </div>
+        {(isExpanded || !isCollapsible) && isOpen && (
+          <ul className="py-2 space-y-2 pl-4">
+            {item.children.map((child) => (
+              <NavItem key={child.to} item={child} isOpen={isOpen} userRole={userRole} isCollapsible={false} />
+            ))}
+          </ul>
+        )}
       </li>
     );
   }
@@ -148,7 +147,10 @@ const Sidebar = ({ isOpen }) => {
         </div>
         <ul className="space-y-2">
           {navItems.map((item, index) => (
-            <NavItem key={index} item={item} isOpen={isOpen} userRole={userRole} isCollapsible={isCollapsible} />
+            <React.Fragment key={index}>
+              <NavItem item={item} isOpen={isOpen} userRole={userRole} isCollapsible={isCollapsible} />
+              {isOpen && index < navItems.length - 1 && <Separator className="my-2" />}
+            </React.Fragment>
           ))}
         </ul>
         <div className="absolute bottom-0 left-0 right-0 p-4">
