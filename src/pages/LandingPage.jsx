@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useSpring, animated } from 'react-spring';
+import { useSpring } from 'react-spring';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/Auth/AuthProvider';
 import firebaseOperations from '../firebase/firebaseOperations';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Upload, ChevronDown, ShoppingCart, Globe, DollarSign, Store, BarChart2, Shield, Zap, Users, Code } from 'lucide-react';
 import Header from '../components/LandingPage/Header';
 import FeatureSection from '../components/LandingPage/FeatureSection';
 import ProductSection from '../components/LandingPage/ProductSection';
@@ -47,7 +44,6 @@ const LandingPage = () => {
 
   useEffect(() => {
     fetchLandPageSettings();
-    fetchFeaturedProducts();
   }, []);
 
   const fetchLandPageSettings = async () => {
@@ -58,15 +54,6 @@ const LandingPage = () => {
       }
     } catch (error) {
       console.error("Erro ao buscar configurações da LandPage:", error);
-    }
-  };
-
-  const fetchFeaturedProducts = async () => {
-    try {
-      const products = await firebaseOperations.getFeaturedProducts();
-      setSettings(prevSettings => ({ ...prevSettings, featuredProducts: products }));
-    } catch (error) {
-      console.error("Erro ao buscar produtos em destaque:", error);
     }
   };
 
@@ -88,7 +75,7 @@ const LandingPage = () => {
     <div className="bg-gradient-to-b from-blue-600 to-purple-800 min-h-screen text-white">
       <Header settings={settings} fadeIn={fadeIn} handleCTAClick={handleCTAClick} />
       <FeatureSection settings={settings} />
-      <ProductSection featuredProducts={settings.featuredProducts} />
+      <ProductSection />
       <IntegrationSection />
       <PricingSection onSelectPlan={handleSelectPlan} />
       <SupportSection />
