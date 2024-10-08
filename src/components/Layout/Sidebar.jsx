@@ -2,17 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard,
-  Store,
-  Package,
-  ClipboardList,
-  LifeBuoy,
-  ShoppingCart,
-  Users,
-  Settings,
-  MessageSquare,
-  ChevronDown,
-  ChevronRight,
+  LayoutDashboard, Store, Package, ClipboardList, LifeBuoy,
+  ShoppingCart, Users, Settings, MessageSquare, ChevronDown, ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../Auth/AuthProvider';
 import { getUserRole } from '../../firebase/userOperations';
@@ -153,14 +144,14 @@ const Sidebar = ({ isOpen }) => {
       isOpen ? "w-64" : "w-20",
       "bg-gray-900 text-white shadow-md rounded-l-3xl m-2"
     )}>
-      <div className="h-full overflow-y-auto py-6 px-3">
+      <div className="h-full overflow-y-auto py-6 px-3 flex flex-col">
         <div className={cn(
           "text-xl font-bold mb-6 text-center",
           !isOpen && "text-sm"
         )}>
           {isOpen ? "MyShopTools" : "MST"}
         </div>
-        <ul className="space-y-2">
+        <ul className="space-y-2 flex-grow">
           {navItems.map((item, index) => (
             <React.Fragment key={index}>
               <NavItem 
@@ -174,7 +165,7 @@ const Sidebar = ({ isOpen }) => {
             </React.Fragment>
           ))}
         </ul>
-        <div className="absolute bottom-6 left-3 right-3">
+        <div className="mt-6">
           <NavLink
             to="/suporte"
             className={cn(
