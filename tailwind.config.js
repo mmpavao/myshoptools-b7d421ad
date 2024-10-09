@@ -51,22 +51,6 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Custom color palette
-        blue: {
-          600: '#2563eb', // Primary button color
-        },
-        gray: {
-          100: '#f3f4f6', // Main background color
-          200: '#e5e7eb', // Secondary button color
-          300: '#d1d5db', // Border color
-          600: '#4b5563', // Normal text color
-          800: '#1f2937', // Title text color
-          900: '#111827', // Sidebar background color
-        },
-        red: {
-          500: '#ef4444', // Destructive button color
-        },
-        white: '#ffffff', // Card background color
       },
       borderRadius: {
         lg: "var(--radius)",
