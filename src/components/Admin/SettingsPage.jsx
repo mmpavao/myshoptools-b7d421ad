@@ -5,6 +5,7 @@ import SystemSettings from './SystemSettings';
 import Integrations from './Integrations';
 import Billing from './Billing';
 import ChatSettings from './ChatSettings';
+import StripeIntegration from './StripeIntegration';
 
 const SettingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,6 +43,9 @@ const SettingsPage = () => {
         
         <TabsContent value="integrations">
           <Integrations />
+          <div className="mt-6">
+            <StripeIntegration />
+          </div>
         </TabsContent>
         
         <TabsContent value="billing">
