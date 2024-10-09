@@ -1,6 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const stripe = require('stripe');
+const cors = require('cors')({origin: true});
 
 admin.initializeApp();
 
@@ -77,29 +78,31 @@ exports.processPixPayment = functions.https.onCall(async (data, context) => {
 
 // Webhook para processar eventos do Stripe
 exports.stripeWebhook = functions.https.onRequest(async (req, res) => {
-  const stripeInstance = stripe(functions.config().stripe.secret_key);
-  const sig = req.headers['stripe-signature'];
+  return cors(req, res, async () => {
+    const stripeInstance = stripe(functions.config().stripe.secret_key);
+    const sig = req.headers['stripe-signature'];
 
-  try {
-    const event = stripeInstance.webhooks.constructEvent(req.rawBody, sig, functions.config().stripe.webhook_secret);
+    try {
+      const event = stripeInstance.webhooks.constructEvent(req.rawBody, sig, functions.config().stripe.webhook_secret);
 
-    switch (event.type) {
-      case 'payment_intent.succeeded':
-        const paymentIntent = event.data.object;
-        await handleSuccessfulPayment(paymentIntent);
-        break;
-      case 'payment_intent.payment_failed':
-        const failedPaymentIntent = event.data.object;
-        await handleFailedPayment(failedPaymentIntent);
-        break;
-      // Adicione mais casos conforme necessário
+      switch (event.type) {
+        case 'payment_intent.succeeded':
+          const paymentIntent = event.data.object;
+          await handleSuccessfulPayment(paymentIntent);
+          break;
+        case 'payment_intent.payment_failed':
+          const failedPaymentIntent = event.data.object;
+          await handleFailedPayment(failedPaymentIntent);
+          break;
+        // Adicione mais casos conforme necessário
+      }
+
+      res.json({received: true});
+    } catch (err) {
+      console.error('Error processing Stripe webhook:', err);
+      res.status(400).send(`Webhook Error: ${err.message}`);
     }
-
-    res.json({received: true});
-  } catch (err) {
-    console.error('Error processing Stripe webhook:', err);
-    res.status(400).send(`Webhook Error: ${err.message}`);
-  }
+  });
 });
 
 async function handleSuccessfulPayment(paymentIntent) {
