@@ -1,4 +1,4 @@
-import { Cpu, ShoppingCart, BarChart3, Users, MessageSquare } from "lucide-react";
+import { Cpu, ShoppingCart, BarChart3, Users, MessageSquare, CreditCard } from "lucide-react";
 
 export const integrations = [
   {
@@ -12,7 +12,7 @@ export const integrations = [
     name: "Mercado Livre",
     category: "E-commerce",
     description: "Integrate with Latin America's leading e-commerce platform.",
-    pricing: "Free API access, transaction fees apply",
+    pricing: "Free API access, commission on sales",
     icon: ShoppingCart
   },
   {
@@ -42,5 +42,12 @@ export const integrations = [
     description: "Connect with HubSpot's powerful CRM and marketing tools.",
     pricing: "Free plan available, paid plans vary",
     icon: MessageSquare
+  },
+  {
+    name: "Stripe",
+    category: "Payment",
+    description: "Integrate Stripe for secure and flexible payment processing.",
+    pricing: "Per-transaction fees apply",
+    icon: CreditCard
   },
 ];
