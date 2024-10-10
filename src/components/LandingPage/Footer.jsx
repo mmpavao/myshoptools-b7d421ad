@@ -1,13 +1,30 @@
 import React from 'react';
 
-const Footer = ({ settings }) => (
-  <footer className="bg-gray-900 text-white py-8">
-    <div className="container mx-auto px-4 text-center">
-      <p className="mb-4">{settings.footerText}</p>
-      <p>Contato: {settings.contactEmail} | {settings.contactPhone}</p>
-      <p>&copy; {new Date().getFullYear()} MyShopTools. Todos os direitos reservados.</p>
-    </div>
-  </footer>
-);
+const Footer = ({ settings }) => {
+  return (
+    <footer className="py-10 bg-gray-800 text-white">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Contato</h3>
+            <p>Email: {settings.contactEmail}</p>
+            <p>Telefone: {settings.contactPhone}</p>
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Links Rápidos</h3>
+            {/* Adicione links rápidos aqui */}
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Redes Sociais</h3>
+            {/* Adicione links para redes sociais aqui */}
+          </div>
+        </div>
+        <div className="mt-8 text-center">
+          <p>{settings.footerText}</p>
+        </div>
+      </div>
+    </footer>
+  );
+};
 
 export default Footer;
