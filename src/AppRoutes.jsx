@@ -59,6 +59,7 @@ const AppRoutes = () => {
         <Route path="/admin/chat" element={<ProtectedRoute><Layout><ChatAdmin /></Layout></ProtectedRoute>} />
         <Route path="/admin/integrations/openai" element={<ProtectedRoute><Layout><OpenAIIntegration /></Layout></ProtectedRoute>} />
         <Route path="/landpage" element={<VissaGlobalTradePage />} />
+        <Route path="/LandingPage" element={<VissaGlobalTradePage />} />
       </Routes>
     </AuthProvider>
   );
