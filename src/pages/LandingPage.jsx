@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSpring } from 'react-spring';
+import { useSpring, animated } from 'react-spring';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/Auth/AuthProvider';
 import firebaseOperations from '../firebase/firebaseOperations';
@@ -16,7 +16,7 @@ import PricingSection from '../components/Pricing/PricingSection';
 
 const LandingPage = () => {
   const [settings, setSettings] = useState({
-    title: 'A maior plataforma de dropshipping da América Latina',
+    title: 'Elevate seu negócio com nossa solução de alto impacto',
     subtitle: 'Conectando vendedores e fornecedores em uma rede global de oportunidades',
     ctaText: 'Comece Grátis Agora',
     bannerUrl: '',
@@ -72,16 +72,18 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-blue-600 to-purple-800 min-h-screen text-white">
+    <div className="bg-black text-white min-h-screen">
       <Header settings={settings} fadeIn={fadeIn} handleCTAClick={handleCTAClick} />
-      <FeatureSection settings={settings} />
-      <ProductSection />
-      <IntegrationSection />
-      <PricingSection onSelectPlan={handleSelectPlan} />
-      <SupportSection />
-      <LogisticsSection />
-      <TestimonialSection />
-      <CallToAction handleCTAClick={handleCTAClick} />
+      <animated.div style={fadeIn}>
+        <FeatureSection settings={settings} />
+        <ProductSection />
+        <IntegrationSection />
+        <PricingSection onSelectPlan={handleSelectPlan} />
+        <SupportSection />
+        <LogisticsSection />
+        <TestimonialSection />
+        <CallToAction handleCTAClick={handleCTAClick} />
+      </animated.div>
       <Footer settings={settings} />
     </div>
   );

@@ -1,25 +1,29 @@
 import React from 'react';
-import { ShoppingCart, Globe, DollarSign, Store, BarChart2, Shield } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 
 const FeatureSection = ({ settings }) => {
-  const renderFeatureItem = (icon, title, description) => (
-    <div className="flex flex-col items-center p-6 bg-white rounded-lg shadow-lg">
-      {icon}
-      <h3 className="mt-4 mb-2 text-xl font-semibold">{title}</h3>
-      <p className="text-center text-gray-600">{description}</p>
-    </div>
-  );
+  const features = [
+    { title: 'Preços Competitivos', description: settings.competitivePricing },
+    { title: 'Loja Pronta', description: settings.readyToSellStore },
+    { title: 'Gestão de Estoque', description: settings.inventoryManagement },
+    { title: 'Transações Seguras', description: settings.secureTransactions },
+  ];
 
   return (
-    <section className="py-20 bg-white text-gray-800">
-      <h2 className="text-4xl font-bold mb-12 text-center">Por que escolher nossa plataforma?</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {renderFeatureItem(<ShoppingCart size={48} className="text-blue-600" />, `${settings.activeVendors} Vendedores Ativos`, settings.competitivePricing)}
-        {renderFeatureItem(<Globe size={48} className="text-blue-600" />, `Fornecedores em ${settings.countriesServed} países`, "Acesso a uma rede global de fornecedores confiáveis")}
-        {renderFeatureItem(<DollarSign size={48} className="text-blue-600" />, "Preços Competitivos", settings.competitivePricing)}
-        {renderFeatureItem(<Store size={48} className="text-blue-600" />, "Loja Pronta", settings.readyToSellStore)}
-        {renderFeatureItem(<BarChart2 size={48} className="text-blue-600" />, "Gestão de Estoque", settings.inventoryManagement)}
-        {renderFeatureItem(<Shield size={48} className="text-blue-600" />, "Transações Seguras", settings.secureTransactions)}
+    <section className="py-20 bg-gray-900">
+      <div className="container mx-auto px-4">
+        <h2 className="text-4xl font-bold mb-12 text-center text-white">Por que escolher nossa plataforma?</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {features.map((feature, index) => (
+            <div key={index} className="bg-gray-800 rounded-lg p-6 shadow-lg">
+              <div className="flex items-center mb-4">
+                <CheckCircle className="text-purple-500 mr-3" size={24} />
+                <h3 className="text-xl font-semibold text-white">{feature.title}</h3>
+              </div>
+              <p className="text-gray-400">{feature.description}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

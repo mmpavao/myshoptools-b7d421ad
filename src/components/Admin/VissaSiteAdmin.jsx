@@ -33,6 +33,8 @@ const VissaSiteAdmin = () => {
     mapIcons: {},
     officeImages: {},
   });
+  const [newPartnerName, setNewPartnerName] = useState('');
+  const [newPartnerLogo, setNewPartnerLogo] = useState(null);
 
   useEffect(() => {
     fetchVissaSiteSettings();
@@ -69,6 +71,40 @@ const VissaSiteAdmin = () => {
         console.error(`Erro ao fazer upload do ${name}:`, error);
         toast.error(`Falha ao atualizar o ${name}`);
       }
+    }
+  };
+
+  const handleAddPartner = async () => {
+    if (!newPartnerName || !newPartnerLogo) {
+      toast.error("Por favor, preencha o nome do parceiro e faça upload do logo.");
+      return;
+    }
+
+    try {
+      const uploadedUrl = await firebaseOperations.uploadFile(newPartnerLogo, `vissa-site/partnerLogos/${newPartnerName}`);
+      setSettings(prev => ({
+        ...prev,
+        partnerLogos: { ...prev.partnerLogos, [newPartnerName]: uploadedUrl }
+      }));
+      setNewPartnerName('');
+      setNewPartnerLogo(null);
+      toast.success("Novo parceiro adicionado com sucesso");
+    } catch (error) {
+      console.error("Erro ao adicionar novo parceiro:", error);
+      toast.error("Falha ao adicionar novo parceiro");
+    }
+  };
+
+  const handleRemovePartner = async (partnerName) => {
+    try {
+      await firebaseOperations.deleteFile(`vissa-site/partnerLogos/${partnerName}`);
+      const updatedPartnerLogos = { ...settings.partnerLogos };
+      delete updatedPartnerLogos[partnerName];
+      setSettings(prev => ({ ...prev, partnerLogos: updatedPartnerLogos }));
+      toast.success("Parceiro removido com sucesso");
+    } catch (error) {
+      console.error("Erro ao remover parceiro:", error);
+      toast.error("Falha ao remover parceiro");
     }
   };
 
@@ -136,27 +172,32 @@ const VissaSiteAdmin = () => {
           </TabsContent>
 
           <TabsContent value="partners" className="space-y-4">
-            <ImageUploadField
-              label="Logo Stripe"
-              name="stripe"
-              value={settings.partnerLogos?.stripe}
-              onChange={(e) => handleFileChange(e, 'partnerLogos')}
-              description="Tamanho recomendado: 200x100 pixels. Formato: PNG ou JPG. Fundo transparente recomendado."
-            />
-            <ImageUploadField
-              label="Logo PayPal"
-              name="paypal"
-              value={settings.partnerLogos?.paypal}
-              onChange={(e) => handleFileChange(e, 'partnerLogos')}
-              description="Tamanho recomendado: 200x100 pixels. Formato: PNG ou JPG. Fundo transparente recomendado."
-            />
-            <ImageUploadField
-              label="Logo Mercado Pago"
-              name="mercadopago"
-              value={settings.partnerLogos?.mercadopago}
-              onChange={(e) => handleFileChange(e, 'partnerLogos')}
-              description="Tamanho recomendado: 200x100 pixels. Formato: PNG ou JPG. Fundo transparente recomendado."
-            />
+            <h3 className="text-lg font-semibold">Logos dos Parceiros Atuais</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {Object.entries(settings.partnerLogos || {}).map(([name, url]) => (
+                <div key={name} className="flex flex-col items-center">
+                  <img src={url} alt={name} className="w-24 h-24 object-contain" />
+                  <p className="mt-2">{name}</p>
+                  <Button variant="destructive" size="sm" onClick={() => handleRemovePartner(name)}>
+                    Remover
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <h3 className="text-lg font-semibold mt-6">Adicionar Novo Parceiro</h3>
+            <div className="space-y-4">
+              <Input
+                placeholder="Nome do Parceiro"
+                value={newPartnerName}
+                onChange={(e) => setNewPartnerName(e.target.value)}
+              />
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setNewPartnerLogo(e.target.files[0])}
+              />
+              <Button onClick={handleAddPartner}>Adicionar Parceiro</Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="banners" className="space-y-4">
