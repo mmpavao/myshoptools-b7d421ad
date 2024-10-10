@@ -18,7 +18,6 @@ import AdminUserList from "./components/Admin/AdminUserList";
 import SettingsPage from "./components/Admin/SettingsPage";
 import ChatAdmin from "./components/Admin/ChatAdmin";
 import OpenAIIntegration from "./integrations/OpenAIIntegration";
-import StripeIntegration from "./components/Admin/StripeIntegration";
 import LandingPage from "./pages/LandingPage";
 import Wallet from "./components/Wallet/Wallet";
 
@@ -58,7 +57,6 @@ const AppRoutes = () => {
         <Route path="/admin/settings" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
         <Route path="/admin/chat" element={<ProtectedRoute><Layout><ChatAdmin /></Layout></ProtectedRoute>} />
         <Route path="/admin/integrations/openai" element={<ProtectedRoute><Layout><OpenAIIntegration /></Layout></ProtectedRoute>} />
-        <Route path="/admin/integrations/stripe" element={<ProtectedRoute><Layout><StripeIntegration /></Layout></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   );

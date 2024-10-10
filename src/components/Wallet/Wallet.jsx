@@ -3,9 +3,6 @@ import { useAuth } from '../Auth/AuthProvider';
 import { WalletBalance, TransactionHistory, CheckoutDialog } from './WalletComponents';
 import walletOperations from '../../firebase/walletOperations';
 import { useToast } from "@/components/ui/use-toast";
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements } from '@stripe/react-stripe-js';
-import firebaseOperations from '../../firebase/firebaseOperations';
 
 const Wallet = () => {
   const [balance, setBalance] = useState(0);
@@ -15,23 +12,14 @@ const Wallet = () => {
   const [paymentMethod, setPaymentMethod] = useState('credit');
   const [installments, setInstallments] = useState('1');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [stripePromise, setStripePromise] = useState(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
     if (user) {
       fetchWalletData();
-      initializeStripe();
     }
   }, [user]);
-
-  const initializeStripe = async () => {
-    const stripeKeys = await firebaseOperations.getStripeKeys(user.uid);
-    if (stripeKeys && stripeKeys.publishableKey) {
-      setStripePromise(loadStripe(stripeKeys.publishableKey));
-    }
-  };
 
   const fetchWalletData = async () => {
     try {
@@ -93,33 +81,19 @@ const Wallet = () => {
       if (isNaN(addedAmount) || addedAmount <= 0) {
         throw new Error('Valor inválido para adição de fundos');
       }
-
-      let paymentResult;
-      if (paymentMethod === 'credit') {
-        // Implementar lógica de pagamento com cartão de crédito usando Stripe
-        paymentResult = await firebaseOperations.processStripePayment(user.uid, addedAmount, installments);
-      } else if (paymentMethod === 'pix') {
-        // Implementar lógica de pagamento com Pix
-        paymentResult = await firebaseOperations.processPixPayment(user.uid, addedAmount);
-      }
-
-      if (paymentResult.success) {
-        await walletOperations.addFunds(user.uid, addedAmount, paymentMethod);
-        fetchWalletData();
-        setAmount('');
-        setIsCheckoutOpen(false);
-        toast({
-          title: "Sucesso",
-          description: `R$ ${addedAmount.toFixed(2)} adicionados à sua carteira.`,
-        });
-      } else {
-        throw new Error(paymentResult.message || 'Falha no processamento do pagamento');
-      }
+      await walletOperations.addFunds(user.uid, addedAmount, paymentMethod);
+      fetchWalletData();
+      setAmount('');
+      setIsCheckoutOpen(false);
+      toast({
+        title: "Sucesso",
+        description: `R$ ${addedAmount.toFixed(2)} adicionados à sua carteira.`,
+      });
     } catch (error) {
       console.error('Error processing payment:', error);
       toast({
         title: "Erro",
-        description: error.message || "Não foi possível processar o pagamento.",
+        description: "Não foi possível processar o pagamento.",
         variant: "destructive",
       });
     } finally {
@@ -139,21 +113,17 @@ const Wallet = () => {
         handleTransfer={handleTransfer}
       />
       <TransactionHistory history={history} />
-      {stripePromise && (
-        <Elements stripe={stripePromise}>
-          <CheckoutDialog
-            isOpen={isCheckoutOpen}
-            onClose={() => setIsCheckoutOpen(false)}
-            paymentMethod={paymentMethod}
-            setPaymentMethod={setPaymentMethod}
-            installments={installments}
-            setInstallments={setInstallments}
-            isProcessing={isProcessing}
-            handlePaymentSubmit={handlePaymentSubmit}
-            amount={parseFloat(amount)}
-          />
-        </Elements>
-      )}
+      <CheckoutDialog
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        paymentMethod={paymentMethod}
+        setPaymentMethod={setPaymentMethod}
+        installments={installments}
+        setInstallments={setInstallments}
+        isProcessing={isProcessing}
+        handlePaymentSubmit={handlePaymentSubmit}
+        amount={parseFloat(amount)}
+      />
     </div>
   );
 };
