@@ -1,45 +1,101 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import firebaseOperations from '../../firebase/firebaseOperations';
 
-const SystemSettings = () => (
-  <div className="space-y-4">
+const SystemSettings = () => {
+  const [settings, setSettings] = useState({
+    platformName: '',
+    logo: null,
+    favicon: null,
+    banner: null,
+    seoDescription: '',
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSettings(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    setSettings(prev => ({ ...prev, [name]: files[0] }));
+  };
+
+  const handleSave = async () => {
+    try {
+      await firebaseOperations.saveSystemSettings(settings);
+      toast.success("Configurações do sistema salvas com sucesso");
+    } catch (error) {
+      console.error("Erro ao salvar configurações do sistema:", error);
+      toast.error("Falha ao salvar as configurações do sistema");
+    }
+  };
+
+  return (
     <Card>
       <CardHeader>
-        <CardTitle>Platform Settings</CardTitle>
-        <CardDescription>Configure your platform's basic information</CardDescription>
+        <CardTitle>Configurações do Sistema</CardTitle>
+        <CardDescription>Gerencie as configurações básicas da plataforma</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="platformName">Platform Name</Label>
-          <Input id="platformName" placeholder="MyShopTools" />
+          <Label htmlFor="platformName">Nome da Plataforma</Label>
+          <Input
+            id="platformName"
+            name="platformName"
+            value={settings.platformName}
+            onChange={handleInputChange}
+            placeholder="MyShopTools"
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="logo">Logo</Label>
-          <Input id="logo" type="file" />
+          <Input
+            id="logo"
+            name="logo"
+            type="file"
+            onChange={handleFileChange}
+            accept="image/*"
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="favicon">Favicon</Label>
-          <Input id="favicon" type="file" />
+          <Input
+            id="favicon"
+            name="favicon"
+            type="file"
+            onChange={handleFileChange}
+            accept="image/*"
+          />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="socialBanner">Social Share Banner</Label>
-          <Input id="socialBanner" type="file" />
+          <Label htmlFor="banner">Banner</Label>
+          <Input
+            id="banner"
+            name="banner"
+            type="file"
+            onChange={handleFileChange}
+            accept="image/*"
+          />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="seoDescription">SEO Description</Label>
-          <Input id="seoDescription" placeholder="Enter SEO description" />
+          <Label htmlFor="seoDescription">Descrição SEO</Label>
+          <Input
+            id="seoDescription"
+            name="seoDescription"
+            value={settings.seoDescription}
+            onChange={handleInputChange}
+            placeholder="Descrição para SEO"
+          />
         </div>
-        <div className="space-y-2">
-          <Label>Color Scheme</Label>
-          {/* Add color palette selection here */}
-        </div>
-        <Button>Save Changes</Button>
+        <Button onClick={handleSave}>Salvar Alterações</Button>
       </CardContent>
     </Card>
-  </div>
-);
+  );
+};
 
 export default SystemSettings;

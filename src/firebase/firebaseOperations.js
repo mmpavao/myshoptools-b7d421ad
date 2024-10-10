@@ -5,7 +5,7 @@ import fileOperations from './fileOperations';
 import meusProdutosOperations from './meusProdutosOperations';
 import userProfileOperations from './userProfileOperations';
 import dashboardOperations from './dashboardOperations';
-import { collection, addDoc, updateDoc, doc, increment, getDocs, query, where } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, doc, increment, getDocs, query, where, getDoc } from 'firebase/firestore';
 import { db } from './config';
 
 const firebaseOperations = {
@@ -21,92 +21,41 @@ const firebaseOperations = {
   uploadProductImage: fileOperations.uploadProductImage,
   getProductsByUser: productOperations.getProductsByUser,
 
-  adicionarPedidoVendedor: async (userId, pedido) => {
+  saveSystemSettings: async (settings) => {
     try {
-      const pedidosRef = collection(db, 'users', userId, 'pedidos');
-      await addDoc(pedidosRef, {
-        ...pedido,
-        statusVendedor: 'Novo',
-        dataAtualizacao: new Date().toISOString(),
-      });
+      const settingsRef = doc(db, 'systemSettings', 'general');
+      const updatedSettings = { ...settings };
+
+      // Upload images if they exist
+      if (settings.logo) {
+        updatedSettings.logoUrl = await fileOperations.uploadFile(settings.logo, 'system/logo');
+      }
+      if (settings.favicon) {
+        updatedSettings.faviconUrl = await fileOperations.uploadFile(settings.favicon, 'system/favicon');
+      }
+      if (settings.banner) {
+        updatedSettings.bannerUrl = await fileOperations.uploadFile(settings.banner, 'system/banner');
+      }
+
+      // Remove File objects before saving to Firestore
+      delete updatedSettings.logo;
+      delete updatedSettings.favicon;
+      delete updatedSettings.banner;
+
+      await updateDoc(settingsRef, updatedSettings);
     } catch (error) {
-      console.error("Erro ao adicionar pedido do vendedor:", error);
+      console.error("Erro ao salvar configurações do sistema:", error);
       throw error;
     }
   },
 
-  adicionarPedidoFornecedor: async (fornecedorId, pedido) => {
+  getSystemSettings: async () => {
     try {
-      const pedidosRef = collection(db, 'pedidosFornecedor');
-      await addDoc(pedidosRef, {
-        ...pedido,
-        fornecedorId,
-        statusLogistica: 'Aguardando',
-        dataAtualizacao: new Date().toISOString(),
-      });
+      const settingsRef = doc(db, 'systemSettings', 'general');
+      const settingsSnap = await getDoc(settingsRef);
+      return settingsSnap.exists() ? settingsSnap.data() : null;
     } catch (error) {
-      console.error("Erro ao adicionar pedido do fornecedor:", error);
-      throw error;
-    }
-  },
-
-  atualizarEstoque: async (produtoId, novoEstoque) => {
-    try {
-      const produtoRef = doc(db, 'products', produtoId);
-      await updateDoc(produtoRef, {
-        estoque: novoEstoque,
-      });
-    } catch (error) {
-      console.error("Erro ao atualizar estoque:", error);
-      throw error;
-    }
-  },
-
-  getPedidosVendedor: async (userId) => {
-    try {
-      const pedidosRef = collection(db, 'users', userId, 'pedidos');
-      const snapshot = await getDocs(pedidosRef);
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    } catch (error) {
-      console.error("Erro ao buscar pedidos do vendedor:", error);
-      throw error;
-    }
-  },
-
-  getPedidosFornecedor: async (fornecedorId) => {
-    try {
-      const pedidosRef = collection(db, 'pedidosFornecedor');
-      const q = query(pedidosRef, where("fornecedorId", "==", fornecedorId));
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    } catch (error) {
-      console.error("Erro ao buscar pedidos do fornecedor:", error);
-      throw error;
-    }
-  },
-
-  atualizarStatusPedidoVendedor: async (userId, pedidoId, novoStatus) => {
-    try {
-      const pedidoRef = doc(db, 'users', userId, 'pedidos', pedidoId);
-      await updateDoc(pedidoRef, {
-        statusVendedor: novoStatus,
-        dataAtualizacao: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error("Erro ao atualizar status do pedido do vendedor:", error);
-      throw error;
-    }
-  },
-
-  atualizarStatusPedidoFornecedor: async (pedidoId, novoStatus) => {
-    try {
-      const pedidoRef = doc(db, 'pedidosFornecedor', pedidoId);
-      await updateDoc(pedidoRef, {
-        statusLogistica: novoStatus,
-        dataAtualizacao: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error("Erro ao atualizar status do pedido do fornecedor:", error);
+      console.error("Erro ao buscar configurações do sistema:", error);
       throw error;
     }
   },
