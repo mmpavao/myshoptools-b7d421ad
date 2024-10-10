@@ -20,6 +20,7 @@ import ChatAdmin from "./components/Admin/ChatAdmin";
 import OpenAIIntegration from "./integrations/OpenAIIntegration";
 import LandingPage from "./pages/LandingPage";
 import Wallet from "./components/Wallet/Wallet";
+import VissaGlobalTradePage from "./components/VissaGlobalTrade/HomePage";
 
 const AppRoutes = () => {
   return (
@@ -57,6 +58,7 @@ const AppRoutes = () => {
         <Route path="/admin/settings" element={<ProtectedRoute><Layout><SettingsPage /></Layout></ProtectedRoute>} />
         <Route path="/admin/chat" element={<ProtectedRoute><Layout><ChatAdmin /></Layout></ProtectedRoute>} />
         <Route path="/admin/integrations/openai" element={<ProtectedRoute><Layout><OpenAIIntegration /></Layout></ProtectedRoute>} />
+        <Route path="/landpage" element={<VissaGlobalTradePage />} />
       </Routes>
     </AuthProvider>
   );
