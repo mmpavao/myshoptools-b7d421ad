@@ -7,10 +7,7 @@ const createSafeErrorObject = (error) => ({
 const safePostMessage = (target, message, origin) => {
   if (target && typeof target.postMessage === 'function') {
     try {
-      const safeMessage = JSON.parse(JSON.stringify({
-        ...message,
-        error: message.error ? createSafeErrorObject(message.error) : undefined
-      }));
+      const safeMessage = JSON.parse(JSON.stringify(message));
       target.postMessage(safeMessage, origin);
     } catch (postMessageError) {
       console.error('Error in postMessage:', postMessageError);

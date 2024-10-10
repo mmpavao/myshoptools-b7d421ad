@@ -5,94 +5,79 @@ const cors = require('cors')({origin: true});
 
 admin.initializeApp();
 
-exports.testStripeConnection = functions.https.onRequest((req, res) => {
-  return cors(req, res, async () => {
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method Not Allowed' });
-    }
+exports.testStripeConnection = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
+  }
 
-    try {
-      if (!req.body || !req.body.userId) {
-        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with a userId.');
-      }
+  const userId = data.userId;
+  const stripeIntegrationRef = admin.firestore().collection('stripeIntegration').doc(userId);
+  const doc = await stripeIntegrationRef.get();
 
-      const userId = req.body.userId;
-      const stripeIntegrationRef = admin.firestore().collection('stripeIntegration').doc(userId);
-      const doc = await stripeIntegrationRef.get();
+  if (!doc.exists) {
+    throw new functions.https.HttpsError('not-found', 'Stripe configuration not found for this user.');
+  }
 
-      if (!doc.exists) {
-        throw new functions.https.HttpsError('not-found', 'Stripe configuration not found for this user.');
-      }
+  const { secretKey, isTestMode } = doc.data();
+  const stripeInstance = stripe(secretKey);
 
-      const { secretKey, isTestMode } = doc.data();
-      const stripeInstance = stripe(secretKey);
-
-      await stripeInstance.paymentIntents.create({
-        amount: 1000,
-        currency: 'brl',
-        payment_method_types: ['card'],
-      });
-
-      res.json({ success: true });
-    } catch (error) {
-      console.error('Stripe connection test failed:', error);
-      res.status(500).json({ success: false, message: error.message });
-    }
-  });
+  try {
+    await stripeInstance.paymentIntents.create({
+      amount: 1000,
+      currency: 'brl',
+      payment_method_types: ['card'],
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Stripe connection test failed:', error);
+    return { success: false, message: error.message };
+  }
 });
 
-exports.processStripePayment = functions.https.onRequest((req, res) => {
-  return cors(req, res, async () => {
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method Not Allowed' });
-    }
+exports.processStripePayment = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
+  }
 
-    try {
-      const { userId, amount, installments } = req.body;
-      const stripeIntegrationRef = admin.firestore().collection('stripeIntegration').doc(userId);
-      const doc = await stripeIntegrationRef.get();
+  const { userId, amount, installments } = data;
+  const stripeIntegrationRef = admin.firestore().collection('stripeIntegration').doc(userId);
+  const doc = await stripeIntegrationRef.get();
 
-      if (!doc.exists) {
-        throw new functions.https.HttpsError('not-found', 'Stripe configuration not found for this user.');
-      }
+  if (!doc.exists) {
+    throw new functions.https.HttpsError('not-found', 'Stripe configuration not found for this user.');
+  }
 
-      const { secretKey } = doc.data();
-      const stripeInstance = stripe(secretKey);
+  const { secretKey } = doc.data();
+  const stripeInstance = stripe(secretKey);
 
-      const paymentIntent = await stripeInstance.paymentIntents.create({
-        amount: Math.round(amount * 100),
-        currency: 'brl',
-        payment_method_types: ['card'],
-        metadata: { installments },
-      });
+  try {
+    const paymentIntent = await stripeInstance.paymentIntents.create({
+      amount: Math.round(amount * 100),
+      currency: 'brl',
+      payment_method_types: ['card'],
+      metadata: { installments },
+    });
 
-      res.json({ success: true, clientSecret: paymentIntent.client_secret });
-    } catch (error) {
-      console.error('Stripe payment processing failed:', error);
-      res.status(500).json({ success: false, message: error.message });
-    }
-  });
+    return { success: true, clientSecret: paymentIntent.client_secret };
+  } catch (error) {
+    console.error('Stripe payment processing failed:', error);
+    return { success: false, message: error.message };
+  }
 });
 
-exports.processPixPayment = functions.https.onRequest((req, res) => {
-  return cors(req, res, async () => {
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method Not Allowed' });
-    }
+exports.processPixPayment = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
+  }
 
-    try {
-      const { userId, amount } = req.body;
-      // Implementar lógica para processar pagamento Pix
-      // Esta é uma implementação fictícia, você precisará integrar com um provedor de pagamentos que suporte Pix
-      res.json({ success: true, pixCode: 'PIX_CODE_HERE' });
-    } catch (error) {
-      console.error('Pix payment processing failed:', error);
-      res.status(500).json({ success: false, message: error.message });
-    }
-  });
+  const { userId, amount } = data;
+  // Implementar lógica para processar pagamento Pix
+  // Esta é uma implementação fictícia, você precisará integrar com um provedor de pagamentos que suporte Pix
+  return { success: true, pixCode: 'PIX_CODE_HERE' };
 });
 
-exports.stripeWebhook = functions.https.onRequest((req, res) => {
+// Webhook para processar eventos do Stripe
+exports.stripeWebhook = functions.https.onRequest(async (req, res) => {
   return cors(req, res, async () => {
     const stripeInstance = stripe(functions.config().stripe.secret_key);
     const sig = req.headers['stripe-signature'];
@@ -102,10 +87,12 @@ exports.stripeWebhook = functions.https.onRequest((req, res) => {
 
       switch (event.type) {
         case 'payment_intent.succeeded':
-          await handleSuccessfulPayment(event.data.object);
+          const paymentIntent = event.data.object;
+          await handleSuccessfulPayment(paymentIntent);
           break;
         case 'payment_intent.payment_failed':
-          await handleFailedPayment(event.data.object);
+          const failedPaymentIntent = event.data.object;
+          await handleFailedPayment(failedPaymentIntent);
           break;
         // Adicione mais casos conforme necessário
       }
@@ -113,7 +100,7 @@ exports.stripeWebhook = functions.https.onRequest((req, res) => {
       res.json({received: true});
     } catch (err) {
       console.error('Error processing Stripe webhook:', err);
-      res.status(400).json({ error: `Webhook Error: ${err.message}` });
+      res.status(400).send(`Webhook Error: ${err.message}`);
     }
   });
 });
@@ -122,11 +109,13 @@ async function handleSuccessfulPayment(paymentIntent) {
   const userId = paymentIntent.metadata.userId;
   const amount = paymentIntent.amount / 100;
 
+  // Atualizar o saldo do usuário
   const userRef = admin.firestore().collection('users').doc(userId);
   await userRef.update({
     balance: admin.firestore.FieldValue.increment(amount)
   });
 
+  // Adicionar à história de transações
   await admin.firestore().collection('walletHistory').add({
     userId: userId,
     amount: amount,
@@ -136,12 +125,14 @@ async function handleSuccessfulPayment(paymentIntent) {
     timestamp: admin.firestore.FieldValue.serverTimestamp()
   });
 
+  // Enviar notificação ao usuário
   // Implementar lógica de notificação (e-mail, push notification, etc.)
 }
 
 async function handleFailedPayment(paymentIntent) {
   const userId = paymentIntent.metadata.userId;
 
+  // Registrar a falha de pagamento
   await admin.firestore().collection('walletHistory').add({
     userId: userId,
     amount: paymentIntent.amount / 100,
@@ -151,5 +142,6 @@ async function handleFailedPayment(paymentIntent) {
     timestamp: admin.firestore.FieldValue.serverTimestamp()
   });
 
+  // Notificar o usuário sobre a falha
   // Implementar lógica de notificação (e-mail, push notification, etc.)
 }
