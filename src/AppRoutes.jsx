@@ -21,6 +21,7 @@ import OpenAIIntegration from "./integrations/OpenAIIntegration";
 import LandingPage from "./pages/LandingPage";
 import Wallet from "./components/Wallet/Wallet";
 import VissaGlobalTradePage from "./components/VissaGlobalTrade/HomePage";
+import VissaSiteAdmin from "./components/Admin/VissaSiteAdmin";
 
 const AppRoutes = () => {
   return (
@@ -145,6 +146,13 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <Layout>
               <OpenAIIntegration />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/vissa-site" element={
+          <ProtectedRoute>
+            <Layout>
+              <VissaSiteAdmin />
             </Layout>
           </ProtectedRoute>
         } />

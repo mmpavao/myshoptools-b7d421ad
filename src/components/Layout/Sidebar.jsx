@@ -14,7 +14,8 @@ import {
   ChevronDown,
   ChevronRight,
   Boxes,
-  Wallet
+  Wallet,
+  Globe
 } from 'lucide-react';
 import { useAuth } from '../Auth/AuthProvider';
 import { getUserRole } from '../../firebase/userOperations';
@@ -47,6 +48,7 @@ const navItems = [
       { icon: Users, label: 'Usuários', to: '/admin/users' },
       { icon: MessageSquare, label: 'Chat Admin', to: '/admin/chat' },
       { icon: Settings, label: 'Configurações', to: '/admin/settings' },
+      { icon: Globe, label: 'Vissa Site', to: '/admin/vissa-site' },
     ],
   },
 ];

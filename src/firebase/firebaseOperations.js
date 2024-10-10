@@ -59,6 +59,27 @@ const firebaseOperations = {
       throw error;
     }
   },
+
+  saveVissaSiteSettings: async (settings) => {
+    try {
+      const settingsRef = doc(db, 'vissaSiteSettings', 'general');
+      await updateDoc(settingsRef, settings);
+    } catch (error) {
+      console.error("Erro ao salvar configurações do site Vissa:", error);
+      throw error;
+    }
+  },
+
+  getVissaSiteSettings: async () => {
+    try {
+      const settingsRef = doc(db, 'vissaSiteSettings', 'general');
+      const settingsSnap = await getDoc(settingsRef);
+      return settingsSnap.exists() ? settingsSnap.data() : null;
+    } catch (error) {
+      console.error("Erro ao buscar configurações do site Vissa:", error);
+      throw error;
+    }
+  },
 };
 
 export default firebaseOperations;
