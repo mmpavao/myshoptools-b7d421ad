@@ -1,45 +1,45 @@
 import React from 'react';
+import { Store, Zap, Users, BarChart2, DollarSign, Code } from 'lucide-react';
 
-const IntegrationSection = () => {
-  return (
-    <section className="py-20">
+const IntegrationSection = () => (
+  <>
+    <section className="py-20 bg-blue-800 text-white">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold mb-10 text-center">Integrações</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4">Mercado Livre</h3>
-            <p className="mb-4">Integre facilmente sua loja com o Mercado Livre para expandir seu alcance.</p>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Saiba mais</button>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4">Shopee</h3>
-            <p className="mb-4">Conecte-se à Shopee e alcance milhões de compradores em potencial.</p>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Saiba mais</button>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4">Amazon</h3>
-            <p className="mb-4">Expanda seu negócio globalmente com nossa integração com a Amazon.</p>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Saiba mais</button>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4">Shopify</h3>
-            <p className="mb-4">Crie uma loja online poderosa com nossa integração Shopify.</p>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Saiba mais</button>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4">WooCommerce</h3>
-            <p className="mb-4">Integre facilmente com o WooCommerce para gerenciar sua loja WordPress.</p>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Saiba mais</button>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4">Magento</h3>
-            <p className="mb-4">Potencialize sua loja Magento com nossa integração avançada.</p>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Saiba mais</button>
-          </div>
+        <h2 className="text-4xl font-bold mb-12 text-center">Venda em Múltiplos Canais</h2>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 text-center">
+          {['Mercado Livre', 'Shopify', 'Shopee', 'Amazon', 'WooCommerce'].map((channel) => (
+            <div key={channel} className="flex flex-col items-center">
+              <Store className="w-16 h-16 mb-4" />
+              <h3 className="text-xl font-semibold">{channel}</h3>
+            </div>
+          ))}
         </div>
       </div>
     </section>
-  );
-};
+    <section className="py-20 bg-white text-gray-800">
+      <div className="container mx-auto px-4">
+        <h2 className="text-4xl font-bold mb-12 text-center">Integrações Poderosas</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {[
+            { name: 'OpenAI', icon: <Zap className="w-12 h-12 text-blue-600" />, description: 'IA para precificação e suporte' },
+            { name: 'Hubspot CRM', icon: <Users className="w-12 h-12 text-orange-600" />, description: 'Gestão de relacionamento com clientes' },
+            { name: 'Bling ERP', icon: <BarChart2 className="w-12 h-12 text-green-600" />, description: 'Gestão empresarial integrada' },
+            { name: 'Mercado Pago', icon: <DollarSign className="w-12 h-12 text-blue-400" />, description: 'Processamento de pagamentos' },
+            { name: 'Stripe', icon: <DollarSign className="w-12 h-12 text-purple-600" />, description: 'Pagamentos online globais' },
+            { name: 'PayPal', icon: <DollarSign className="w-12 h-12 text-blue-800" />, description: 'Transações internacionais' },
+            { name: 'Google Sheets', icon: <Code className="w-12 h-12 text-green-500" />, description: 'Integração com planilhas' },
+            { name: 'APIs Personalizadas', icon: <Code className="w-12 h-12 text-gray-600" />, description: 'Integrações sob medida' },
+          ].map((api) => (
+            <div key={api.name} className="flex flex-col items-center text-center">
+              {api.icon}
+              <h3 className="text-xl font-semibold mt-4 mb-2">{api.name}</h3>
+              <p className="text-sm">{api.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </>
+);
 
 export default IntegrationSection;

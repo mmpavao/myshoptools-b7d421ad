@@ -6,28 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, X } from 'lucide-react';
 import firebaseOperations from '../../firebase/firebaseOperations';
 
-const ImageUploadField = ({ label, name, value, onChange, description, onRemove }) => (
-  <div className="space-y-2 relative">
+const ImageUploadField = ({ label, name, value, onChange, description }) => (
+  <div className="space-y-2">
     <Label htmlFor={name}>{label}</Label>
     <Input id={name} name={name} type="file" onChange={onChange} accept="image/*" />
     {value && (
       <img src={value} alt={`Current ${label}`} className="mt-2 max-w-xs rounded" />
     )}
     <p className="text-sm text-gray-500">{description}</p>
-    {onRemove && (
-      <Button
-        type="button"
-        variant="destructive"
-        size="icon"
-        className="absolute top-0 right-0"
-        onClick={onRemove}
-      >
-        <X className="h-4 w-4" />
-      </Button>
-    )}
   </div>
 );
 
@@ -45,7 +33,6 @@ const VissaSiteAdmin = () => {
     mapIcons: {},
     officeImages: {},
   });
-  const [newPartnerName, setNewPartnerName] = useState('');
 
   useEffect(() => {
     fetchVissaSiteSettings();
@@ -93,26 +80,6 @@ const VissaSiteAdmin = () => {
       console.error("Erro ao salvar configurações do site Vissa:", error);
       toast.error("Falha ao salvar as configurações do site Vissa");
     }
-  };
-
-  const handleAddPartner = async () => {
-    if (newPartnerName.trim() === '') {
-      toast.error("Por favor, insira um nome para o novo parceiro");
-      return;
-    }
-    setSettings(prev => ({
-      ...prev,
-      partnerLogos: { ...prev.partnerLogos, [newPartnerName]: '' }
-    }));
-    setNewPartnerName('');
-  };
-
-  const handleRemovePartner = (partnerName) => {
-    setSettings(prev => {
-      const newPartnerLogos = { ...prev.partnerLogos };
-      delete newPartnerLogos[partnerName];
-      return { ...prev, partnerLogos: newPartnerLogos };
-    });
   };
 
   return (
@@ -169,27 +136,27 @@ const VissaSiteAdmin = () => {
           </TabsContent>
 
           <TabsContent value="partners" className="space-y-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <Input
-                placeholder="Nome do novo parceiro"
-                value={newPartnerName}
-                onChange={(e) => setNewPartnerName(e.target.value)}
-              />
-              <Button onClick={handleAddPartner}>
-                <Plus className="h-4 w-4 mr-2" /> Adicionar Parceiro
-              </Button>
-            </div>
-            {Object.entries(settings.partnerLogos).map(([name, url]) => (
-              <ImageUploadField
-                key={name}
-                label={`Logo ${name}`}
-                name={name}
-                value={url}
-                onChange={(e) => handleFileChange(e, 'partnerLogos')}
-                description="Tamanho recomendado: 200x100 pixels. Formato: PNG ou JPG. Fundo transparente recomendado."
-                onRemove={() => handleRemovePartner(name)}
-              />
-            ))}
+            <ImageUploadField
+              label="Logo Stripe"
+              name="stripe"
+              value={settings.partnerLogos?.stripe}
+              onChange={(e) => handleFileChange(e, 'partnerLogos')}
+              description="Tamanho recomendado: 200x100 pixels. Formato: PNG ou JPG. Fundo transparente recomendado."
+            />
+            <ImageUploadField
+              label="Logo PayPal"
+              name="paypal"
+              value={settings.partnerLogos?.paypal}
+              onChange={(e) => handleFileChange(e, 'partnerLogos')}
+              description="Tamanho recomendado: 200x100 pixels. Formato: PNG ou JPG. Fundo transparente recomendado."
+            />
+            <ImageUploadField
+              label="Logo Mercado Pago"
+              name="mercadopago"
+              value={settings.partnerLogos?.mercadopago}
+              onChange={(e) => handleFileChange(e, 'partnerLogos')}
+              description="Tamanho recomendado: 200x100 pixels. Formato: PNG ou JPG. Fundo transparente recomendado."
+            />
           </TabsContent>
 
           <TabsContent value="banners" className="space-y-4">
