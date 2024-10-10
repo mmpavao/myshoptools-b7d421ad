@@ -132,7 +132,6 @@ const VissaSiteAdmin = () => {
           </TabsList>
 
           <TabsContent value="general" className="space-y-4">
-          <TabsContent value="general" className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="title">Título Principal</Label>
               <Input id="title" name="title" value={settings.title} onChange={handleInputChange} />
@@ -167,7 +166,6 @@ const VissaSiteAdmin = () => {
               <Label htmlFor="contactPhone">Telefone de Contato</Label>
               <Input id="contactPhone" name="contactPhone" value={settings.contactPhone} onChange={handleInputChange} />
             </div>
-          </TabsContent>
           </TabsContent>
 
           <TabsContent value="partners" className="space-y-4">
@@ -251,7 +249,6 @@ const VissaSiteAdmin = () => {
               description="Tamanho recomendado: 800x600 pixels. Formato: PNG ou JPG."
             />
           </TabsContent>
-        </Tabs>
         </Tabs>
 
         <Button onClick={handleSave} className="mt-6">Salvar Alterações</Button>
