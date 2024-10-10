@@ -1,30 +1,63 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Banner from './Banner';
-import InteractiveMap from './InteractiveMap';
-import Highlights from './Highlights';
 import AboutVissa from './AboutVissa';
-import MyShopToolsSection from './MyShopToolsSection';
-import ForSuppliers from './ForSuppliers';
-import IntegrationsPartnerships from './IntegrationsPartnerships';
 import SimplifiedLogistics from './SimplifiedLogistics';
+import MyShopToolsSection from './MyShopToolsSection';
+import IntegrationsPartnerships from './IntegrationsPartnerships';
+import InteractiveMap from './InteractiveMap';
 import Contact from './Contact';
 import Footer from './Footer';
+import firebaseOperations from '../../firebase/firebaseOperations';
 
-const HomePage = () => {
+const VissaGlobalTradePage = () => {
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const vissaSiteSettings = await firebaseOperations.getVissaSiteSettings();
+        setSettings(vissaSiteSettings);
+      } catch (error) {
+        console.error("Erro ao buscar configurações do site Vissa:", error);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  if (!settings) {
+    return <div>Carregando...</div>;
+  }
+
   return (
-    <div className="vissa-global-trade">
-      <Banner />
-      <InteractiveMap />
-      <Highlights />
-      <AboutVissa />
+    <div className="flex flex-col min-h-screen">
+      <Banner 
+        title={settings.title}
+        subtitle={settings.subtitle}
+        backgroundImage={settings.bannerUrl}
+      />
+      <AboutVissa 
+        description={settings.description}
+        backgroundImage={settings.banners?.about}
+      />
+      <SimplifiedLogistics 
+        backgroundImage={settings.banners?.logistics}
+      />
       <MyShopToolsSection />
-      <ForSuppliers />
-      <IntegrationsPartnerships />
-      <SimplifiedLogistics />
-      <Contact />
-      <Footer />
+      <IntegrationsPartnerships 
+        partnerLogos={settings.partnerLogos}
+      />
+      <InteractiveMap 
+        mapIcons={settings.mapIcons}
+      />
+      <Contact 
+        email={settings.contactEmail}
+        phone={settings.contactPhone}
+      />
+      <Footer 
+        logo={settings.logoUrl}
+      />
     </div>
   );
 };
 
-export default HomePage;
+export default VissaGlobalTradePage;

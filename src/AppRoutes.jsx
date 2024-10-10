@@ -156,7 +156,6 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
       <Route path="/landpage" element={<VissaGlobalTradePage />} />
-      <Route path="/LandingPage" element={<VissaGlobalTradePage />} />
     </Routes>
   );
 };
