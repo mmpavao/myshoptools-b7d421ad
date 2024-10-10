@@ -80,15 +80,6 @@ const firebaseOperations = {
       throw error;
     }
   },
-
-  uploadFile: async (file, path) => {
-    try {
-      return await fileOperations.uploadFile(file, path);
-    } catch (error) {
-      console.error("Erro ao fazer upload do arquivo:", error);
-      throw error;
-    }
-  },
 };
 
 export default firebaseOperations;
