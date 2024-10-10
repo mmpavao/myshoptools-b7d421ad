@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useAuth } from '../Auth/AuthProvider';
 import firebaseOperations from '../../firebase/firebaseOperations';
@@ -48,10 +48,10 @@ const StripeIntegration = () => {
   const testConnection = async () => {
     try {
       const result = await firebaseOperations.testStripeConnection(user.uid);
-      if (result.success) {
+      if (result.data.success) {
         toast.success('Stripe connection test successful');
       } else {
-        toast.error(`Stripe connection test failed: ${result.message}`);
+        toast.error(`Stripe connection test failed: ${result.data.message}`);
       }
     } catch (error) {
       console.error('Error testing Stripe connection:', error);
@@ -67,7 +67,7 @@ const StripeIntegration = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="publishableKey">Publishable Key</Label>
+          <label htmlFor="publishableKey" className="text-sm font-medium">Publishable Key</label>
           <Input
             id="publishableKey"
             value={publishableKey}
@@ -76,7 +76,7 @@ const StripeIntegration = () => {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="secretKey">Secret Key</Label>
+          <label htmlFor="secretKey" className="text-sm font-medium">Secret Key</label>
           <Input
             id="secretKey"
             type="password"
@@ -86,13 +86,12 @@ const StripeIntegration = () => {
           />
         </div>
         <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
+          <Checkbox
             id="testMode"
             checked={isTestMode}
-            onChange={(e) => setIsTestMode(e.target.checked)}
+            onCheckedChange={setIsTestMode}
           />
-          <Label htmlFor="testMode">Test Mode</Label>
+          <label htmlFor="testMode" className="text-sm font-medium">Test Mode</label>
         </div>
         <div className="flex space-x-2">
           <Button onClick={handleSave}>Save Configuration</Button>
